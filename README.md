@@ -17,7 +17,6 @@ This project provides automated trading analysis workflows using Claude Code's a
 | `market-environment-strategist` | Comprehensive market environment and regime analysis |
 | `fmp-stock-analyzer` | Individual stock fundamental and technical analysis |
 | `earnings-analysis-reporter` | Detailed earnings report analysis |
-| `report-video-generator` | Creates vertical videos from reports using Remotion |
 
 ### MCP Server Integrations
 
@@ -25,7 +24,6 @@ This project provides automated trading analysis workflows using Claude Code's a
 - **Finviz** - Stock screening, fundamentals, and market overview
 - **FMP (Financial Modeling Prep)** - Financial statements, estimates, analyst ratings
 - **Puppeteer** - Web automation and screenshot capture
-- **Remotion** - Programmatic video generation
 
 ## Project Structure
 
@@ -35,12 +33,11 @@ trade-analysis/
 │   ├── agents/           # Agent definitions
 │   └── settings.local.json  # Permission configurations
 ├── prompts/              # Detailed prompt instructions for each agent
-├── reports/              # Generated HTML reports and social media posts
+├── reports/              # Generated HTML reports and social media posts (gitignored)
 ├── scripts/              # Cron automation scripts
-├── slides-video/         # Remotion video project
-├── logs/                 # Execution logs
+├── logs/                 # Execution logs (gitignored)
 ├── CLAUDE.md             # Claude Code project configuration
-└── .mcp.json             # MCP server configurations
+└── .mcp.json             # MCP server configurations (gitignored)
 ```
 
 ## Installation
@@ -48,7 +45,7 @@ trade-analysis/
 ### Prerequisites
 
 - Claude Code CLI installed (`claude`)
-- Node.js 18+ (for Remotion and Puppeteer)
+- Node.js 18+ (for Puppeteer MCP server)
 - Python 3.10+ (for MCP servers)
 - API keys for:
   - Alpaca (trading data)
@@ -64,12 +61,6 @@ cd trade-analysis
 ```
 
 2. Configure MCP servers in `.mcp.json` with your API keys
-
-3. Install Remotion dependencies (for video generation):
-```bash
-cd slides-video
-npm install
-```
 
 ## Usage
 

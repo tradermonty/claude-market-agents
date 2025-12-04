@@ -15,7 +15,6 @@
 - `Task` tool with `market-environment-strategist` agent for comprehensive market environment analysis
 - `Task` tool with `fmp-stock-analyzer` agent for detailed stock fundamental and technical analysis
 - `Task` tool with `earnings-analysis-reporter` agent for comprehensive earnings analysis
-- `Task` tool with `report-video-generator` agent for creating social media videos from reports
 - HTML report generation in `/reports/` directory
 - Social media post generation for market updates
 - CSV/Excel export for trading data analysis
