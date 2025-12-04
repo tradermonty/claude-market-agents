@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procter & Gamble (PG) - Comprehensive Stock Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .ticker-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .ticker-item {
+            text-align: center;
+        }
+
+        .ticker-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .ticker-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            margin: 0;
+        }
+
+        .executive-summary h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .summary-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .summary-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            padding-bottom: 5px;
+        }
+
+        .summary-card p {
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .content-section {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #1e3c72;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .metric-change {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.5em;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .info-box h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #28a745;
+        }
+
+        .negative {
+            color: #dc3545;
+        }
+
+        .analyst-ratings {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .rating-card {
+            flex: 1;
+            min-width: 250px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .rating-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .rating-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .investment-thesis {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .investment-thesis h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .thesis-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .thesis-card {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .thesis-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            padding-bottom: 10px;
+        }
+
+        .thesis-card ul {
+            list-style-position: inside;
+            margin-left: 0;
+        }
+
+        .thesis-card li {
+            margin: 10px 0;
+            padding-left: 10px;
+        }
+
+        .disclaimer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 3px solid #667eea;
+        }
+
+        .disclaimer p {
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .two-column, .thesis-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .ticker-info {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        canvas {
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>The Procter & Gamble Company (PG)</h1>
+            <div class="subtitle">NYSE | Consumer Defensive - Household & Personal Products</div>
+            <div class="ticker-info">
+                <div class="ticker-item">
+                    <div class="ticker-label">Current Price</div>
+                    <div class="ticker-value">$144.19</div>
+                </div>
+                <div class="ticker-item">
+                    <div class="ticker-label">Market Cap</div>
+                    <div class="ticker-value">$336.93B</div>
+                </div>
+                <div class="ticker-item">
+                    <div class="ticker-label">Daily Change</div>
+                    <div class="ticker-value negative">-$3.25 (-2.23%)</div>
+                </div>
+                <div class="ticker-item">
+                    <div class="ticker-label">52-Week Range</div>
+                    <div class="ticker-value">$142.51 - $179.99</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="executive-summary">
+            <h2>Executive Summary</h2>
+            <div class="summary-content">
+                <div class="summary-card">
+                    <h3>Company Overview</h3>
+                    <p>P&G is a global consumer goods giant with iconic brands spanning beauty, grooming, healthcare, and household care. Founded in 1837, the company operates in over 180 countries with a diversified portfolio including Tide, Gillette, Pampers, and Crest.</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Financial Health</h3>
+                    <p>FY2025 revenue of $84.28B with 7.36% growth YoY. Strong profitability with $15.97B net income and consistent EPS growth. Operating margin of 24.3% demonstrates operational efficiency and pricing power.</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Investment Grade</h3>
+                    <p>Analyst Rating: B+ (3/5). Mixed signals with excellent ROE/ROA scores (5/5) offset by elevated valuation metrics. DCF score of 4/5 suggests fair valuation at current levels.</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Dividend Profile</h3>
+                    <p>Reliable dividend aristocrat with 2.74% yield. Quarterly dividend of $1.0568, demonstrating 5% increase from prior year. Strong dividend growth history supports income investors.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fundamental Analysis -->
+        <div class="content-section">
+            <h2 class="section-title">Fundamental Analysis</h2>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Revenue (FY2025)</div>
+                    <div class="metric-value">$84.28B</div>
+                    <div class="metric-change positive">+0.3% YoY</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Net Income</div>
+                    <div class="metric-value">$15.97B</div>
+                    <div class="metric-change positive">+7.36% YoY</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">EPS (Diluted)</div>
+                    <div class="metric-value">$6.51</div>
+                    <div class="metric-change positive">+8.14% YoY</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Operating Margin</div>
+                    <div class="metric-value">24.3%</div>
+                    <div class="metric-change positive">Strong</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Gross Margin</div>
+                    <div class="metric-value">51.2%</div>
+                    <div class="metric-change">Stable</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">EBITDA</div>
+                    <div class="metric-value">$23.92B</div>
+                    <div class="metric-change positive">+5.93% YoY</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Revenue & Net Income Trend (3 Years)</div>
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+            <div class="two-column">
+                <div class="info-box">
+                    <h3>Key Financial Ratios</h3>
+                    <div class="info-item">
+                        <span class="info-label">P/E Ratio:</span>
+                        <span class="info-value">22.16</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">P/B Ratio:</span>
+                        <span class="info-value">6.85</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">ROE:</span>
+                        <span class="info-value positive">45.2%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">ROA:</span>
+                        <span class="info-value positive">12.8%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Debt/Equity:</span>
+                        <span class="info-value">0.55</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Growth Metrics</h3>
+                    <div class="info-item">
+                        <span class="info-label">Revenue Growth (3Y CAGR):</span>
+                        <span class="info-value positive">1.4%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">EPS Growth (3Y CAGR):</span>
+                        <span class="info-value positive">5.1%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Operating Income Growth:</span>
+                        <span class="info-value positive">10.3% YoY</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Dividend Growth Rate:</span>
+                        <span class="info-value positive">5.0%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Est. Revenue (2029):</span>
+                        <span class="info-value">$96.59B</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Analysis -->
+        <div class="content-section" style="background: #f8f9fa;">
+            <h2 class="section-title">Technical Analysis</h2>
+
+            <div class="chart-container">
+                <div class="chart-title">6-Month Price Performance</div>
+                <canvas id="priceChart"></canvas>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="metric-label">Current Price</div>
+                    <div class="metric-value">$144.19</div>
+                    <div class="metric-change">As of Dec 2, 2025</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="metric-label">52-Week High</div>
+                    <div class="metric-value">$179.99</div>
+                    <div class="metric-change">-19.9% from high</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="metric-label">52-Week Low</div>
+                    <div class="metric-value">$142.51</div>
+                    <div class="metric-change">+1.2% from low</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="metric-label">Volume (Avg)</div>
+                    <div class="metric-value">7.45M</div>
+                    <div class="metric-change">Above Average</div>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <div class="info-box">
+                    <h3>Price Performance</h3>
+                    <div class="info-item">
+                        <span class="info-label">1 Day:</span>
+                        <span class="info-value negative">-2.23%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">1 Week:</span>
+                        <span class="info-value negative">-1.93%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">1 Month:</span>
+                        <span class="info-value negative">-4.14%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">YTD:</span>
+                        <span class="info-value negative">-9.5%</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>Technical Indicators</h3>
+                    <div class="info-item">
+                        <span class="info-label">Beta:</span>
+                        <span class="info-value">0.381</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Day Range:</span>
+                        <span class="info-value">$142.51 - $148.10</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Support Level:</span>
+                        <span class="info-value">$142.00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Resistance Level:</span>
+                        <span class="info-value">$160.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyst Ratings -->
+        <div class="content-section">
+            <h2 class="section-title">Analyst Ratings & Price Targets</h2>
+
+            <div class="analyst-ratings">
+                <div class="rating-card">
+                    <h3>Overall Rating</h3>
+                    <div class="rating-value">B+</div>
+                    <p>Score: 3 out of 5</p>
+                </div>
+                <div class="rating-card">
+                    <h3>DCF Valuation</h3>
+                    <div class="rating-value">4/5</div>
+                    <p>Fair Value Indicator</p>
+                </div>
+                <div class="rating-card">
+                    <h3>Profitability</h3>
+                    <div class="rating-value">5/5</div>
+                    <p>ROE & ROA Scores</p>
+                </div>
+                <div class="rating-card">
+                    <h3>Valuation</h3>
+                    <div class="rating-value">1.5/5</div>
+                    <p>P/E & P/B Metrics</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Analyst Price Targets</div>
+                <canvas id="priceTargetChart"></canvas>
+            </div>
+
+            <div class="info-box">
+                <h3>Recent Analyst Updates</h3>
+                <div class="info-item">
+                    <span class="info-label">Morgan Stanley:</span>
+                    <span class="info-value">$175 (+15.5%)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">UBS:</span>
+                    <span class="info-value positive">$176 (+16.6%)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Barclays:</span>
+                    <span class="info-value negative">$153 (-0.4%)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Consensus Target:</span>
+                    <span class="info-value">$168 (+16.5%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dividend Analysis -->
+        <div class="content-section" style="background: #f8f9fa;">
+            <h2 class="section-title">Dividend Analysis</h2>
+
+            <div class="metrics-grid">
+                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="metric-label">Current Yield</div>
+                    <div class="metric-value">2.74%</div>
+                    <div class="metric-change">Quarterly Payout</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="metric-label">Latest Dividend</div>
+                    <div class="metric-value">$1.06</div>
+                    <div class="metric-change positive">+5.0% YoY</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="metric-label">Annual Dividend</div>
+                    <div class="metric-value">$4.23</div>
+                    <div class="metric-change">4 Payments/Year</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="metric-label">Payout Ratio</div>
+                    <div class="metric-value">65%</div>
+                    <div class="metric-change">Sustainable</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Dividend History (10 Quarters)</div>
+                <canvas id="dividendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Investment Thesis -->
+        <div class="investment-thesis">
+            <h2>Investment Thesis</h2>
+            <div class="thesis-columns">
+                <div class="thesis-card">
+                    <h3>Opportunities & Strengths</h3>
+                    <ul>
+                        <li>Dividend Aristocrat: 68+ consecutive years of dividend increases</li>
+                        <li>Strong Brand Portfolio: Iconic brands with pricing power</li>
+                        <li>Global Diversification: Operations in 180+ countries</li>
+                        <li>Excellent Profitability: ROE of 45.2%, ROA of 12.8%</li>
+                        <li>Operational Efficiency: 24.3% operating margin</li>
+                        <li>Innovation Pipeline: Continuous product improvements</li>
+                        <li>Market Leadership: #1 or #2 position in most categories</li>
+                        <li>Economic Moat: Strong competitive advantages</li>
+                    </ul>
+                </div>
+
+                <div class="thesis-card">
+                    <h3>Risks & Challenges</h3>
+                    <ul>
+                        <li>Valuation Concerns: P/E of 22.16 above historical average</li>
+                        <li>High P/B Ratio: 6.85 suggests premium pricing</li>
+                        <li>Slow Growth: 1.4% revenue CAGR indicates maturity</li>
+                        <li>Currency Headwinds: Strong dollar impacts international sales</li>
+                        <li>Competition: Private label and niche brands gaining share</li>
+                        <li>Raw Material Inflation: Cost pressures on margins</li>
+                        <li>Limited Upside: 52-week high suggests recent peak</li>
+                        <li>Regulatory Risks: ESG and product safety scrutiny</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 25px; background: rgba(255,255,255,0.2); border-radius: 15px;">
+                <h3 style="font-size: 1.5em; margin-bottom: 15px;">Bottom Line</h3>
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    Procter & Gamble represents a classic defensive investment with exceptional profitability metrics and a stellar dividend history.
+                    The company's B+ rating reflects strong fundamentals offset by elevated valuation concerns. Current price near 52-week lows
+                    may present an attractive entry point for long-term income investors, though growth investors may find better opportunities elsewhere.
+                    The 2.74% dividend yield combined with 5% annual growth provides a solid total return proposition for patient capital.
+                    Analyst consensus suggests 16.5% upside potential, though execution risks remain in a challenging consumer environment.
+                </p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <h3 style="color: #1e3c72; margin-bottom: 15px;">Important Disclaimer</h3>
+            <p><strong>FOR EDUCATIONAL PURPOSES ONLY</strong></p>
+            <p>This analysis is provided for informational and educational purposes only and does not constitute investment advice,
+            financial advice, trading advice, or any other sort of advice. The information presented may be outdated or inaccurate.</p>
+            <p>Past performance is not indicative of future results. All investments carry risk, including the potential loss of principal.
+            Before making any investment decisions, please consult with a qualified financial advisor.</p>
+            <p>Data Sources: Financial Modeling Prep (FMP), Company Filings | Report Generated: December 2, 2025</p>
+        </div>
+    </div>
+
+    <script>
+        // Revenue & Net Income Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['FY2023', 'FY2024', 'FY2025'],
+                datasets: [{
+                    label: 'Revenue ($B)',
+                    data: [82.01, 84.04, 84.28],
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Net Income ($B)',
+                    data: [14.65, 14.88, 15.97],
+                    backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    borderWidth: 2,
+                    yAxisID: 'y'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount ($ Billions)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Price Chart
+        const priceCtx = document.getElementById('priceChart').getContext('2d');
+        new Chart(priceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jul 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025', 'Nov 2025', 'Dec 2025'],
+                datasets: [{
+                    label: 'Stock Price ($)',
+                    data: [157, 156, 153, 152, 148, 144],
+                    borderColor: 'rgba(245, 87, 108, 1)',
+                    backgroundColor: 'rgba(245, 87, 108, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Price ($)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Price Target Chart
+        const targetCtx = document.getElementById('priceTargetChart').getContext('2d');
+        new Chart(targetCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Morgan Stanley', 'UBS', 'Barclays', 'Current Price', 'Consensus'],
+                datasets: [{
+                    label: 'Price Target ($)',
+                    data: [175, 176, 153, 144, 168],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(245, 87, 108, 0.8)',
+                        'rgba(17, 153, 142, 0.8)',
+                        'rgba(56, 239, 125, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(102, 126, 234, 1)',
+                        'rgba(118, 75, 162, 1)',
+                        'rgba(245, 87, 108, 1)',
+                        'rgba(17, 153, 142, 1)',
+                        'rgba(56, 239, 125, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 140,
+                        title: {
+                            display: true,
+                            text: 'Price ($)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Dividend Chart
+        const dividendCtx = document.getElementById('dividendChart').getContext('2d');
+        new Chart(dividendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Q4 2023', 'Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026'],
+                datasets: [{
+                    label: 'Dividend per Share ($)',
+                    data: [0.9407, 0.9407, 0.9407, 0.9407, 1.0065, 1.0065, 1.0065, 1.0065, 1.0568, 1.0568],
+                    borderColor: 'rgba(17, 153, 142, 1)',
+                    backgroundColor: 'rgba(17, 153, 142, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0.9,
+                        title: {
+                            display: true,
+                            text: 'Dividend ($)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
