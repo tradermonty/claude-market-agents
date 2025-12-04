@@ -3,11 +3,15 @@
 # Usage: ./run_fmp_stock_analyzer.sh <TICKER>
 # Example: ./run_fmp_stock_analyzer.sh AAPL
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 # Set PATH for cron environment (node, npm, homebrew, etc.)
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/Users/takueisaotome/.npm-global/bin:/Users/takueisaotome/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+# Adjust these paths based on your system configuration
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:${HOME}/.npm-global/bin:${HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH}"
 
 # Configuration
-PROJECT_DIR="/Users/takueisaotome/PycharmProjects/trade-analysis"
 LOG_DIR="${PROJECT_DIR}/logs"
 LOG_FILE="${LOG_DIR}/fmp_stock_analyzer_$(date +%Y-%m-%d).log"
 
@@ -34,7 +38,7 @@ echo "Ticker: ${TICKER}" >> "${LOG_FILE}"
 echo "=======================================" >> "${LOG_FILE}"
 
 # Run Claude Code with the fmp-stock-analyzer agent
-/Users/takueisaotome/.npm-global/bin/claude -p "Analyze ${TICKER} stock comprehensively using the fmp-stock-analyzer agent. Gather FMP data including company profile, financial statements, key ratios, price data, analyst ratings, and dividends. Create a detailed HTML infographic report saved to /reports/ directory with the filename format: ${TICKER}_analysis_$(date +%Y-%m-%d).html" \
+claude -p "Analyze ${TICKER} stock comprehensively using the fmp-stock-analyzer agent. Gather FMP data including company profile, financial statements, key ratios, price data, analyst ratings, and dividends. Create a detailed HTML infographic report saved to /reports/ directory with the filename format: ${TICKER}_analysis_$(date +%Y-%m-%d).html" \
   --dangerously-skip-permissions \
   >> "${LOG_FILE}" 2>&1
 
