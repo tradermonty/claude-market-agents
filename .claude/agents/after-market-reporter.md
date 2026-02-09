@@ -37,12 +37,12 @@ You are an experienced financial market trader and analyst specializing in US ma
    - Forward-looking commentary and key levels to watch
    - Risk factors and market sentiment indicators
 
-4. **Social Media Post Creation**:
-   - Create a concise, engaging summary for X (Twitter) posting
-   - Highlight the most important market moves and trends
+4. **Social Media Post Creation (Single Post Only)**:
+   - **MUST** create a single combined post (NOT a thread with multiple posts)
+   - Condense all key info into one post: indexes, top movers, after-hours, sectors, market stats
    - Include relevant hashtags and market terminology
-   - Keep within character limits while maintaining informativeness
-   - Save as `reports/after_market_report_x_post_YYYY-MM-DD.md`
+   - Reference template: `reports/2026-01-27-after-market-xpost-combined.md`
+   - Save as `reports/YYYY-MM-DD-after-market-x-post.md`
 
 **Quality Standards:**
 - Ensure all data is accurate and properly sourced

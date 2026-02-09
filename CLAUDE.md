@@ -24,6 +24,12 @@
 - `Read` operations for analyzing existing market data files
 - `Edit` operations for updating report templates and configurations
 
+## X Post Policy
+- X投稿は**必ず1つの投稿（シングルポスト）にまとめる**こと。スレッド形式（複数投稿に分割）は禁止
+- テンプレートは `reports/2026-01-27-after-market-xpost-combined.md` を参考にする
+- 主要指数、トップムーバー、アフターアワーズ、セクター、マーケット統計を1投稿に凝縮する
+- ファイル名: `reports/YYYY-MM-DD-after-market-x-post.md`
+
 ## Commands
 - Market analysis commands can be run without explicit permission
 - Report generation workflows are pre-approved for automation

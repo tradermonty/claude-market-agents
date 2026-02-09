@@ -181,51 +181,39 @@ For each earnings ticker:
 – Shadow: 0 10 px 30 px rgba(0,0,0,0.3)
 ```
 
-### 5. X Post Generator (Earnings‑Aware)
+### 5. X Post Generator (Single Post – MANDATORY)
 
-#### Template (when earnings are present)
+> **IMPORTANT**: X投稿は必ず**1つのシングルポスト**にまとめること。スレッド形式（複数投稿への分割）は禁止。
 
-```text
-🔥 Stocks surging with volume on YYYY‑MM‑DD
-
-📊 Regular‑Hours Top Movers:
-$SYMBOL1 +XX.XX% 🚀
-$SYMBOL2 +XX.XX%
-$SYMBOL3 +XX.XX%
-
-⏰ After‑Hours Earnings Movers:
-$EARNINGS1 +XX.XX% (EPS beat by XX%)
-$EARNINGS2 -XX.XX% (Revenue miss)
-$EARNINGS3 +XX.XX% (Guidance raised)
-
-XX stocks spotted with 1.5×+ volume & 2%+ gains
-🎯 XX earnings released after close
-
-📋 Full Analysis: https://claude.ai/chat/[your-chat-link]
-📈 Live Screener: https://elite.finviz.com/screener.ashx?v=211&t=SYMBOLS&o=-change
-
-#StockScreening #EarningsAlert #AfterHours #VolumeAnalysis #<sector tags>
-```
-
-#### Template (no earnings releases)
+#### Template (Single Combined Post)
 
 ```text
-🔥 Stocks surging with volume on YYYY‑MM‑DD
+🇺🇸 US Market Close (Mon DD)
+$SPY +X.XX% | $QQQ +X.XX% | $IWM +X.XX%
+$GLD +X.XX% (commentary)
 
-📊 Top performers with increased trading activity:
-$SYMBOL1 +XX.XX% 🚀
-$SYMBOL2 +XX.XX%
-[... continue regular format]
+🔥 Top Movers:
+$SYMBOL1 +XX.XX% (Xx vol) | $SYMBOL2 +XX.XX% | $SYMBOL3 +XX.XX%
+
+🌙 After-Hours Earnings:
+$EARNINGS1 +XX.XX% (EPS beat/miss) | $EARNINGS2 +XX.XX% | $EARNINGS3 +XX.XX%
+
+📊 Sectors: Sector1 +X.XX%, Sector2 +X.XX%, Sector3 +X.XX%
+X,XXX uptrends | XX volume-surge stocks | XX earnings this week
+
+#StockMarket #MarketAnalysis #EarningsSeason
 ```
 
-#### 🆕 Earnings‑Related Hashtags
+#### Guidelines
 
-* **Core**: #EarningsAlert #AfterHours #EarningsSeason
-* **Outcome‑based**:
+* 全情報を1投稿に凝縮する（主要指数 → トップムーバー → アフターアワーズ → セクター → 統計）
+* アフターアワーズ決算がない日は🌙セクションを省略し、他のセクションを拡充
+* 参考: `reports/2026-01-27-after-market-xpost-combined.md`
 
-  * Positive: #EarningsBeat #GuidanceRaise #StrongResults
-  * Negative: #EarningsMiss #GuidanceCut #Disappointment
-* **After‑hours**: #ExtendedHours #PostMarket #EarningsReaction
+#### Hashtags
+
+* **Core**: #StockMarket #MarketAnalysis #EarningsSeason
+* **Optional**: #AfterHours #VolumeAnalysis + sector-specific tags
 
 ### 6. Quality Checklist (Earnings Edition)
 
