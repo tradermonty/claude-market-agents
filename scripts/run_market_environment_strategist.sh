@@ -27,7 +27,7 @@ echo "Market Environment Strategist - Started: $(date)" >> "${LOG_FILE}"
 echo "=======================================" >> "${LOG_FILE}"
 
 # Run Claude Code with the market-environment-strategist agent
-claude -p "Analyze the current market environment using the market-environment-strategist agent. Gather comprehensive market data from MCP servers (indices, sectors, volatility, breadth metrics), assess market conditions across multiple timeframes, identify the current market regime, and generate a detailed HTML strategic outlook report saved to /reports/ directory with the filename format: market_environment_$(date +%Y-%m-%d).html" \
+claude -p "Analyze the current market environment using the market-environment-strategist agent. Gather comprehensive market data from MCP servers (indices, sectors, volatility, breadth metrics), assess market conditions across multiple timeframes, identify the current market regime, and generate a detailed HTML strategic outlook report saved to reports/ directory with the filename format: market_environment_$(date +%Y-%m-%d).html" \
   --dangerously-skip-permissions \
   >> "${LOG_FILE}" 2>&1
 
@@ -42,7 +42,7 @@ echo "=======================================" >> "${LOG_FILE}"
 
 # Display result
 if [ ${EXIT_STATUS} -eq 0 ]; then
-    echo "Market environment analysis complete. Check /reports/ for the HTML report."
+    echo "Market environment analysis complete. Check reports/ for the HTML report."
 else
     echo "Analysis failed. Check log: ${LOG_FILE}"
 fi

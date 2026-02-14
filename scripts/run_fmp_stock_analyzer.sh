@@ -25,6 +25,12 @@ fi
 
 TICKER=$(echo "$1" | tr '[:lower:]' '[:upper:]')
 
+# Validate ticker format (1-5 uppercase letters)
+if ! echo "${TICKER}" | grep -qE '^[A-Z]{1,5}$'; then
+    echo "Error: Invalid ticker format. Use 1-5 letters (e.g., AAPL, MSFT)"
+    exit 1
+fi
+
 # Create log directory if it doesn't exist
 mkdir -p "${LOG_DIR}"
 
@@ -38,7 +44,7 @@ echo "Ticker: ${TICKER}" >> "${LOG_FILE}"
 echo "=======================================" >> "${LOG_FILE}"
 
 # Run Claude Code with the fmp-stock-analyzer agent
-claude -p "Analyze ${TICKER} stock comprehensively using the fmp-stock-analyzer agent. Gather FMP data including company profile, financial statements, key ratios, price data, analyst ratings, and dividends. Create a detailed HTML infographic report saved to /reports/ directory with the filename format: ${TICKER}_analysis_$(date +%Y-%m-%d).html" \
+claude -p "Analyze ${TICKER} stock comprehensively using the fmp-stock-analyzer agent. Gather FMP data including company profile, financial statements, key ratios, price data, analyst ratings, and dividends. Create a detailed HTML infographic report saved to reports/ directory with the filename format: ${TICKER}_analysis_$(date +%Y-%m-%d).html" \
   --dangerously-skip-permissions \
   >> "${LOG_FILE}" 2>&1
 
@@ -53,7 +59,7 @@ echo "=======================================" >> "${LOG_FILE}"
 
 # Display result
 if [ ${EXIT_STATUS} -eq 0 ]; then
-    echo "Analysis complete for ${TICKER}. Check /reports/ for the HTML report."
+    echo "Analysis complete for ${TICKER}. Check reports/ for the HTML report."
 else
     echo "Analysis failed. Check log: ${LOG_FILE}"
 fi

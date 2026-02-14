@@ -49,29 +49,34 @@ finviz:get_moving_average_position(symbol="{TICKER}")
 - MA50\_position: Deviation rate from 50-day moving average (%)
 - MA200\_position: Deviation rate from 200-day moving average (%)
 
-### B. Volume Trend Analysis (EODHD Exclusive Feature)
+### B. Volume Trend Analysis (Alpaca)
 
 ```
-eodhd:get_volume_averages(
+alpaca:get_stock_bars(
     symbol="{TICKER}",
-    periods="20,60"
+    timeframe="1Day",
+    start="{60 trading days ago}",
+    end="{today}"
 )
 ```
 
-**Data Retrieved:**
+**Data Retrieved & Calculated:**
 
-- recent\_20\_day\_avg: Recent 20 trading days average volume
-- historical\_60\_day\_avg: Past 60 trading days average volume
+- recent\_20\_day\_avg: Calculate average volume from last 20 bars
+- historical\_60\_day\_avg: Calculate average volume from all 60 bars
 - volume\_ratio: Volume ratio (recent 20 days / past 60 days × 100%)
 - trend\_analysis: Volume trend evaluation
 
-### C. Pre-Earnings Price Trend Analysis (EODHD)
+### C. Pre-Earnings Price Trend Analysis (FMP/Alpaca)
 
 ```
-eodhd:get_stock_price(
+fmp-server:get_historical_price_eod_light(symbol="{TICKER}")
+# Or alternatively:
+alpaca:get_stock_bars(
     symbol="{TICKER}",
-    from_date="{21 trading days ago}",
-    to_date="{today}"
+    timeframe="1Day",
+    start="{21 trading days ago}",
+    end="{today}"
 )
 ```
 

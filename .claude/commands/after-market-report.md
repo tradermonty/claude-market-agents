@@ -22,7 +22,7 @@ Retrieve data in the following order:
 6. `finviz:earnings_afterhours_screener` – tickers up after earnings in after‑hours
 7. `finviz:earnings_screener` with "today_after" – companies scheduled to report after today’s close
 8. `finviz:get_stock_news` – news for earnings tickers
-9. `eodhd:get_earnings_calendar` – today’s earnings calendar with details
+9. `finviz:upcoming_earnings_screener` – today's earnings calendar with details
 ```
 
 ### 2. Analyze After‑Hours Trading
@@ -367,8 +367,8 @@ const afterHoursVolRatio = (afterHoursVolume / averageAfterHoursVolume).toFixed(
 # Screen tickers up after earnings in after‑hours
 finviz:earnings_afterhours_screener()
 
-# Check today’s earnings calendar
-eodhd:get_earnings_calendar(from_date="2025-07-03", to_date="2025-07-03")
+# Check today's earnings calendar
+finviz:upcoming_earnings_screener()
 
 # Fetch earnings news
 finviz:get_stock_news(tickers=["AAPL", "MSFT"], news_type="earnings")
