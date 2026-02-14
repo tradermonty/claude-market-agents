@@ -515,6 +515,32 @@ class TestH3Score:
         assert c.grade == "A"
         assert c.grade_source == "html"
 
+    def test_h4_slash100_in_breakdown(self, parser, tmp_path):
+        """h4 inside score-breakdown: '88/100' -> score=88.0 (2026-02-10 format)."""
+        html = """<html><body>
+        <div class="grade-section grade-a">
+          <div class="stock-card a-grade">
+            <div class="stock-ticker"><span class="ticker-symbol">DDOG</span></div>
+            <div class="score-breakdown">
+              <h4>5-Element Backtest Score: 88/100</h4>
+              <div class="score-item">
+                <span>Gap Size (25%)</span>
+                <span>20/25</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        </body></html>"""
+        f = tmp_path / "earnings_trade_analysis_2026-02-10.html"
+        f.write_text(html)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) == 1
+        c = candidates[0]
+        assert c.ticker == "DDOG"
+        assert c.score == 88.0
+        assert c.grade == "A"
+        assert c.grade_source == "html"
+
     def test_h3_total_score_in_breakdown(self, parser, tmp_path):
         html = """<html><body>
         <div class="grade-section grade-a">

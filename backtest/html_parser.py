@@ -248,7 +248,7 @@ class EarningsReportParser:
         breakdown = card.find(class_='score-breakdown')
         if breakdown:
             # Check h3 heading for total score (e.g., "94/100 Points")
-            for h3 in breakdown.find_all('h3'):
+            for h3 in breakdown.find_all(['h3', 'h4']):
                 text = h3.get_text(strip=True)
                 m = self.SCORE_SLASH100_RE.search(text)
                 if m:
