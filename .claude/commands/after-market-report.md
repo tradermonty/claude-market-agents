@@ -31,18 +31,18 @@ Retrieve data in the following order:
 For each earnings ticker:
 
 1. **After‑hours price action**
-   • Compare regular‑session close vs. latest after‑hours price  
-   • Calculate % change in after‑hours  
+   • Compare regular‑session close vs. latest after‑hours price
+   • Calculate % change in after‑hours
    • Check after‑hours volume
 
 2. **Earnings surprise**
-   • Actual EPS vs. consensus  
-   • Actual revenue vs. consensus  
+   • Actual EPS vs. consensus
+   • Actual revenue vs. consensus
    • Guidance commentary
 
 3. **News & catalysts**
-   • Headlines tied to the earnings release  
-   • Analyst notes  
+   • Headlines tied to the earnings release
+   • Analyst notes
    • Company press releases
 ```
 
@@ -282,12 +282,12 @@ Prompt example:
 “Analyze today’s U.S. market after the close, including post‑earnings after‑hours moves, and generate both an infographic and X post.”
 
 Expected output:
-1. HTML infographic with final market data  
-   – Regular‑session summary  
-   – 🆕 After‑hours & earnings section  
-   – 🆕 Surprise metrics  
-2. Markdown X post with earnings info  
-3. 🆕 Commentary on biggest after‑hours movers  
+1. HTML infographic with final market data
+   – Regular‑session summary
+   – 🆕 After‑hours & earnings section
+   – 🆕 Surprise metrics
+2. Markdown X post with earnings info
+3. 🆕 Commentary on biggest after‑hours movers
 4. Narrative on key market trends
 ```
 
@@ -304,17 +304,17 @@ Guidance Change  = % upward / downward revision for next quarter or year
 **After‑Hours Reaction**
 
 ```text
-Immediate: price move in first 30 min post‑release  
-Sustained: move over 2‑3 hours post‑release  
+Immediate: price move in first 30 min post‑release
+Sustained: move over 2‑3 hours post‑release
 Volume: after‑hours volume vs. normal after‑hours average
 ```
 
 **Notable Patterns**
 
 ```text
-Beat & Raise  = EPS beat + guidance raised  
-Miss & Lower  = EPS miss + guidance cut  
-Beat & Flat   = Good EPS but guidance flat  
+Beat & Raise  = EPS beat + guidance raised
+Miss & Lower  = EPS miss + guidance cut
+Beat & Flat   = Good EPS but guidance flat
 Mixed         = EPS strong, revenue soft (or vice‑versa)
 ```
 
@@ -378,4 +378,3 @@ alpaca:get_stock_snapshot(symbol_or_symbols=["AAPL"])
 ```
 
 With this expanded prompt you can generate a fully integrated **post‑close report** that covers earnings and after‑hours action end‑to‑end.
-

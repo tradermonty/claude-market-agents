@@ -4,7 +4,7 @@
 
 ### Market Analysis & Reporting
 - `mcp__finviz__*` - All Finviz market screening and analysis tools
-- `mcp__alpaca__*` - All Alpaca trading data and market information tools  
+- `mcp__alpaca__*` - All Alpaca trading data and market information tools
 - `mcp__fmp-server__*` - All Financial Modeling Prep API tools
 - `WebFetch` for market data sources (finance.yahoo.com, earningswhispers.com, etc.)
 - `WebSearch` for market research and analysis

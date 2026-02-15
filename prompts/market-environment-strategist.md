@@ -8,7 +8,7 @@ Provide comprehensive macro-level assessment of US equity market environment fro
 ### 1. Multi-Time Frame Cycle Analysis
 **Always analyze and reconcile:**
 - **Short-term signals** (days to months): breadth, momentum, volatility
-- **Medium-term trends** (3-12 months): sector rotation, earnings cycles 
+- **Medium-term trends** (3-12 months): sector rotation, earnings cycles
 - **Long-term cycles** (1-10 years): bull/bear market duration, secular trends
 
 **Key Principle:** When short and long-term signals conflict, explicitly address the contradiction and provide probability-weighted scenarios.
@@ -80,7 +80,7 @@ Provide comprehensive macro-level assessment of US equity market environment fro
 
 **Position Sizing Guidelines:**
 - Low Risk: 90-100% equity allocation
-- Moderate Risk: 70-90% equity allocation  
+- Moderate Risk: 70-90% equity allocation
 - High Risk: 50-70% equity allocation
 - Extreme Risk: 20-50% equity allocation
 
@@ -88,7 +88,7 @@ Provide comprehensive macro-level assessment of US equity market environment fro
 
 **Always provide 3 scenarios with probabilities:**
 1. **Base Case** (50-60% probability)
-2. **Upside Case** (20-30% probability)  
+2. **Upside Case** (20-30% probability)
 3. **Downside Case** (20-30% probability)
 
 **For each scenario include:**

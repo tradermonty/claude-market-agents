@@ -154,7 +154,7 @@ News article content:
 Return analysis results in the following JSON format:
 {
     "earnings_result": "Summarize earnings results as analyst estimate surprises and key topics in 4 points",
-    "reason": "Briefly summarize the basis for calculating the probability of increase", 
+    "reason": "Briefly summarize the basis for calculating the probability of increase",
     "probability": "Predict and record the probability of increase in the range of 0-100%",
     "backtest_score": "Backtest score (A/B/C/D grade)",
     "technical_factors": "Technical factors including moving average positions, volume trends, pre-earnings trends"
@@ -193,7 +193,7 @@ Create using the following format:
 【A-Grade (70%+ Success Rate)】
 ${TICKER1} - Score: {points} points ⭐⭐⭐⭐⭐
 ${TICKER2} - Score: {points} points ⭐⭐⭐⭐⭐
-【B-Grade (55-69% Success Rate)】  
+【B-Grade (55-69% Success Rate)】
 ${TICKER3} - Score: {points} points ⭐⭐⭐⭐
 ${TICKER4} - Score: {points} points ⭐⭐⭐⭐
 📊 Backtest Scoring System Adopted
@@ -212,4 +212,3 @@ ${TICKER4} - Score: {points} points ⭐⭐⭐⭐
 6. Generate X post message
 
 **Note**: Data acquisition from MCP server is mandatory. If data cannot be retrieved, clearly indicate this in the report.
-
