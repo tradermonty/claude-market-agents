@@ -354,3 +354,43 @@ class TestCrossFilterBreakdown:
         assert ("0-5%", "70-84") in lookup  # score=84.9, gap=4.99
         assert ("10-20%", "70-84") in lookup  # score=70, gap=10
         assert ("20%+", "55-69") in lookup  # score=55, gap=20
+
+
+class TestConstantInputCorrelation:
+    """Constant scores/returns must not trigger ConstantInputWarning."""
+
+    def test_constant_scores_no_warning(self, calc):
+        import warnings
+
+        trades = [
+            make_trade(ticker=f"C{i}", score=85.0, pnl=100.0 * i, return_pct=1.0 * i)
+            for i in range(5)
+        ]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            metrics = calc.calculate(trades, [])
+        assert metrics.score_return_correlation == 0.0
+        assert metrics.score_return_p_value == 1.0
+
+    def test_constant_returns_no_warning(self, calc):
+        import warnings
+
+        trades = [
+            make_trade(ticker=f"C{i}", score=70.0 + i * 5, pnl=500.0, return_pct=5.0)
+            for i in range(5)
+        ]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            metrics = calc.calculate(trades, [])
+        assert metrics.score_return_correlation == 0.0
+        assert metrics.score_return_p_value == 1.0
+
+    def test_varying_data_computes_correlation(self, calc):
+        trades = [
+            make_trade(ticker="V1", score=90.0, pnl=1000.0, return_pct=10.0),
+            make_trade(ticker="V2", score=80.0, pnl=500.0, return_pct=5.0),
+            make_trade(ticker="V3", score=70.0, pnl=100.0, return_pct=1.0),
+            make_trade(ticker="V4", score=60.0, pnl=-200.0, return_pct=-2.0),
+        ]
+        metrics = calc.calculate(trades, [])
+        assert metrics.score_return_correlation != 0.0

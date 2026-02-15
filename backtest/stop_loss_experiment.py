@@ -43,6 +43,12 @@ def parse_args():
     parser.add_argument(
         "--min-grade", default="D", choices=["A", "B", "C", "D"], help="Minimum grade"
     )
+    parser.add_argument(
+        "--entry-mode",
+        default="report_open",
+        choices=["report_open", "next_day_open"],
+        help="Entry timing: report_open or next_day_open",
+    )
     parser.add_argument("--fmp-api-key", default=None, help="FMP API key")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
@@ -60,6 +66,7 @@ def run_experiment(candidates, price_data, args) -> Dict[str, dict]:
             slippage_pct=args.slippage,
             max_holding_days=args.max_holding,
             stop_mode=mode,
+            entry_mode=args.entry_mode,
         )
         trades, skipped = sim.simulate_all(candidates, price_data)
         metrics = calculator.calculate(trades, skipped, position_size=args.position_size)

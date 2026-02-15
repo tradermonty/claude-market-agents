@@ -134,14 +134,14 @@ class EarningsReportParser:
         # Fallback: look for grade-section containers with individual items
         grade_sections = soup.find_all(["section", "div"], class_=re.compile(r"grade-section"))
         if grade_sections:
-            cards = []
+            fallback_cards: list = []
             for section in grade_sections:
                 items = section.find_all(
                     ["div", "article"], class_=re.compile(r"stock-card|stock-item")
                 )
-                cards.extend(items)
-            if cards:
-                return cards
+                fallback_cards.extend(items)
+            if fallback_cards:
+                return fallback_cards
 
         return []
 
@@ -322,6 +322,7 @@ class EarningsReportParser:
                 if val > 5:
                     return self._validate_score(val)
             except ValueError:
+                logger.debug(f"Score parse failed: {text!r}")
                 continue
 
         # 3. div.stock-score-value
@@ -343,7 +344,7 @@ class EarningsReportParser:
                 if val > 5:
                     return self._validate_score(val)
             except ValueError:
-                pass
+                logger.debug(f"Score parse failed: {text!r}")
 
         # 4. div.score -> "88 pts" or "67.0 / 100" or bare "89.5"
         el = card.find(class_="score")
@@ -361,7 +362,7 @@ class EarningsReportParser:
                     if val > 5:
                         return self._validate_score(val)
                 except ValueError:
-                    pass
+                    logger.debug(f"Score parse failed: {text!r}")
 
         # 4b. span.score-number -> "91.5"
         el = card.find(class_="score-number")
@@ -371,7 +372,7 @@ class EarningsReportParser:
                 if val > 5:
                     return self._validate_score(val)
             except ValueError:
-                pass
+                logger.debug(f"Score parse failed: {el.get_text(strip=True)!r}")
 
         # 5. h3/h4 containing "Score" -> "Score: 69 pts" or "Score: 88/100"
         for heading in card.find_all(["h3", "h4"]):
@@ -652,7 +653,7 @@ class EarningsReportParser:
             try:
                 return float(m.group(1))
             except ValueError:
-                pass
+                logger.debug(f"Price parse failed: {text!r}")
         return None
 
     def _extract_gap_size(self, card) -> Optional[float]:
@@ -685,14 +686,14 @@ class EarningsReportParser:
         for cls in ["stock-company", "company-name", "company", "stock-name"]:
             el = card.find(class_=cls)
             if el:
-                name = el.get_text(strip=True)
+                name = str(el.get_text(strip=True))
                 if name and len(name) > 1:
                     return name
 
         # Try subtitle or description
         el = card.find(class_=re.compile(r"subtitle|stock-sector"))
         if el:
-            return el.get_text(strip=True)
+            return str(el.get_text(strip=True))
 
         return None
 

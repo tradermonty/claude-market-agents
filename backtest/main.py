@@ -18,6 +18,7 @@ from backtest.html_parser import EarningsReportParser
 from backtest.metrics_calculator import MetricsCalculator
 from backtest.price_fetcher import PriceFetcher, aggregate_ticker_periods
 from backtest.report_generator import ReportGenerator
+from backtest.run_manifest import write_manifest
 from backtest.trade_simulator import TradeSimulator
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,12 @@ def parse_args():
         default=None,
         help="Max new entries per day (None = unlimited)",
     )
+    parser.add_argument(
+        "--entry-mode",
+        default="report_open",
+        choices=["report_open", "next_day_open"],
+        help="Entry timing: report_open (enter at report date) or next_day_open (enter next trading day)",
+    )
     parser.add_argument("--fmp-api-key", default=None, help="FMP API key (overrides env/config)")
     parser.add_argument(
         "--parse-only", action="store_true", help="Only parse HTML, skip price fetch and simulation"
@@ -77,6 +84,48 @@ def parse_args():
     parser.add_argument("--wf-folds", type=int, default=3, help="Number of walk-forward folds")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
+
+
+def validate_args(args) -> None:
+    """Validate CLI arguments. Exits with code 2 on invalid input."""
+    errors = []
+
+    if args.stop_loss < 0 or args.stop_loss > 100:
+        errors.append(f"--stop-loss must be 0-100, got {args.stop_loss}")
+    if args.slippage < 0 or args.slippage > 50:
+        errors.append(f"--slippage must be 0-50, got {args.slippage}")
+    if args.position_size <= 0:
+        errors.append(f"--position-size must be > 0, got {args.position_size}")
+    if args.max_holding < 1:
+        errors.append(f"--max-holding must be >= 1, got {args.max_holding}")
+
+    if args.min_score is not None and (args.min_score < 0 or args.min_score > 100):
+        errors.append(f"--min-score must be 0-100, got {args.min_score}")
+    if args.max_score is not None and (args.max_score < 0 or args.max_score > 100):
+        errors.append(f"--max-score must be 0-100, got {args.max_score}")
+    if (
+        args.min_score is not None
+        and args.max_score is not None
+        and args.min_score >= args.max_score
+    ):
+        errors.append(f"--min-score ({args.min_score}) must be < --max-score ({args.max_score})")
+
+    if args.min_gap is not None and args.min_gap < 0:
+        errors.append(f"--min-gap must be >= 0, got {args.min_gap}")
+    if args.max_gap is not None and args.max_gap < 0:
+        errors.append(f"--max-gap must be >= 0, got {args.max_gap}")
+    if args.min_gap is not None and args.max_gap is not None and args.min_gap >= args.max_gap:
+        errors.append(f"--min-gap ({args.min_gap}) must be < --max-gap ({args.max_gap})")
+
+    if args.daily_entry_limit is not None and args.daily_entry_limit < 1:
+        errors.append(f"--daily-entry-limit must be >= 1, got {args.daily_entry_limit}")
+    if args.wf_folds < 1:
+        errors.append(f"--wf-folds must be >= 1, got {args.wf_folds}")
+
+    if errors:
+        for e in errors:
+            print(f"Error: {e}", file=sys.stderr)
+        sys.exit(2)
 
 
 def setup_logging(verbose: bool):
@@ -93,6 +142,7 @@ def setup_logging(verbose: bool):
 
 def main():
     args = parse_args()
+    validate_args(args)
     setup_logging(args.verbose)
 
     config = {
@@ -107,6 +157,7 @@ def main():
         "max_gap": args.max_gap,
         "stop_mode": args.stop_mode,
         "daily_entry_limit": args.daily_entry_limit,
+        "entry_mode": args.entry_mode,
     }
 
     grade_order = {"A": 0, "B": 1, "C": 2, "D": 3}
@@ -188,6 +239,7 @@ def main():
         max_holding_days=args.max_holding,
         stop_mode=args.stop_mode,
         daily_entry_limit=args.daily_entry_limit,
+        entry_mode=args.entry_mode,
     )
     trades, skipped = simulator.simulate_all(candidates, price_data)
 
@@ -206,6 +258,23 @@ def main():
 
     generator = ReportGenerator()
     generator.generate(metrics, trades, skipped, args.output_dir, config)
+
+    # Write run manifest for reproducibility
+    write_manifest(
+        output_dir=args.output_dir,
+        config=config,
+        summary_metrics={
+            "total_trades": metrics.total_trades,
+            "win_rate": metrics.win_rate,
+            "total_pnl": metrics.total_pnl,
+            "profit_factor": metrics.profit_factor,
+            "trade_sharpe": metrics.trade_sharpe,
+            "max_drawdown": metrics.max_drawdown,
+        },
+        candidate_count=len(candidates),
+        trade_count=len(trades),
+        skipped_count=len(skipped),
+    )
 
     # Step 6 (optional): Walk-forward validation
     if args.walk_forward:

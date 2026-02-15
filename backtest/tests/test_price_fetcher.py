@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Unit tests for the price fetcher."""
 
+import json
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from backtest.price_fetcher import PriceBar, PriceFetcher
+from backtest.price_fetcher import PriceBar, PriceFetcher, PriceFetcherProtocol
+from backtest.tests.fake_price_fetcher import FakePriceFetcher
 
 
 class TestPriceBarDateValidation:
@@ -141,3 +144,62 @@ class TestRateLimitReset:
             fetcher._make_request("test-endpoint")
 
         assert fetcher._rate_limited is False
+
+
+class TestFakePriceFetcher:
+    """FakePriceFetcher conforms to PriceFetcherProtocol."""
+
+    def test_protocol_conformance(self):
+        fake = FakePriceFetcher({})
+        assert isinstance(fake, PriceFetcherProtocol)
+
+    def test_fetch_prices_returns_filtered_bars(self):
+        bars = [
+            PriceBar("2025-10-01", 100, 105, 95, 100, 100, 1000),
+            PriceBar("2025-10-02", 100, 106, 94, 102, 102, 1100),
+            PriceBar("2025-10-03", 102, 108, 100, 105, 105, 1200),
+        ]
+        fake = FakePriceFetcher({"AAPL": bars})
+        result = fake.fetch_prices("AAPL", "2025-10-01", "2025-10-02")
+        assert len(result) == 2
+        assert result[0].date == "2025-10-01"
+        assert result[1].date == "2025-10-02"
+
+    def test_fetch_prices_missing_ticker(self):
+        fake = FakePriceFetcher({})
+        result = fake.fetch_prices("AAPL", "2025-10-01", "2025-10-02")
+        assert result == []
+
+    def test_bulk_fetch(self):
+        bars = [
+            PriceBar("2025-10-01", 100, 105, 95, 100, 100, 1000),
+            PriceBar("2025-10-02", 100, 106, 94, 102, 102, 1100),
+        ]
+        fake = FakePriceFetcher({"AAPL": bars})
+        result = fake.bulk_fetch({"AAPL": ("2025-10-01", "2025-10-02")})
+        assert "AAPL" in result
+        assert len(result["AAPL"]) == 2
+
+    def test_load_from_mock_prices_json(self):
+        """Load mock_prices.json and verify it works with FakePriceFetcher."""
+        fixture_path = Path(__file__).parent / "fixtures" / "mock_prices.json"
+        raw = json.loads(fixture_path.read_text())
+        data = {}
+        for ticker, records in raw.items():
+            data[ticker] = [
+                PriceBar(
+                    date=r["date"],
+                    open=r["open"],
+                    high=r["high"],
+                    low=r["low"],
+                    close=r["close"],
+                    adj_close=r.get("adjClose"),
+                    volume=r["volume"],
+                )
+                for r in records
+            ]
+        fake = FakePriceFetcher(data)
+        aapl_bars = fake.fetch_prices("AAPL", "2025-10-01", "2025-10-31")
+        assert len(aapl_bars) > 10
+        tsla_bars = fake.fetch_prices("TSLA", "2025-10-01", "2025-10-31")
+        assert len(tsla_bars) > 10

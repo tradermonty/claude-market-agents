@@ -189,8 +189,8 @@ class MetricsCalculator:
             losses=len(losses),
             win_rate=len(wins) / len(trades) * 100,
             total_pnl=round(sum(pnls), 2),
-            avg_return=round(np.mean(returns), 2),
-            median_return=round(np.median(returns), 2),
+            avg_return=round(float(np.mean(returns)), 2),
+            median_return=round(float(np.median(returns)), 2),
             profit_factor=round(total_profit / total_loss, 2)
             if total_loss > 0
             else (0.0 if total_profit == 0 else float("inf")),
@@ -238,8 +238,8 @@ class MetricsCalculator:
         end = datetime.strptime(all_dates[-1], "%Y-%m-%d")
 
         # Pre-compute: PnL realized on each exit_date, and position deltas
-        realized_on = defaultdict(float)
-        open_delta = defaultdict(int)  # +1 on entry_date, -1 on exit_date
+        realized_on: Dict[str, float] = defaultdict(float)
+        open_delta: Dict[str, int] = defaultdict(int)  # +1 on entry_date, -1 on exit_date
         for t in trades:
             realized_on[t.exit_date] += t.pnl
             open_delta[t.entry_date] += 1
@@ -302,10 +302,10 @@ class MetricsCalculator:
         std = np.std(returns, ddof=1)
         if std == 0:
             return 0.0
-        return np.mean(returns) / std
+        return float(np.mean(returns) / std)
 
     def _skip_breakdown(self, skipped: List[SkippedTrade]) -> Dict[str, int]:
-        reasons = {}
+        reasons: Dict[str, int] = {}
         for s in skipped:
             reasons[s.skip_reason] = reasons.get(s.skip_reason, 0) + 1
         return reasons
@@ -316,7 +316,7 @@ class MetricsCalculator:
         if html_only:
             filtered = [t for t in trades if t.grade_source == "html"]
 
-        by_grade = {}
+        by_grade: Dict[str, List[TradeResult]] = {}
         for t in filtered:
             by_grade.setdefault(t.grade, []).append(t)
 
@@ -356,19 +356,19 @@ class MetricsCalculator:
                     losses=len(losses),
                     win_rate=round(len(wins) / len(group) * 100, 1),
                     total_pnl=round(sum(t.pnl for t in group), 2),
-                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
-                    median_return=round(np.median([t.return_pct for t in group]), 2),
+                    avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
+                    median_return=round(float(np.median([t.return_pct for t in group])), 2),
                     stop_loss_count=len(stops),
                     stop_loss_rate=round(len(stops) / len(group) * 100, 1),
-                    avg_holding_days_win=round(np.mean([t.holding_days for t in wins]), 1)
+                    avg_holding_days_win=round(float(np.mean([t.holding_days for t in wins])), 1)
                     if wins
                     else 0,
                     avg_holding_days_loss=round(
-                        np.mean([t.holding_days for t in non_stop_losses]), 1
+                        float(np.mean([t.holding_days for t in non_stop_losses])), 1
                     )
                     if non_stop_losses
                     else 0,
-                    avg_holding_days_stop=round(np.mean([t.holding_days for t in stops]), 1)
+                    avg_holding_days_stop=round(float(np.mean([t.holding_days for t in stops])), 1)
                     if stops
                     else 0,
                 )
@@ -407,7 +407,7 @@ class MetricsCalculator:
                     count=len(group),
                     wins=len(wins),
                     win_rate=round(len(wins) / len(group) * 100, 1),
-                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                    avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
                     total_pnl=round(sum(t.pnl for t in group), 2),
                 )
             )
@@ -420,10 +420,14 @@ class MetricsCalculator:
             return (0.0, 1.0)
         scores = [t.score for t in scored]
         returns = [t.return_pct for t in scored]
+        # Constant arrays cause ConstantInputWarning; skip pearsonr entirely
+        if len(set(scores)) < 2 or len(set(returns)) < 2:
+            return (0.0, 1.0)
         try:
             r, p = stats.pearsonr(scores, returns)
-            return (round(r, 4), round(p, 4))
-        except Exception:
+            return (round(float(r), 4), round(float(p), 4))
+        except (ValueError, FloatingPointError) as e:
+            logger.debug(f"Pearson correlation failed: {e}")
             return (0.0, 1.0)
 
     def _ab_vs_cd_test(self, trades: List[TradeResult]) -> Optional[StatTestResult]:
@@ -443,8 +447,8 @@ class MetricsCalculator:
             p_val = 1.0
 
         # 95% CI for difference in means
-        mean_diff = np.mean(ab) - np.mean(cd)
-        se = np.sqrt(np.var(ab, ddof=1) / len(ab) + np.var(cd, ddof=1) / len(cd))
+        mean_diff = float(np.mean(ab)) - float(np.mean(cd))
+        se = float(np.sqrt(np.var(ab, ddof=1) / len(ab) + np.var(cd, ddof=1) / len(cd)))
 
         if se == 0:
             # All values identical within groups → no meaningful CI
@@ -465,14 +469,14 @@ class MetricsCalculator:
             test_name="Welch's t-test",
             group_a_label="A/B Grade",
             group_b_label="C/D Grade",
-            group_a_mean=round(np.mean(ab), 2),
-            group_b_mean=round(np.mean(cd), 2),
+            group_a_mean=round(float(np.mean(ab)), 2),
+            group_b_mean=round(float(np.mean(cd)), 2),
             group_a_n=len(ab),
             group_b_n=len(cd),
             t_statistic=round(t_stat, 4),
             p_value=round(p_val, 4),
-            ci_lower=round(ci_lower, 2),
-            ci_upper=round(ci_upper, 2),
+            ci_lower=round(float(ci_lower), 2),
+            ci_upper=round(float(ci_upper), 2),
             significant=p_val < 0.05,
         )
 
@@ -507,7 +511,7 @@ class MetricsCalculator:
                     count=len(group),
                     wins=len(wins),
                     win_rate=round(len(wins) / len(group) * 100, 1),
-                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                    avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
                     total_pnl=round(sum(t.pnl for t in group), 2),
                 )
             )
@@ -574,7 +578,7 @@ class MetricsCalculator:
 
     def _monthly_breakdown(self, trades: List[TradeResult]) -> List[MonthlyMetrics]:
         """Monthly performance breakdown."""
-        by_month = {}
+        by_month: Dict[str, List[TradeResult]] = {}
         for t in trades:
             month = t.entry_date[:7]  # YYYY-MM
             by_month.setdefault(month, []).append(t)
@@ -590,7 +594,7 @@ class MetricsCalculator:
                     wins=len(wins),
                     win_rate=round(len(wins) / len(group) * 100, 1),
                     total_pnl=round(sum(t.pnl for t in group), 2),
-                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                    avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
                 )
             )
         return result

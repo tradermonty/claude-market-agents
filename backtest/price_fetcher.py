@@ -58,6 +58,21 @@ class PriceBar:
         return self.low * self.adj_factor
 
 
+try:
+    from typing import Protocol, runtime_checkable
+except ImportError:
+    from typing_extensions import Protocol, runtime_checkable  # type: ignore[assignment]
+
+
+@runtime_checkable
+class PriceFetcherProtocol(Protocol):
+    """Protocol for price data fetchers (real and fake)."""
+
+    def fetch_prices(self, symbol: str, from_date: str, to_date: str) -> List[PriceBar]: ...
+
+    def bulk_fetch(self, ticker_periods: Dict[str, tuple]) -> Dict[str, List[PriceBar]]: ...
+
+
 class PriceFetcher:
     """FMP-based historical price data fetcher with caching."""
 
@@ -95,9 +110,9 @@ class PriceFetcher:
                     key = fmp.get("env", {}).get("FMP_API_KEY")
                     if key:
                         logger.info(f"Loaded FMP API key from {p}")
-                        return key
-                except (json.JSONDecodeError, KeyError):
-                    pass
+                        return str(key)
+                except (json.JSONDecodeError, KeyError) as e:
+                    logger.debug(f"Failed to read FMP key from {p}: {e}")
         return None
 
     def _rate_limit(self):
@@ -142,7 +157,8 @@ class PriceFetcher:
                     continue
                 logger.warning(f"Request failed for {endpoint}: {e}")
                 return None
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logger.warning(f"JSON decode error for {endpoint}: {e}")
                 return None
         return None
 

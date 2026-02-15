@@ -1,4 +1,4 @@
-.PHONY: lint format test typecheck security all install
+.PHONY: lint format test typecheck security all install golden
 
 lint:
 	ruff check . && ruff format --check .
@@ -14,6 +14,9 @@ typecheck:
 
 security:
 	bandit -r backtest/ -x backtest/tests/ --severity-level medium
+
+golden:
+	python -m backtest.tests.generate_golden
 
 all: lint test typecheck
 

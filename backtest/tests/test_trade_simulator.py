@@ -15,6 +15,7 @@ def simulator():
         stop_loss_pct=10.0,
         slippage_pct=0.5,
         max_holding_days=90,
+        entry_mode="next_day_open",
     )
 
 
@@ -385,6 +386,7 @@ class TestStopModeSkipEntryDay:
             slippage_pct=0.5,
             max_holding_days=90,
             stop_mode="skip_entry_day",
+            entry_mode="next_day_open",
         )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
@@ -406,6 +408,7 @@ class TestStopModeSkipEntryDay:
             slippage_pct=0.5,
             max_holding_days=90,
             stop_mode="skip_entry_day",
+            entry_mode="next_day_open",
         )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
@@ -730,3 +733,156 @@ class TestExitLogging:
         with caplog.at_level(logging.DEBUG, logger="backtest.trade_simulator"):
             simulator.simulate_all([candidate], price_data)
         assert any("max_holding" in r.message for r in caplog.records)
+
+
+class TestEntryModeReportOpen:
+    """Entry mode 'report_open': enter at report_date open (or next available)."""
+
+    def test_business_day_enters_same_day(self):
+        """report_date is a trading day → entry on that day."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="report_open",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 102),  # report day = entry
+            make_bar("2025-10-02", 102, 106, 98, 104),
+            make_bar("2025-10-03", 104, 108, 100, 106),
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _skipped = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].entry_date == "2025-10-01"
+        assert trades[0].entry_price == 100.0
+
+    def test_weekend_enters_next_monday(self):
+        """report_date is Saturday → entry on Monday."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="report_open",
+        )
+        # 2025-10-04 is Saturday, 2025-10-06 is Monday
+        bars = [
+            make_bar("2025-10-03", 100, 105, 95, 102),
+            make_bar("2025-10-06", 103, 107, 99, 105),  # Monday
+            make_bar("2025-10-07", 105, 109, 101, 107),
+        ]
+        candidate = make_candidate(report_date="2025-10-04")
+        trades, _skipped = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].entry_date == "2025-10-06"
+
+    def test_bar_gap_enters_next_available(self):
+        """report_date has no bar → enters at next available bar."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="report_open",
+        )
+        bars = [
+            make_bar("2025-09-30", 98, 102, 95, 100),
+            # 2025-10-01 missing
+            make_bar("2025-10-02", 101, 105, 98, 103),
+            make_bar("2025-10-03", 103, 107, 100, 105),
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _skipped = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].entry_date == "2025-10-02"
+
+    def test_no_bar_on_or_after(self):
+        """No bars on or after report_date → skipped."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="report_open",
+        )
+        bars = [
+            make_bar("2025-09-28", 98, 102, 95, 100),
+            make_bar("2025-09-29", 99, 103, 96, 101),
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, skipped = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 0
+        assert len(skipped) == 1
+        assert skipped[0].skip_reason == "no_price_data"
+
+
+class TestEntryModeNextDayOpen:
+    """Entry mode 'next_day_open': backward compatible, always enters after report_date."""
+
+    def test_enters_next_day(self):
+        """Even when report_date bar exists, enters the next day."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="next_day_open",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 102),  # report day
+            make_bar("2025-10-02", 102, 106, 98, 104),  # entry day
+            make_bar("2025-10-03", 104, 108, 100, 106),
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].entry_date == "2025-10-02"
+
+
+class TestEntryModeValidation:
+    """Invalid entry_mode raises ValueError."""
+
+    def test_invalid_entry_mode(self):
+        with pytest.raises(ValueError, match="Invalid entry_mode"):
+            TradeSimulator(entry_mode="invalid")
+
+    def test_valid_modes_accepted(self):
+        for mode in ("report_open", "next_day_open"):
+            sim = TradeSimulator(entry_mode=mode)
+            assert sim.entry_mode == mode
+
+
+class TestDailyEntryLimitWithReportOpen:
+    """daily_entry_limit works correctly with report_open mode."""
+
+    def test_limit_groups_by_report_date_entry(self):
+        """Two candidates with same report_date, limit=1 → top score wins."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=1,
+            entry_mode="report_open",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 102),
+            make_bar("2025-10-02", 102, 106, 98, 104),
+            make_bar("2025-10-03", 104, 108, 100, 106),
+        ]
+        candidates = [
+            make_candidate("AAA", "2025-10-01", "A", 90),
+            make_candidate("BBB", "2025-10-01", "B", 70),
+        ]
+        price_data = {"AAA": bars[:], "BBB": bars[:]}
+        trades, skipped = sim.simulate_all(candidates, price_data)
+
+        assert len(trades) == 1
+        assert trades[0].ticker == "AAA"
+        # Both enter on 2025-10-01 (report_open), so they compete
+        assert trades[0].entry_date == "2025-10-01"
+        daily_skips = [s for s in skipped if s.skip_reason == "daily_limit"]
+        assert len(daily_skips) == 1
+        assert daily_skips[0].ticker == "BBB"

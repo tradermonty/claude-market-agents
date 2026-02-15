@@ -275,7 +275,8 @@ tr:hover {{ background: var(--bg3); }}
   Max Holding: {cfg.get("max_holding", 90)} days |
   Min Grade: {cfg.get("min_grade", "D")} |
   Stop Mode: {cfg.get("stop_mode", "intraday")} |
-  Daily Entry Limit: {cfg.get("daily_entry_limit", "None")}
+  Daily Entry Limit: {cfg.get("daily_entry_limit", "None")} |
+  Entry Mode: {cfg.get("entry_mode", "report_open")}
   {self._filter_config_html(cfg)}
 </div>
 
@@ -309,7 +310,7 @@ tr:hover {{ background: var(--bg3); }}
             sorted_t = sorted(trades, key=lambda t: t.entry_date)
             dates = [t.entry_date for t in sorted_t]
             equities = []
-            running = 0
+            running = 0.0
             for t in sorted_t:
                 running += t.pnl
                 equities.append(round(running, 2))
@@ -514,11 +515,11 @@ tr:hover {{ background: var(--bg3); }}
         score_labels = ["85+", "70-84", "55-69", "<55"]
         lookup = {(cf.gap_range, cf.score_range): cf for cf in m.cross_filter_metrics}
 
-        z_return = []
-        z_text = []
+        z_return: List[List[Optional[float]]] = []
+        z_text: List[List[str]] = []
         for sl in score_labels:
-            row_return = []
-            row_text = []
+            row_return: List[Optional[float]] = []
+            row_text: List[str] = []
             for gl in gap_labels:
                 cf = lookup.get((gl, sl))
                 if cf and cf.count > 0:

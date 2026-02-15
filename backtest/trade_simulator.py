@@ -3,7 +3,7 @@
 Trade simulator for earnings gap-up backtest.
 
 Simulates long positions with:
-- Next business day open entry
+- Configurable entry timing (report_open or next_day_open)
 - Stop loss with slippage
 - Max holding period (90 calendar days)
 - Fixed position sizing ($10,000)
@@ -53,6 +53,7 @@ class TradeSimulator:
     """Simulate individual trades with stop loss and max holding period."""
 
     VALID_STOP_MODES = ("intraday", "close", "skip_entry_day", "close_next_open")
+    VALID_ENTRY_MODES = ("report_open", "next_day_open")
 
     def __init__(
         self,
@@ -62,10 +63,15 @@ class TradeSimulator:
         max_holding_days: int = 90,
         stop_mode: str = "intraday",
         daily_entry_limit: Optional[int] = None,
+        entry_mode: str = "report_open",
     ):
         if stop_mode not in self.VALID_STOP_MODES:
             raise ValueError(
                 f"Invalid stop_mode: {stop_mode}. Must be one of {self.VALID_STOP_MODES}"
+            )
+        if entry_mode not in self.VALID_ENTRY_MODES:
+            raise ValueError(
+                f"Invalid entry_mode: {entry_mode}. Must be one of {self.VALID_ENTRY_MODES}"
             )
         self.position_size = position_size
         self.stop_loss_pct = stop_loss_pct
@@ -73,6 +79,7 @@ class TradeSimulator:
         self.max_holding_days = max_holding_days
         self.stop_mode = stop_mode
         self.daily_entry_limit = daily_entry_limit
+        self.entry_mode = entry_mode
 
     def simulate_all(
         self,
@@ -112,7 +119,7 @@ class TradeSimulator:
                     )
                     continue
                 report_dt = datetime.strptime(candidate.report_date, "%Y-%m-%d")
-                entry_idx = self._find_next_trading_day_index(bars, report_dt)
+                entry_idx = self._find_entry_index(bars, report_dt)
                 if entry_idx is None:
                     skipped.append(
                         SkippedTrade(
@@ -132,14 +139,15 @@ class TradeSimulator:
             for item in simulatable:
                 by_date.setdefault(item[2], []).append(item)
 
-            filtered = []
+            filtered: List[Tuple[object, List[PriceBar]]] = []
             for entry_date in sorted(by_date.keys()):
                 group = by_date[entry_date]
                 # Sort by score descending; None scores go last
                 group.sort(key=lambda x: x[0].score if x[0].score is not None else -1, reverse=True)
-                for i, (cand, bars, _) in enumerate(group):
+                for i, (cand, cand_bars, _) in enumerate(group):
                     if i < self.daily_entry_limit:
-                        filtered.append((cand, bars))
+                        assert cand_bars is not None
+                        filtered.append((cand, cand_bars))
                     else:
                         skipped.append(
                             SkippedTrade(
@@ -190,8 +198,8 @@ class TradeSimulator:
         """Simulate a single trade."""
         report_dt = datetime.strptime(candidate.report_date, "%Y-%m-%d")
 
-        # Find entry day: first trading day AFTER report_date
-        entry_idx = self._find_next_trading_day_index(bars, report_dt)
+        # Find entry day based on entry_mode
+        entry_idx = self._find_entry_index(bars, report_dt)
         if entry_idx is None:
             return SkippedTrade(
                 ticker=candidate.ticker,
@@ -338,6 +346,9 @@ class TradeSimulator:
             exit_reason = "end_of_data"
             logger.debug(f"{candidate.ticker} {entry_bar.date}: end_of_data at {last_bar.date}")
 
+        assert exit_date is not None
+        assert exit_reason is not None
+
         pnl = (exit_price - entry_price) * shares
         return_pct = ((exit_price / entry_price) - 1) * 100
         holding_days = (datetime.strptime(exit_date, "%Y-%m-%d") - entry_dt).days
@@ -372,10 +383,32 @@ class TradeSimulator:
                 return i
         return None
 
+    def _find_trading_day_index_on_or_after(
+        self, bars: List[PriceBar], on_or_after_date: datetime
+    ) -> Optional[int]:
+        """Find index of first trading day on or after on_or_after_date."""
+        target = on_or_after_date.strftime("%Y-%m-%d")
+        for i, bar in enumerate(bars):
+            if bar.date >= target:
+                return i
+        return None
+
+    def _find_entry_index(self, bars: List[PriceBar], report_dt: datetime) -> Optional[int]:
+        """Find entry bar index based on entry_mode."""
+        if self.entry_mode == "report_open":
+            idx = self._find_trading_day_index_on_or_after(bars, report_dt)
+            if idx is not None:
+                target = report_dt.strftime("%Y-%m-%d")
+                if bars[idx].date != target:
+                    logger.debug("report_open: no bar for %s, using %s", target, bars[idx].date)
+            return idx
+        else:
+            return self._find_next_trading_day_index(bars, report_dt)
+
     @staticmethod
     def _skip_summary(skipped: List[SkippedTrade]) -> str:
         """Summarize skip reasons."""
-        reasons = {}
+        reasons: Dict[str, int] = {}
         for s in skipped:
             reasons[s.skip_reason] = reasons.get(s.skip_reason, 0) + 1
         return ", ".join(f"{reason}: {count}" for reason, count in sorted(reasons.items()))
