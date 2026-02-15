@@ -2,9 +2,10 @@
 """Unit tests for the trade simulator."""
 
 import pytest
-from backtest.trade_simulator import TradeSimulator, TradeResult, SkippedTrade
-from backtest.price_fetcher import PriceBar
+
 from backtest.html_parser import TradeCandidate
+from backtest.price_fetcher import PriceBar
+from backtest.trade_simulator import TradeResult, TradeSimulator
 
 
 @pytest.fixture
@@ -50,9 +51,10 @@ class TestNormalTrade:
         ]
         # Add bars for 90+ calendar days
         from datetime import datetime, timedelta
+
         base = datetime(2025, 10, 3)
         for i in range(100):
-            d = (base + timedelta(days=i)).strftime('%Y-%m-%d')
+            d = (base + timedelta(days=i)).strftime("%Y-%m-%d")
             # Price stays above stop (100 * 0.9 = 90)
             bars.append(make_bar(d, 102, 106, 95, 103))
 
@@ -78,11 +80,11 @@ class TestStopLoss:
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
             make_bar("2025-10-03", 101, 103, 99, 100),  # above stop (90)
-            make_bar("2025-10-04", 95, 96, 85, 88),     # low 85 < stop 90
+            make_bar("2025-10-04", 95, 96, 85, 88),  # low 85 < stop 90
         ]
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
-        trades, skipped = simulator.simulate_all([candidate], price_data)
+        trades, _skipped = simulator.simulate_all([candidate], price_data)
 
         assert len(trades) == 1
         t = trades[0]
@@ -103,7 +105,7 @@ class TestEntryDayStop:
         ]
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
-        trades, skipped = simulator.simulate_all([candidate], price_data)
+        trades, _skipped = simulator.simulate_all([candidate], price_data)
 
         assert len(trades) == 1
         t = trades[0]
@@ -124,7 +126,7 @@ class TestEndOfData:
         ]
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
-        trades, skipped = simulator.simulate_all([candidate], price_data)
+        trades, _skipped = simulator.simulate_all([candidate], price_data)
 
         assert len(trades) == 1
         t = trades[0]
@@ -175,7 +177,7 @@ class TestSplitAdjustment:
         ]
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
-        trades, skipped = simulator.simulate_all([candidate], price_data)
+        trades, _skipped = simulator.simulate_all([candidate], price_data)
 
         assert len(trades) == 1
         t = trades[0]
@@ -231,7 +233,7 @@ class TestAdjCloseZero:
 
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
-        trades, skipped = simulator.simulate_all([candidate], price_data)
+        trades, _skipped = simulator.simulate_all([candidate], price_data)
         assert len(trades) == 1
         t = trades[0]
         assert t.exit_reason == "end_of_data"
@@ -246,12 +248,12 @@ class TestLowZeroNoFalseStop:
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
-            make_bar("2025-10-03", 101, 103, 0, 100),    # low=0, should NOT stop
+            make_bar("2025-10-03", 101, 103, 0, 100),  # low=0, should NOT stop
             make_bar("2025-10-04", 101, 104, 95, 103),
         ]
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
-        trades, skipped = simulator.simulate_all([candidate], price_data)
+        trades, _skipped = simulator.simulate_all([candidate], price_data)
         assert len(trades) == 1
         t = trades[0]
         assert t.exit_reason != "stop_loss"  # Should be end_of_data, not stop
@@ -262,23 +264,43 @@ class TestBreakevenNotLoss:
 
     def test_breakeven(self):
         from backtest.metrics_calculator import MetricsCalculator
-        from backtest.trade_simulator import TradeResult
+
         calc = MetricsCalculator()
 
         trades = [
             TradeResult(
-                ticker="TEST", grade="A", grade_source="html", score=85.0,
-                report_date="2025-10-01", entry_date="2025-10-02",
-                entry_price=100.0, exit_date="2025-10-10", exit_price=100.0,
-                shares=100, invested=10000.0, pnl=0.0, return_pct=0.0,
-                holding_days=8, exit_reason="end_of_data",
+                ticker="TEST",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-10-01",
+                entry_date="2025-10-02",
+                entry_price=100.0,
+                exit_date="2025-10-10",
+                exit_price=100.0,
+                shares=100,
+                invested=10000.0,
+                pnl=0.0,
+                return_pct=0.0,
+                holding_days=8,
+                exit_reason="end_of_data",
             ),
             TradeResult(
-                ticker="WIN", grade="A", grade_source="html", score=90.0,
-                report_date="2025-10-01", entry_date="2025-10-02",
-                entry_price=100.0, exit_date="2025-10-10", exit_price=110.0,
-                shares=100, invested=10000.0, pnl=1000.0, return_pct=10.0,
-                holding_days=8, exit_reason="end_of_data",
+                ticker="WIN",
+                grade="A",
+                grade_source="html",
+                score=90.0,
+                report_date="2025-10-01",
+                entry_date="2025-10-02",
+                entry_price=100.0,
+                exit_date="2025-10-10",
+                exit_price=110.0,
+                shares=100,
+                invested=10000.0,
+                pnl=1000.0,
+                return_pct=10.0,
+                holding_days=8,
+                exit_reason="end_of_data",
             ),
         ]
         metrics = calc.calculate(trades, [])
@@ -311,12 +333,17 @@ class TestStopModeClose:
 
     def test_low_below_stop_but_close_above(self):
         """low < stop but close > stop → NOT triggered (intraday would trigger)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="close")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
-            make_bar("2025-10-03", 95, 96, 85, 95),     # low=85 < stop=90, but close=95 > stop
+            make_bar("2025-10-03", 95, 96, 85, 95),  # low=85 < stop=90, but close=95 > stop
             make_bar("2025-10-04", 96, 100, 94, 98),
         ]
         candidate = make_candidate(report_date="2025-10-01")
@@ -326,12 +353,17 @@ class TestStopModeClose:
 
     def test_close_below_stop(self):
         """close <= stop → triggered, exit_price = close * (1 - slippage)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="close")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
-            make_bar("2025-10-03", 95, 96, 80, 88),     # close=88 < stop=90
+            make_bar("2025-10-03", 95, 96, 80, 88),  # close=88 < stop=90
         ]
         candidate = make_candidate(report_date="2025-10-01")
         trades, _ = sim.simulate_all([candidate], {"TEST": bars})
@@ -347,12 +379,17 @@ class TestStopModeSkipEntryDay:
 
     def test_entry_day_not_stopped(self):
         """Entry day low < stop → NOT triggered."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="skip_entry_day")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="skip_entry_day",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
-            make_bar("2025-10-02", 100, 100, 80, 95),   # entry day, low=80 < stop=90
-            make_bar("2025-10-03", 96, 100, 94, 98),    # day 2, above stop
+            make_bar("2025-10-02", 100, 100, 80, 95),  # entry day, low=80 < stop=90
+            make_bar("2025-10-03", 96, 100, 94, 98),  # day 2, above stop
             make_bar("2025-10-04", 97, 101, 95, 100),
         ]
         candidate = make_candidate(report_date="2025-10-01")
@@ -363,12 +400,17 @@ class TestStopModeSkipEntryDay:
 
     def test_day2_stopped(self):
         """Day 2 low < stop → triggered normally."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="skip_entry_day")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="skip_entry_day",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry day
-            make_bar("2025-10-03", 95, 96, 85, 88),     # day 2, low=85 < stop=90
+            make_bar("2025-10-03", 95, 96, 85, 88),  # day 2, low=85 < stop=90
         ]
         candidate = make_candidate(report_date="2025-10-01")
         trades, _ = sim.simulate_all([candidate], {"TEST": bars})
@@ -383,11 +425,16 @@ class TestStopModeIntraday:
 
     def test_intraday_entry_day_stop(self):
         """Intraday mode: entry day low < stop → triggered (unlike skip_entry_day)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="intraday")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="intraday",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
-            make_bar("2025-10-02", 100, 100, 80, 85),   # entry day, low=80 < stop=90
+            make_bar("2025-10-02", 100, 100, 80, 85),  # entry day, low=80 < stop=90
         ]
         candidate = make_candidate(report_date="2025-10-01")
         trades, _ = sim.simulate_all([candidate], {"TEST": bars})
@@ -405,8 +452,13 @@ class TestDailyEntryLimit:
 
     def test_limit_filters_by_score(self):
         """3 candidates same day, limit=2 → top 2 by score, 1 skipped."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, daily_entry_limit=2)
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=2,
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),
@@ -433,8 +485,13 @@ class TestDailyEntryLimit:
 
     def test_different_days_not_limited(self):
         """Candidates on different days are independently limited."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, daily_entry_limit=1)
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=1,
+        )
         bars_day1 = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),
@@ -457,8 +514,13 @@ class TestDailyEntryLimit:
 
     def test_no_limit(self):
         """limit=None → no filtering."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, daily_entry_limit=None)
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=None,
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),
@@ -477,8 +539,13 @@ class TestDailyEntryLimit:
 
     def test_none_score_ranked_last(self):
         """score=None candidates are ranked last (below any scored candidate)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, daily_entry_limit=1)
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=1,
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),
@@ -503,13 +570,18 @@ class TestStopModeCloseNextOpen:
 
     def test_close_below_stop_exits_next_open(self):
         """close < stop on day 2 → exit at day 3 open * (1 - slippage)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="close_next_open")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close_next_open",
+        )
         bars = [
-            make_bar("2025-10-01", 100, 105, 95, 100),      # report day
-            make_bar("2025-10-02", 100, 105, 95, 102),       # entry at open=100
-            make_bar("2025-10-03", 95, 96, 80, 88),          # close=88 < stop=90 → pending
-            make_bar("2025-10-04", 92, 95, 90, 93),          # exit at open=92
+            make_bar("2025-10-01", 100, 105, 95, 100),  # report day
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry at open=100
+            make_bar("2025-10-03", 95, 96, 80, 88),  # close=88 < stop=90 → pending
+            make_bar("2025-10-04", 92, 95, 90, 93),  # exit at open=92
         ]
         candidate = make_candidate(report_date="2025-10-01")
         trades, _ = sim.simulate_all([candidate], {"TEST": bars})
@@ -522,12 +594,17 @@ class TestStopModeCloseNextOpen:
 
     def test_close_above_stop_no_trigger(self):
         """close > stop → NOT triggered (same as close mode)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="close_next_open")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close_next_open",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
-            make_bar("2025-10-02", 100, 105, 95, 102),       # entry at 100
-            make_bar("2025-10-03", 95, 96, 85, 95),          # low=85 < stop but close=95 > stop
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
+            make_bar("2025-10-03", 95, 96, 85, 95),  # low=85 < stop but close=95 > stop
             make_bar("2025-10-04", 96, 100, 94, 98),
         ]
         candidate = make_candidate(report_date="2025-10-01")
@@ -537,12 +614,17 @@ class TestStopModeCloseNextOpen:
 
     def test_data_ends_on_stop_day(self):
         """close < stop on last bar → fallback to close * (1 - slippage)."""
-        sim = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                             max_holding_days=90, stop_mode="close_next_open")
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close_next_open",
+        )
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
-            make_bar("2025-10-02", 100, 105, 95, 102),       # entry at 100
-            make_bar("2025-10-03", 95, 96, 80, 88),          # close=88 < stop=90, no next bar
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
+            make_bar("2025-10-03", 95, 96, 80, 88),  # close=88 < stop=90, no next bar
         ]
         candidate = make_candidate(report_date="2025-10-01")
         trades, _ = sim.simulate_all([candidate], {"TEST": bars})
@@ -557,20 +639,30 @@ class TestStopModeCloseNextOpen:
         """Same scenario: close exits at close, close_next_open exits at next open."""
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
-            make_bar("2025-10-02", 100, 105, 95, 102),       # entry at 100
-            make_bar("2025-10-03", 95, 96, 80, 88),          # close=88 < stop=90
-            make_bar("2025-10-04", 92, 95, 90, 93),          # next open=92
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
+            make_bar("2025-10-03", 95, 96, 80, 88),  # close=88 < stop=90
+            make_bar("2025-10-04", 92, 95, 90, 93),  # next open=92
         ]
         candidate = make_candidate(report_date="2025-10-01")
 
         # close mode
-        sim_close = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                                   max_holding_days=90, stop_mode="close")
+        sim_close = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close",
+        )
         trades_close, _ = sim_close.simulate_all([candidate], {"TEST": bars[:]})
 
         # close_next_open mode
-        sim_cno = TradeSimulator(position_size=10000, stop_loss_pct=10.0, slippage_pct=0.5,
-                                 max_holding_days=90, stop_mode="close_next_open")
+        sim_cno = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close_next_open",
+        )
         trades_cno, _ = sim_cno.simulate_all([candidate], {"TEST": bars[:]})
 
         assert len(trades_close) == 1
@@ -594,10 +686,11 @@ class TestExitLogging:
 
     def test_stop_loss_logging(self, simulator, caplog):
         import logging
+
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry
-            make_bar("2025-10-03", 95, 96, 85, 88),     # stop loss
+            make_bar("2025-10-03", 95, 96, 85, 88),  # stop loss
         ]
         candidate = make_candidate(report_date="2025-10-01")
         price_data = {"TEST": bars}
@@ -607,6 +700,7 @@ class TestExitLogging:
 
     def test_end_of_data_logging(self, simulator, caplog):
         import logging
+
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),
@@ -621,13 +715,14 @@ class TestExitLogging:
     def test_max_holding_logging(self, simulator, caplog):
         import logging
         from datetime import datetime, timedelta
+
         bars = [
             make_bar("2025-10-01", 100, 105, 95, 100),
             make_bar("2025-10-02", 100, 105, 95, 102),  # entry
         ]
         base = datetime(2025, 10, 3)
         for i in range(100):
-            d = (base + timedelta(days=i)).strftime('%Y-%m-%d')
+            d = (base + timedelta(days=i)).strftime("%Y-%m-%d")
             bars.append(make_bar(d, 102, 106, 95, 103))
 
         candidate = make_candidate(report_date="2025-10-01")

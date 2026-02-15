@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0
+    hooks:
+      - id: mypy
+        args: [--config-file=pyproject.toml]
+        additional_dependencies: []
+        pass_filenames: false
+        entry: mypy backtest/
+        verbose: true
+        stages: [pre-push]
+
+  - repo: local
+    hooks:
+      - id: quick-tests
+        name: quick tests
+        entry: pytest backtest/tests/ -x -q --no-header
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

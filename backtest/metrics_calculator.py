@@ -14,21 +14,21 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
 
-from backtest.trade_simulator import TradeResult, SkippedTrade
+from backtest.trade_simulator import SkippedTrade, TradeResult
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class DailyEquityPoint:
-    date: str           # YYYY-MM-DD
-    equity: float       # Cumulative realized PnL
-    positions: int      # Number of open positions on this date
+    date: str  # YYYY-MM-DD
+    equity: float  # Cumulative realized PnL
+    positions: int  # Number of open positions on this date
 
 
 @dataclass
@@ -70,8 +70,8 @@ class GapSizeMetrics:
 
 @dataclass
 class CrossFilterMetrics:
-    gap_range: str      # "0-5%", "5-10%", "10-20%", "20%+", "Unknown"
-    score_range: str    # "85+", "70-84", "55-69", "<55"
+    gap_range: str  # "0-5%", "5-10%", "10-20%", "20%+", "Unknown"
+    score_range: str  # "85+", "70-84", "55-69", "<55"
     count: int
     wins: int
     win_rate: float
@@ -191,7 +191,9 @@ class MetricsCalculator:
             total_pnl=round(sum(pnls), 2),
             avg_return=round(np.mean(returns), 2),
             median_return=round(np.median(returns), 2),
-            profit_factor=round(total_profit / total_loss, 2) if total_loss > 0 else (0.0 if total_profit == 0 else float('inf')),
+            profit_factor=round(total_profit / total_loss, 2)
+            if total_loss > 0
+            else (0.0 if total_profit == 0 else float("inf")),
             max_drawdown=round(self._max_drawdown(trades), 2),
             max_drawdown_pct=round(self._max_drawdown_pct(trades), 2),
             trade_sharpe=round(self._trade_sharpe(returns), 2),
@@ -232,12 +234,12 @@ class MetricsCalculator:
             return []
 
         # Build date range from first entry to last exit
-        start = datetime.strptime(all_dates[0], '%Y-%m-%d')
-        end = datetime.strptime(all_dates[-1], '%Y-%m-%d')
+        start = datetime.strptime(all_dates[0], "%Y-%m-%d")
+        end = datetime.strptime(all_dates[-1], "%Y-%m-%d")
 
         # Pre-compute: PnL realized on each exit_date, and position deltas
         realized_on = defaultdict(float)
-        open_delta = defaultdict(int)   # +1 on entry_date, -1 on exit_date
+        open_delta = defaultdict(int)  # +1 on entry_date, -1 on exit_date
         for t in trades:
             realized_on[t.exit_date] += t.pnl
             open_delta[t.entry_date] += 1
@@ -248,14 +250,16 @@ class MetricsCalculator:
         open_positions = 0
         current = start
         while current <= end:
-            ds = current.strftime('%Y-%m-%d')
+            ds = current.strftime("%Y-%m-%d")
             cumulative_pnl += realized_on.get(ds, 0.0)
             open_positions += open_delta.get(ds, 0)
-            result.append(DailyEquityPoint(
-                date=ds,
-                equity=round(cumulative_pnl, 2),
-                positions=open_positions,
-            ))
+            result.append(
+                DailyEquityPoint(
+                    date=ds,
+                    equity=round(cumulative_pnl, 2),
+                    positions=open_positions,
+                )
+            )
             current += timedelta(days=1)
 
         return result
@@ -317,16 +321,26 @@ class MetricsCalculator:
             by_grade.setdefault(t.grade, []).append(t)
 
         result = []
-        for grade in ['A', 'B', 'C', 'D']:
+        for grade in ["A", "B", "C", "D"]:
             group = by_grade.get(grade, [])
             if not group:
-                result.append(GradeMetrics(
-                    grade=grade, count=0, wins=0, losses=0,
-                    win_rate=0, total_pnl=0, avg_return=0, median_return=0,
-                    stop_loss_count=0, stop_loss_rate=0,
-                    avg_holding_days_win=0, avg_holding_days_loss=0,
-                    avg_holding_days_stop=0,
-                ))
+                result.append(
+                    GradeMetrics(
+                        grade=grade,
+                        count=0,
+                        wins=0,
+                        losses=0,
+                        win_rate=0,
+                        total_pnl=0,
+                        avg_return=0,
+                        median_return=0,
+                        stop_loss_count=0,
+                        stop_loss_rate=0,
+                        avg_holding_days_win=0,
+                        avg_holding_days_loss=0,
+                        avg_holding_days_stop=0,
+                    )
+                )
                 continue
 
             wins = [t for t in group if t.pnl > 0]
@@ -334,21 +348,31 @@ class MetricsCalculator:
             stops = [t for t in group if t.exit_reason == "stop_loss"]
             non_stop_losses = [t for t in group if t.pnl < 0 and t.exit_reason != "stop_loss"]
 
-            result.append(GradeMetrics(
-                grade=grade,
-                count=len(group),
-                wins=len(wins),
-                losses=len(losses),
-                win_rate=round(len(wins) / len(group) * 100, 1),
-                total_pnl=round(sum(t.pnl for t in group), 2),
-                avg_return=round(np.mean([t.return_pct for t in group]), 2),
-                median_return=round(np.median([t.return_pct for t in group]), 2),
-                stop_loss_count=len(stops),
-                stop_loss_rate=round(len(stops) / len(group) * 100, 1),
-                avg_holding_days_win=round(np.mean([t.holding_days for t in wins]), 1) if wins else 0,
-                avg_holding_days_loss=round(np.mean([t.holding_days for t in non_stop_losses]), 1) if non_stop_losses else 0,
-                avg_holding_days_stop=round(np.mean([t.holding_days for t in stops]), 1) if stops else 0,
-            ))
+            result.append(
+                GradeMetrics(
+                    grade=grade,
+                    count=len(group),
+                    wins=len(wins),
+                    losses=len(losses),
+                    win_rate=round(len(wins) / len(group) * 100, 1),
+                    total_pnl=round(sum(t.pnl for t in group), 2),
+                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                    median_return=round(np.median([t.return_pct for t in group]), 2),
+                    stop_loss_count=len(stops),
+                    stop_loss_rate=round(len(stops) / len(group) * 100, 1),
+                    avg_holding_days_win=round(np.mean([t.holding_days for t in wins]), 1)
+                    if wins
+                    else 0,
+                    avg_holding_days_loss=round(
+                        np.mean([t.holding_days for t in non_stop_losses]), 1
+                    )
+                    if non_stop_losses
+                    else 0,
+                    avg_holding_days_stop=round(np.mean([t.holding_days for t in stops]), 1)
+                    if stops
+                    else 0,
+                )
+            )
 
         return result
 
@@ -365,20 +389,28 @@ class MetricsCalculator:
         for label, pred in ranges:
             group = [t for t in scored if pred(t.score)]
             if not group:
-                result.append(ScoreRangeMetrics(
-                    range_label=label, count=0, wins=0,
-                    win_rate=0, avg_return=0, total_pnl=0,
-                ))
+                result.append(
+                    ScoreRangeMetrics(
+                        range_label=label,
+                        count=0,
+                        wins=0,
+                        win_rate=0,
+                        avg_return=0,
+                        total_pnl=0,
+                    )
+                )
                 continue
             wins = [t for t in group if t.pnl > 0]
-            result.append(ScoreRangeMetrics(
-                range_label=label,
-                count=len(group),
-                wins=len(wins),
-                win_rate=round(len(wins) / len(group) * 100, 1),
-                avg_return=round(np.mean([t.return_pct for t in group]), 2),
-                total_pnl=round(sum(t.pnl for t in group), 2),
-            ))
+            result.append(
+                ScoreRangeMetrics(
+                    range_label=label,
+                    count=len(group),
+                    wins=len(wins),
+                    win_rate=round(len(wins) / len(group) * 100, 1),
+                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                    total_pnl=round(sum(t.pnl for t in group), 2),
+                )
+            )
         return result
 
     def _score_correlation(self, trades: List[TradeResult]) -> Tuple[float, float]:
@@ -397,8 +429,8 @@ class MetricsCalculator:
     def _ab_vs_cd_test(self, trades: List[TradeResult]) -> Optional[StatTestResult]:
         """Welch t-test: A/B grade returns vs C/D grade returns."""
         # Use HTML-sourced grades only for the test
-        ab = [t.return_pct for t in trades if t.grade in ('A', 'B') and t.grade_source == "html"]
-        cd = [t.return_pct for t in trades if t.grade in ('C', 'D') and t.grade_source == "html"]
+        ab = [t.return_pct for t in trades if t.grade in ("A", "B") and t.grade_source == "html"]
+        cd = [t.return_pct for t in trades if t.grade in ("C", "D") and t.grade_source == "html"]
 
         if len(ab) < 2 or len(cd) < 2:
             return None
@@ -421,10 +453,9 @@ class MetricsCalculator:
         else:
             # Approximate df for Welch's t-test
             df_num = (np.var(ab, ddof=1) / len(ab) + np.var(cd, ddof=1) / len(cd)) ** 2
-            df_den = (
-                (np.var(ab, ddof=1) / len(ab)) ** 2 / (len(ab) - 1)
-                + (np.var(cd, ddof=1) / len(cd)) ** 2 / (len(cd) - 1)
-            )
+            df_den = (np.var(ab, ddof=1) / len(ab)) ** 2 / (len(ab) - 1) + (
+                np.var(cd, ddof=1) / len(cd)
+            ) ** 2 / (len(cd) - 1)
             df = df_num / df_den if df_den > 0 else 1
             t_crit = stats.t.ppf(0.975, df)
             ci_lower = mean_diff - t_crit * se
@@ -458,20 +489,28 @@ class MetricsCalculator:
         for label, pred in ranges:
             group = [t for t in trades if pred(t.gap_size)]
             if not group:
-                result.append(GapSizeMetrics(
-                    range_label=label, count=0, wins=0,
-                    win_rate=0, avg_return=0, total_pnl=0,
-                ))
+                result.append(
+                    GapSizeMetrics(
+                        range_label=label,
+                        count=0,
+                        wins=0,
+                        win_rate=0,
+                        avg_return=0,
+                        total_pnl=0,
+                    )
+                )
                 continue
             wins = [t for t in group if t.pnl > 0]
-            result.append(GapSizeMetrics(
-                range_label=label,
-                count=len(group),
-                wins=len(wins),
-                win_rate=round(len(wins) / len(group) * 100, 1),
-                avg_return=round(np.mean([t.return_pct for t in group]), 2),
-                total_pnl=round(sum(t.pnl for t in group), 2),
-            ))
+            result.append(
+                GapSizeMetrics(
+                    range_label=label,
+                    count=len(group),
+                    wins=len(wins),
+                    win_rate=round(len(wins) / len(group) * 100, 1),
+                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                    total_pnl=round(sum(t.pnl for t in group), 2),
+                )
+            )
         return result
 
     @staticmethod
@@ -520,15 +559,17 @@ class MetricsCalculator:
                 if not group:
                     continue
                 wins = [t for t in group if t.pnl > 0]
-                result.append(CrossFilterMetrics(
-                    gap_range=gl,
-                    score_range=sl,
-                    count=len(group),
-                    wins=len(wins),
-                    win_rate=round(len(wins) / len(group) * 100, 1),
-                    avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
-                    total_pnl=round(sum(t.pnl for t in group), 2),
-                ))
+                result.append(
+                    CrossFilterMetrics(
+                        gap_range=gl,
+                        score_range=sl,
+                        count=len(group),
+                        wins=len(wins),
+                        win_rate=round(len(wins) / len(group) * 100, 1),
+                        avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
+                        total_pnl=round(sum(t.pnl for t in group), 2),
+                    )
+                )
         return result
 
     def _monthly_breakdown(self, trades: List[TradeResult]) -> List[MonthlyMetrics]:
@@ -542,29 +583,46 @@ class MetricsCalculator:
         for month in sorted(by_month.keys()):
             group = by_month[month]
             wins = [t for t in group if t.pnl > 0]
-            result.append(MonthlyMetrics(
-                month=month,
-                count=len(group),
-                wins=len(wins),
-                win_rate=round(len(wins) / len(group) * 100, 1),
-                total_pnl=round(sum(t.pnl for t in group), 2),
-                avg_return=round(np.mean([t.return_pct for t in group]), 2),
-            ))
+            result.append(
+                MonthlyMetrics(
+                    month=month,
+                    count=len(group),
+                    wins=len(wins),
+                    win_rate=round(len(wins) / len(group) * 100, 1),
+                    total_pnl=round(sum(t.pnl for t in group), 2),
+                    avg_return=round(np.mean([t.return_pct for t in group]), 2),
+                )
+            )
         return result
 
     def _empty_metrics(self, skipped: List[SkippedTrade]) -> BacktestMetrics:
         """Return empty metrics when no trades."""
         return BacktestMetrics(
-            total_trades=0, wins=0, losses=0, win_rate=0,
-            total_pnl=0, avg_return=0, median_return=0,
-            profit_factor=0, max_drawdown=0, max_drawdown_pct=0,
-            trade_sharpe=0, total_skipped=len(skipped),
+            total_trades=0,
+            wins=0,
+            losses=0,
+            win_rate=0,
+            total_pnl=0,
+            avg_return=0,
+            median_return=0,
+            profit_factor=0,
+            max_drawdown=0,
+            max_drawdown_pct=0,
+            trade_sharpe=0,
+            total_skipped=len(skipped),
             skip_reasons=self._skip_breakdown(skipped),
-            grade_metrics=[], grade_metrics_html_only=[],
-            score_range_metrics=[], score_return_correlation=0,
-            score_return_p_value=1.0, ab_vs_cd_test=None,
-            gap_size_metrics=[], cross_filter_metrics=[],
+            grade_metrics=[],
+            grade_metrics_html_only=[],
+            score_range_metrics=[],
+            score_return_correlation=0,
+            score_return_p_value=1.0,
+            ab_vs_cd_test=None,
+            gap_size_metrics=[],
+            cross_filter_metrics=[],
             monthly_metrics=[],
-            stop_loss_total=0, stop_loss_rate=0,
-            daily_equity=[], peak_positions=0, capital_requirement=0.0,
+            stop_loss_total=0,
+            stop_loss_rate=0,
+            daily_equity=[],
+            peak_positions=0,
+            capital_requirement=0.0,
         )

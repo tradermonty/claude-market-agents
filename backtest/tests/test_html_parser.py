@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Unit tests for the HTML parser."""
 
-import os
-import pytest
 from pathlib import Path
+
+import pytest
 
 from backtest.html_parser import EarningsReportParser, TradeCandidate
 

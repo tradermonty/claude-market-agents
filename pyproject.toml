@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trade-analysis"
+version = "0.1.0"
+description = "Earnings trade backtest and analysis toolkit"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.31.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "python-dotenv>=1.0.0",
+    "tqdm>=4.65.0",
+    "plotly>=5.14.0",
+    "beautifulsoup4>=4.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.15.1",
+    "mypy>=1.5",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.1.0",
+    "codespell>=2.2.0",
+    "bandit>=1.7.0",
+    "pre-commit>=3.3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["backtest*"]
+
+[tool.pytest.ini_options]
+testpaths = ["backtest/tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "C4", "SIM", "RUF", "PT"]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "PT011",  # pytest.raises too broad
+    "UP006",  # use modern type syntax — requires __future__.annotations in 3.9
+    "UP035",  # deprecated typing imports — same reason
+    "RUF001", # ambiguous unicode chars in strings (intentional en-dash etc.)
+    "RUF002", # ambiguous unicode chars in docstrings
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["backtest"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+exclude = ["backtest/tests/"]
+
+[tool.coverage.run]
+source = ["backtest"]
+branch = true
+omit = ["backtest/tests/*"]
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true

@@ -2,6 +2,7 @@
 """Unit tests for the metrics calculator."""
 
 import pytest
+
 from backtest.metrics_calculator import MetricsCalculator
 from backtest.trade_simulator import TradeResult
 
@@ -62,7 +63,7 @@ class TestProfitFactorNoLoss:
             make_trade(ticker="B", pnl=1000.0, return_pct=10.0, exit_price=110.0),
         ]
         metrics = calc.calculate(trades, [])
-        assert metrics.profit_factor == float('inf')
+        assert metrics.profit_factor == float("inf")
 
 
 class TestWelchTTestIdentical:
@@ -91,37 +92,57 @@ class TestWelchTTestNormal:
         trades = []
         # A/B trades with high returns
         for i in range(10):
-            trades.append(make_trade(
-                ticker=f"A{i}", grade="A",
-                pnl=1000.0, return_pct=10.0, exit_price=110.0,
-            ))
+            trades.append(
+                make_trade(
+                    ticker=f"A{i}",
+                    grade="A",
+                    pnl=1000.0,
+                    return_pct=10.0,
+                    exit_price=110.0,
+                )
+            )
         # C/D trades with low returns
         for i in range(10):
-            trades.append(make_trade(
-                ticker=f"C{i}", grade="C",
-                pnl=-500.0, return_pct=-5.0, exit_price=95.0,
-            ))
+            trades.append(
+                make_trade(
+                    ticker=f"C{i}",
+                    grade="C",
+                    pnl=-500.0,
+                    return_pct=-5.0,
+                    exit_price=95.0,
+                )
+            )
         metrics = calc.calculate(trades, [])
         assert metrics.ab_vs_cd_test is not None
-        assert metrics.ab_vs_cd_test.significant == True
+        assert metrics.ab_vs_cd_test.significant
         assert metrics.ab_vs_cd_test.group_a_mean > metrics.ab_vs_cd_test.group_b_mean
 
     def test_no_significant_difference(self, calc):
         trades = []
         # A/B and C/D with similar returns
         for i in range(5):
-            trades.append(make_trade(
-                ticker=f"A{i}", grade="A",
-                pnl=100.0 + i * 10, return_pct=1.0 + i * 0.1, exit_price=101.0 + i,
-            ))
+            trades.append(
+                make_trade(
+                    ticker=f"A{i}",
+                    grade="A",
+                    pnl=100.0 + i * 10,
+                    return_pct=1.0 + i * 0.1,
+                    exit_price=101.0 + i,
+                )
+            )
         for i in range(5):
-            trades.append(make_trade(
-                ticker=f"C{i}", grade="C",
-                pnl=100.0 + i * 10, return_pct=1.0 + i * 0.1, exit_price=101.0 + i,
-            ))
+            trades.append(
+                make_trade(
+                    ticker=f"C{i}",
+                    grade="C",
+                    pnl=100.0 + i * 10,
+                    return_pct=1.0 + i * 0.1,
+                    exit_price=101.0 + i,
+                )
+            )
         metrics = calc.calculate(trades, [])
         assert metrics.ab_vs_cd_test is not None
-        assert metrics.ab_vs_cd_test.significant == False
+        assert not metrics.ab_vs_cd_test.significant
 
 
 class TestDailyEquityCurve:
@@ -131,18 +152,38 @@ class TestDailyEquityCurve:
         """Two non-overlapping trades → staircase equity, peak_positions=1."""
         trades = [
             TradeResult(
-                ticker="A", grade="A", grade_source="html", score=85.0,
-                report_date="2025-10-01", entry_date="2025-10-02",
-                entry_price=100.0, exit_date="2025-10-04", exit_price=110.0,
-                shares=100, invested=10000.0, pnl=1000.0, return_pct=10.0,
-                holding_days=2, exit_reason="end_of_data",
+                ticker="A",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-10-01",
+                entry_date="2025-10-02",
+                entry_price=100.0,
+                exit_date="2025-10-04",
+                exit_price=110.0,
+                shares=100,
+                invested=10000.0,
+                pnl=1000.0,
+                return_pct=10.0,
+                holding_days=2,
+                exit_reason="end_of_data",
             ),
             TradeResult(
-                ticker="B", grade="A", grade_source="html", score=80.0,
-                report_date="2025-10-05", entry_date="2025-10-06",
-                entry_price=100.0, exit_date="2025-10-08", exit_price=105.0,
-                shares=100, invested=10000.0, pnl=500.0, return_pct=5.0,
-                holding_days=2, exit_reason="end_of_data",
+                ticker="B",
+                grade="A",
+                grade_source="html",
+                score=80.0,
+                report_date="2025-10-05",
+                entry_date="2025-10-06",
+                entry_price=100.0,
+                exit_date="2025-10-08",
+                exit_price=105.0,
+                shares=100,
+                invested=10000.0,
+                pnl=500.0,
+                return_pct=5.0,
+                holding_days=2,
+                exit_reason="end_of_data",
             ),
         ]
         metrics = calc.calculate(trades, [])
@@ -161,18 +202,38 @@ class TestDailyEquityCurve:
         """Two overlapping trades → peak_positions=2."""
         trades = [
             TradeResult(
-                ticker="A", grade="A", grade_source="html", score=85.0,
-                report_date="2025-10-01", entry_date="2025-10-02",
-                entry_price=100.0, exit_date="2025-10-10", exit_price=110.0,
-                shares=100, invested=10000.0, pnl=1000.0, return_pct=10.0,
-                holding_days=8, exit_reason="end_of_data",
+                ticker="A",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-10-01",
+                entry_date="2025-10-02",
+                entry_price=100.0,
+                exit_date="2025-10-10",
+                exit_price=110.0,
+                shares=100,
+                invested=10000.0,
+                pnl=1000.0,
+                return_pct=10.0,
+                holding_days=8,
+                exit_reason="end_of_data",
             ),
             TradeResult(
-                ticker="B", grade="A", grade_source="html", score=80.0,
-                report_date="2025-10-03", entry_date="2025-10-04",
-                entry_price=100.0, exit_date="2025-10-10", exit_price=105.0,
-                shares=100, invested=10000.0, pnl=500.0, return_pct=5.0,
-                holding_days=6, exit_reason="end_of_data",
+                ticker="B",
+                grade="A",
+                grade_source="html",
+                score=80.0,
+                report_date="2025-10-03",
+                entry_date="2025-10-04",
+                entry_price=100.0,
+                exit_date="2025-10-10",
+                exit_price=105.0,
+                shares=100,
+                invested=10000.0,
+                pnl=500.0,
+                return_pct=5.0,
+                holding_days=6,
+                exit_reason="end_of_data",
             ),
         ]
         metrics = calc.calculate(trades, [])
@@ -193,18 +254,38 @@ class TestDailyEquityCurve:
         """Capital requirement = peak_positions * position_size."""
         trades = [
             TradeResult(
-                ticker="A", grade="A", grade_source="html", score=85.0,
-                report_date="2025-10-01", entry_date="2025-10-02",
-                entry_price=100.0, exit_date="2025-10-10", exit_price=110.0,
-                shares=100, invested=10000.0, pnl=1000.0, return_pct=10.0,
-                holding_days=8, exit_reason="end_of_data",
+                ticker="A",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-10-01",
+                entry_date="2025-10-02",
+                entry_price=100.0,
+                exit_date="2025-10-10",
+                exit_price=110.0,
+                shares=100,
+                invested=10000.0,
+                pnl=1000.0,
+                return_pct=10.0,
+                holding_days=8,
+                exit_reason="end_of_data",
             ),
             TradeResult(
-                ticker="B", grade="A", grade_source="html", score=80.0,
-                report_date="2025-10-03", entry_date="2025-10-04",
-                entry_price=100.0, exit_date="2025-10-10", exit_price=105.0,
-                shares=100, invested=10000.0, pnl=500.0, return_pct=5.0,
-                holding_days=6, exit_reason="end_of_data",
+                ticker="B",
+                grade="A",
+                grade_source="html",
+                score=80.0,
+                report_date="2025-10-03",
+                entry_date="2025-10-04",
+                entry_price=100.0,
+                exit_date="2025-10-10",
+                exit_price=105.0,
+                shares=100,
+                invested=10000.0,
+                pnl=500.0,
+                return_pct=5.0,
+                holding_days=6,
+                exit_reason="end_of_data",
             ),
         ]
         metrics = calc.calculate(trades, [], position_size=10000.0)
@@ -261,7 +342,7 @@ class TestCrossFilterBreakdown:
             make_trade(ticker="B3", score=70.0, pnl=100.0, return_pct=1.0, exit_price=101.0),
             make_trade(ticker="B4", score=55.0, pnl=100.0, return_pct=1.0, exit_price=101.0),
         ]
-        trades[0].gap_size = 5.0   # boundary → "5-10%"
+        trades[0].gap_size = 5.0  # boundary → "5-10%"
         trades[1].gap_size = 4.99  # → "0-5%"
         trades[2].gap_size = 10.0  # boundary → "10-20%"
         trades[3].gap_size = 20.0  # boundary → "20%+"
@@ -269,7 +350,7 @@ class TestCrossFilterBreakdown:
         metrics = calc.calculate(trades, [])
         lookup = {(c.gap_range, c.score_range): c for c in metrics.cross_filter_metrics}
 
-        assert ("5-10%", "85+") in lookup      # score=85, gap=5
-        assert ("0-5%", "70-84") in lookup      # score=84.9, gap=4.99
-        assert ("10-20%", "70-84") in lookup    # score=70, gap=10
-        assert ("20%+", "55-69") in lookup      # score=55, gap=20
+        assert ("5-10%", "85+") in lookup  # score=85, gap=5
+        assert ("0-5%", "70-84") in lookup  # score=84.9, gap=4.99
+        assert ("10-20%", "70-84") in lookup  # score=70, gap=10
+        assert ("20%+", "55-69") in lookup  # score=55, gap=20

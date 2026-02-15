@@ -8,15 +8,15 @@ Wraps FMP API to fetch historical price data with:
 - Split-adjusted price calculation
 """
 
-import os
 import json
 import logging
+import os
 import re
 import time
-from datetime import datetime, timedelta
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import requests
 from dotenv import load_dotenv
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PriceBar:
-    date: str           # YYYY-MM-DD
+    date: str  # YYYY-MM-DD
     open: float
     high: float
     low: float
@@ -36,7 +36,7 @@ class PriceBar:
     volume: int
 
     def __post_init__(self):
-        if not re.match(r'^\d{4}-\d{2}-\d{2}$', self.date):
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", self.date):
             raise ValueError(f"Invalid date format: {self.date}, expected YYYY-MM-DD")
 
     @property
@@ -63,7 +63,7 @@ class PriceFetcher:
 
     BASE_URL = "https://financialmodelingprep.com/api/v3"
 
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or self._resolve_api_key()
         if not self.api_key:
             raise ValueError(
@@ -79,20 +79,20 @@ class PriceFetcher:
     def _resolve_api_key() -> Optional[str]:
         """Resolve API key: .env -> env var -> .mcp.json."""
         load_dotenv()
-        key = os.getenv('FMP_API_KEY')
+        key = os.getenv("FMP_API_KEY")
         if key:
             return key
 
         # Try .mcp.json in current dir or project root
-        for mcp_path in ['.mcp.json', '../.mcp.json']:
+        for mcp_path in [".mcp.json", "../.mcp.json"]:
             p = Path(mcp_path)
             if p.exists():
                 try:
                     data = json.loads(p.read_text())
                     # Navigate: mcpServers -> fmp-server -> env -> FMP_API_KEY
-                    servers = data.get('mcpServers', data)
-                    fmp = servers.get('fmp-server', {})
-                    key = fmp.get('env', {}).get('FMP_API_KEY')
+                    servers = data.get("mcpServers", data)
+                    fmp = servers.get("fmp-server", {})
+                    key = fmp.get("env", {}).get("FMP_API_KEY")
                     if key:
                         logger.info(f"Loaded FMP API key from {p}")
                         return key
@@ -109,11 +109,13 @@ class PriceFetcher:
             time.sleep(interval - elapsed)
         self._last_request_time = time.time()
 
-    def _make_request(self, endpoint: str, params: Dict = None, max_retries: int = 3) -> Optional[Any]:
+    def _make_request(
+        self, endpoint: str, params: Optional[Dict] = None, max_retries: int = 3
+    ) -> Optional[Any]:
         """Make FMP API request with retry logic."""
         if params is None:
             params = {}
-        params['apikey'] = self.api_key
+        params["apikey"] = self.api_key
         url = f"{self.BASE_URL}/{endpoint}"
 
         for attempt in range(max_retries + 1):
@@ -122,7 +124,7 @@ class PriceFetcher:
                 resp = self.session.get(url, params=params, timeout=30)
                 if resp.status_code == 429:
                     self._rate_limited = True
-                    delay = 5 * (2 ** attempt)
+                    delay = 5 * (2**attempt)
                     logger.warning(f"Rate limited on {endpoint}, waiting {delay}s")
                     time.sleep(delay)
                     continue
@@ -131,12 +133,12 @@ class PriceFetcher:
                 resp.raise_for_status()
                 self._rate_limited = False  # Reset after successful request
                 data = resp.json()
-                if isinstance(data, dict) and data.get('Error Message'):
+                if isinstance(data, dict) and data.get("Error Message"):
                     return None
                 return data
             except requests.exceptions.RequestException as e:
                 if attempt < max_retries:
-                    time.sleep(2 ** attempt)
+                    time.sleep(2**attempt)
                     continue
                 logger.warning(f"Request failed for {endpoint}: {e}")
                 return None
@@ -146,14 +148,13 @@ class PriceFetcher:
 
     def _normalize_symbol(self, symbol: str) -> str:
         """Normalize symbol for FMP API (BRK.B -> BRK-B)."""
-        return symbol.replace('.', '-').replace('/', '-') if symbol else symbol
+        return symbol.replace(".", "-").replace("/", "-") if symbol else symbol
 
     def fetch_prices(self, symbol: str, from_date: str, to_date: str) -> List[PriceBar]:
         """Fetch historical daily price bars for a symbol."""
         norm = self._normalize_symbol(symbol)
         data = self._make_request(
-            f'historical-price-full/{norm}',
-            {'from': from_date, 'to': to_date}
+            f"historical-price-full/{norm}", {"from": from_date, "to": to_date}
         )
 
         if data is None:
@@ -161,8 +162,8 @@ class PriceFetcher:
 
         # Handle response format
         records = []
-        if isinstance(data, dict) and 'historical' in data:
-            records = data['historical']
+        if isinstance(data, dict) and "historical" in data:
+            records = data["historical"]
         elif isinstance(data, list):
             records = data
         else:
@@ -171,25 +172,29 @@ class PriceFetcher:
         bars = []
         for rec in records:
             try:
-                o = float(rec.get('open', 0))
-                h = float(rec.get('high', 0))
-                l = float(rec.get('low', 0))
-                c = float(rec.get('close', 0))
-                if o <= 0 or h <= 0 or l <= 0 or c <= 0:
+                o = float(rec.get("open", 0))
+                h = float(rec.get("high", 0))
+                lo = float(rec.get("low", 0))
+                c = float(rec.get("close", 0))
+                if o <= 0 or h <= 0 or lo <= 0 or c <= 0:
                     logger.debug(f"Skipping {symbol} {rec.get('date')}: zero/missing OHLC")
                     continue
-                if h < l:
-                    logger.debug(f"Skipping {symbol} {rec.get('date')}: high({h}) < low({l})")
+                if h < lo:
+                    logger.debug(f"Skipping {symbol} {rec.get('date')}: high({h}) < low({lo})")
                     continue
-                bars.append(PriceBar(
-                    date=rec['date'],
-                    open=o,
-                    high=h,
-                    low=l,
-                    close=c,
-                    adj_close=float(rec['adjClose']) if rec.get('adjClose') is not None else None,
-                    volume=int(rec.get('volume', 0)),
-                ))
+                bars.append(
+                    PriceBar(
+                        date=rec["date"],
+                        open=o,
+                        high=h,
+                        low=lo,
+                        close=c,
+                        adj_close=float(rec["adjClose"])
+                        if rec.get("adjClose") is not None
+                        else None,
+                        volume=int(rec.get("volume", 0)),
+                    )
+                )
             except (KeyError, ValueError, TypeError) as e:
                 logger.debug(f"Skipping malformed price record for {symbol}: {e}")
                 continue
@@ -212,9 +217,7 @@ class PriceFetcher:
         failed = []
 
         for ticker, (min_date, max_date) in tqdm(
-            ticker_periods.items(),
-            desc="Fetching price data",
-            unit="ticker"
+            ticker_periods.items(), desc="Fetching price data", unit="ticker"
         ):
             bars = self.fetch_prices(ticker, min_date, max_date)
             if bars:
@@ -244,10 +247,11 @@ def aggregate_ticker_periods(
         {ticker: (min_date_str, max_date_str)}
     """
     from collections import defaultdict
+
     ranges = defaultdict(list)
 
     for c in candidates:
-        rd = datetime.strptime(c.report_date, '%Y-%m-%d')
+        rd = datetime.strptime(c.report_date, "%Y-%m-%d")
         start = rd - timedelta(days=5)  # A few days before for entry
         end = rd + timedelta(days=buffer_days)
         ranges[c.ticker].append((start, end))
@@ -257,8 +261,8 @@ def aggregate_ticker_periods(
         min_date = min(p[0] for p in periods)
         max_date = max(p[1] for p in periods)
         result[ticker] = (
-            min_date.strftime('%Y-%m-%d'),
-            max_date.strftime('%Y-%m-%d'),
+            min_date.strftime("%Y-%m-%d"),
+            max_date.strftime("%Y-%m-%d"),
         )
 
     return result

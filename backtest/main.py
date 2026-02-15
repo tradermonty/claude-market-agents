@@ -15,10 +15,10 @@ import sys
 from pathlib import Path
 
 from backtest.html_parser import EarningsReportParser
-from backtest.price_fetcher import PriceFetcher, aggregate_ticker_periods
-from backtest.trade_simulator import TradeSimulator
 from backtest.metrics_calculator import MetricsCalculator
+from backtest.price_fetcher import PriceFetcher, aggregate_ticker_periods
 from backtest.report_generator import ReportGenerator
+from backtest.trade_simulator import TradeSimulator
 
 logger = logging.getLogger(__name__)
 
@@ -28,26 +28,54 @@ def parse_args():
         description="Earnings Trade Backtest System",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument('--reports-dir', default='reports/', help='Directory with earnings trade HTML reports')
-    parser.add_argument('--output-dir', default='reports/backtest/', help='Output directory for results')
-    parser.add_argument('--position-size', type=float, default=10000, help='Position size per trade ($)')
-    parser.add_argument('--stop-loss', type=float, default=10.0, help='Stop loss percentage')
-    parser.add_argument('--slippage', type=float, default=0.5, help='Slippage percentage on stop')
-    parser.add_argument('--max-holding', type=int, default=90, help='Max holding period (calendar days)')
-    parser.add_argument('--min-grade', default='D', choices=['A', 'B', 'C', 'D'], help='Minimum grade to include')
-    parser.add_argument('--min-score', type=float, default=None, help='Minimum score filter (inclusive)')
-    parser.add_argument('--max-score', type=float, default=None, help='Maximum score filter (exclusive)')
-    parser.add_argument('--min-gap', type=float, default=None, help='Minimum gap %% filter (inclusive)')
-    parser.add_argument('--max-gap', type=float, default=None, help='Maximum gap %% filter (exclusive)')
-    parser.add_argument('--stop-mode', default='intraday', choices=['intraday', 'close', 'skip_entry_day', 'close_next_open'],
-                        help='Stop loss mode: intraday (low-based), close (close-based), skip_entry_day (skip day-0), close_next_open (close trigger, next open exit)')
-    parser.add_argument('--daily-entry-limit', type=int, default=None,
-                        help='Max new entries per day (None = unlimited)')
-    parser.add_argument('--fmp-api-key', default=None, help='FMP API key (overrides env/config)')
-    parser.add_argument('--parse-only', action='store_true', help='Only parse HTML, skip price fetch and simulation')
-    parser.add_argument('--walk-forward', action='store_true', help='Run walk-forward validation')
-    parser.add_argument('--wf-folds', type=int, default=3, help='Number of walk-forward folds')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Verbose logging')
+    parser.add_argument(
+        "--reports-dir", default="reports/", help="Directory with earnings trade HTML reports"
+    )
+    parser.add_argument(
+        "--output-dir", default="reports/backtest/", help="Output directory for results"
+    )
+    parser.add_argument(
+        "--position-size", type=float, default=10000, help="Position size per trade ($)"
+    )
+    parser.add_argument("--stop-loss", type=float, default=10.0, help="Stop loss percentage")
+    parser.add_argument("--slippage", type=float, default=0.5, help="Slippage percentage on stop")
+    parser.add_argument(
+        "--max-holding", type=int, default=90, help="Max holding period (calendar days)"
+    )
+    parser.add_argument(
+        "--min-grade", default="D", choices=["A", "B", "C", "D"], help="Minimum grade to include"
+    )
+    parser.add_argument(
+        "--min-score", type=float, default=None, help="Minimum score filter (inclusive)"
+    )
+    parser.add_argument(
+        "--max-score", type=float, default=None, help="Maximum score filter (exclusive)"
+    )
+    parser.add_argument(
+        "--min-gap", type=float, default=None, help="Minimum gap %% filter (inclusive)"
+    )
+    parser.add_argument(
+        "--max-gap", type=float, default=None, help="Maximum gap %% filter (exclusive)"
+    )
+    parser.add_argument(
+        "--stop-mode",
+        default="intraday",
+        choices=["intraday", "close", "skip_entry_day", "close_next_open"],
+        help="Stop loss mode: intraday (low-based), close (close-based), skip_entry_day (skip day-0), close_next_open (close trigger, next open exit)",
+    )
+    parser.add_argument(
+        "--daily-entry-limit",
+        type=int,
+        default=None,
+        help="Max new entries per day (None = unlimited)",
+    )
+    parser.add_argument("--fmp-api-key", default=None, help="FMP API key (overrides env/config)")
+    parser.add_argument(
+        "--parse-only", action="store_true", help="Only parse HTML, skip price fetch and simulation"
+    )
+    parser.add_argument("--walk-forward", action="store_true", help="Run walk-forward validation")
+    parser.add_argument("--wf-folds", type=int, default=3, help="Number of walk-forward folds")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
 
 
@@ -55,12 +83,12 @@ def setup_logging(verbose: bool):
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
         level=level,
-        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-        datefmt='%H:%M:%S',
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%H:%M:%S",
     )
     # Quiet noisy loggers
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
-    logging.getLogger('requests').setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 def main():
@@ -68,20 +96,20 @@ def main():
     setup_logging(args.verbose)
 
     config = {
-        'position_size': args.position_size,
-        'stop_loss': args.stop_loss,
-        'slippage': args.slippage,
-        'max_holding': args.max_holding,
-        'min_grade': args.min_grade,
-        'min_score': args.min_score,
-        'max_score': args.max_score,
-        'min_gap': args.min_gap,
-        'max_gap': args.max_gap,
-        'stop_mode': args.stop_mode,
-        'daily_entry_limit': args.daily_entry_limit,
+        "position_size": args.position_size,
+        "stop_loss": args.stop_loss,
+        "slippage": args.slippage,
+        "max_holding": args.max_holding,
+        "min_grade": args.min_grade,
+        "min_score": args.min_score,
+        "max_score": args.max_score,
+        "min_gap": args.min_gap,
+        "max_gap": args.max_gap,
+        "stop_mode": args.stop_mode,
+        "daily_entry_limit": args.daily_entry_limit,
     }
 
-    grade_order = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
+    grade_order = {"A": 0, "B": 1, "C": 2, "D": 3}
     min_grade_idx = grade_order.get(args.min_grade, 3)
 
     # Step 1: Parse HTML reports
@@ -93,10 +121,7 @@ def main():
     candidates = parser.parse_all_reports(args.reports_dir)
 
     # Filter by minimum grade
-    candidates = [
-        c for c in candidates
-        if grade_order.get(c.grade, 3) <= min_grade_idx
-    ]
+    candidates = [c for c in candidates if grade_order.get(c.grade, 3) <= min_grade_idx]
 
     logger.info(f"After grade filter (>= {args.min_grade}): {len(candidates)} candidates")
 
@@ -106,25 +131,27 @@ def main():
     if args.max_score is not None:
         candidates = [c for c in candidates if c.score is not None and c.score < args.max_score]
     if args.min_score is not None or args.max_score is not None:
-        lo = args.min_score if args.min_score is not None else '-'
-        hi = args.max_score if args.max_score is not None else '-'
+        lo = args.min_score if args.min_score is not None else "-"
+        hi = args.max_score if args.max_score is not None else "-"
         logger.info(f"After score filter [{lo}, {hi}): {len(candidates)} candidates")
 
     # Gap size filter
     if args.min_gap is not None:
-        candidates = [c for c in candidates if c.gap_size is not None and c.gap_size >= args.min_gap]
+        candidates = [
+            c for c in candidates if c.gap_size is not None and c.gap_size >= args.min_gap
+        ]
     if args.max_gap is not None:
         candidates = [c for c in candidates if c.gap_size is not None and c.gap_size < args.max_gap]
     if args.min_gap is not None or args.max_gap is not None:
-        lo = args.min_gap if args.min_gap is not None else '-'
-        hi = args.max_gap if args.max_gap is not None else '-'
+        lo = args.min_gap if args.min_gap is not None else "-"
+        hi = args.max_gap if args.max_gap is not None else "-"
         logger.info(f"After gap filter [{lo}%, {hi}%): {len(candidates)} candidates")
 
     # Summary
     grade_counts = {}
     for c in candidates:
         grade_counts[c.grade] = grade_counts.get(c.grade, 0) + 1
-    for g in ['A', 'B', 'C', 'D']:
+    for g in ["A", "B", "C", "D"]:
         if g in grade_counts:
             logger.info(f"  Grade {g}: {grade_counts[g]}")
 
@@ -186,6 +213,7 @@ def main():
         logger.info("Step 6: Walk-Forward Validation")
         logger.info("=" * 60)
         from backtest.walk_forward import WalkForwardValidator
+
         wf = WalkForwardValidator(
             simulator=simulator,
             calculator=calculator,
@@ -213,14 +241,37 @@ def main():
 def _write_candidates_csv(candidates, path):
     """Write parsed candidates to CSV for inspection."""
     import csv
+
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', newline='') as f:
+    with open(path, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(['ticker', 'report_date', 'grade', 'grade_source', 'score', 'price', 'gap_size', 'company_name'])
+        w.writerow(
+            [
+                "ticker",
+                "report_date",
+                "grade",
+                "grade_source",
+                "score",
+                "price",
+                "gap_size",
+                "company_name",
+            ]
+        )
         for c in sorted(candidates, key=lambda x: (x.report_date, x.ticker)):
-            w.writerow([c.ticker, c.report_date, c.grade, c.grade_source, c.score, c.price, c.gap_size, c.company_name])
+            w.writerow(
+                [
+                    c.ticker,
+                    c.report_date,
+                    c.grade,
+                    c.grade_source,
+                    c.score,
+                    c.price,
+                    c.gap_size,
+                    c.company_name,
+                ]
+            )
     logger.info(f"Wrote {len(candidates)} candidates to {path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

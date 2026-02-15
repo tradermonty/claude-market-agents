@@ -12,14 +12,13 @@ Prevents overfitting by evaluating out-of-sample performance.
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
-from typing import List, Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from backtest.trade_simulator import TradeSimulator, TradeResult, SkippedTrade
-from backtest.metrics_calculator import MetricsCalculator, BacktestMetrics
+from backtest.metrics_calculator import BacktestMetrics, MetricsCalculator
 from backtest.price_fetcher import PriceBar
+from backtest.trade_simulator import SkippedTrade, TradeResult, TradeSimulator
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +76,7 @@ class WalkForwardValidator:
             return WalkForwardResult(folds=[], overfitting_score=0.0)
 
         # Get unique months
-        months = sorted(set(c.report_date[:7] for c in sorted_cands))
+        months = sorted({c.report_date[:7] for c in sorted_cands})
         logger.info(f"Walk-forward: {len(months)} months available: {months}")
 
         if len(months) < self.n_folds + 1:
@@ -108,7 +107,8 @@ class WalkForwardValidator:
             # Simulate train set
             train_trades, train_skip = self.simulator.simulate_all(train_cands, price_data)
             train_metrics = self.calculator.calculate(
-                train_trades, train_skip,
+                train_trades,
+                train_skip,
                 position_size=self.simulator.position_size,
             )
 
@@ -117,29 +117,32 @@ class WalkForwardValidator:
             all_oos_trades.extend(test_trades)
             all_oos_skipped.extend(test_skip)
             test_metrics = self.calculator.calculate(
-                test_trades, test_skip,
+                test_trades,
+                test_skip,
                 position_size=self.simulator.position_size,
             )
 
-            fold_results.append(FoldResult(
-                fold_num=fold_num,
-                train_start=train_months[0],
-                train_end=train_months[-1],
-                test_start=test_months[0],
-                test_end=test_months[-1],
-                train_trades=train_metrics.total_trades,
-                test_trades=test_metrics.total_trades,
-                train_win_rate=train_metrics.win_rate,
-                test_win_rate=test_metrics.win_rate,
-                train_pnl=train_metrics.total_pnl,
-                test_pnl=test_metrics.total_pnl,
-                train_profit_factor=train_metrics.profit_factor,
-                test_profit_factor=test_metrics.profit_factor,
-                train_sharpe=train_metrics.trade_sharpe,
-                test_sharpe=test_metrics.trade_sharpe,
-                train_avg_return=train_metrics.avg_return,
-                test_avg_return=test_metrics.avg_return,
-            ))
+            fold_results.append(
+                FoldResult(
+                    fold_num=fold_num,
+                    train_start=train_months[0],
+                    train_end=train_months[-1],
+                    test_start=test_months[0],
+                    test_end=test_months[-1],
+                    train_trades=train_metrics.total_trades,
+                    test_trades=test_metrics.total_trades,
+                    train_win_rate=train_metrics.win_rate,
+                    test_win_rate=test_metrics.win_rate,
+                    train_pnl=train_metrics.total_pnl,
+                    test_pnl=test_metrics.total_pnl,
+                    train_profit_factor=train_metrics.profit_factor,
+                    test_profit_factor=test_metrics.profit_factor,
+                    train_sharpe=train_metrics.trade_sharpe,
+                    test_sharpe=test_metrics.trade_sharpe,
+                    train_avg_return=train_metrics.avg_return,
+                    test_avg_return=test_metrics.avg_return,
+                )
+            )
 
         # Overfitting score
         of_score = self._overfitting_score(fold_results)
@@ -148,11 +151,14 @@ class WalkForwardValidator:
         oos_metrics = None
         if all_oos_trades:
             oos_metrics = self.calculator.calculate(
-                all_oos_trades, all_oos_skipped,
+                all_oos_trades,
+                all_oos_skipped,
                 position_size=self.simulator.position_size,
             )
 
-        return WalkForwardResult(folds=fold_results, overfitting_score=of_score, oos_metrics=oos_metrics)
+        return WalkForwardResult(
+            folds=fold_results, overfitting_score=of_score, oos_metrics=oos_metrics
+        )
 
     def _generate_folds(self, months: List[str]) -> List[Tuple[List[str], List[str]]]:
         """
@@ -234,9 +240,13 @@ class WalkForwardValidator:
         # OOS Pooled Metrics
         if result.oos_metrics is not None:
             m = result.oos_metrics
-            print(f"\nOOS POOLED METRICS (all test trades combined)")
+            print("\nOOS POOLED METRICS (all test trades combined)")
             print("─" * 50)
-            print(f"Trades: {m.total_trades}   Win Rate: {m.win_rate:.1f}%   Avg Return: {m.avg_return:.1f}%")
-            print(f"P&L: ${m.total_pnl:,.0f}   Profit Factor: {m.profit_factor:.2f}   Trade Sharpe: {m.trade_sharpe:.2f}")
+            print(
+                f"Trades: {m.total_trades}   Win Rate: {m.win_rate:.1f}%   Avg Return: {m.avg_return:.1f}%"
+            )
+            print(
+                f"P&L: ${m.total_pnl:,.0f}   Profit Factor: {m.profit_factor:.2f}   Trade Sharpe: {m.trade_sharpe:.2f}"
+            )
 
         print("=" * 90)

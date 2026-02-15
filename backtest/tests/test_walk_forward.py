@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Unit tests for walk-forward validation."""
 
-import pytest
-from backtest.walk_forward import WalkForwardValidator, FoldResult, WalkForwardResult
-from backtest.trade_simulator import TradeSimulator
+from datetime import datetime, timedelta
+
+from backtest.html_parser import TradeCandidate
 from backtest.metrics_calculator import MetricsCalculator
 from backtest.price_fetcher import PriceBar
-from backtest.html_parser import TradeCandidate
-from datetime import datetime, timedelta
+from backtest.trade_simulator import TradeSimulator
+from backtest.walk_forward import FoldResult, WalkForwardValidator
 
 
 def make_candidate(ticker, report_date, grade="B", score=75.0):
@@ -22,7 +22,11 @@ def make_candidate(ticker, report_date, grade="B", score=75.0):
 
 def make_bar(date, open_p, high, low, close, adj_close=None, volume=1000):
     return PriceBar(
-        date=date, open=open_p, high=high, low=low, close=close,
+        date=date,
+        open=open_p,
+        high=high,
+        low=low,
+        close=close,
         adj_close=adj_close if adj_close is not None else close,
         volume=volume,
     )
@@ -31,9 +35,9 @@ def make_bar(date, open_p, high, low, close, adj_close=None, volume=1000):
 def make_bars_for_ticker(start_date_str, num_days=120, base_price=100):
     """Generate a series of PriceBars starting from start_date_str."""
     bars = []
-    dt = datetime.strptime(start_date_str, '%Y-%m-%d')
+    dt = datetime.strptime(start_date_str, "%Y-%m-%d")
     for i in range(num_days):
-        d = (dt + timedelta(days=i)).strftime('%Y-%m-%d')
+        d = (dt + timedelta(days=i)).strftime("%Y-%m-%d")
         p = base_price + i * 0.1
         bars.append(make_bar(d, p, p + 5, p - 2, p + 1))
     return bars
@@ -110,10 +114,25 @@ class TestOverfittingScore:
     def test_no_overfitting(self):
         """test_sharpe == train_sharpe → score = 1.0."""
         folds = [
-            FoldResult(fold_num=1, train_start="", train_end="", test_start="", test_end="",
-                       train_trades=10, test_trades=5, train_win_rate=60, test_win_rate=60,
-                       train_pnl=1000, test_pnl=500, train_profit_factor=2.0, test_profit_factor=2.0,
-                       train_sharpe=0.5, test_sharpe=0.5, train_avg_return=2.0, test_avg_return=2.0),
+            FoldResult(
+                fold_num=1,
+                train_start="",
+                train_end="",
+                test_start="",
+                test_end="",
+                train_trades=10,
+                test_trades=5,
+                train_win_rate=60,
+                test_win_rate=60,
+                train_pnl=1000,
+                test_pnl=500,
+                train_profit_factor=2.0,
+                test_profit_factor=2.0,
+                train_sharpe=0.5,
+                test_sharpe=0.5,
+                train_avg_return=2.0,
+                test_avg_return=2.0,
+            ),
         ]
         score = WalkForwardValidator._overfitting_score(folds)
         assert score == 1.0
@@ -121,10 +140,25 @@ class TestOverfittingScore:
     def test_significant_overfitting(self):
         """test_sharpe << train_sharpe → score < 0.5."""
         folds = [
-            FoldResult(fold_num=1, train_start="", train_end="", test_start="", test_end="",
-                       train_trades=10, test_trades=5, train_win_rate=60, test_win_rate=40,
-                       train_pnl=1000, test_pnl=-200, train_profit_factor=2.0, test_profit_factor=0.5,
-                       train_sharpe=1.0, test_sharpe=0.2, train_avg_return=5.0, test_avg_return=-1.0),
+            FoldResult(
+                fold_num=1,
+                train_start="",
+                train_end="",
+                test_start="",
+                test_end="",
+                train_trades=10,
+                test_trades=5,
+                train_win_rate=60,
+                test_win_rate=40,
+                train_pnl=1000,
+                test_pnl=-200,
+                train_profit_factor=2.0,
+                test_profit_factor=0.5,
+                train_sharpe=1.0,
+                test_sharpe=0.2,
+                train_avg_return=5.0,
+                test_avg_return=-1.0,
+            ),
         ]
         score = WalkForwardValidator._overfitting_score(folds)
         assert score < 0.5
@@ -132,10 +166,25 @@ class TestOverfittingScore:
     def test_zero_train_sharpe_skipped(self):
         """train_sharpe=0 folds are skipped."""
         folds = [
-            FoldResult(fold_num=1, train_start="", train_end="", test_start="", test_end="",
-                       train_trades=10, test_trades=5, train_win_rate=50, test_win_rate=60,
-                       train_pnl=0, test_pnl=500, train_profit_factor=1.0, test_profit_factor=2.0,
-                       train_sharpe=0.0, test_sharpe=0.5, train_avg_return=0.0, test_avg_return=2.0),
+            FoldResult(
+                fold_num=1,
+                train_start="",
+                train_end="",
+                test_start="",
+                test_end="",
+                train_trades=10,
+                test_trades=5,
+                train_win_rate=50,
+                test_win_rate=60,
+                train_pnl=0,
+                test_pnl=500,
+                train_profit_factor=1.0,
+                test_profit_factor=2.0,
+                train_sharpe=0.0,
+                test_sharpe=0.5,
+                train_avg_return=0.0,
+                test_avg_return=2.0,
+            ),
         ]
         score = WalkForwardValidator._overfitting_score(folds)
         assert score == 0.0  # No valid ratios

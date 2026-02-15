@@ -11,8 +11,8 @@ Simulates long positions with:
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Tuple
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
 
 from backtest.price_fetcher import PriceBar
 
@@ -23,19 +23,19 @@ logger = logging.getLogger(__name__)
 class TradeResult:
     ticker: str
     grade: str
-    grade_source: str       # "html" | "inferred"
+    grade_source: str  # "html" | "inferred"
     score: Optional[float]
     report_date: str
     entry_date: str
-    entry_price: float      # Open price
+    entry_price: float  # Open price
     exit_date: str
     exit_price: float
     shares: int
-    invested: float         # shares * entry_price
+    invested: float  # shares * entry_price
     pnl: float
     return_pct: float
-    holding_days: int       # Calendar days
-    exit_reason: str        # "stop_loss" | "max_holding" | "end_of_data"
+    holding_days: int  # Calendar days
+    exit_reason: str  # "stop_loss" | "max_holding" | "end_of_data"
     gap_size: Optional[float] = None
     company_name: Optional[str] = None
 
@@ -46,7 +46,7 @@ class SkippedTrade:
     report_date: str
     grade: str
     score: Optional[float]
-    skip_reason: str        # "no_price_data" | "zero_shares" | "missing_ohlc"
+    skip_reason: str  # "no_price_data" | "zero_shares" | "missing_ohlc"
 
 
 class TradeSimulator:
@@ -64,7 +64,9 @@ class TradeSimulator:
         daily_entry_limit: Optional[int] = None,
     ):
         if stop_mode not in self.VALID_STOP_MODES:
-            raise ValueError(f"Invalid stop_mode: {stop_mode}. Must be one of {self.VALID_STOP_MODES}")
+            raise ValueError(
+                f"Invalid stop_mode: {stop_mode}. Must be one of {self.VALID_STOP_MODES}"
+            )
         self.position_size = position_size
         self.stop_loss_pct = stop_loss_pct
         self.slippage_pct = slippage_pct
@@ -99,24 +101,28 @@ class TradeSimulator:
             for candidate in candidates:
                 bars = price_data.get(candidate.ticker)
                 if not bars:
-                    skipped.append(SkippedTrade(
-                        ticker=candidate.ticker,
-                        report_date=candidate.report_date,
-                        grade=candidate.grade,
-                        score=candidate.score,
-                        skip_reason="no_price_data",
-                    ))
+                    skipped.append(
+                        SkippedTrade(
+                            ticker=candidate.ticker,
+                            report_date=candidate.report_date,
+                            grade=candidate.grade,
+                            score=candidate.score,
+                            skip_reason="no_price_data",
+                        )
+                    )
                     continue
-                report_dt = datetime.strptime(candidate.report_date, '%Y-%m-%d')
+                report_dt = datetime.strptime(candidate.report_date, "%Y-%m-%d")
                 entry_idx = self._find_next_trading_day_index(bars, report_dt)
                 if entry_idx is None:
-                    skipped.append(SkippedTrade(
-                        ticker=candidate.ticker,
-                        report_date=candidate.report_date,
-                        grade=candidate.grade,
-                        score=candidate.score,
-                        skip_reason="no_price_data",
-                    ))
+                    skipped.append(
+                        SkippedTrade(
+                            ticker=candidate.ticker,
+                            report_date=candidate.report_date,
+                            grade=candidate.grade,
+                            score=candidate.score,
+                            skip_reason="no_price_data",
+                        )
+                    )
                     continue
                 entry_date = bars[entry_idx].date
                 simulatable.append((candidate, bars, entry_date))
@@ -135,13 +141,15 @@ class TradeSimulator:
                     if i < self.daily_entry_limit:
                         filtered.append((cand, bars))
                     else:
-                        skipped.append(SkippedTrade(
-                            ticker=cand.ticker,
-                            report_date=cand.report_date,
-                            grade=cand.grade,
-                            score=cand.score,
-                            skip_reason="daily_limit",
-                        ))
+                        skipped.append(
+                            SkippedTrade(
+                                ticker=cand.ticker,
+                                report_date=cand.report_date,
+                                grade=cand.grade,
+                                score=cand.score,
+                                skip_reason="daily_limit",
+                            )
+                        )
 
             # Phase 3: Simulate filtered candidates
             for candidate, bars in filtered:
@@ -155,13 +163,15 @@ class TradeSimulator:
             for candidate in candidates:
                 bars = price_data.get(candidate.ticker)
                 if not bars:
-                    skipped.append(SkippedTrade(
-                        ticker=candidate.ticker,
-                        report_date=candidate.report_date,
-                        grade=candidate.grade,
-                        score=candidate.score,
-                        skip_reason="no_price_data",
-                    ))
+                    skipped.append(
+                        SkippedTrade(
+                            ticker=candidate.ticker,
+                            report_date=candidate.report_date,
+                            grade=candidate.grade,
+                            score=candidate.score,
+                            skip_reason="no_price_data",
+                        )
+                    )
                     continue
 
                 result = self._simulate_single(candidate, bars)
@@ -178,7 +188,7 @@ class TradeSimulator:
 
     def _simulate_single(self, candidate, bars: List[PriceBar]):
         """Simulate a single trade."""
-        report_dt = datetime.strptime(candidate.report_date, '%Y-%m-%d')
+        report_dt = datetime.strptime(candidate.report_date, "%Y-%m-%d")
 
         # Find entry day: first trading day AFTER report_date
         entry_idx = self._find_next_trading_day_index(bars, report_dt)
@@ -225,7 +235,7 @@ class TradeSimulator:
 
         invested = shares * entry_price
         stop_price = entry_price * (1 - self.stop_loss_pct / 100)
-        entry_dt = datetime.strptime(entry_bar.date, '%Y-%m-%d')
+        entry_dt = datetime.strptime(entry_bar.date, "%Y-%m-%d")
 
         # Scan from entry day onward
         exit_price = None
@@ -234,7 +244,7 @@ class TradeSimulator:
         close_stop_pending = False
 
         for idx, bar in enumerate(bars[entry_idx:]):
-            bar_dt = datetime.strptime(bar.date, '%Y-%m-%d')
+            bar_dt = datetime.strptime(bar.date, "%Y-%m-%d")
             calendar_days = (bar_dt - entry_dt).days
 
             # close_next_open: previous day's close triggered stop → exit at today's open
@@ -242,7 +252,9 @@ class TradeSimulator:
                 exit_price = bar.adjusted_open * (1 - self.slippage_pct / 100)
                 exit_date = bar.date
                 exit_reason = "stop_loss"
-                logger.debug(f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) at {bar.date} open, price={exit_price:.4f}")
+                logger.debug(
+                    f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) at {bar.date} open, price={exit_price:.4f}"
+                )
                 break
 
             # Check stop loss (mode-dependent)
@@ -250,55 +262,85 @@ class TradeSimulator:
             if self.stop_mode == "intraday":
                 stop_hit = bar.low > 0 and bar.adjusted_low <= stop_price
             elif self.stop_mode == "close":
-                adj_c = bar.adj_close if (bar.adj_close is not None and bar.adj_close > 0) else bar.close
+                adj_c = (
+                    bar.adj_close
+                    if (bar.adj_close is not None and bar.adj_close > 0)
+                    else bar.close
+                )
                 stop_hit = adj_c > 0 and adj_c <= stop_price
             elif self.stop_mode == "skip_entry_day":
                 stop_hit = idx > 0 and bar.low > 0 and bar.adjusted_low <= stop_price
             elif self.stop_mode == "close_next_open":
-                adj_c = bar.adj_close if (bar.adj_close is not None and bar.adj_close > 0) else bar.close
+                adj_c = (
+                    bar.adj_close
+                    if (bar.adj_close is not None and bar.adj_close > 0)
+                    else bar.close
+                )
                 if adj_c > 0 and adj_c <= stop_price:
                     close_stop_pending = True
                     # Don't break — execute at next bar's open
 
             if stop_hit:
                 if self.stop_mode == "close":
-                    adj_c = bar.adj_close if (bar.adj_close is not None and bar.adj_close > 0) else bar.close
+                    adj_c = (
+                        bar.adj_close
+                        if (bar.adj_close is not None and bar.adj_close > 0)
+                        else bar.close
+                    )
                     exit_price = adj_c * (1 - self.slippage_pct / 100)
                 else:
                     exit_price = stop_price * (1 - self.slippage_pct / 100)
                 exit_date = bar.date
                 exit_reason = "stop_loss"
-                logger.debug(f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) at {bar.date}, price={exit_price:.4f}")
+                logger.debug(
+                    f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) at {bar.date}, price={exit_price:.4f}"
+                )
                 break
 
             # Check max holding period (ensure close is valid)
             if not close_stop_pending and calendar_days >= self.max_holding_days and bar.close > 0:
-                exit_price = bar.adj_close if (bar.adj_close is not None and bar.adj_close > 0) else bar.close
+                exit_price = (
+                    bar.adj_close
+                    if (bar.adj_close is not None and bar.adj_close > 0)
+                    else bar.close
+                )
                 exit_date = bar.date
                 exit_reason = "max_holding"
-                logger.debug(f"{candidate.ticker} {entry_bar.date}: max_holding at {bar.date}, days={calendar_days}")
+                logger.debug(
+                    f"{candidate.ticker} {entry_bar.date}: max_holding at {bar.date}, days={calendar_days}"
+                )
                 break
 
         # If loop ended with close_stop_pending but no next bar: fallback to last bar's close
         if exit_price is None and close_stop_pending:
             last_bar = bars[-1]
-            adj_c = last_bar.adj_close if (last_bar.adj_close is not None and last_bar.adj_close > 0) else last_bar.close
+            adj_c = (
+                last_bar.adj_close
+                if (last_bar.adj_close is not None and last_bar.adj_close > 0)
+                else last_bar.close
+            )
             exit_price = adj_c * (1 - self.slippage_pct / 100)
             exit_date = last_bar.date
             exit_reason = "stop_loss"
-            logger.debug(f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) fallback at {last_bar.date}, price={exit_price:.4f}")
+            logger.debug(
+                f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) fallback at {last_bar.date}, price={exit_price:.4f}"
+            )
 
         # If loop completed without exit (data runs out)
         if exit_price is None:
             last_bar = bars[-1]
-            exit_price = last_bar.adj_close if (last_bar.adj_close is not None and last_bar.adj_close > 0) else last_bar.close
+            exit_price = (
+                last_bar.adj_close
+                if (last_bar.adj_close is not None and last_bar.adj_close > 0)
+                else last_bar.close
+            )
             exit_date = last_bar.date
             exit_reason = "end_of_data"
             logger.debug(f"{candidate.ticker} {entry_bar.date}: end_of_data at {last_bar.date}")
 
         pnl = (exit_price - entry_price) * shares
         return_pct = ((exit_price / entry_price) - 1) * 100
-        holding_days = (datetime.strptime(exit_date, '%Y-%m-%d') - entry_dt).days
+        holding_days = (datetime.strptime(exit_date, "%Y-%m-%d") - entry_dt).days
 
         return TradeResult(
             ticker=candidate.ticker,
@@ -324,7 +366,7 @@ class TradeSimulator:
         self, bars: List[PriceBar], after_date: datetime
     ) -> Optional[int]:
         """Find index of first trading day strictly after after_date."""
-        target = after_date.strftime('%Y-%m-%d')
+        target = after_date.strftime("%Y-%m-%d")
         for i, bar in enumerate(bars):
             if bar.date > target:
                 return i
@@ -336,4 +378,4 @@ class TradeSimulator:
         reasons = {}
         for s in skipped:
             reasons[s.skip_reason] = reasons.get(s.skip_reason, 0) + 1
-        return ', '.join(f"{reason}: {count}" for reason, count in sorted(reasons.items()))
+        return ", ".join(f"{reason}: {count}" for reason, count in sorted(reasons.items()))
