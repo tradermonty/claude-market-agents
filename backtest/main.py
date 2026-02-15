@@ -35,8 +35,18 @@ def parse_args():
     parser.add_argument('--slippage', type=float, default=0.5, help='Slippage percentage on stop')
     parser.add_argument('--max-holding', type=int, default=90, help='Max holding period (calendar days)')
     parser.add_argument('--min-grade', default='D', choices=['A', 'B', 'C', 'D'], help='Minimum grade to include')
+    parser.add_argument('--min-score', type=float, default=None, help='Minimum score filter (inclusive)')
+    parser.add_argument('--max-score', type=float, default=None, help='Maximum score filter (exclusive)')
+    parser.add_argument('--min-gap', type=float, default=None, help='Minimum gap %% filter (inclusive)')
+    parser.add_argument('--max-gap', type=float, default=None, help='Maximum gap %% filter (exclusive)')
+    parser.add_argument('--stop-mode', default='intraday', choices=['intraday', 'close', 'skip_entry_day', 'close_next_open'],
+                        help='Stop loss mode: intraday (low-based), close (close-based), skip_entry_day (skip day-0), close_next_open (close trigger, next open exit)')
+    parser.add_argument('--daily-entry-limit', type=int, default=None,
+                        help='Max new entries per day (None = unlimited)')
     parser.add_argument('--fmp-api-key', default=None, help='FMP API key (overrides env/config)')
     parser.add_argument('--parse-only', action='store_true', help='Only parse HTML, skip price fetch and simulation')
+    parser.add_argument('--walk-forward', action='store_true', help='Run walk-forward validation')
+    parser.add_argument('--wf-folds', type=int, default=3, help='Number of walk-forward folds')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose logging')
     return parser.parse_args()
 
@@ -63,6 +73,12 @@ def main():
         'slippage': args.slippage,
         'max_holding': args.max_holding,
         'min_grade': args.min_grade,
+        'min_score': args.min_score,
+        'max_score': args.max_score,
+        'min_gap': args.min_gap,
+        'max_gap': args.max_gap,
+        'stop_mode': args.stop_mode,
+        'daily_entry_limit': args.daily_entry_limit,
     }
 
     grade_order = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
@@ -83,6 +99,26 @@ def main():
     ]
 
     logger.info(f"After grade filter (>= {args.min_grade}): {len(candidates)} candidates")
+
+    # Score range filter
+    if args.min_score is not None:
+        candidates = [c for c in candidates if c.score is not None and c.score >= args.min_score]
+    if args.max_score is not None:
+        candidates = [c for c in candidates if c.score is not None and c.score < args.max_score]
+    if args.min_score is not None or args.max_score is not None:
+        lo = args.min_score if args.min_score is not None else '-'
+        hi = args.max_score if args.max_score is not None else '-'
+        logger.info(f"After score filter [{lo}, {hi}): {len(candidates)} candidates")
+
+    # Gap size filter
+    if args.min_gap is not None:
+        candidates = [c for c in candidates if c.gap_size is not None and c.gap_size >= args.min_gap]
+    if args.max_gap is not None:
+        candidates = [c for c in candidates if c.gap_size is not None and c.gap_size < args.max_gap]
+    if args.min_gap is not None or args.max_gap is not None:
+        lo = args.min_gap if args.min_gap is not None else '-'
+        hi = args.max_gap if args.max_gap is not None else '-'
+        logger.info(f"After gap filter [{lo}%, {hi}%): {len(candidates)} candidates")
 
     # Summary
     grade_counts = {}
@@ -123,6 +159,8 @@ def main():
         stop_loss_pct=args.stop_loss,
         slippage_pct=args.slippage,
         max_holding_days=args.max_holding,
+        stop_mode=args.stop_mode,
+        daily_entry_limit=args.daily_entry_limit,
     )
     trades, skipped = simulator.simulate_all(candidates, price_data)
 
@@ -132,7 +170,7 @@ def main():
     logger.info("=" * 60)
 
     calculator = MetricsCalculator()
-    metrics = calculator.calculate(trades, skipped)
+    metrics = calculator.calculate(trades, skipped, position_size=args.position_size)
 
     # Step 5: Generate reports
     logger.info("=" * 60)
@@ -141,6 +179,20 @@ def main():
 
     generator = ReportGenerator()
     generator.generate(metrics, trades, skipped, args.output_dir, config)
+
+    # Step 6 (optional): Walk-forward validation
+    if args.walk_forward:
+        logger.info("=" * 60)
+        logger.info("Step 6: Walk-Forward Validation")
+        logger.info("=" * 60)
+        from backtest.walk_forward import WalkForwardValidator
+        wf = WalkForwardValidator(
+            simulator=simulator,
+            calculator=calculator,
+            n_folds=args.wf_folds,
+        )
+        wf_results = wf.run(candidates, price_data)
+        wf.print_summary(wf_results)
 
     # Print summary
     logger.info("=" * 60)
@@ -152,6 +204,8 @@ def main():
     logger.info(f"Profit Factor: {metrics.profit_factor:.2f}")
     logger.info(f"Trade Sharpe: {metrics.trade_sharpe:.2f}")
     logger.info(f"Max Drawdown: ${metrics.max_drawdown:,.2f}")
+    logger.info(f"Peak Positions: {metrics.peak_positions}")
+    logger.info(f"Capital Required: ${metrics.capital_requirement:,.0f}")
     logger.info(f"Skipped: {metrics.total_skipped}")
     logger.info(f"Reports: {args.output_dir}")
 

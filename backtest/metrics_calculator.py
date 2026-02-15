@@ -11,7 +11,9 @@ Computes:
 """
 
 import logging
+from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 
 import numpy as np
@@ -20,6 +22,13 @@ from scipy import stats
 from backtest.trade_simulator import TradeResult, SkippedTrade
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class DailyEquityPoint:
+    date: str           # YYYY-MM-DD
+    equity: float       # Cumulative realized PnL
+    positions: int      # Number of open positions on this date
 
 
 @dataclass
@@ -52,6 +61,17 @@ class ScoreRangeMetrics:
 @dataclass
 class GapSizeMetrics:
     range_label: str
+    count: int
+    wins: int
+    win_rate: float
+    avg_return: float
+    total_pnl: float
+
+
+@dataclass
+class CrossFilterMetrics:
+    gap_range: str      # "0-5%", "5-10%", "10-20%", "20%+", "Unknown"
+    score_range: str    # "85+", "70-84", "55-69", "<55"
     count: int
     wins: int
     win_rate: float
@@ -128,6 +148,14 @@ class BacktestMetrics:
     stop_loss_total: int
     stop_loss_rate: float
 
+    # Cross filter (gap x score)
+    cross_filter_metrics: List[CrossFilterMetrics] = field(default_factory=list)
+
+    # Equity curve and position tracking
+    daily_equity: List[DailyEquityPoint] = field(default_factory=list)
+    peak_positions: int = 0
+    capital_requirement: float = 0.0
+
 
 class MetricsCalculator:
     """Calculate comprehensive backtest performance metrics."""
@@ -136,6 +164,7 @@ class MetricsCalculator:
         self,
         trades: List[TradeResult],
         skipped: List[SkippedTrade],
+        position_size: float = 10000.0,
     ) -> BacktestMetrics:
         """Calculate all metrics from trade results."""
         if not trades:
@@ -150,6 +179,9 @@ class MetricsCalculator:
         total_loss = abs(sum(t.pnl for t in losses)) if losses else 0
 
         corr, p_val = self._score_correlation(trades)
+        daily_eq = self._daily_equity_series(trades)
+        peak_pos = max((d.positions for d in daily_eq), default=0)
+        capital_req = round(peak_pos * position_size, 2)
 
         return BacktestMetrics(
             total_trades=len(trades),
@@ -172,12 +204,61 @@ class MetricsCalculator:
             score_return_p_value=p_val,
             ab_vs_cd_test=self._ab_vs_cd_test(trades),
             gap_size_metrics=self._gap_size_breakdown(trades),
+            cross_filter_metrics=self._cross_filter_breakdown(trades),
             monthly_metrics=self._monthly_breakdown(trades),
             stop_loss_total=sum(1 for t in trades if t.exit_reason == "stop_loss"),
             stop_loss_rate=round(
                 sum(1 for t in trades if t.exit_reason == "stop_loss") / len(trades) * 100, 1
             ),
+            daily_equity=daily_eq,
+            peak_positions=peak_pos,
+            capital_requirement=capital_req,
         )
+
+    def _daily_equity_series(self, trades: List[TradeResult]) -> List[DailyEquityPoint]:
+        """Build daily equity (cumulative realized PnL) and open position count."""
+        if not trades:
+            return []
+
+        # Collect events: entry opens a position, exit closes and realizes PnL
+        entry_dates = set()
+        exit_dates = set()
+        for t in trades:
+            entry_dates.add(t.entry_date)
+            exit_dates.add(t.exit_date)
+
+        all_dates = sorted(entry_dates | exit_dates)
+        if not all_dates:
+            return []
+
+        # Build date range from first entry to last exit
+        start = datetime.strptime(all_dates[0], '%Y-%m-%d')
+        end = datetime.strptime(all_dates[-1], '%Y-%m-%d')
+
+        # Pre-compute: PnL realized on each exit_date, and position deltas
+        realized_on = defaultdict(float)
+        open_delta = defaultdict(int)   # +1 on entry_date, -1 on exit_date
+        for t in trades:
+            realized_on[t.exit_date] += t.pnl
+            open_delta[t.entry_date] += 1
+            open_delta[t.exit_date] -= 1
+
+        result = []
+        cumulative_pnl = 0.0
+        open_positions = 0
+        current = start
+        while current <= end:
+            ds = current.strftime('%Y-%m-%d')
+            cumulative_pnl += realized_on.get(ds, 0.0)
+            open_positions += open_delta.get(ds, 0)
+            result.append(DailyEquityPoint(
+                date=ds,
+                equity=round(cumulative_pnl, 2),
+                positions=open_positions,
+            ))
+            current += timedelta(days=1)
+
+        return result
 
     def _max_drawdown(self, trades: List[TradeResult]) -> float:
         """Calculate max drawdown from cumulative PnL (dollar amount)."""
@@ -393,6 +474,63 @@ class MetricsCalculator:
             ))
         return result
 
+    @staticmethod
+    def _classify_gap(gap_size: Optional[float]) -> str:
+        if gap_size is None:
+            return "Unknown"
+        if gap_size < 5:
+            return "0-5%"
+        if gap_size < 10:
+            return "5-10%"
+        if gap_size < 20:
+            return "10-20%"
+        return "20%+"
+
+    @staticmethod
+    def _classify_score(score: Optional[float]) -> str:
+        if score is None:
+            return "No Score"
+        if score >= 85:
+            return "85+"
+        if score >= 70:
+            return "70-84"
+        if score >= 55:
+            return "55-69"
+        return "<55"
+
+    def _cross_filter_breakdown(self, trades: List[TradeResult]) -> List[CrossFilterMetrics]:
+        """Gap range x Score range cross-analysis matrix."""
+        gap_labels = ["0-5%", "5-10%", "10-20%", "20%+", "Unknown"]
+        score_labels = ["85+", "70-84", "55-69", "<55", "No Score"]
+
+        buckets: Dict[tuple, list] = {}
+        for gl in gap_labels:
+            for sl in score_labels:
+                buckets[(gl, sl)] = []
+
+        for t in trades:
+            gl = self._classify_gap(t.gap_size)
+            sl = self._classify_score(t.score)
+            buckets[(gl, sl)].append(t)
+
+        result = []
+        for gl in gap_labels:
+            for sl in score_labels:
+                group = buckets[(gl, sl)]
+                if not group:
+                    continue
+                wins = [t for t in group if t.pnl > 0]
+                result.append(CrossFilterMetrics(
+                    gap_range=gl,
+                    score_range=sl,
+                    count=len(group),
+                    wins=len(wins),
+                    win_rate=round(len(wins) / len(group) * 100, 1),
+                    avg_return=round(float(np.mean([t.return_pct for t in group])), 2),
+                    total_pnl=round(sum(t.pnl for t in group), 2),
+                ))
+        return result
+
     def _monthly_breakdown(self, trades: List[TradeResult]) -> List[MonthlyMetrics]:
         """Monthly performance breakdown."""
         by_month = {}
@@ -425,6 +563,8 @@ class MetricsCalculator:
             grade_metrics=[], grade_metrics_html_only=[],
             score_range_metrics=[], score_return_correlation=0,
             score_return_p_value=1.0, ab_vs_cd_test=None,
-            gap_size_metrics=[], monthly_metrics=[],
+            gap_size_metrics=[], cross_filter_metrics=[],
+            monthly_metrics=[],
             stop_loss_total=0, stop_loss_rate=0,
+            daily_equity=[], peak_positions=0, capital_requirement=0.0,
         )

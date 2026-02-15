@@ -19,7 +19,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 from backtest.trade_simulator import TradeResult, SkippedTrade
-from backtest.metrics_calculator import BacktestMetrics
+from backtest.metrics_calculator import BacktestMetrics, CrossFilterMetrics, DailyEquityPoint
 
 logger = logging.getLogger(__name__)
 
@@ -83,12 +83,13 @@ class ReportGenerator:
         generated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         # Build chart JSONs
-        cumulative_chart = self._cumulative_pnl_chart(trades)
+        cumulative_chart = self._equity_and_positions_chart(m.daily_equity, trades)
         grade_chart = self._grade_bar_chart(m)
         scatter_chart = self._score_return_scatter(trades)
         gap_chart = self._gap_size_chart(m)
         monthly_chart = self._monthly_chart(m)
         distribution_chart = self._return_distribution(trades)
+        cross_filter_chart = self._cross_filter_heatmap(m)
 
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -158,12 +159,14 @@ tr:hover {{ background: var(--bg3); }}
   <div class="kpi"><div class="label">Max Drawdown</div><div class="value negative">${m.max_drawdown:,.0f}</div></div>
   <div class="kpi"><div class="label">Avg Return</div><div class="value {'positive' if m.avg_return >= 0 else 'negative'}">{m.avg_return:.1f}%</div></div>
   <div class="kpi"><div class="label">Skipped</div><div class="value">{m.total_skipped}</div></div>
+  <div class="kpi"><div class="label">Peak Positions</div><div class="value">{m.peak_positions}</div></div>
+  <div class="kpi"><div class="label">Capital Required</div><div class="value">${m.capital_requirement:,.0f}</div></div>
 </div>
 <p style="font-size:0.75em; color:var(--text2); margin-bottom:16px;">*Trade Sharpe = mean(returns)/std(returns) per trade. Independent trade assumption; not annualized.</p>
 
-<!-- Cumulative PnL -->
+<!-- Equity Curve & Positions -->
 <div class="section">
-  <h2>Cumulative P&L Curve</h2>
+  <h2>Equity Curve & Open Positions</h2>
   <div id="cumulative-chart" class="chart"></div>
 </div>
 
@@ -201,6 +204,13 @@ tr:hover {{ background: var(--bg3); }}
   <h2>Gap Size Performance</h2>
   <div id="gap-chart" class="chart"></div>
   {self._gap_size_table_html(m.gap_size_metrics)}
+</div>
+
+<!-- Cross Filter: Gap x Score -->
+<div class="section">
+  <h2>Gap Size x Score Range Cross Analysis</h2>
+  <div id="cross-filter-chart" class="chart"></div>
+  {self._cross_filter_table_html(m.cross_filter_metrics)}
 </div>
 
 <!-- Monthly Returns -->
@@ -244,7 +254,10 @@ tr:hover {{ background: var(--bg3); }}
   Stop Loss: {cfg.get('stop_loss', 10)}% |
   Slippage: {cfg.get('slippage', 0.5)}% |
   Max Holding: {cfg.get('max_holding', 90)} days |
-  Min Grade: {cfg.get('min_grade', 'D')}
+  Min Grade: {cfg.get('min_grade', 'D')} |
+  Stop Mode: {cfg.get('stop_mode', 'intraday')} |
+  Daily Entry Limit: {cfg.get('daily_entry_limit', 'None')}
+  {self._filter_config_html(cfg)}
 </div>
 
 </div>
@@ -256,6 +269,7 @@ tr:hover {{ background: var(--bg3); }}
 {gap_chart}
 {monthly_chart}
 {distribution_chart}
+{cross_filter_chart}
 {self._sortable_table_js()}
 </script>
 </body>
@@ -264,30 +278,50 @@ tr:hover {{ background: var(--bg3); }}
         logger.info(f"HTML report written to {path}")
 
     # ------------------------------------------------------------------ Charts
-    def _cumulative_pnl_chart(self, trades: List[TradeResult]) -> str:
-        sorted_t = sorted(trades, key=lambda t: t.entry_date)
-        dates = []
-        cum_pnl = []
-        running = 0
-        for t in sorted_t:
-            running += t.pnl
-            dates.append(t.entry_date)
-            cum_pnl.append(round(running, 2))
+    def _equity_and_positions_chart(self, daily_equity: List[DailyEquityPoint], trades: List[TradeResult]) -> str:
+        if daily_equity:
+            dates = [d.date for d in daily_equity]
+            equities = [d.equity for d in daily_equity]
+            positions = [d.positions for d in daily_equity]
+        else:
+            # Fallback to trade-based cumulative PnL if no daily equity
+            sorted_t = sorted(trades, key=lambda t: t.entry_date)
+            dates = [t.entry_date for t in sorted_t]
+            equities = []
+            running = 0
+            for t in sorted_t:
+                running += t.pnl
+                equities.append(round(running, 2))
+            positions = [0] * len(dates)
 
-        fig = go.Figure()
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
         fig.add_trace(go.Scatter(
-            x=dates, y=cum_pnl, mode='lines',
+            x=dates, y=equities, mode='lines',
             line=dict(color='#58a6ff', width=2),
             fill='tozeroy',
             fillcolor='rgba(88,166,255,0.1)',
             name='Cumulative P&L',
-        ))
+        ), secondary_y=False)
+
+        fig.add_trace(go.Scatter(
+            x=dates, y=positions, mode='lines',
+            line=dict(color='#d29922', width=1),
+            fill='tozeroy',
+            fillcolor='rgba(210,153,34,0.15)',
+            name='Open Positions',
+        ), secondary_y=True)
+
         fig.update_layout(
             template='plotly_dark', paper_bgcolor='#161b22', plot_bgcolor='#0d1117',
-            margin=dict(l=60, r=20, t=20, b=40),
-            xaxis_title='Entry Date', yaxis_title='Cumulative P&L ($)',
-            yaxis_tickprefix='$', height=400,
+            margin=dict(l=60, r=60, t=20, b=40),
+            height=400,
+            legend=dict(x=0.01, y=0.99, bgcolor='rgba(0,0,0,0)'),
         )
+        fig.update_yaxes(title_text='Cumulative P&L ($)', tickprefix='$', secondary_y=False)
+        fig.update_yaxes(title_text='Open Positions', secondary_y=True)
+        fig.update_xaxes(title_text='Date')
+
         return f"Plotly.newPlot('cumulative-chart', {fig.to_json()});"
 
     def _grade_bar_chart(self, m: BacktestMetrics) -> str:
@@ -390,6 +424,63 @@ tr:hover {{ background: var(--bg3); }}
             barmode='overlay', height=350,
         )
         return f"Plotly.newPlot('dist-chart', {fig.to_json()});"
+
+    def _cross_filter_heatmap(self, m: BacktestMetrics) -> str:
+        if not m.cross_filter_metrics:
+            return ""
+        gap_labels = ["0-5%", "5-10%", "10-20%", "20%+"]
+        score_labels = ["85+", "70-84", "55-69", "<55"]
+        lookup = {(cf.gap_range, cf.score_range): cf for cf in m.cross_filter_metrics}
+
+        z_return = []
+        z_text = []
+        for sl in score_labels:
+            row_return = []
+            row_text = []
+            for gl in gap_labels:
+                cf = lookup.get((gl, sl))
+                if cf and cf.count > 0:
+                    row_return.append(cf.avg_return)
+                    row_text.append(f"n={cf.count}<br>WR={cf.win_rate:.0f}%<br>Avg={cf.avg_return:.1f}%<br>PnL=${cf.total_pnl:,.0f}")
+                else:
+                    row_return.append(None)
+                    row_text.append("")
+            z_return.append(row_return)
+            z_text.append(row_text)
+
+        fig = go.Figure(go.Heatmap(
+            z=z_return,
+            x=gap_labels,
+            y=score_labels,
+            text=z_text,
+            texttemplate="%{text}",
+            hovertemplate="Gap: %{x}<br>Score: %{y}<br>Avg Return: %{z:.1f}%<extra></extra>",
+            colorscale=[[0, '#f85149'], [0.5, '#21262d'], [1, '#3fb950']],
+            zmid=0,
+            colorbar=dict(title="Avg Return %"),
+        ))
+        fig.update_layout(
+            template='plotly_dark', paper_bgcolor='#161b22', plot_bgcolor='#0d1117',
+            margin=dict(l=80, r=20, t=20, b=60),
+            xaxis_title='Gap Size', yaxis_title='Score Range',
+            height=350,
+        )
+        return f"Plotly.newPlot('cross-filter-chart', {fig.to_json()});"
+
+    def _cross_filter_table_html(self, metrics: List[CrossFilterMetrics]) -> str:
+        if not metrics:
+            return '<p style="color:var(--text2);">No cross-filter data</p>'
+        rows = ""
+        for cf in metrics:
+            rows += f"""<tr>
+<td>{cf.gap_range}</td><td>{cf.score_range}</td><td>{cf.count}</td>
+<td>{cf.win_rate:.1f}%</td>
+<td class="{'positive' if cf.avg_return >= 0 else 'negative'}">{cf.avg_return:.1f}%</td>
+<td class="{'positive' if cf.total_pnl >= 0 else 'negative'}">${cf.total_pnl:,.0f}</td>
+</tr>"""
+        return f"""<table><thead><tr>
+<th>Gap Range</th><th>Score Range</th><th>Trades</th><th>Win Rate</th><th>Avg Return</th><th>Total P&L</th>
+</tr></thead><tbody>{rows}</tbody></table>"""
 
     # ------------------------------------------------------------------ Tables
     def _grade_table_html(self, grades, title: str) -> str:
@@ -514,6 +605,20 @@ tr:hover {{ background: var(--bg3); }}
 </tr></thead><tbody>{rows}</tbody></table>"""
 
     # ------------------------------------------------------------------ Helpers
+    def _filter_config_html(self, cfg: dict) -> str:
+        parts = []
+        if cfg.get('min_score') is not None or cfg.get('max_score') is not None:
+            lo = cfg.get('min_score', '-')
+            hi = cfg.get('max_score', '-')
+            parts.append(f"Score Filter: [{lo}, {hi})")
+        if cfg.get('min_gap') is not None or cfg.get('max_gap') is not None:
+            lo = cfg.get('min_gap', '-')
+            hi = cfg.get('max_gap', '-')
+            parts.append(f"Gap Filter: [{lo}%, {hi}%)")
+        if not parts:
+            return ""
+        return "<br>" + " | ".join(parts)
+
     def _trade_period(self, trades: List[TradeResult]) -> str:
         if not trades:
             return "N/A"
