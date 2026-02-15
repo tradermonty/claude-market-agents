@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - December 31, 2025</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2d3748;
+            --accent-color: #3182ce;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --danger-color: #e53e3e;
+            --light-bg: #f7fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            min-height: 100vh;
+            color: var(--secondary-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        header .date {
+            font-size: 1rem;
+            opacity: 0.8;
+            background: rgba(255,255,255,0.1);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 40px 30px;
+        }
+
+        .no-earnings-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .no-earnings-icon {
+            font-size: 80px;
+            margin-bottom: 25px;
+            color: #cbd5e0;
+        }
+
+        .no-earnings-message h3 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .no-earnings-message p {
+            font-size: 1.1rem;
+            color: #718096;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .holiday-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: var(--light-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px 25px;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
+        }
+
+        .info-box h4 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .info-box p {
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .upcoming-section {
+            margin-top: 40px;
+        }
+
+        .upcoming-section h3 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .earnings-calendar {
+            display: grid;
+            gap: 15px;
+        }
+
+        .calendar-item {
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 22px;
+            background: var(--light-bg);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .calendar-date {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+        }
+
+        .calendar-ticker {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .calendar-name {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .calendar-sector {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .methodology-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-radius: 12px;
+        }
+
+        .methodology-section h3 {
+            color: var(--success-color);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .scoring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .scoring-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .scoring-item .weight {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .scoring-item .label {
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .grade-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .grade-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .grade-badge {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .grade-a { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .grade-b { background: linear-gradient(135deg, #4299e1, #3182ce); }
+        .grade-c { background: linear-gradient(135deg, #ecc94b, #d69e2e); }
+        .grade-d { background: linear-gradient(135deg, #fc8181, #e53e3e); }
+
+        .grade-info {
+            flex: 1;
+        }
+
+        .grade-info .points {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .grade-info .success-rate {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+        }
+
+        .market-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #68d391;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .calendar-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .scoring-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grade-legend {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="subtitle">Backtest-Based Momentum Trading Signals</div>
+            <div class="date">December 31, 2025 (Wednesday) - New Year's Eve</div>
+            <div class="market-status">
+                <span class="status-dot"></span>
+                <span>Market Open Today: 9:30 AM - 4:00 PM ET</span>
+            </div>
+        </header>
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2>Earnings Trading Screener Results</h2>
+            </div>
+            <div class="card-body">
+                <div class="no-earnings-message">
+                    <div class="no-earnings-icon">&#128197;</div>
+                    <div class="holiday-badge">New Year's Eve - Holiday Period</div>
+                    <h3>No Earnings Releases Today</h3>
+                    <p>
+                        There are no stocks with earnings announcements from yesterday's post-close
+                        or today's pre-market that meet our screening criteria. This is typical for
+                        the New Year's Eve holiday period when companies avoid scheduling earnings releases.
+                    </p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Why No Earnings Today?</h4>
+                    <p>
+                        Companies traditionally avoid releasing earnings during major holiday periods
+                        (Thanksgiving, Christmas, New Year's) due to reduced trading volumes, limited
+                        analyst coverage, and lower institutional participation. The Q4 2025 earnings
+                        season will resume in early January 2026.
+                    </p>
+                </div>
+
+                <div class="upcoming-section">
+                    <h3>Upcoming Earnings - Week of January 6, 2026</h3>
+                    <div class="earnings-calendar">
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 6, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">PENG</span>
+                                <span class="calendar-name">Penguin Solutions Inc</span>
+                            </div>
+                            <span class="calendar-sector">Technology</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 6, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">ANGO</span>
+                                <span class="calendar-name">Angiodynamic Inc</span>
+                            </div>
+                            <span class="calendar-sector">Healthcare</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 7, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">STZ</span>
+                                <span class="calendar-name">Constellation Brands Inc</span>
+                            </div>
+                            <span class="calendar-sector">Consumer Defensive</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 7, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">JEF</span>
+                                <span class="calendar-name">Jefferies Financial Group Inc</span>
+                            </div>
+                            <span class="calendar-sector">Financial</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 7, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">APLD</span>
+                                <span class="calendar-name">Applied Digital Corporation</span>
+                            </div>
+                            <span class="calendar-sector">Technology</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 7, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">ACI</span>
+                                <span class="calendar-name">Albertsons Companies Inc</span>
+                            </div>
+                            <span class="calendar-sector">Consumer Defensive</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 7, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">CALM</span>
+                                <span class="calendar-name">Cal-Maine Foods, Inc</span>
+                            </div>
+                            <span class="calendar-sector">Consumer Defensive</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 8, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">SNX</span>
+                                <span class="calendar-name">TD Synnex Corp</span>
+                            </div>
+                            <span class="calendar-sector">Technology</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 8, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">RPM</span>
+                                <span class="calendar-name">RPM International, Inc</span>
+                            </div>
+                            <span class="calendar-sector">Basic Materials</span>
+                        </div>
+                        <div class="calendar-item">
+                            <span class="calendar-date">Jan 8, 2026</span>
+                            <div>
+                                <span class="calendar-ticker">CMC</span>
+                                <span class="calendar-name">Commercial Metals Co</span>
+                            </div>
+                            <span class="calendar-sector">Basic Materials</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="methodology-section">
+                    <h3>Backtest Scoring Methodology</h3>
+                    <p style="color: #4a5568; margin-bottom: 20px;">
+                        Our 5-element scoring system evaluates post-earnings gap-up stocks based on
+                        historical success patterns:
+                    </p>
+                    <div class="scoring-grid">
+                        <div class="scoring-item">
+                            <div class="weight">25%</div>
+                            <div class="label">Gap Size Performance</div>
+                        </div>
+                        <div class="scoring-item">
+                            <div class="weight">30%</div>
+                            <div class="label">Pre-Earnings Trend</div>
+                        </div>
+                        <div class="scoring-item">
+                            <div class="weight">20%</div>
+                            <div class="label">Volume Trend</div>
+                        </div>
+                        <div class="scoring-item">
+                            <div class="weight">15%</div>
+                            <div class="label">MA200 Position</div>
+                        </div>
+                        <div class="scoring-item">
+                            <div class="weight">10%</div>
+                            <div class="label">MA50 Position</div>
+                        </div>
+                    </div>
+
+                    <div class="grade-legend">
+                        <div class="grade-item">
+                            <div class="grade-badge grade-a">A</div>
+                            <div class="grade-info">
+                                <div class="points">85+ Points</div>
+                                <div class="success-rate">70%+ Historical Success Rate</div>
+                            </div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-badge grade-b">B</div>
+                            <div class="grade-info">
+                                <div class="points">70-84 Points</div>
+                                <div class="success-rate">55-69% Historical Success Rate</div>
+                            </div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-badge grade-c">C</div>
+                            <div class="grade-info">
+                                <div class="points">55-69 Points</div>
+                                <div class="success-rate">40-54% Historical Success Rate</div>
+                            </div>
+                        </div>
+                        <div class="grade-item">
+                            <div class="grade-badge grade-d">D</div>
+                            <div class="grade-info">
+                                <div class="points">54 Points or Below</div>
+                                <div class="success-rate">Below 40% Historical Success Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Analysis generated on December 31, 2025 at 06:01 AM PST</p>
+            <p style="margin-top: 10px;">
+                Data sources: Finviz Screener | Alpaca Markets
+            </p>
+            <p style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
+                Disclaimer: This analysis is for informational purposes only and does not constitute
+                investment advice. Past performance does not guarantee future results. Always conduct
+                your own due diligence before making investment decisions.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

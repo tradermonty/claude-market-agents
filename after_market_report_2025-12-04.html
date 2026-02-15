@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After-Market Report - December 4, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00ff88, #00ddff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .date {
+            font-size: 1.2rem;
+            color: #b8d4ff;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #00ff88;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .etf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .etf-item:last-child {
+            border-bottom: none;
+        }
+
+        .etf-symbol {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ffffff;
+        }
+
+        .etf-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #00ff88;
+        }
+
+        .negative {
+            color: #ff6b6b;
+        }
+
+        .after-hours-section {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            margin-bottom: 30px;
+        }
+
+        .after-hours-section h2 {
+            color: #ffa500;
+            border-bottom-color: rgba(255, 165, 0, 0.4);
+        }
+
+        .earnings-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffa500;
+        }
+
+        .earnings-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .earnings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .earnings-symbol {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffa500;
+        }
+
+        .earnings-change {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .earnings-details {
+            font-size: 0.9rem;
+            color: #b8d4ff;
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b8d4ff;
+        }
+
+        .sector-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sector-item:last-child {
+            border-bottom: none;
+        }
+
+        .sector-name {
+            font-size: 1rem;
+            color: #ffffff;
+        }
+
+        .key-points {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .key-points h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #00ddff;
+            border-bottom: 2px solid rgba(0, 221, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 12px 0 12px 30px;
+            position: relative;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .key-points li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-size: 1.3rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #b8d4ff;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card, .key-points {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 After-Market Report</h1>
+            <p class="date">📅 December 4, 2025 (Thursday) - Final Market Data</p>
+        </header>
+
+        <!-- Major ETF Performance -->
+        <div class="grid">
+            <div class="card">
+                <h2>📈 Major ETF Performance</h2>
+                <div class="etf-item">
+                    <span class="etf-symbol">SPY</span>
+                    <div>
+                        <span class="etf-price">$684.39</span>
+                        <span class="positive">+0.07%</span>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <span class="etf-symbol">QQQ</span>
+                    <div>
+                        <span class="etf-price">$622.94</span>
+                        <span class="negative">-0.09%</span>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <span class="etf-symbol">DIA</span>
+                    <div>
+                        <span class="etf-price">$479.07</span>
+                        <span class="negative">-0.07%</span>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <span class="etf-symbol">IWM</span>
+                    <div>
+                        <span class="etf-price">$251.82</span>
+                        <span class="positive">+0.88%</span>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <span class="etf-symbol">TLT</span>
+                    <div>
+                        <span class="etf-price">$88.58</span>
+                        <span class="negative">-0.54%</span>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <span class="etf-symbol">GLD</span>
+                    <div>
+                        <span class="etf-price">$387.13</span>
+                        <span class="positive">+0.06%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Volume-Surge Tickers -->
+            <div class="card">
+                <h2>🔥 Top Volume-Surge Movers</h2>
+                <div class="etf-item">
+                    <div>
+                        <div class="etf-symbol">PATH</div>
+                        <div class="earnings-details">UiPath - Technology</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="etf-price">$18.48</div>
+                        <div class="positive">+24.36%</div>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <div>
+                        <div class="etf-symbol">USAR</div>
+                        <div class="earnings-details">USA Rare Earth - Basic Materials</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="etf-price">$17.48</div>
+                        <div class="positive">+24.68%</div>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <div>
+                        <div class="etf-symbol">RGC</div>
+                        <div class="earnings-details">Regencell Bioscience - Healthcare</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="etf-price">$16.00</div>
+                        <div class="positive">+22.98%</div>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <div>
+                        <div class="etf-symbol">NUTX</div>
+                        <div class="earnings-details">Nutex Health - Healthcare</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="etf-price">$156.79</div>
+                        <div class="positive">+19.01%</div>
+                    </div>
+                </div>
+                <div class="etf-item">
+                    <div>
+                        <div class="etf-symbol">ASTS</div>
+                        <div class="earnings-details">AST SpaceMobile - Technology</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="etf-price">$72.65</div>
+                        <div class="positive">+18.25%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- After-Hours Earnings Section -->
+        <div class="card after-hours-section">
+            <h2>🌙 After-Hours Earnings & Movers</h2>
+
+            <div class="earnings-item">
+                <div class="earnings-header">
+                    <span class="earnings-symbol">RBRK - Rubrik Inc</span>
+                    <span class="earnings-change positive">+11.51%</span>
+                </div>
+                <div class="earnings-details">
+                    Technology | Regular: $70.43 (-1.37%) | EPS Surprise: +91.15% | Revenue Surprise: +9.78%
+                </div>
+            </div>
+
+            <div class="earnings-item">
+                <div class="earnings-header">
+                    <span class="earnings-symbol">ZUMZ - Zumiez Inc</span>
+                    <span class="earnings-change positive">+8.27%</span>
+                </div>
+                <div class="earnings-details">
+                    Consumer Cyclical | Regular: $27.26 (-1.77%) | EPS Surprise: +43.24% | Revenue Surprise: +1.78%
+                </div>
+            </div>
+
+            <div class="earnings-item">
+                <div class="earnings-header">
+                    <span class="earnings-symbol">SFIX - Stitch Fix Inc</span>
+                    <span class="earnings-change positive">+5.39%</span>
+                </div>
+                <div class="earnings-details">
+                    Consumer Cyclical | Regular: $4.69 (+2.85%) | EPS Surprise: +32.24% | Revenue Surprise: +1.76%
+                </div>
+            </div>
+
+            <div class="earnings-item">
+                <div class="earnings-header">
+                    <span class="earnings-symbol">ULTA - Ulta Beauty</span>
+                    <span class="earnings-change positive">+4.64%</span>
+                </div>
+                <div class="earnings-details">
+                    Consumer Cyclical | Regular: $533.95 (-1.94%) | EPS Surprise: +13.23% | Revenue Surprise: +4.12%
+                </div>
+            </div>
+
+            <div class="earnings-item">
+                <div class="earnings-header">
+                    <span class="earnings-symbol">COO - Cooper Companies</span>
+                    <span class="earnings-change positive">+3.86%</span>
+                </div>
+                <div class="earnings-details">
+                    Healthcare | Regular: $77.03 (+1.38%) | EPS Surprise: +3.23% | Revenue Surprise: -0.34%
+                </div>
+            </div>
+
+            <div class="earnings-item">
+                <div class="earnings-header">
+                    <span class="earnings-symbol">SWBI - Smith & Wesson</span>
+                    <span class="earnings-change positive">+3.26%</span>
+                </div>
+                <div class="earnings-details">
+                    Industrials | Regular: $8.91 (+0.34%) | EPS Surprise: +22.56% | Revenue Surprise: +7.38%
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Statistics -->
+        <div class="grid">
+            <div class="card">
+                <h2>📊 Market Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">66</div>
+                        <div class="stat-label">Volume Surge Stocks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">956</div>
+                        <div class="stat-label">Uptrend Stocks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">2.5x</div>
+                        <div class="stat-label">Avg Relative Volume</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">+7.2%</div>
+                        <div class="stat-label">Avg Price Change</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sector Performance -->
+            <div class="card">
+                <h2>🏢 Sector Performance</h2>
+                <div class="sector-item">
+                    <span class="sector-name">Industrials</span>
+                    <span class="positive">+0.71%</span>
+                </div>
+                <div class="sector-item">
+                    <span class="sector-name">Communication Services</span>
+                    <span class="positive">+0.47%</span>
+                </div>
+                <div class="sector-item">
+                    <span class="sector-name">Energy</span>
+                    <span class="positive">+0.41%</span>
+                </div>
+                <div class="sector-item">
+                    <span class="sector-name">Financial</span>
+                    <span class="positive">+0.40%</span>
+                </div>
+                <div class="sector-item">
+                    <span class="sector-name">Technology</span>
+                    <span class="positive">+0.36%</span>
+                </div>
+                <div class="sector-item">
+                    <span class="sector-name">Basic Materials</span>
+                    <span class="positive">+0.10%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Points -->
+        <div class="key-points">
+            <h2>🔑 Today's Key Points</h2>
+            <ul>
+                <li><strong>Mixed Major Indices:</strong> SPY barely positive (+0.07%), while QQQ and DIA slightly negative. Small caps (IWM) outperformed with +0.88%, suggesting risk-on rotation into smaller names.</li>
+                <li><strong>Strong Volume-Surge Activity:</strong> 66 stocks showed significant volume surges, averaging 2.5x normal volume and +7.2% price gains. Technology and Healthcare dominated the surge list.</li>
+                <li><strong>Tech Leadership:</strong> PATH (UiPath) surged +24.36% on 93.8M volume and ASTS (AST SpaceMobile) +18.25% on 24.5M volume, leading technology sector strength. Both showed exceptional relative volume (3.96x and 1.90x respectively).</li>
+                <li><strong>After-Hours Earnings Winners:</strong> All 6 post-close reporters beat expectations. RBRK led with +11.51% on massive 91% EPS beat. Average EPS surprise: +34.3%.</li>
+                <li><strong>Sector Rotation:</strong> Industrials led with +0.71%, followed by Communication Services (+0.47%) and Energy (+0.41%). Healthcare (-0.45%) and Consumer Defensive (-0.53%) showed weakness, reflecting risk-on sentiment.</li>
+                <li><strong>Defensive Assets Mixed:</strong> Bonds (TLT) declined -0.54%, reflecting yield pressure. Gold (GLD) edged higher +0.06%, maintaining safe-haven appeal near $387 level.</li>
+                <li><strong>Breadth Healthy:</strong> 956 stocks in uptrends indicate solid market participation. Volume-surge criteria caught meaningful moves, not just noise.</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>📊 Data Sources: Finviz Elite, Alpaca Markets</p>
+            <p>⏰ Report Generated: December 4, 2025, 1:16 PM PST</p>
+            <p>💡 For informational purposes only. Not investment advice.</p>
+        </footer>
+    </div>
+</body>
+</html>

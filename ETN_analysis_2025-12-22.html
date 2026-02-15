@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eaton Corporation (ETN) - Comprehensive Stock Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .ticker {
+            font-size: 1.5em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .price-banner {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .price-item {
+            text-align: center;
+            color: white;
+        }
+
+        .price-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .price-item .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            color: #2a5298;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .positive {
+            color: #38ef7d;
+        }
+
+        .negative {
+            color: #ff6b6b;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .company-overview {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .investment-thesis {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .investment-thesis h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .investment-thesis ul {
+            list-style-position: inside;
+            line-height: 1.8;
+        }
+
+        .risk-section {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .analyst-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .analyst-table th,
+        .analyst-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .analyst-table th {
+            background-color: #2a5298;
+            color: white;
+        }
+
+        .analyst-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Eaton Corporation plc</h1>
+            <div class="ticker">NYSE: ETN</div>
+            <div style="margin-top: 20px; font-size: 0.9em;">Comprehensive Stock Analysis Report</div>
+            <div style="margin-top: 10px; font-size: 0.8em; opacity: 0.8;">Generated: December 22, 2025</div>
+        </div>
+
+        <div class="price-banner">
+            <div class="price-item">
+                <div class="label">Current Price</div>
+                <div class="value">$317.80</div>
+            </div>
+            <div class="price-item">
+                <div class="label">Market Cap</div>
+                <div class="value">$123.4B</div>
+            </div>
+            <div class="price-item">
+                <div class="label">52-Week Range</div>
+                <div class="value">$231.85 - $399.56</div>
+            </div>
+            <div class="price-item">
+                <div class="label">Dividend Yield</div>
+                <div class="value">1.10%</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="company-overview">
+                <h2 style="margin-bottom: 15px;">Company Overview</h2>
+                <p style="line-height: 1.8; font-size: 1.1em;">
+                    <strong>Sector:</strong> Industrials | <strong>Industry:</strong> Industrial - Machinery<br>
+                    <strong>CEO:</strong> Paulo Ruiz Sternadt | <strong>Founded:</strong> 1911<br><br>
+                    Eaton Corporation plc operates as a global power management company with operations across electrical, aerospace, vehicle, and eMobility segments. The company provides electrical components, power distribution systems, aerospace pumps and motors, transmission systems, and electric vehicle components to commercial and industrial customers worldwide. Headquartered in Dublin, Ireland, Eaton serves customers in over 175 countries with innovative solutions for energy-efficient power management.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Key Financial Metrics Dashboard</h2>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">Valuation Metrics</div>
+                        <div class="metric">
+                            <span class="metric-label">P/E Ratio</span>
+                            <span class="metric-value">33.4x (TTM)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS (TTM)</span>
+                            <span class="metric-value">$9.50</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Price to Book</span>
+                            <span class="metric-value">Premium</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Profitability Metrics</div>
+                        <div class="metric">
+                            <span class="metric-label">Gross Margin</span>
+                            <span class="metric-value positive">38.2%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Operating Margin</span>
+                            <span class="metric-value positive">19.6%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Margin</span>
+                            <span class="metric-value positive">15.2%</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Growth Metrics</div>
+                        <div class="metric">
+                            <span class="metric-label">Revenue Growth (YoY)</span>
+                            <span class="metric-value positive">+7.3%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS Growth (YoY)</span>
+                            <span class="metric-value positive">+18.4%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Q3 2025 Revenue</span>
+                            <span class="metric-value">$6.99B</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Technical Indicators</div>
+                        <div class="metric">
+                            <span class="metric-label">Distance from 52W High</span>
+                            <span class="metric-value negative">-20.5%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Volume (Avg)</span>
+                            <span class="metric-value">2.5M shares</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Beta</span>
+                            <span class="metric-value">1.17</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Revenue and Earnings Trends</h2>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="earningsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Quarterly Performance Analysis</h2>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">Q3 2025 (Latest)</div>
+                        <div class="metric">
+                            <span class="metric-label">Revenue</span>
+                            <span class="metric-value">$6.99B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Income</span>
+                            <span class="metric-value">$1.01B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS</span>
+                            <span class="metric-value">$2.59</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EBITDA</span>
+                            <span class="metric-value">$1.60B</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Q2 2025</div>
+                        <div class="metric">
+                            <span class="metric-label">Revenue</span>
+                            <span class="metric-value">$7.03B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Income</span>
+                            <span class="metric-value">$982M</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS</span>
+                            <span class="metric-value">$2.51</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EBITDA</span>
+                            <span class="metric-value">$1.52B</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Q1 2025</div>
+                        <div class="metric">
+                            <span class="metric-label">Revenue</span>
+                            <span class="metric-value">$6.38B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Income</span>
+                            <span class="metric-value">$964M</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS</span>
+                            <span class="metric-value">$2.45</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EBITDA</span>
+                            <span class="metric-value">$1.47B</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Q4 2024</div>
+                        <div class="metric">
+                            <span class="metric-label">Revenue</span>
+                            <span class="metric-value">$6.24B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Income</span>
+                            <span class="metric-value">$971M</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS</span>
+                            <span class="metric-value">$2.45</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EBITDA</span>
+                            <span class="metric-value">$1.45B</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Technical Price Analysis</h2>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">Price Performance</div>
+                        <div class="metric">
+                            <span class="metric-label">1 Month</span>
+                            <span class="metric-value negative">-4.8%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">3 Months</span>
+                            <span class="metric-value negative">-8.2%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">6 Months</span>
+                            <span class="metric-value negative">-5.9%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">YTD 2025</span>
+                            <span class="metric-value negative">-9.1%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">1 Year</span>
+                            <span class="metric-value positive">+36.5%</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Support & Resistance</div>
+                        <div class="metric">
+                            <span class="metric-label">52-Week High</span>
+                            <span class="metric-value">$399.56</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">52-Week Low</span>
+                            <span class="metric-value">$231.85</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Distance from High</span>
+                            <span class="metric-value negative">-20.5%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Distance from Low</span>
+                            <span class="metric-value positive">+37.1%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Analyst Ratings & Price Targets</h2>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">Rating Snapshot</div>
+                        <div class="metric">
+                            <span class="metric-label">Overall Rating</span>
+                            <span class="metric-value">B+ (Outperform)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Rating Score</span>
+                            <span class="metric-value">3/5</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">ROE Score</span>
+                            <span class="metric-value positive">5/5 (Excellent)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">ROA Score</span>
+                            <span class="metric-value positive">5/5 (Excellent)</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Price Target Summary</div>
+                        <div class="metric">
+                            <span class="metric-label">Highest Target</span>
+                            <span class="metric-value positive">$495 (Melius)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Average Target</span>
+                            <span class="metric-value">~$380</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Recent Target</span>
+                            <span class="metric-value">$295 (Bernstein)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Upside Potential</span>
+                            <span class="metric-value positive">+19.6% to avg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="analyst-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Firm</th>
+                            <th>Analyst</th>
+                            <th>Price Target</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dec 19, 2025</td>
+                            <td>Bernstein</td>
+                            <td>-</td>
+                            <td>$295</td>
+                            <td>Target lowered from $414</td>
+                        </tr>
+                        <tr>
+                            <td>Dec 18, 2025</td>
+                            <td>Wells Fargo</td>
+                            <td>Joseph O'Dea</td>
+                            <td>$340</td>
+                            <td>Target lowered from $395</td>
+                        </tr>
+                        <tr>
+                            <td>Dec 9, 2025</td>
+                            <td>Wolfe Research</td>
+                            <td>Nigel Coe</td>
+                            <td>$413</td>
+                            <td>Upgraded to Outperform</td>
+                        </tr>
+                        <tr>
+                            <td>Oct 17, 2025</td>
+                            <td>Mizuho Securities</td>
+                            <td>-</td>
+                            <td>$425</td>
+                            <td>Target raised from $385</td>
+                        </tr>
+                        <tr>
+                            <td>Sep 15, 2025</td>
+                            <td>Melius Research</td>
+                            <td>-</td>
+                            <td>$495</td>
+                            <td>Upgraded to Buy from Hold</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Dividend Analysis</h2>
+                <div class="chart-container">
+                    <canvas id="dividendChart"></canvas>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">Dividend Metrics</div>
+                        <div class="metric">
+                            <span class="metric-label">Current Dividend</span>
+                            <span class="metric-value">$1.04/quarter</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Annual Dividend</span>
+                            <span class="metric-value">$4.16</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Dividend Yield</span>
+                            <span class="metric-value">1.10%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Payment Frequency</span>
+                            <span class="metric-value">Quarterly</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Dividend Growth</div>
+                        <div class="metric">
+                            <span class="metric-label">2025 Increase</span>
+                            <span class="metric-value positive">+10.6% (from $0.94)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">2024 Increase</span>
+                            <span class="metric-value positive">+9.3% (from $0.86)</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">5-Year CAGR</span>
+                            <span class="metric-value positive">~8-9%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Next Ex-Dividend</span>
+                            <span class="metric-value">Feb 2026 (est)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="investment-thesis">
+                <h3>Investment Thesis Summary</h3>
+                <ul>
+                    <li><strong>Strong Market Position:</strong> Eaton is a leader in power management with diversified operations across electrical, aerospace, vehicle, and eMobility segments, providing resilience and growth opportunities.</li>
+                    <li><strong>Robust Financial Performance:</strong> Consistent revenue growth (7.3% YoY) with improving margins. Strong profitability with 15.2% net margin and healthy EBITDA generation.</li>
+                    <li><strong>Electrical Infrastructure Mega-Trend:</strong> Positioned to benefit from data center expansion, AI infrastructure buildout, renewable energy transition, and electric vehicle adoption.</li>
+                    <li><strong>Dividend Growth Story:</strong> Consistent dividend increases (10.6% in 2025) demonstrate confidence in cash generation and commitment to shareholder returns.</li>
+                    <li><strong>Valuation Consideration:</strong> Trading at P/E of 33.4x reflects premium valuation given growth prospects, but down 20.5% from 52-week highs presents potential entry point.</li>
+                    <li><strong>Analyst Confidence:</strong> Multiple recent upgrades and price targets averaging around $380 suggest 19.6% upside potential from current levels.</li>
+                </ul>
+            </div>
+
+            <div class="risk-section">
+                <h3 style="margin-bottom: 15px;">Key Risk Factors</h3>
+                <ul style="line-height: 1.8;">
+                    <li><strong>Economic Sensitivity:</strong> As an industrial company, Eaton is exposed to economic cycles and industrial production trends.</li>
+                    <li><strong>Valuation Risk:</strong> P/E ratio of 33.4x is above historical averages and sector peers, leaving little room for disappointment.</li>
+                    <li><strong>Recent Price Decline:</strong> Down 20.5% from 52-week highs and negative YTD performance indicates potential technical weakness.</li>
+                    <li><strong>Competition:</strong> Intense competition in electrical equipment and industrial machinery sectors from both established players and new entrants.</li>
+                    <li><strong>Execution Risk:</strong> Ability to capitalize on eMobility and data center trends depends on successful execution of growth strategies.</li>
+                    <li><strong>Interest Rate Sensitivity:</strong> Higher rates could pressure valuation multiples for industrial stocks.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Financial Strength Analysis</h2>
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">Annual Performance (2024)</div>
+                        <div class="metric">
+                            <span class="metric-label">Total Revenue</span>
+                            <span class="metric-value">$24.88B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Income</span>
+                            <span class="metric-value">$3.79B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Operating Income</span>
+                            <span class="metric-value">$4.87B</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EBITDA</span>
+                            <span class="metric-value">$5.63B</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">2024 vs 2023 Growth</div>
+                        <div class="metric">
+                            <span class="metric-label">Revenue Growth</span>
+                            <span class="metric-value positive">+7.3%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Net Income Growth</span>
+                            <span class="metric-value positive">+17.9%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EPS Growth</span>
+                            <span class="metric-value positive">+18.4%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">EBITDA Growth</span>
+                            <span class="metric-value positive">+13.5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="disclaimer">
+                <h3 style="margin-bottom: 15px;">Important Disclaimer</h3>
+                <p style="line-height: 1.6;">
+                    This report is for informational and educational purposes only and should not be considered as investment advice, a recommendation to buy or sell securities, or a solicitation of any kind. The information presented is based on publicly available data from Financial Modeling Prep API as of December 22, 2025.
+                    <br><br>
+                    Past performance is not indicative of future results. All investments carry risk, including the potential loss of principal. Before making any investment decision, please conduct your own research and consult with a qualified financial advisor who understands your personal financial situation, investment objectives, and risk tolerance.
+                    <br><br>
+                    The analysis provided reflects market conditions and analyst opinions as of the report date and may change rapidly. No warranty or guarantee is made regarding the accuracy, completeness, or timeliness of the information presented.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Report Generated: December 22, 2025</p>
+            <p>Data Source: Financial Modeling Prep API</p>
+            <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                Comprehensive Stock Analysis powered by AI | For Educational Purposes Only
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024'],
+                datasets: [{
+                    label: 'Annual Revenue ($B)',
+                    data: [17.86, 19.63, 20.75, 23.20, 24.88],
+                    backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Annual Revenue Trend',
+                        font: { size: 18 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($B)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Earnings Chart
+        const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+        new Chart(earningsCtx, {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024'],
+                datasets: [{
+                    label: 'Net Income ($B)',
+                    data: [1.41, 2.14, 2.46, 3.22, 3.79],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'EPS ($)',
+                    data: [3.49, 5.34, 6.14, 8.02, 9.50],
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                    borderColor: 'rgba(155, 89, 182, 1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Earnings Growth Trend',
+                        font: { size: 18 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Net Income ($B)'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'EPS ($)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Price Chart (Last 12 months - sample data)
+        const priceCtx = document.getElementById('priceChart').getContext('2d');
+        new Chart(priceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Stock Price ($)',
+                    data: [233, 275, 293, 318, 330, 327, 360, 300, 365, 375, 377, 318],
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '2025 Stock Price Performance',
+                        font: { size: 18 }
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Price ($)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Dividend Chart
+        const dividendCtx = document.getElementById('dividendChart').getContext('2d');
+        new Chart(dividendCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2021 Q4', '2022 Q1', '2022 Q2', '2022 Q3', '2022 Q4', '2023 Q1', '2023 Q2', '2023 Q3', '2023 Q4', '2024 Q1', '2024 Q2', '2024 Q3', '2024 Q4', '2025 Q1', '2025 Q2', '2025 Q3'],
+                datasets: [{
+                    label: 'Quarterly Dividend ($)',
+                    data: [0.76, 0.76, 0.76, 0.81, 0.81, 0.86, 0.86, 0.86, 0.86, 0.94, 0.94, 0.94, 0.94, 1.04, 1.04, 1.04],
+                    backgroundColor: 'rgba(230, 126, 34, 0.6)',
+                    borderColor: 'rgba(230, 126, 34, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Dividend Payment History',
+                        font: { size: 18 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Dividend ($)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

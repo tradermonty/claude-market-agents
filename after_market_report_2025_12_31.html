@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Stock Market Analysis - December 31, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .date {
+            font-size: 1.3em;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #ffb347;
+            font-weight: bold;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #ffd700;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .etf-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .etf-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .etf-name {
+            font-size: 0.9em;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .etf-price {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .etf-change {
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .etf-volume {
+            font-size: 0.9em;
+            color: #b0b0b0;
+            margin-top: 10px;
+        }
+
+        .movers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .movers-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .movers-table td {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .movers-table tr:hover td {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .ticker-symbol {
+            font-weight: bold;
+            color: #ffd700;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: #e0e0e0;
+        }
+
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .sector-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .sector-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .sector-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .sector-change {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .key-points {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 179, 71, 0.2) 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border-left: 5px solid #ffa500;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .key-points li:before {
+            content: "▶ ";
+            color: #ffd700;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .key-points li:last-child {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 30px;
+            color: #b0b0b0;
+        }
+
+        .footer-section {
+            margin-bottom: 15px;
+        }
+
+        .footer-section strong {
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .etf-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sector-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .movers-table {
+                font-size: 0.9em;
+            }
+
+            .movers-table th,
+            .movers-table td {
+                padding: 10px 5px;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-hot {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: #ffffff;
+        }
+
+        .badge-surge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+        }
+
+        .year-end-banner {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1e3c72;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <div class="date">📅 December 31, 2025 (Wednesday) - Final Trading Day of 2025</div>
+            <div class="subtitle">Final After-Market Data & Year-End Review</div>
+            <div class="holiday-notice" style="margin-top: 15px; padding: 15px; background: rgba(255, 165, 0, 0.3); border-radius: 10px; border: 2px solid rgba(255, 165, 0, 0.5);">
+                ⚠️ <strong>Market Holiday Notice:</strong> January 1, 2026 (New Year's Day) - Markets Closed<br>
+                This report reflects the final trading session of 2025
+            </div>
+        </div>
+
+        <div class="year-end-banner">
+            🎊 FINAL TRADING DAY OF 2025 🎊
+        </div>
+
+        <!-- Major ETF Performance Section -->
+        <div class="section">
+            <h2>📊 Major ETF Performance - Year-End Close</h2>
+            <div class="etf-grid">
+                <div class="etf-card">
+                    <div class="etf-symbol">SPY</div>
+                    <div class="etf-name">S&P 500 ETF</div>
+                    <div class="etf-price">$681.92</div>
+                    <div class="etf-change negative">-0.74%</div>
+                    <div class="etf-volume">Vol: 74.4M</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">QQQ</div>
+                    <div class="etf-name">Nasdaq-100 ETF</div>
+                    <div class="etf-price">$614.31</div>
+                    <div class="etf-change negative">-0.83%</div>
+                    <div class="etf-volume">Vol: 40.7M</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">DIA</div>
+                    <div class="etf-name">Dow Jones ETF</div>
+                    <div class="etf-price">$480.57</div>
+                    <div class="etf-change negative">-0.62%</div>
+                    <div class="etf-volume">Vol: 3.4M</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">IWM</div>
+                    <div class="etf-name">Russell 2000 ETF</div>
+                    <div class="etf-price">$246.16</div>
+                    <div class="etf-change negative">-0.75%</div>
+                    <div class="etf-volume">Vol: 35.5M</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">TLT</div>
+                    <div class="etf-name">20+ Year Treasury ETF</div>
+                    <div class="etf-price">$87.16</div>
+                    <div class="etf-change negative">-0.80%</div>
+                    <div class="etf-volume">Vol: 36.5M</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">GLD</div>
+                    <div class="etf-name">Gold ETF</div>
+                    <div class="etf-price">$396.31</div>
+                    <div class="etf-change negative">-0.65%</div>
+                    <div class="etf-volume">Vol: 10.1M</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Volume Surge Tickers Section -->
+        <div class="section">
+            <h2>🔥 Top Volume-Surge Tickers <span class="badge badge-surge">13 Stocks</span></h2>
+            <table class="movers-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Sector</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Volume</th>
+                        <th>Rel Vol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="ticker-symbol">$AXSM</td>
+                        <td>Axsome Therapeutics Inc</td>
+                        <td>Healthcare</td>
+                        <td>$182.64</td>
+                        <td class="positive">+22.76%</td>
+                        <td>3.06M</td>
+                        <td>5.95x</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="ticker-symbol">$NKE</td>
+                        <td>Nike, Inc</td>
+                        <td>Consumer Cyclical</td>
+                        <td>$63.71</td>
+                        <td class="positive">+11.54%</td>
+                        <td>35.46M</td>
+                        <td>2.01x</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="ticker-symbol">$DJT</td>
+                        <td>Trump Media & Technology Group</td>
+                        <td>Communication Services</td>
+                        <td>$13.24</td>
+                        <td class="positive">+5.33%</td>
+                        <td>25.06M</td>
+                        <td>2.82x</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="ticker-symbol">$PVLA</td>
+                        <td>Palvella Therapeutics Inc</td>
+                        <td>Healthcare</td>
+                        <td>$104.67</td>
+                        <td class="positive">+4.79%</td>
+                        <td>389.5K</td>
+                        <td>1.63x</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="ticker-symbol">$DAO</td>
+                        <td>Youdao Inc ADR</td>
+                        <td>Consumer Defensive</td>
+                        <td>$10.08</td>
+                        <td class="positive">+4.56%</td>
+                        <td>214.7K</td>
+                        <td>1.85x</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td class="ticker-symbol">$PBF</td>
+                        <td>PBF Energy Inc</td>
+                        <td>Energy</td>
+                        <td>$27.12</td>
+                        <td class="positive">+4.15%</td>
+                        <td>4.14M</td>
+                        <td>1.58x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Market Statistics Section -->
+        <div class="section">
+            <h2>📈 Market Statistics - Year-End Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">13</div>
+                    <div class="stat-label">Volume-Surge Tickers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">488</div>
+                    <div class="stat-label">Up-Trend Tickers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2.3x</div>
+                    <div class="stat-label">Avg Relative Volume</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">+4.9%</div>
+                    <div class="stat-label">Avg Price Move</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Earnings Releases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">This Week Earnings</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sector Performance Section -->
+        <div class="section">
+            <h2>🏢 Sector Performance - Year-End Close</h2>
+            <div class="sector-grid">
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Energy</div>
+                    <div class="sector-change negative">-0.48%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Communication Services</div>
+                    <div class="sector-change negative">-0.48%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Consumer Defensive</div>
+                    <div class="sector-change negative">-0.52%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Healthcare</div>
+                    <div class="sector-change negative">-0.53%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Utilities</div>
+                    <div class="sector-change negative">-0.58%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Financial</div>
+                    <div class="sector-change negative">-0.72%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Technology</div>
+                    <div class="sector-change negative">-0.74%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Consumer Cyclical</div>
+                    <div class="sector-change negative">-0.78%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Industrials</div>
+                    <div class="sector-change negative">-0.95%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Basic Materials</div>
+                    <div class="sector-change negative">-0.98%</div>
+                </div>
+                <div class="sector-card" style="border-left-color: #ff6b6b;">
+                    <div class="sector-name">Real Estate</div>
+                    <div class="sector-change negative">-1.02%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Key Points Section -->
+        <div class="section">
+            <h2>💡 Today's Key Points - Final Trading Day 2025</h2>
+            <div class="key-points">
+                <ul>
+                    <li><strong>Market Closes 2025 Lower:</strong> All major indices ended the final trading day of 2025 in the red, with the Nasdaq leading declines at -0.83%. The S&P 500 fell -0.74% to $681.92, finishing the year on year-end profit-taking and tech weakness.</li>
+
+                    <li><strong>Biotech Breakout - AXSM Soars +22.76%:</strong> Axsome Therapeutics (AXSM) exploded higher on massive volume (5.95x average) after the FDA granted Priority Review for its AXS-05 Alzheimer's disease agitation treatment. The stock rocketed from $148.79 to $182.64, marking one of the strongest biotech moves to end 2025.</li>
+
+                    <li><strong>Nike Insider Buying Sparks +11.54% Rally:</strong> Nike (NKE) surged on heavy volume (2.01x) after CEO Elliott Hill purchased $1 million in shares and director Tim Cook also bought stock. The insider confidence triggered bullish momentum despite the company's ongoing turnaround challenges.</li>
+
+                    <li><strong>Trump Media Crypto Dividend Announcement:</strong> DJT jumped +5.33% on 2.82x average volume after announcing plans to distribute digital tokens to shareholders as a "pseudo dividend." The stock saw strong retail interest heading into the new year.</li>
+
+                    <li><strong>Broad Market Weakness Across Sectors:</strong> All 11 sectors finished negative, with Energy (-0.47%) showing the best relative performance while Real Estate (-1.02%) and Industrials (-0.96%) lagged. The defensive rotation suggests caution as investors head into 2026.</li>
+
+                    <li><strong>Bonds and Gold Both Decline:</strong> Long-term Treasuries (TLT) fell -0.80% and Gold (GLD) dropped -0.65%, indicating a "risk-off" positioning with cash on the sidelines. Higher bond yields pressured both equities and precious metals.</li>
+
+                    <li><strong>Year-End Profit Taking Dominates:</strong> Light volume across most names except specific catalysts suggests institutional investors locked in 2025 gains. The VIX remains elevated as uncertainty builds for 2026 Fed policy and economic outlook.</li>
+
+                    <li><strong>New Year's Day Holiday Ahead:</strong> Markets will be closed January 1, 2026 for the New Year's Day holiday. Trading resumes Thursday, January 2, 2026 at 9:30 AM ET.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            <div class="footer-section">
+                <strong>Data Sources:</strong> Finviz.com (Real-time Screening), Alpaca Markets (ETF Snapshots & After-Hours Data)
+            </div>
+            <div class="footer-section">
+                <strong>Last Updated:</strong> January 1, 2026 at 13:12 PST - Final Data from December 31, 2025
+            </div>
+            <div class="footer-section">
+                <strong>Note:</strong> This report contains final after-market data for the last trading day of 2025 (December 31). January 1, 2026 is a U.S. market holiday (New Year's Day).
+            </div>
+            <div class="footer-section" style="margin-top: 20px; font-size: 0.9em;">
+                All data is for informational purposes only and should not be construed as investment advice. Past performance does not guarantee future results.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

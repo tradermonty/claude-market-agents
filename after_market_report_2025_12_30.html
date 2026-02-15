@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Stock Market Analysis - December 30, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header .date {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .etf-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .etf-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .etf-price {
+            font-size: 1.8em;
+            margin: 10px 0;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .neutral {
+            color: #ffffff;
+        }
+
+        .change {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+
+        .afterhours-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            border-left: 5px solid #ffff00;
+            margin: 30px 0;
+        }
+
+        .earnings-card {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .afterhours-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff4444;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .earnings-surprise {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .surprise-positive {
+            color: #00ff88;
+        }
+
+        .surprise-negative {
+            color: #ff6b6b;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .key-points {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .key-points li:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer p {
+            margin: 5px 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .etf-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <p class="date">📅 December 30, 2025 (Tuesday) – Final After-Market Data</p>
+        </div>
+
+        <!-- Major ETF Performance -->
+        <div class="card">
+            <h2>📊 Major ETF Performance</h2>
+            <div class="etf-grid">
+                <div class="etf-card">
+                    <div class="etf-symbol">SPY</div>
+                    <div class="etf-price">$686.95</div>
+                    <div class="change negative">-0.13%</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">S&P 500</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">Vol: 42.07M</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">QQQ</div>
+                    <div class="etf-price">$619.43</div>
+                    <div class="change negative">-0.23%</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">Nasdaq 100</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">Vol: 29.80M</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">DIA</div>
+                    <div class="etf-price">$483.59</div>
+                    <div class="change negative">-0.20%</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">Dow Jones</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">Vol: 2.96M</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">IWM</div>
+                    <div class="etf-price">$248.03</div>
+                    <div class="change negative">-0.74%</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">Russell 2000</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">Vol: 21.94M</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">TLT</div>
+                    <div class="etf-price">$87.90</div>
+                    <div class="change negative">-0.24%</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">20+ Yr Treasury</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">Vol: 24.91M</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">GLD</div>
+                    <div class="etf-price">$398.90</div>
+                    <div class="change positive">+0.08%</div>
+                    <div style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">Gold</div>
+                    <div style="font-size: 0.8em; opacity: 0.7;">Vol: 9.97M</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Volume Surge Tickers -->
+        <div class="card">
+            <h2>🔥 Top Volume Surge Tickers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Rel. Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>AFJK</strong></td>
+                        <td>Aimei Health Technology</td>
+                        <td>$82.58</td>
+                        <td class="positive">+89.19%</td>
+                        <td>3.96x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RARE</strong></td>
+                        <td>Ultragenyx Pharmaceutical</td>
+                        <td>$22.78</td>
+                        <td class="positive">+15.52%</td>
+                        <td>6.33x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FTAI</strong></td>
+                        <td>FTAI Aviation Ltd</td>
+                        <td>$197.54</td>
+                        <td class="positive">+14.30%</td>
+                        <td>3.19x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AXTI</strong></td>
+                        <td>AXT Inc</td>
+                        <td>$15.80</td>
+                        <td class="positive">+8.30%</td>
+                        <td>2.75x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BYRN</strong></td>
+                        <td>Byrna Technologies</td>
+                        <td>$17.26</td>
+                        <td class="positive">+7.40%</td>
+                        <td>1.60x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- After-Hours Earnings Section -->
+        <div class="card afterhours-section">
+            <h2>⏰ Post-Close Earnings & After-Hours</h2>
+            <p style="font-size: 1.1em; margin-bottom: 20px;">
+                ℹ️ No significant after-hours earnings movers detected today. Markets will be closed tomorrow (December 31) for New Year's Eve observance.
+            </p>
+            <div class="earnings-card">
+                <div class="afterhours-badge">QUIET SESSION</div>
+                <h3>📊 Limited After-Hours Activity</h3>
+                <p>Volume and volatility remain subdued heading into year-end. Major earnings season resumes in January with JPMorgan Healthcare Conference scheduled for early 2026.</p>
+                <div style="margin-top: 15px; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 10px;">
+                    <strong>Upcoming Events:</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>December 31: Markets Closed (New Year's Eve)</li>
+                        <li>January 2026: J.P. Morgan Healthcare Conference</li>
+                        <li>Mid-January: Q4 Earnings Season Begins</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Statistics -->
+        <div class="card">
+            <h2>📈 Market Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">13</div>
+                    <div class="stat-label">Volume Surge Stocks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">623</div>
+                    <div class="stat-label">Uptrend Stocks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2.6x</div>
+                    <div class="stat-label">Avg Rel. Volume</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">+12.1%</div>
+                    <div class="stat-label">Avg Price Move</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Earnings This Week</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sector Performance -->
+        <div class="card">
+            <h2>🏢 Sector Performance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sector</th>
+                        <th>Change</th>
+                        <th>Stocks</th>
+                        <th>Market Cap (B)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Energy</td>
+                        <td class="positive">+0.75%</td>
+                        <td>251</td>
+                        <td>$3,573</td>
+                    </tr>
+                    <tr>
+                        <td>Communication Services</td>
+                        <td class="positive">+0.30%</td>
+                        <td>275</td>
+                        <td>$12,350</td>
+                    </tr>
+                    <tr>
+                        <td>Basic Materials</td>
+                        <td class="positive">+0.25%</td>
+                        <td>274</td>
+                        <td>$2,548</td>
+                    </tr>
+                    <tr>
+                        <td>Real Estate</td>
+                        <td class="positive">+0.20%</td>
+                        <td>262</td>
+                        <td>$1,669</td>
+                    </tr>
+                    <tr>
+                        <td>Utilities</td>
+                        <td class="positive">+0.20%</td>
+                        <td>108</td>
+                        <td>$1,749</td>
+                    </tr>
+                    <tr>
+                        <td>Financial</td>
+                        <td class="negative">-0.19%</td>
+                        <td>1,000</td>
+                        <td>$14,504</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Today's Key Points -->
+        <div class="key-points">
+            <h2>🎯 Today's Key Points</h2>
+            <ul>
+                <li><strong>Mixed Market Close:</strong> Major indices showed slight weakness with SPY -0.13%, QQQ -0.23%, and small caps (IWM) leading declines at -0.74%. Year-end positioning and low volume dominated trading.</li>
+
+                <li><strong>Energy Sector Leadership:</strong> Energy led all sectors with +0.75% gains despite overall market weakness, suggesting defensive rotation into commodity-linked stocks.</li>
+
+                <li><strong>Exceptional Volume Surges:</strong> 13 stocks displayed significant volume acceleration (average 2.6x normal) with an impressive average price gain of +12.1%, indicating strong institutional activity in select names.</li>
+
+                <li><strong>AFJK Standout Performance:</strong> Aimei Health Technology (AFJK) surged +89.19% on 3.96x relative volume, gaining from $43.65 to $82.58. The stock is up +704% year-to-date in the shell companies industry.</li>
+
+                <li><strong>Biotech Activity:</strong> Ultragenyx (RARE) advanced +15.52% on 6.33x volume following BLA submission news for DTX401 gene therapy. FTAI Aviation also showed strength with +14.30% on 3.19x volume.</li>
+
+                <li><strong>Small Cap Weakness:</strong> Russell 2000 (IWM) underperformed at -0.74%, down -1.85 points from prior close, reflecting risk-off sentiment in smaller cap names as year-end approaches.</li>
+
+                <li><strong>Safe Haven Flows:</strong> Gold (GLD) was the only major ETF in positive territory at +0.08%, while Treasury bonds (TLT) declined -0.24%, suggesting mixed defensive positioning.</li>
+
+                <li><strong>Year-End Dynamics:</strong> Quiet after-hours session with minimal earnings activity. Markets close December 31 for New Year's Eve, with Q4 earnings season expected to begin mid-January.</li>
+
+                <li><strong>Sector Breadth:</strong> Financial sector (largest by market cap at $14.5T) showed slight weakness at -0.19% despite having 131 stocks in uptrend, indicating selective strength rather than broad-based selling.</li>
+
+                <li><strong>Volume Leaders:</strong> Top movers RARE (10.97M shares), AXTI (9.26M shares), and FTAI (3.23M shares) all significantly exceeded their average volumes, confirming strong conviction in these moves.</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Data Sources:</strong> Finviz Elite, Alpaca Markets, Financial Modeling Prep</p>
+            <p><strong>Last Updated:</strong> December 30, 2025 at 13:10 PST (21:10 UTC)</p>
+            <p><strong>Note:</strong> Final after-market data including after-hours information. Markets closed December 31, 2025.</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">This report is for informational purposes only and does not constitute financial advice.</p>
+        </div>
+    </div>
+</body>
+</html>

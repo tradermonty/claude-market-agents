@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Stock Market Analysis - January 19, 2026 (Market Holiday)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header .date {
+            font-size: 1.2em;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .holiday-notice {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            border-left: 5px solid #ffff00;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .holiday-notice h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .holiday-notice p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .etf-card {
+            text-align: center;
+        }
+
+        .etf-symbol {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .etf-price {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .etf-change {
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .volume-surge-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .volume-surge-table th,
+        .volume-surge-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .volume-surge-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .volume-surge-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sector-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .sector-table th,
+        .sector-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sector-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .key-points {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            line-height: 1.8;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .key-points li:before {
+            content: "▸ ";
+            color: #ffd700;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid-2col,
+            .grid-3col {
+                grid-template-columns: 1fr;
+            }
+
+            .holiday-notice h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <div class="date">📅 Monday, January 19, 2026 - Market Holiday</div>
+            <p style="font-size: 0.9em; margin-top: 10px;">Last Trading Day: Friday, January 16, 2026</p>
+        </div>
+
+        <!-- Holiday Notice -->
+        <div class="holiday-notice">
+            <h2>🎉 Martin Luther King Jr. Day</h2>
+            <p><strong>U.S. Stock Market is CLOSED today</strong></p>
+            <p>NYSE and Nasdaq are observing the federal holiday</p>
+            <p>No regular trading, pre-market, or after-hours sessions</p>
+            <p>📈 Markets will reopen Tuesday, January 20, 2026 at 9:30 AM ET</p>
+        </div>
+
+        <!-- Major ETF Performance (Last Trading Day) -->
+        <h2 class="section-title">📊 Major ETF Performance (Last Trading Day: Jan 16)</h2>
+        <div class="grid-3col">
+            <div class="card etf-card">
+                <div class="etf-symbol">SPY</div>
+                <div class="etf-price">$691.66</div>
+                <div class="etf-change negative">-0.08%</div>
+                <div style="font-size: 0.9em; margin-top: 10px; color: #ccc;">S&P 500 ETF</div>
+            </div>
+            <div class="card etf-card">
+                <div class="etf-symbol">QQQ</div>
+                <div class="etf-price">$621.26</div>
+                <div class="etf-change negative">-0.08%</div>
+                <div style="font-size: 0.9em; margin-top: 10px; color: #ccc;">Nasdaq 100 ETF</div>
+            </div>
+            <div class="card etf-card">
+                <div class="etf-symbol">DIA</div>
+                <div class="etf-price">$493.42</div>
+                <div class="etf-change negative">-0.21%</div>
+                <div style="font-size: 0.9em; margin-top: 10px; color: #ccc;">Dow Jones ETF</div>
+            </div>
+            <div class="card etf-card">
+                <div class="etf-symbol">IWM</div>
+                <div class="etf-price">$265.76</div>
+                <div class="etf-change positive">+0.09%</div>
+                <div style="font-size: 0.9em; margin-top: 10px; color: #ccc;">Russell 2000 ETF</div>
+            </div>
+            <div class="card etf-card">
+                <div class="etf-symbol">TLT</div>
+                <div class="etf-price">$87.80</div>
+                <div class="etf-change negative">-0.58%</div>
+                <div style="font-size: 0.9em; margin-top: 10px; color: #ccc;">20+ Yr Treasury</div>
+            </div>
+            <div class="card etf-card">
+                <div class="etf-symbol">GLD</div>
+                <div class="etf-price">$421.29</div>
+                <div class="etf-change negative">-0.48%</div>
+                <div style="font-size: 0.9em; margin-top: 10px; color: #ccc;">Gold ETF</div>
+            </div>
+        </div>
+
+        <!-- Top Volume Surge Tickers -->
+        <div class="card">
+            <h2 class="section-title">🔥 Top Volume-Surge Tickers (Last Trading Day)</h2>
+            <table class="volume-surge-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company</th>
+                        <th>Sector</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Rel Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>$VELO</strong></td>
+                        <td>Velo3D Inc</td>
+                        <td>Technology</td>
+                        <td>$21.62</td>
+                        <td class="positive">+7.56%</td>
+                        <td>1.72x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$NBY</strong></td>
+                        <td>Novabay Pharmaceuticals</td>
+                        <td>Healthcare</td>
+                        <td>$14.77</td>
+                        <td class="negative">-22.91%</td>
+                        <td>2.14x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$AGX</strong></td>
+                        <td>Argan Inc</td>
+                        <td>Industrials</td>
+                        <td>$383.66</td>
+                        <td class="positive">+23.02%</td>
+                        <td>2.56x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$RIOT</strong></td>
+                        <td>Riot Platforms</td>
+                        <td>Financial</td>
+                        <td>$19.24</td>
+                        <td class="positive">+25.59%</td>
+                        <td>2.81x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$ASTS</strong></td>
+                        <td>AST SpaceMobile</td>
+                        <td>Technology</td>
+                        <td>$115.77</td>
+                        <td class="positive">+18.53%</td>
+                        <td>2.51x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Market Statistics -->
+        <div class="card">
+            <h2 class="section-title">📈 Market Statistics (Last Trading Day)</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Volume Surge Stocks</div>
+                    <div class="stat-value">84</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Uptrend Stocks</div>
+                    <div class="stat-value">1,008</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg Relative Volume</div>
+                    <div class="stat-value">2.0x</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg Price Move</div>
+                    <div class="stat-value positive">+5.9%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">This Week Earnings</div>
+                    <div class="stat-value">111</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sector Performance -->
+        <div class="card">
+            <h2 class="section-title">🏢 Sector Performance (Last Trading Day)</h2>
+            <table class="sector-table">
+                <thead>
+                    <tr>
+                        <th>Sector</th>
+                        <th>Change</th>
+                        <th>Market Cap (B)</th>
+                        <th>Stocks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Real Estate</td>
+                        <td class="positive">+1.17%</td>
+                        <td>$1,732.0</td>
+                        <td>261</td>
+                    </tr>
+                    <tr>
+                        <td>Energy</td>
+                        <td class="positive">+0.64%</td>
+                        <td>$3,768.7</td>
+                        <td>249</td>
+                    </tr>
+                    <tr>
+                        <td>Industrials</td>
+                        <td class="positive">+0.63%</td>
+                        <td>$7,287.4</td>
+                        <td>685</td>
+                    </tr>
+                    <tr>
+                        <td>Financial</td>
+                        <td class="positive">+0.17%</td>
+                        <td>$14,532.0</td>
+                        <td>1,010</td>
+                    </tr>
+                    <tr>
+                        <td>Technology</td>
+                        <td class="positive">+0.14%</td>
+                        <td>$26,450.2</td>
+                        <td>774</td>
+                    </tr>
+                    <tr>
+                        <td>Consumer Defensive</td>
+                        <td class="negative">-0.01%</td>
+                        <td>$4,347.8</td>
+                        <td>245</td>
+                    </tr>
+                    <tr>
+                        <td>Utilities</td>
+                        <td class="negative">-0.32%</td>
+                        <td>$1,776.4</td>
+                        <td>107</td>
+                    </tr>
+                    <tr>
+                        <td>Healthcare</td>
+                        <td class="negative">-0.47%</td>
+                        <td>$8,721.4</td>
+                        <td>1,091</td>
+                    </tr>
+                    <tr>
+                        <td>Consumer Cyclical</td>
+                        <td class="negative">-0.52%</td>
+                        <td>$9,527.7</td>
+                        <td>564</td>
+                    </tr>
+                    <tr>
+                        <td>Basic Materials</td>
+                        <td class="negative">-0.60%</td>
+                        <td>$2,794.4</td>
+                        <td>274</td>
+                    </tr>
+                    <tr>
+                        <td>Communication Services</td>
+                        <td class="negative">-0.78%</td>
+                        <td>$12,487.4</td>
+                        <td>273</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Key Points -->
+        <div class="card key-points">
+            <h2 class="section-title">📝 Friday's Key Market Points (Jan 16, 2026)</h2>
+            <ul>
+                <li><strong>Market Tone:</strong> Mixed close ahead of the 3-day weekend. Major indices traded in narrow ranges with modest losses in large-cap tech and communication services.</li>
+                <li><strong>Top Sectors:</strong> Real Estate (+1.17%) and Energy (+0.64%) led gains. Industrials and Financials also showed strength with gains above 0.60%.</li>
+                <li><strong>Weak Sectors:</strong> Communication Services (-0.78%) and Basic Materials (-0.60%) lagged. Healthcare and Consumer Cyclical sectors also underperformed.</li>
+                <li><strong>Volume Surge Activity:</strong> 84 stocks showed volume surges with 1.5x+ relative volume and 2%+ gains. Average price move was +5.9%, indicating strong momentum in select names.</li>
+                <li><strong>Notable Movers:</strong> RIOT (+25.59%), AGX (+23.02%), and ASTS (+18.53%) led the volume surge list. Crypto-related and space technology stocks showed particular strength.</li>
+                <li><strong>Bonds & Gold:</strong> TLT fell -0.58% as Treasury yields rose slightly. Gold (GLD) declined -0.48%, reflecting reduced safe-haven demand.</li>
+                <li><strong>Small Caps Resilient:</strong> Russell 2000 (IWM) managed a +0.09% gain, outperforming large-cap indices and suggesting some rotation into smaller stocks.</li>
+                <li><strong>Week Ahead:</strong> 111 earnings releases scheduled this week. No earnings on Monday due to market holiday. Tuesday's session will set the tone for the rest of the week.</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Data Sources:</strong> Finviz.com (Elite), Alpaca Markets API</p>
+            <p><strong>Last Trading Day:</strong> Friday, January 16, 2026</p>
+            <p><strong>Report Generated:</strong> Monday, January 19, 2026 (Market Holiday)</p>
+            <p><strong>Next Trading Session:</strong> Tuesday, January 20, 2026 at 9:30 AM ET</p>
+            <p style="margin-top: 15px; font-size: 0.85em; color: #ccc;">
+                This report is for informational purposes only and does not constitute financial advice.
+                Markets are closed today for Martin Luther King Jr. Day observance.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings Trade Analysis - January 29, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #00d4ff;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #8892b0;
+            font-size: 1.1rem;
+        }
+        .date-badge {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .summary-card h3 {
+            color: #8892b0;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .grade-a { color: #00ff88; }
+        .grade-b { color: #00d4ff; }
+        .grade-c { color: #ffd700; }
+        .grade-d { color: #ff6b6b; }
+        .methodology {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .methodology h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .method-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .method-item strong {
+            color: #00ff88;
+        }
+        .stocks-section h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .grade-header {
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .grade-header.a { background: linear-gradient(90deg, rgba(0, 255, 136, 0.2), transparent); border-left: 4px solid #00ff88; }
+        .grade-header.b { background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), transparent); border-left: 4px solid #00d4ff; }
+        .grade-header.c { background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent); border-left: 4px solid #ffd700; }
+        .grade-header.d { background: linear-gradient(90deg, rgba(255, 107, 107, 0.2), transparent); border-left: 4px solid #ff6b6b; }
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .ticker {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .company-name {
+            color: #8892b0;
+            font-size: 0.95rem;
+        }
+        .grade-badge {
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 10px 25px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .grade-badge.a { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 2px solid #00ff88; }
+        .grade-badge.b { background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 2px solid #00d4ff; }
+        .grade-badge.c { background: rgba(255, 215, 0, 0.2); color: #ffd700; border: 2px solid #ffd700; }
+        .grade-badge.d { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 2px solid #ff6b6b; }
+        .price-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .price-item {
+            text-align: center;
+        }
+        .price-item label {
+            color: #8892b0;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .price-item .value {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        .gap-up { color: #00ff88; }
+        .gap-down { color: #ff6b6b; }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .score-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .score-item label {
+            font-size: 0.75rem;
+            color: #8892b0;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .score-item .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .score-high { color: #00ff88; }
+        .score-medium { color: #ffd700; }
+        .score-low { color: #ff6b6b; }
+        .news-section {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .news-section h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        .news-section p {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .technical-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #8892b0;
+        }
+        .tag.positive { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .tag.neutral { background: rgba(255, 215, 0, 0.2); color: #ffd700; }
+        .tag.negative { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .disclaimer {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .disclaimer h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+        .disclaimer p {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #8892b0;
+        }
+        @media (max-width: 768px) {
+            .score-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest-Based Scoring System for Earnings Momentum Trading</p>
+            <div class="date-badge">January 29, 2026 (Thursday)</div>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Total Stocks Analyzed</h3>
+                <div class="value" style="color: #fff;">35</div>
+            </div>
+            <div class="summary-card">
+                <h3>A-Grade (70%+ Success)</h3>
+                <div class="value grade-a">5</div>
+            </div>
+            <div class="summary-card">
+                <h3>B-Grade (55-69%)</h3>
+                <div class="value grade-b">8</div>
+            </div>
+            <div class="summary-card">
+                <h3>C-Grade (40-54%)</h3>
+                <div class="value grade-c">12</div>
+            </div>
+            <div class="summary-card">
+                <h3>D-Grade (&lt;40%)</h3>
+                <div class="value grade-d">10</div>
+            </div>
+        </div>
+
+        <div class="methodology">
+            <h2>5-Element Backtest Scoring Methodology</h2>
+            <div class="methodology-grid">
+                <div class="method-item">
+                    <strong>Gap Size (25%)</strong><br>
+                    <small>0-2%: 2pts | 2-10%: 3pts | 10%+: 2pts</small>
+                </div>
+                <div class="method-item">
+                    <strong>Pre-Earnings Trend (30%)</strong><br>
+                    <small>0-10%: 3pts | 10-20%: 4pts | 20%+: 5pts</small>
+                </div>
+                <div class="method-item">
+                    <strong>Volume Trend (20%)</strong><br>
+                    <small>90-110%: 3-4pts | 110-120%: 5pts</small>
+                </div>
+                <div class="method-item">
+                    <strong>MA200 Position (15%)</strong><br>
+                    <small>Above 105%: 4pts | Above 110%: 5pts</small>
+                </div>
+                <div class="method-item">
+                    <strong>MA50 Position (10%)</strong><br>
+                    <small>Above 105%: 4pts | Above 110%: 5pts</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- A-Grade Stocks -->
+        <section class="stocks-section">
+            <div class="grade-header a">
+                <h2>A-Grade Stocks (85+ points) - 70%+ Historical Success Rate</h2>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">META</span>
+                        <span class="company-name">Meta Platforms Inc</span>
+                    </div>
+                    <div class="grade-badge a">A-Grade | 89 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$668.73</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$732.66</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+9.56%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Communication Services</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-low">1</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Meta reported record Q4 sales with massive AI investment acceleration. Zuckerberg announced $60-65B CapEx for 2026 focused on AI infrastructure. Q4 revenue beat estimates with strong ad business growth driven by AI optimization. Analysts see continued monetization of AI investments in advertising. Rothschild encourages buying on any weakness.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">Above All MAs</span>
+                    <span class="tag positive">Strong AI Catalyst</span>
+                    <span class="tag positive">Record Revenue</span>
+                    <span class="tag neutral">High Relative Volume</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">LRCX</span>
+                        <span class="company-name">Lam Research Corp</span>
+                    </div>
+                    <div class="grade-badge a">A-Grade | 92 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$239.58</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$247.50</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+3.31%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Technology</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Lam Research reported "extraordinarily bullish" Q4 results with record revenue. AI-driven demand accelerating in advanced foundry and NAND investments. Manufacturing expansion underway. ASML's blockbuster bookings news also boosting semiconductor equipment sector sentiment.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+96% Above MA200</span>
+                    <span class="tag positive">Strong Pre-Earnings Trend</span>
+                    <span class="tag positive">Semiconductor Momentum</span>
+                    <span class="tag positive">AI Infrastructure Play</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">ALGM</span>
+                        <span class="company-name">Allegro MicroSystems Inc</span>
+                    </div>
+                    <div class="grade-badge a">A-Grade | 91 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$34.55</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$37.89</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+9.67%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Technology</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Allegro MicroSystems reported Q3 FY2026 results with strong performance in automotive and industrial semiconductor markets. Low PEG ratio of 0.47 suggests undervaluation. Strong technical setup with price well above all major moving averages.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+31% Above MA200</span>
+                    <span class="tag positive">Strong Uptrend</span>
+                    <span class="tag positive">Low PEG (0.47)</span>
+                    <span class="tag positive">Automotive/EV Exposure</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">LMT</span>
+                        <span class="company-name">Lockheed Martin Corp</span>
+                    </div>
+                    <div class="grade-badge a">A-Grade | 88 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$597.27</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$617.40</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+3.37%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Industrials</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Lockheed Martin beat Q4 expectations with strong guidance. Major catalyst: Framework agreement to quadruple THAAD missile-defense interceptor production capacity. Record F-35 deliveries. Defense spending tailwinds continue with geopolitical tensions. Stock is breakout-ready on earnings and THAAD deal.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+29% Above MA200</span>
+                    <span class="tag positive">THAAD Deal Catalyst</span>
+                    <span class="tag positive">Defense Tailwinds</span>
+                    <span class="tag positive">Breakout Pattern</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">VIAV</span>
+                        <span class="company-name">Viavi Solutions Inc</span>
+                    </div>
+                    <div class="grade-badge a">A-Grade | 87 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$21.03</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$22.38</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+6.42%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Technology</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Viavi Solutions Q2 FY2026 showed strong revenue growth. Data center demand and segment shift driving guidance upside. Company launched new IRINS LEO-Aided Inertial Navigation System. Low PEG ratio of 0.62 indicates attractive valuation with growth potential.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+71% Above MA200</span>
+                    <span class="tag positive">Data Center Demand</span>
+                    <span class="tag positive">Strong Momentum</span>
+                    <span class="tag positive">Guidance Raised</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- B-Grade Stocks -->
+        <section class="stocks-section">
+            <div class="grade-header b">
+                <h2>B-Grade Stocks (70-84 points) - 55-69% Historical Success Rate</h2>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">IBM</span>
+                        <span class="company-name">International Business Machines Corp</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 78 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$294.16</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$318.00</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+8.10%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Technology</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>IBM reported record Q4 revenue with net income soaring 93% to $5.6B. Surprisingly strong software growth driving the stock higher. New quantum computing vision unveiled showing how Nvidia and AMD fit in the computing future. Record revenue achievements highlight successful AI transformation.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+14% Above MA200</span>
+                    <span class="tag positive">Record Revenue</span>
+                    <span class="tag positive">Software Growth</span>
+                    <span class="tag neutral">Quantum Computing Play</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">RCL</span>
+                        <span class="company-name">Royal Caribbean Group</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 76 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$291.60</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$315.00</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+8.02%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Consumer Cyclical</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Royal Caribbean reported Q4 results with strong 2026 guidance. Record cruise bookings fueling upbeat outlook. Profit rises on increased onboard spending. Goldman Sachs projects 2026 EPS of $17.50 on cost discipline and new ships. Expanding vacation portfolio with new Discovery Class ships.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">Record Bookings</span>
+                    <span class="tag positive">Strong Guidance</span>
+                    <span class="tag positive">+8% Above MA200</span>
+                    <span class="tag neutral">Consumer Discretionary Risk</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">CAT</span>
+                        <span class="company-name">Caterpillar Inc</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 74 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$643.28</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$650.05</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+1.05%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Industrials</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-medium">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Caterpillar Q4 earnings and revenues topped estimates. Power & Energy for data centers driving sales jump - surprise AI play. However, flagged $2.6B tariff impact in 2026 affecting profit margins. Data center demand providing offset to traditional construction headwinds.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+40% Above MA200</span>
+                    <span class="tag positive">Data Center Exposure</span>
+                    <span class="tag negative">Tariff Risk $2.6B</span>
+                    <span class="tag neutral">Beat Estimates</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">CHRW</span>
+                        <span class="company-name">C.H. Robinson Worldwide Inc</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 82 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$184.28</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$192.86</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+4.66%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Industrials</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-low">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>C.H. Robinson Q4 showed market share gains and lean AI strategy offsetting freight headwinds. Company navigating challenging freight market with technology investments. Strong technical position with stock well above all moving averages.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+52% Above MA200</span>
+                    <span class="tag positive">Market Share Gains</span>
+                    <span class="tag positive">AI Strategy</span>
+                    <span class="tag neutral">Freight Headwinds</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">TT</span>
+                        <span class="company-name">Trane Technologies plc</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 71 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$394.20</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$418.84</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+6.25%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Industrials</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-low">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Trane Technologies Q4 earnings and revenues topped estimates with robust bookings and backlog providing strong visibility into 2026. HVAC demand remains strong with data center cooling requirements driving growth.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">Beat Estimates</span>
+                    <span class="tag positive">Strong Backlog</span>
+                    <span class="tag positive">Data Center Cooling</span>
+                    <span class="tag neutral">Near MA200</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">DLX</span>
+                        <span class="company-name">Deluxe Corp</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 79 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$23.90</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$26.30</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+10.04%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Industrials</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-medium">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Deluxe Q4 earnings and revenues surpassed estimates with strong profitability and strategic business shifts. Company showing operational improvements despite legacy business challenges.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+42% Above MA200</span>
+                    <span class="tag positive">Beat Estimates</span>
+                    <span class="tag positive">Strong Profitability</span>
+                    <span class="tag neutral">10%+ Gap (Higher Risk)</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">VIRT</span>
+                        <span class="company-name">Virtu Financial Inc</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 73 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$37.49</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$39.10</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+4.29%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Financial</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-medium">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Virtu Financial Q4 2025 results announced. Low PEG ratio of 0.77 suggests reasonable valuation. Market-making benefits from elevated trading volumes and volatility. Strong for long-term value investors.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+12% Above MA50</span>
+                    <span class="tag positive">Low PEG (0.77)</span>
+                    <span class="tag positive">Volatility Beneficiary</span>
+                    <span class="tag neutral">Near MA200</span>
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <span class="ticker">LUV</span>
+                        <span class="company-name">Southwest Airlines Co</span>
+                    </div>
+                    <div class="grade-badge b">B-Grade | 72 pts</div>
+                </div>
+                <div class="price-info">
+                    <div class="price-item">
+                        <label>Pre-Close</label>
+                        <div class="value">$40.86</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Current Price</label>
+                        <div class="value">$43.25</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Gap</label>
+                        <div class="value gap-up">+5.85%</div>
+                    </div>
+                    <div class="price-item">
+                        <label>Sector</label>
+                        <div class="value" style="font-size: 1rem;">Industrials</div>
+                    </div>
+                </div>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <label>Gap Size (25%)</label>
+                        <div class="score score-high">3</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Pre-Trend (30%)</label>
+                        <div class="score score-medium">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>Volume (20%)</label>
+                        <div class="score score-low">2</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA200 (15%)</label>
+                        <div class="score score-high">5</div>
+                    </div>
+                    <div class="score-item">
+                        <label>MA50 (10%)</label>
+                        <div class="score score-high">4</div>
+                    </div>
+                </div>
+                <div class="news-section">
+                    <h4>Earnings Highlights & Catalyst Analysis</h4>
+                    <p>Southwest Airlines Q4 earnings surpassed estimates. Assigned seats implementation driving 2026 profit surge expectations. Business transformation underway with strong financial performance expected. Low PEG ratio of 0.16 indicates significant turnaround potential.</p>
+                </div>
+                <div class="technical-tags">
+                    <span class="tag positive">+28% Above MA200</span>
+                    <span class="tag positive">Beat Estimates</span>
+                    <span class="tag positive">Ultra-Low PEG (0.16)</span>
+                    <span class="tag positive">Assigned Seating Catalyst</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- C-Grade Stocks Summary -->
+        <section class="stocks-section">
+            <div class="grade-header c">
+                <h2>C-Grade Stocks (55-69 points) - 40-54% Historical Success Rate</h2>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid rgba(255, 215, 0, 0.3);">
+                            <th style="text-align: left; padding: 12px; color: #ffd700;">Ticker</th>
+                            <th style="text-align: left; padding: 12px; color: #ffd700;">Company</th>
+                            <th style="text-align: right; padding: 12px; color: #ffd700;">Gap%</th>
+                            <th style="text-align: right; padding: 12px; color: #ffd700;">Score</th>
+                            <th style="text-align: left; padding: 12px; color: #ffd700;">Key Factor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">HON</td>
+                            <td style="padding: 12px; color: #8892b0;">Honeywell International</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.9%</td>
+                            <td style="padding: 12px; text-align: right;">68 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Aerospace spin-off catalyst</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">PH</td>
+                            <td style="padding: 12px; color: #8892b0;">Parker-Hannifin Corp</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+3.2%</td>
+                            <td style="padding: 12px; text-align: right;">66 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Industrial leader, diversified</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">VLO</td>
+                            <td style="padding: 12px; color: #8892b0;">Valero Energy Corp</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+1.6%</td>
+                            <td style="padding: 12px; text-align: right;">65 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Refining beats, energy play</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">ING</td>
+                            <td style="padding: 12px; color: #8892b0;">ING Groep N.V.</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.6%</td>
+                            <td style="padding: 12px; text-align: right;">64 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">European banking exposure</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">LYG</td>
+                            <td style="padding: 12px; color: #8892b0;">Lloyds Banking Group</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+1.9%</td>
+                            <td style="padding: 12px; text-align: right;">63 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">UK banking, profitability targets</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">ATGE</td>
+                            <td style="padding: 12px; color: #8892b0;">Adtalem Global Education</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+7.6%</td>
+                            <td style="padding: 12px; text-align: right;">62 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Raised FY26 guidance</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">TTEK</td>
+                            <td style="padding: 12px; color: #8892b0;">Tetra Tech Inc</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+5.4%</td>
+                            <td style="padding: 12px; text-align: right;">61 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Beat estimates, raised FY26</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">LBRT</td>
+                            <td style="padding: 12px; color: #8892b0;">Liberty Energy Inc</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+10.0%</td>
+                            <td style="padding: 12px; text-align: right;">60 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Energy services beat</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">AMP</td>
+                            <td style="padding: 12px; color: #8892b0;">Ameriprise Financial</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+4.5%</td>
+                            <td style="padding: 12px; text-align: right;">59 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Wealth management strength</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">NDAQ</td>
+                            <td style="padding: 12px; color: #8892b0;">Nasdaq Inc</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.1%</td>
+                            <td style="padding: 12px; text-align: right;">58 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">Exchange operator</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">NLY</td>
+                            <td style="padding: 12px; color: #8892b0;">Annaly Capital Management</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.3%</td>
+                            <td style="padding: 12px; text-align: right;">56 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">REIT yield play</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">TAL</td>
+                            <td style="padding: 12px; color: #8892b0;">TAL Education Group</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+11.1%</td>
+                            <td style="padding: 12px; text-align: right;">55 pts</td>
+                            <td style="padding: 12px; color: #8892b0;">China education, high volatility</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- D-Grade Stocks Summary -->
+        <section class="stocks-section">
+            <div class="grade-header d">
+                <h2>D-Grade Stocks (Below 55 points) - Below 40% Historical Success Rate</h2>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid rgba(255, 107, 107, 0.3);">
+                            <th style="text-align: left; padding: 12px; color: #ff6b6b;">Ticker</th>
+                            <th style="text-align: left; padding: 12px; color: #ff6b6b;">Company</th>
+                            <th style="text-align: right; padding: 12px; color: #ff6b6b;">Gap%</th>
+                            <th style="text-align: right; padding: 12px; color: #ff6b6b;">Score</th>
+                            <th style="text-align: left; padding: 12px; color: #ff6b6b;">Risk Factor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">BIP</td>
+                            <td style="padding: 12px; color: #8892b0;">Brookfield Infrastructure</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.5%</td>
+                            <td style="padding: 12px; text-align: right;">52 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Minimal gap, weak momentum</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">CNX</td>
+                            <td style="padding: 12px; color: #8892b0;">CNX Resources Corp</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+3.9%</td>
+                            <td style="padding: 12px; text-align: right;">51 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Natural gas volatility</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">LAZ</td>
+                            <td style="padding: 12px; color: #8892b0;">Lazard Inc</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+2.1%</td>
+                            <td style="padding: 12px; text-align: right;">50 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">M&A advisory cyclical</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">CON</td>
+                            <td style="padding: 12px; color: #8892b0;">Concentra Group Holdings</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+1.0%</td>
+                            <td style="padding: 12px; text-align: right;">49 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Healthcare services, low volume</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">CFR</td>
+                            <td style="padding: 12px; color: #8892b0;">Cullen Frost Bankers</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+1.3%</td>
+                            <td style="padding: 12px; text-align: right;">48 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Regional bank risk</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">VLY</td>
+                            <td style="padding: 12px; color: #8892b0;">Valley National Bancorp</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.9%</td>
+                            <td style="padding: 12px; text-align: right;">47 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Regional bank exposure</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">NFG</td>
+                            <td style="padding: 12px; color: #8892b0;">National Fuel Gas Co</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.6%</td>
+                            <td style="padding: 12px; text-align: right;">45 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Below MA200, weak trend</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">HXL</td>
+                            <td style="padding: 12px; color: #8892b0;">Hexcel Corp</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+5.2%</td>
+                            <td style="padding: 12px; text-align: right;">44 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Aerospace materials, Boeing risk</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <td style="padding: 12px; font-weight: 600;">AOS</td>
+                            <td style="padding: 12px; color: #8892b0;">A.O. Smith Corp</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+0.6%</td>
+                            <td style="padding: 12px; text-align: right;">42 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Below MA20, housing exposure</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">MAN</td>
+                            <td style="padding: 12px; color: #8892b0;">ManpowerGroup</td>
+                            <td style="padding: 12px; text-align: right; color: #00ff88;">+6.0%</td>
+                            <td style="padding: 12px; text-align: right;">38 pts</td>
+                            <td style="padding: 12px; color: #ff6b6b;">Below MA200, labor market risk</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="disclaimer">
+            <h3>Risk Disclaimer</h3>
+            <p>This analysis is for informational purposes only and does not constitute investment advice. Earnings trading involves significant risk, including the potential for substantial losses. Past performance and backtest results do not guarantee future returns. Always conduct your own research and consider your risk tolerance before making investment decisions. Position sizing and stop-loss discipline are essential for risk management.</p>
+        </div>
+
+        <footer>
+            <p>Analysis generated on January 29, 2026 at 06:00 AM PST</p>
+            <p>Data sources: Finviz, Alpaca Markets, News Aggregators</p>
+            <p>Methodology: 5-Element Backtest Scoring System</p>
+        </footer>
+    </div>
+</body>
+</html>

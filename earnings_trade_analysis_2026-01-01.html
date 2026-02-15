@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - January 1, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header .date {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 15px;
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            color: #888;
+        }
+
+        .market-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .status-badge.closed {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.closed {
+            background: #ff6b6b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .holiday-banner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .holiday-banner h2 {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .holiday-banner .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .holiday-banner p {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .no-data-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 30px 0;
+        }
+
+        .no-data-card h3 {
+            font-size: 1.5rem;
+            color: #ff9f43;
+            margin-bottom: 20px;
+        }
+
+        .no-data-card p {
+            color: #888;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-card h4 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .info-card p {
+            color: #a0a0a0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .next-trading-day {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(123, 44, 191, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .next-trading-day h3 {
+            color: #00d4ff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .next-trading-day .date-highlight {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 10px 0;
+        }
+
+        .next-trading-day .time-info {
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .methodology-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .methodology-section h3 {
+            color: #7b2cbf;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .methodology-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .methodology-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+
+        .methodology-list li::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .disclaimer {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .disclaimer p {
+            color: #ff9f9f;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .holiday-banner {
+                padding: 30px 20px;
+            }
+
+            .holiday-banner h2 {
+                font-size: 1.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="date">January 1, 2026 (Thursday)</p>
+            <p class="subtitle">Backtest-Based Earnings Trading Screener</p>
+
+            <div class="market-status">
+                <div class="status-badge closed">
+                    <span class="status-dot closed"></span>
+                    <span>US Markets Closed</span>
+                </div>
+                <div class="status-badge">
+                    <span>NASDAQ: Closed</span>
+                </div>
+                <div class="status-badge">
+                    <span>NYSE: Closed</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="holiday-banner">
+            <div class="icon">&#127881;</div>
+            <h2>New Year's Day - Market Holiday</h2>
+            <p>
+                US stock markets are closed today in observance of New Year's Day.
+                No earnings announcements or trading activity is scheduled for this federal holiday.
+                Regular trading will resume on the next business day.
+            </p>
+        </section>
+
+        <section class="no-data-card">
+            <h3>No Stocks Available for Earnings Trading</h3>
+            <p>
+                The earnings trading screener found no qualifying stocks today because US markets
+                are closed for the New Year's Day holiday. No companies have released earnings
+                after yesterday's close or before today's pre-market session.
+            </p>
+        </section>
+
+        <section class="next-trading-day">
+            <h3>Next Trading Day</h3>
+            <div class="date-highlight">Friday, January 2, 2026</div>
+            <p class="time-info">
+                Market Open: 9:30 AM ET | Market Close: 4:00 PM ET
+            </p>
+        </section>
+
+        <section class="info-grid">
+            <div class="info-card">
+                <h4>Screener Status</h4>
+                <p>
+                    The Finviz earnings trading screener executed successfully but returned
+                    no results due to the market holiday. All screening criteria were applied correctly.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h4>Data Sources</h4>
+                <p>
+                    Finviz Elite screener, Alpaca Markets API, and Financial Modeling Prep
+                    were queried for real-time data. Market closure confirmed across all sources.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h4>Analysis Timestamp</h4>
+                <p>
+                    Report generated at 06:00 AM PST on January 1, 2026.
+                    All data reflects the most recent available information.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h4>Upcoming Week</h4>
+                <p>
+                    Q4 2025 earnings season is winding down. Major earnings releases
+                    will resume in mid-January with the start of Q4 2025 reporting.
+                </p>
+            </div>
+        </section>
+
+        <section class="methodology-section">
+            <h3>5-Element Backtest Scoring Methodology</h3>
+            <ul class="methodology-list">
+                <li>Gap Size Performance (25% weight)</li>
+                <li>Pre-Earnings Trend (30% weight)</li>
+                <li>Volume Trend Analysis (20% weight)</li>
+                <li>MA200 Position Analysis (15% weight)</li>
+                <li>MA50 Position Analysis (10% weight)</li>
+            </ul>
+        </section>
+
+        <footer class="footer">
+            <p>
+                Analysis powered by Finviz Elite Screener | Alpaca Markets | Financial Modeling Prep
+            </p>
+            <div class="disclaimer">
+                <p>
+                    <strong>Disclaimer:</strong> This report is for informational purposes only and does not
+                    constitute investment advice. Trading stocks, especially around earnings announcements,
+                    involves significant risk. Past performance is not indicative of future results.
+                    Always conduct your own research and consider your risk tolerance before making investment decisions.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

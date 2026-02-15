@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Stock Market Analysis - December 24, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .date {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .etf-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .etf-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .etf-price {
+            font-size: 1.3em;
+            margin: 10px 0;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .volume-surge-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .volume-surge-table th,
+        .volume-surge-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .volume-surge-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .volume-surge-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-box {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .sector-performance {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .sector-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .key-points {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .key-points ul {
+            list-style-position: inside;
+            margin-top: 20px;
+        }
+
+        .key-points li {
+            margin: 15px 0;
+            padding-left: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .afterhours-section {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+            border-left: 5px solid #ffff00;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .no-earnings {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1em;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .grid,
+            .etf-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-box {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <p class="date">📅 December 24, 2025 - Final After-Market Data</p>
+        </header>
+
+        <h2 class="section-title">📊 Major ETF Performance</h2>
+        <div class="etf-grid">
+            <div class="etf-card">
+                <div class="etf-symbol">SPY</div>
+                <div class="etf-price">$690.38</div>
+                <div class="positive">+0.35%</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Vol: 38.9M</div>
+            </div>
+            <div class="etf-card">
+                <div class="etf-symbol">QQQ</div>
+                <div class="etf-price">$623.93</div>
+                <div class="positive">+0.29%</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Vol: 17.8M</div>
+            </div>
+            <div class="etf-card">
+                <div class="etf-symbol">DIA</div>
+                <div class="etf-price">$487.01</div>
+                <div class="positive">+0.57%</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Vol: 1.5M</div>
+            </div>
+            <div class="etf-card">
+                <div class="etf-symbol">IWM</div>
+                <div class="etf-price">$252.71</div>
+                <div class="positive">+0.25%</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Vol: 12.3M</div>
+            </div>
+            <div class="etf-card">
+                <div class="etf-symbol">TLT</div>
+                <div class="etf-price">$88.03</div>
+                <div class="positive">+0.61%</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Vol: 25.5M</div>
+            </div>
+            <div class="etf-card">
+                <div class="etf-symbol">GLD</div>
+                <div class="etf-price">$411.93</div>
+                <div class="negative">-0.41%</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Vol: 6.7M</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🔥 Top Volume Surge Tickers (19 Stocks)</h2>
+        <div class="card">
+            <table class="volume-surge-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company</th>
+                        <th>Sector</th>
+                        <th>1 Week Performance</th>
+                        <th>Relative Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>OMER</strong></td>
+                        <td>Omeros Corporation</td>
+                        <td>Healthcare</td>
+                        <td class="positive">+73.95%</td>
+                        <td>10.69x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DVAX</strong></td>
+                        <td>Dynavax Technologies</td>
+                        <td>Healthcare</td>
+                        <td class="positive">+42.54%</td>
+                        <td>31.61x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EWTX</strong></td>
+                        <td>Edgewise Therapeutics</td>
+                        <td>Healthcare</td>
+                        <td class="positive">+22.32%</td>
+                        <td>4.57x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TVTX</strong></td>
+                        <td>Travere Therapeutics</td>
+                        <td>Healthcare</td>
+                        <td class="positive">+13.91%</td>
+                        <td>3.44x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PATH</strong></td>
+                        <td>UiPath Inc</td>
+                        <td>Technology</td>
+                        <td class="positive">+7.52%</td>
+                        <td>2.16x</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+                Additional movers: AGIO, PSNY, KOD, FBYD, METC, SUPX, FEIM, NKE, USAU, HLF, TATT, ISSC, GOLD, AMPL
+            </p>
+        </div>
+
+        <div class="afterhours-section">
+            <h2 style="margin-bottom: 20px;">⏰ Post-Close Earnings & After-Hours</h2>
+            <div class="no-earnings">
+                <p>No significant earnings releases or after-hours movements detected for today.</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">Market closed early for Christmas Eve holiday trading.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">📈 Market Statistics</h2>
+        <div style="text-align: center; margin: 30px 0;">
+            <div class="stat-box">
+                <div class="stat-label">Volume Surge Stocks</div>
+                <div class="stat-value">19</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Uptrend Stocks</div>
+                <div class="stat-value">904</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Avg. Relative Volume</div>
+                <div class="stat-value">4.5x</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Avg. Price Move</div>
+                <div class="stat-value positive">+13.6%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Earnings Releases</div>
+                <div class="stat-value">0</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🏢 Sector Performance</h2>
+        <div class="sector-performance">
+            <div class="sector-item">
+                <span>Real Estate</span>
+                <span class="positive">+0.71%</span>
+            </div>
+            <div class="sector-item">
+                <span>Consumer Defensive</span>
+                <span class="positive">+0.66%</span>
+            </div>
+            <div class="sector-item">
+                <span>Utilities</span>
+                <span class="positive">+0.50%</span>
+            </div>
+            <div class="sector-item">
+                <span>Healthcare</span>
+                <span class="positive">+0.48%</span>
+            </div>
+            <div class="sector-item">
+                <span>Financial</span>
+                <span class="positive">+0.41%</span>
+            </div>
+            <div class="sector-item">
+                <span>Communication Services</span>
+                <span class="positive">+0.25%</span>
+            </div>
+            <div class="sector-item">
+                <span>Industrials</span>
+                <span class="positive">+0.24%</span>
+            </div>
+            <div class="sector-item">
+                <span>Technology</span>
+                <span class="positive">+0.22%</span>
+            </div>
+            <div class="sector-item">
+                <span>Consumer Cyclical</span>
+                <span class="positive">+0.21%</span>
+            </div>
+            <div class="sector-item">
+                <span>Basic Materials</span>
+                <span>0.00%</span>
+            </div>
+            <div class="sector-item">
+                <span>Energy</span>
+                <span class="negative">-0.26%</span>
+            </div>
+        </div>
+
+        <div class="key-points">
+            <h2 class="section-title">🎯 Today's Key Points - Christmas Eve Session</h2>
+            <ul>
+                <li><strong>Holiday Trading Session:</strong> Markets showed modest gains across the board in light Christmas Eve trading, with all major indices closing higher on reduced volume.</li>
+
+                <li><strong>Defensive Sectors Lead:</strong> Real Estate (+0.71%) and Consumer Defensive (+0.66%) led the market, reflecting typical end-of-year positioning and holiday shopping confidence.</li>
+
+                <li><strong>Blue-Chip Strength:</strong> Dow Jones (+0.57%) outperformed both S&P 500 (+0.35%) and Nasdaq (+0.29%), showing investor preference for established companies during the holiday period.</li>
+
+                <li><strong>Healthcare Dominance in Volume Surge:</strong> Biotechnology and healthcare stocks dominated the volume surge list with 19 stocks showing 1.5x+ relative volume. DVAX led with an extraordinary 31.6x relative volume surge.</li>
+
+                <li><strong>Notable Movers:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>OMER: +73.95% (1-week), driven by continued momentum in biotechnology sector</li>
+                        <li>DVAX: +42.54% (1-week), exceptional 31.6x relative volume spike</li>
+                        <li>PATH (UiPath): +7.52% (1-week) as technology sector shows resilience</li>
+                    </ul>
+                </li>
+
+                <li><strong>Bond Market Rally:</strong> TLT (20+ Year Treasury ETF) gained +0.61%, the strongest performance among major ETFs, suggesting flight to safety ahead of year-end.</li>
+
+                <li><strong>Gold Pulls Back:</strong> GLD declined -0.41%, the only major ETF in negative territory, as holiday optimism reduced safe-haven demand.</li>
+
+                <li><strong>Broad Market Health:</strong> 904 stocks in uptrend with average price move of +13.6% among volume surge candidates, indicating strong underlying market momentum.</li>
+
+                <li><strong>Year-End Positioning:</strong> Light trading volume and positive bias suggest investors maintaining exposure heading into Christmas, with minimal selling pressure despite reduced liquidity.</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p><strong>Data Sources:</strong> Finviz.com (Market Overview, Screeners) | Alpaca Markets (Real-time Quotes)</p>
+            <p style="margin-top: 10px;">Last Updated: December 24, 2025 at 10:19 AM PST</p>
+            <p style="margin-top: 5px;">Note: Final after-market data reflecting Christmas Eve half-day session</p>
+            <p style="margin-top: 15px; font-size: 0.85em;">This report is for informational purposes only and does not constitute financial advice.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis - January 30, 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #161b22 0%, #1a2332 100%);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    font-size: 28px;
+    color: #58a6ff;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 16px;
+    color: #8b949e;
+  }
+  .header .date {
+    font-size: 14px;
+    color: #6e7681;
+    margin-top: 8px;
+  }
+  .header .methodology {
+    font-size: 12px;
+    color: #484f58;
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  /* Summary Stats */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .stat-card .stat-label {
+    font-size: 12px;
+    color: #8b949e;
+    margin-top: 4px;
+  }
+  .grade-a { color: #3fb950; }
+  .grade-b { color: #58a6ff; }
+  .grade-c { color: #d29922; }
+  .grade-d { color: #f85149; }
+
+  /* Grade Section */
+  .grade-section {
+    margin-bottom: 24px;
+  }
+  .grade-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .grade-header.a-header { background: linear-gradient(90deg, rgba(63,185,80,0.2), transparent); border-left: 4px solid #3fb950; color: #3fb950; }
+  .grade-header.b-header { background: linear-gradient(90deg, rgba(88,166,255,0.2), transparent); border-left: 4px solid #58a6ff; color: #58a6ff; }
+  .grade-header.c-header { background: linear-gradient(90deg, rgba(210,153,34,0.2), transparent); border-left: 4px solid #d29922; color: #d29922; }
+  .grade-header.d-header { background: linear-gradient(90deg, rgba(248,81,73,0.2), transparent); border-left: 4px solid #f85149; color: #f85149; }
+  .grade-header .success-rate { font-size: 13px; color: #8b949e; font-weight: 400; }
+
+  /* Stock Cards */
+  .stock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+  }
+  .stock-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .stock-card:hover { border-color: #58a6ff; }
+  .stock-card.grade-a-card { border-left: 3px solid #3fb950; }
+  .stock-card.grade-b-card { border-left: 3px solid #58a6ff; }
+  .stock-card.grade-c-card { border-left: 3px solid #d29922; }
+  .stock-card.grade-d-card { border-left: 3px solid #f85149; }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .ticker-info h3 {
+    font-size: 20px;
+    color: #f0f6fc;
+  }
+  .ticker-info .company-name {
+    font-size: 12px;
+    color: #8b949e;
+  }
+  .ticker-info .sector-tag {
+    display: inline-block;
+    font-size: 10px;
+    background: #21262d;
+    color: #8b949e;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-top: 4px;
+  }
+  .score-badge {
+    text-align: center;
+    min-width: 70px;
+  }
+  .score-badge .score-value {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .score-badge .score-grade {
+    font-size: 11px;
+    color: #8b949e;
+  }
+  .stars {
+    color: #d29922;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #21262d;
+    margin-bottom: 12px;
+  }
+  .price-current {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f0f6fc;
+  }
+  .price-change {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .change-positive { background: rgba(63,185,80,0.15); color: #3fb950; }
+  .change-negative { background: rgba(248,81,73,0.15); color: #f85149; }
+
+  /* Score Breakdown */
+  .score-breakdown {
+    margin-bottom: 12px;
+  }
+  .score-breakdown h4 {
+    font-size: 12px;
+    color: #8b949e;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .score-bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  .score-bar-label {
+    width: 90px;
+    color: #8b949e;
+    flex-shrink: 0;
+  }
+  .score-bar-container {
+    flex: 1;
+    height: 6px;
+    background: #21262d;
+    border-radius: 3px;
+    margin: 0 8px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .score-bar-fill.s1 { width: 20%; background: #f85149; }
+  .score-bar-fill.s2 { width: 40%; background: #d29922; }
+  .score-bar-fill.s3 { width: 60%; background: #d29922; }
+  .score-bar-fill.s4 { width: 80%; background: #58a6ff; }
+  .score-bar-fill.s5 { width: 100%; background: #3fb950; }
+  .score-bar-value {
+    width: 30px;
+    text-align: right;
+    color: #c9d1d9;
+  }
+
+  /* Technical */
+  .technical-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .tech-item {
+    text-align: center;
+    padding: 6px;
+    background: #0d1117;
+    border-radius: 4px;
+  }
+  .tech-label {
+    font-size: 10px;
+    color: #6e7681;
+    text-transform: uppercase;
+  }
+  .tech-value {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tech-above { color: #3fb950; }
+  .tech-below { color: #f85149; }
+  .tech-neutral { color: #d29922; }
+
+  /* Earnings Summary */
+  .earnings-summary {
+    font-size: 12px;
+    color: #8b949e;
+    padding: 8px 12px;
+    background: #0d1117;
+    border-radius: 6px;
+    border-left: 2px solid #30363d;
+  }
+  .earnings-summary strong {
+    color: #c9d1d9;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 24px;
+    border-top: 1px solid #21262d;
+    font-size: 11px;
+    color: #484f58;
+  }
+  .footer a { color: #58a6ff; text-decoration: none; }
+  .footer .disclaimer {
+    margin-top: 8px;
+    font-style: italic;
+    color: #6e7681;
+  }
+
+  @media (max-width: 768px) {
+    .stock-grid { grid-template-columns: 1fr; }
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .header h1 { font-size: 22px; }
+    body { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="subtitle">January 30, 2026 (Friday)</div>
+  <div class="date">Analysis Time: Pre-Market / Early Session | Screened from yesterday's post-close and today's pre-market earnings</div>
+  <div class="methodology">5-Element Backtest Scoring: Gap Size (25%) + Pre-Earnings Trend (30%) + Volume (20%) + MA200 (15%) + MA50 (10%)</div>
+</div>
+
+<!-- Summary Stats -->
+<div class="summary-bar">
+  <div class="stat-card">
+    <div class="stat-value" style="color:#f0f6fc;">21</div>
+    <div class="stat-label">Total Stocks Screened</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value grade-a">1</div>
+    <div class="stat-label">A-Grade (70%+)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value grade-b">4</div>
+    <div class="stat-label">B-Grade (55-69%)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value grade-c">14</div>
+    <div class="stat-label">C-Grade (40-54%)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value grade-d">2</div>
+    <div class="stat-label">D-Grade (&lt;40%)</div>
+  </div>
+</div>
+
+<!-- A-Grade Section -->
+<div class="grade-section">
+  <div class="grade-header a-header">
+    A-Grade (85+ Points) <span class="success-rate">| 70%+ Historical Success Rate</span>
+  </div>
+  <div class="stock-grid">
+
+    <!-- WDC -->
+    <div class="stock-card grade-a-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>WDC</h3>
+          <div class="company-name">Western Digital Corp</div>
+          <div class="sector-tag">Technology</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-a">86.0</div>
+          <div class="score-grade">A-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$287.42</span>
+        <span class="price-change change-positive">+3.24%</span>
+      </div>
+      <div class="score-breakdown">
+        <h4>Score Breakdown</h4>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Gap Size</span>
+          <div class="score-bar-container"><div class="score-bar-fill s3"></div></div>
+          <span class="score-bar-value">3/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Pre-Earnings</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Volume</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA200</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA50</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item">
+          <div class="tech-label">Pre-Trend</div>
+          <div class="tech-value tech-above">+48.3%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA200</div>
+          <div class="tech-value tech-above">+160.6%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA50</div>
+          <div class="tech-value tech-above">+50.3%</div>
+        </div>
+      </div>
+      <div class="earnings-summary">
+        <strong>Earnings:</strong> Q2 FY26 beat estimates; strong AI and cloud storage demand driving growth; guided above estimates for next quarter. Jim Cramer highlighted memory shortages as major tailwind.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- B-Grade Section -->
+<div class="grade-section">
+  <div class="grade-header b-header">
+    B-Grade (70-84 Points) <span class="success-rate">| 55-69% Historical Success Rate</span>
+  </div>
+  <div class="stock-grid">
+
+    <!-- SNDK -->
+    <div class="stock-card grade-b-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>SNDK</h3>
+          <div class="company-name">Sandisk Corp</div>
+          <div class="sector-tag">Technology</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-b">81.0</div>
+          <div class="score-grade">B-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$660.50</span>
+        <span class="price-change change-positive">+22.47%</span>
+      </div>
+      <div class="score-breakdown">
+        <h4>Score Breakdown</h4>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Gap Size</span>
+          <div class="score-bar-container"><div class="score-bar-fill s2"></div></div>
+          <span class="score-bar-value">2/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Pre-Earnings</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Volume</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA200</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA50</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item">
+          <div class="tech-label">Pre-Trend</div>
+          <div class="tech-value tech-above">+95.9%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA200</div>
+          <div class="tech-value tech-above">+386.9%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA50</div>
+          <div class="tech-value tech-above">+115.9%</div>
+        </div>
+      </div>
+      <div class="earnings-summary">
+        <strong>Earnings:</strong> Q2 FY26 massive beat -- profit and revenue jumped on AI demand. Extended Kioxia JV through 2034. Mizuho raised PT citing NAND pricing tailwinds. Stock soared 20%+ premarket. Caution: 22% gap may limit follow-through.
+      </div>
+    </div>
+
+    <!-- IMO -->
+    <div class="stock-card grade-b-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>IMO</h3>
+          <div class="company-name">Imperial Oil Ltd</div>
+          <div class="sector-tag">Energy</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-b">80.0</div>
+          <div class="score-grade">B-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$109.65</span>
+        <span class="price-change change-positive">+3.73%</span>
+      </div>
+      <div class="score-breakdown">
+        <h4>Score Breakdown</h4>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Gap Size</span>
+          <div class="score-bar-container"><div class="score-bar-fill s3"></div></div>
+          <span class="score-bar-value">3/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Pre-Earnings</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Volume</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA200</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA50</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item">
+          <div class="tech-label">Pre-Trend</div>
+          <div class="tech-value tech-above">+18.7%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA200</div>
+          <div class="tech-value tech-above">+28.5%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA50</div>
+          <div class="tech-value tech-above">+17.0%</div>
+        </div>
+      </div>
+      <div class="earnings-summary">
+        <strong>Earnings:</strong> Q4 results with EPS surprise of +10.78%. Revenue missed by -8.66% but strong operational execution. Well above all moving averages with solid pre-earnings momentum.
+      </div>
+    </div>
+
+    <!-- CHD -->
+    <div class="stock-card grade-b-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>CHD</h3>
+          <div class="company-name">Church & Dwight Co., Inc</div>
+          <div class="sector-tag">Consumer Defensive</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-b">74.0</div>
+          <div class="score-grade">B-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$95.97</span>
+        <span class="price-change change-positive">+4.36%</span>
+      </div>
+      <div class="score-breakdown">
+        <h4>Score Breakdown</h4>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Gap Size</span>
+          <div class="score-bar-container"><div class="score-bar-fill s3"></div></div>
+          <span class="score-bar-value">3/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Pre-Earnings</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Volume</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA200</span>
+          <div class="score-bar-container"><div class="score-bar-fill s3"></div></div>
+          <span class="score-bar-value">3/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA50</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item">
+          <div class="tech-label">Pre-Trend</div>
+          <div class="tech-value tech-above">+11.3%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA200</div>
+          <div class="tech-value tech-above">+4.8%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA50</div>
+          <div class="tech-value tech-above">+11.3%</div>
+        </div>
+      </div>
+      <div class="earnings-summary">
+        <strong>Earnings:</strong> Q4 CY2025 in line with expectations; sales growth reported; 2026 outlook provided. EPS beat by +10.01%. Strong consumer staples momentum with uptrend intact.
+      </div>
+    </div>
+
+    <!-- FLG -->
+    <div class="stock-card grade-b-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>FLG</h3>
+          <div class="company-name">Flagstar Bank NA</div>
+          <div class="sector-tag">Financial</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-b">72.0</div>
+          <div class="score-grade">B-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$13.85</span>
+        <span class="price-change change-positive">+2.29%</span>
+      </div>
+      <div class="score-breakdown">
+        <h4>Score Breakdown</h4>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Gap Size</span>
+          <div class="score-bar-container"><div class="score-bar-fill s3"></div></div>
+          <span class="score-bar-value">3/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Pre-Earnings</span>
+          <div class="score-bar-container"><div class="score-bar-fill s3"></div></div>
+          <span class="score-bar-value">3/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">Volume</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA200</span>
+          <div class="score-bar-container"><div class="score-bar-fill s5"></div></div>
+          <span class="score-bar-value">5/5</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="score-bar-label">MA50</span>
+          <div class="score-bar-container"><div class="score-bar-fill s4"></div></div>
+          <span class="score-bar-value">4/5</span>
+        </div>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item">
+          <div class="tech-label">Pre-Trend</div>
+          <div class="tech-value tech-above">+7.9%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA200</div>
+          <div class="tech-value tech-above">+16.0%</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-label">vs MA50</div>
+          <div class="tech-value tech-above">+9.2%</div>
+        </div>
+      </div>
+      <div class="earnings-summary">
+        <strong>Earnings:</strong> Returns to profitability in Q4 2025. Reported net income of $0.05 per diluted share. EPS/revenue beat estimates. Cognizant partnership enhancing transformation.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- C-Grade Section -->
+<div class="grade-section">
+  <div class="grade-header c-header">
+    C-Grade (55-69 Points) <span class="success-rate">| 40-54% Historical Success Rate</span>
+  </div>
+  <div class="stock-grid">
+
+    <!-- BEN -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>BEN</h3>
+          <div class="company-name">Franklin Resources, Inc</div>
+          <div class="sector-tag">Financial</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">67.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$26.26</span>
+        <span class="price-change change-positive">+1.47%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-above">+8.7%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-above">+12.8%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+9.2%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Fiscal Q1 results; expanded Microsoft collaboration for AI intelligence hub.</div>
+    </div>
+
+    <!-- AX -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>AX</h3>
+          <div class="company-name">Axos Financial Inc</div>
+          <div class="sector-tag">Financial</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">67.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$95.00</span>
+        <span class="price-change change-positive">+0.38%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-above">+8.3%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-above">+16.6%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+8.4%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q2 FY26 beat EPS and revenue estimates; strong profitability and robust loan growth.</div>
+    </div>
+
+    <!-- CL -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>CL</h3>
+          <div class="company-name">Colgate-Palmolive Co</div>
+          <div class="sector-tag">Consumer Defensive</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">66.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$87.22</span>
+        <span class="price-change change-positive">+2.32%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-above">+9.7%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-above">+3.4%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+8.3%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q4 sales topped estimates; swung to a loss on charges; FY26 guidance in line. EPS +2.35% surprise.</div>
+    </div>
+
+    <!-- LYB -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>LYB</h3>
+          <div class="company-name">LyondellBasell Industries NV</div>
+          <div class="sector-tag">Basic Materials</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">64.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$50.47</span>
+        <span class="price-change change-positive">+1.04%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-above">+12.5%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-below">-3.9%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+9.1%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q4 reported a loss but topped revenue estimates. Below MA200 limits upside potential.</div>
+    </div>
+
+    <!-- RMD -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>RMD</h3>
+          <div class="company-name">Resmed Inc</div>
+          <div class="sector-tag">Healthcare</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">64.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$263.05</span>
+        <span class="price-change change-positive">+2.11%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-above">+5.2%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-above">+2.0%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+4.8%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q2 FY26 beat EPS and revenue; strong revenue growth and strategic innovations. Solid momentum stock.</div>
+    </div>
+
+    <!-- DECK -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>DECK</h3>
+          <div class="company-name">Deckers Outdoor Corp</div>
+          <div class="sector-tag">Consumer Cyclical</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">60.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$114.09</span>
+        <span class="price-change change-positive">+14.20%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-below">-6.5%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-above">+9.6%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+15.3%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q3 FY26 record revenue on Hoka and UGG demand. 14%+ gap up but was in a downtrend pre-earnings -- caution on follow-through.</div>
+    </div>
+
+    <!-- SOFI -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>SOFI</h3>
+          <div class="company-name">SoFi Technologies Inc</div>
+          <div class="sector-tag">Financial</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">56.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$25.78</span>
+        <span class="price-change change-positive">+5.83%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-below">-11.3%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-above">+13.5%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-below">-4.2%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Record Q4 net revenue $1.0B; net income $174M; EPS +32.05% surprise. But stock was in decline pre-earnings and remains below MA50. Mixed technical signals.</div>
+    </div>
+
+    <!-- VZ -->
+    <div class="stock-card grade-c-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>VZ</h3>
+          <div class="company-name">Verizon Communications Inc</div>
+          <div class="sector-tag">Communication Services</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-c">55.0</div>
+          <div class="score-grade">C-Grade</div>
+          <div class="stars">&#9733;&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$41.88</span>
+        <span class="price-change change-positive">+5.20%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-below">-1.8%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-neutral">-0.4%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+3.9%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q4 beat EPS and revenue; best subscriber growth in 6 years under new CEO; upbeat FY26 profit outlook amid job cuts.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- D-Grade Section -->
+<div class="grade-section">
+  <div class="grade-header d-header">
+    D-Grade (54 Points or Below) <span class="success-rate">| &lt;40% Historical Success Rate</span>
+  </div>
+  <div class="stock-grid">
+
+    <!-- CHTR -->
+    <div class="stock-card grade-d-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>CHTR</h3>
+          <div class="company-name">Charter Communications Inc</div>
+          <div class="sector-tag">Communication Services</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-d">52.0</div>
+          <div class="score-grade">D-Grade</div>
+          <div class="stars">&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$207.52</span>
+        <span class="price-change change-positive">+8.35%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-below">-8.5%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-below">-28.7%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+2.4%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q4 missed revenue but shed fewer broadband subs than expected; +8% gap up despite weak fundamentals. Deep below MA200 -- high risk bounce play.</div>
+    </div>
+
+    <!-- RHI -->
+    <div class="stock-card grade-d-card">
+      <div class="card-header">
+        <div class="ticker-info">
+          <h3>RHI</h3>
+          <div class="company-name">Robert Half Inc</div>
+          <div class="sector-tag">Industrials</div>
+        </div>
+        <div class="score-badge">
+          <div class="score-value grade-d">49.0</div>
+          <div class="score-grade">D-Grade</div>
+          <div class="stars">&#9733;&#9733;</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$29.90</span>
+        <span class="price-change change-positive">+10.37%</span>
+      </div>
+      <div class="technical-row">
+        <div class="tech-item"><div class="tech-label">Pre-Trend</div><div class="tech-value tech-below">-0.9%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA200</div><div class="tech-value tech-below">-15.9%</div></div>
+        <div class="tech-item"><div class="tech-label">vs MA50</div><div class="tech-value tech-above">+8.2%</div></div>
+      </div>
+      <div class="earnings-summary"><strong>Earnings:</strong> Q4 beat EPS and revenue estimates; stock soared 10%+ but deep below MA200. High risk relief rally -- low probability of sustained uptrend.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>Analysis generated on January 30, 2026 | Data sources: Finviz, Alpaca Markets</p>
+  <p>Screener: <a href="https://elite.finviz.com/screener.ashx?v=211&o=-change&t=WDC,SNDK,IMO,CHD,FLG,DECK,SOFI,VZ,CHTR,RHI" target="_blank">View on Finviz</a></p>
+  <p class="disclaimer">DISCLAIMER: This analysis is for informational purposes only and does not constitute investment advice. Past performance and backtest scores do not guarantee future results. Always conduct your own research and consult with a financial advisor before making investment decisions. Trading involves significant risk of loss.</p>
+</div>
+
+</div>
+</body>
+</html>

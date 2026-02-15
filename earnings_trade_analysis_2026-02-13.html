@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - 2026-02-13</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            color: #00d9ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+        .header p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        .date-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #00d9ff, #0066ff);
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .grade-section {
+            margin-bottom: 40px;
+        }
+        .grade-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .grade-a { background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(0,255,136,0.05)); border-left: 4px solid #00ff88; }
+        .grade-b { background: linear-gradient(90deg, rgba(0,217,255,0.2), rgba(0,217,255,0.05)); border-left: 4px solid #00d9ff; }
+        .grade-c { background: linear-gradient(90deg, rgba(255,187,0,0.2), rgba(255,187,0,0.05)); border-left: 4px solid #ffbb00; }
+        .grade-d { background: linear-gradient(90deg, rgba(255,85,85,0.2), rgba(255,85,85,0.05)); border-left: 4px solid #ff5555; }
+        .grade-letter {
+            font-size: 2rem;
+            font-weight: bold;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        .grade-a .grade-letter { background: #00ff88; color: #000; }
+        .grade-b .grade-letter { background: #00d9ff; color: #000; }
+        .grade-c .grade-letter { background: #ffbb00; color: #000; }
+        .grade-d .grade-letter { background: #ff5555; color: #fff; }
+        .grade-info h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        .grade-info p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .stock-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .stock-ticker {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .stock-name {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        .stock-score {
+            text-align: right;
+        }
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .score-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .stars {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric {
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .metric-value.positive { color: #00ff88; }
+        .metric-value.negative { color: #ff5555; }
+        .metric-value.neutral { color: #ffbb00; }
+        .score-breakdown {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .score-breakdown h4 {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .score-item:last-child {
+            border-bottom: none;
+        }
+        .score-item-name {
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+        .score-item-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+        }
+        .news-summary {
+            background: rgba(0,217,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 3px solid #00d9ff;
+        }
+        .news-summary h4 {
+            font-size: 0.85rem;
+            color: #00d9ff;
+            margin-bottom: 8px;
+        }
+        .news-summary p {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        .summary-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .summary-section h2 {
+            color: #00d9ff;
+            margin-bottom: 20px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-table th,
+        .summary-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .summary-table th {
+            background: rgba(0,0,0,0.2);
+            color: #00d9ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        .summary-table tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        .methodology {
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        .methodology h3 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+        }
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .methodology-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .methodology-item h4 {
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .methodology-item p {
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .no-stocks {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p>Backtest Scoring System for Earnings Trading</p>
+            <div class="date-badge">February 13, 2026 (Friday)</div>
+        </header>
+
+        <!-- A-Grade Stocks (85+ points) -->
+        <section class="grade-section">
+            <div class="grade-header grade-a">
+                <div class="grade-letter">A</div>
+                <div class="grade-info">
+                    <h2>A-Grade Stocks (85+ points)</h2>
+                    <p>70%+ Historical Success Rate</p>
+                </div>
+            </div>
+            <div class="stocks-grid">
+                <!-- CRSR - A Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">CRSR</div>
+                            <div class="stock-name">Corsair Gaming Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00ff88;">88.5</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$6.25</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+34.93%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+57.51%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value positive">32.35x</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (34.93%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+19.54%)</span>
+                            <span class="score-item-value">5/5 (150 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">1/5 (20 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (-19.23%)</span>
+                            <span class="score-item-value">1/5 (15 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+8.10%)</span>
+                            <span class="score-item-value">4/5 (40 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Corsair Gaming reported strong Q4 revenue and profit growth. EPS beat estimates by 57.51% with revenue surprise of +3.95%. Gaming peripherals demand remains resilient despite market concerns.</p>
+                    </div>
+                </div>
+
+                <!-- AAP - A Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">AAP</div>
+                            <div class="stock-name">Advance Auto Parts Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00ff88;">86.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$64.65</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+10.61%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+18.83%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+16.46%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (10.61%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+16.46%)</span>
+                            <span class="score-item-value">4/5 (120 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">3/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+26.19%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+38.49%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Advance Auto Parts swung to profit amid store closures and turnaround strategy. Beat Q4 earnings and revenue estimates with guidance for sales growth in 2026. Strategic plan showing continued progress.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- B-Grade Stocks (70-84 points) -->
+        <section class="grade-section">
+            <div class="grade-header grade-b">
+                <div class="grade-letter">B</div>
+                <div class="grade-info">
+                    <h2>B-Grade Stocks (70-84 points)</h2>
+                    <p>55-69% Historical Success Rate</p>
+                </div>
+            </div>
+            <div class="stocks-grid">
+                <!-- MGA - B Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">MGA</div>
+                            <div class="stock-name">Magna International Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00d9ff;">82.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$63.55</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+9.91%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+21.20%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+17.64%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (9.91%)</span>
+                            <span class="score-item-value">3/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+17.64%)</span>
+                            <span class="score-item-value">4/5 (120 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+39.31%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+18.03%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Magna International beat Q4 earnings and revenue estimates with EPS surprise of +21.20%. Announced Q4 2025 results and provided 2026 outlook. Auto parts sector showing resilience.</p>
+                    </div>
+                </div>
+
+                <!-- AMAT - B Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">AMAT</div>
+                            <div class="stock-name">Applied Materials Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00d9ff;">80.5</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$366.00</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+11.30%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+7.84%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+13.33%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (11.30%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+13.33%)</span>
+                            <span class="score-item-value">4/5 (120 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">3/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+68.54%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+24.21%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Applied Materials beat Q1 estimates as AI demand drives chipmaking tool orders. Summit upgraded to Buy on AI-driven WFE upside. CEO made bold prediction for chip sector growth.</p>
+                    </div>
+                </div>
+
+                <!-- ATMU - B Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">ATMU</div>
+                            <div class="stock-name">Atmus Filtration Technologies Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00d9ff;">78.5</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$64.00</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+3.03%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+14.94%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+4.13%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (3.03%)</span>
+                            <span class="score-item-value">3/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+4.13%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">3/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+41.46%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+14.76%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Atmus Filtration Technologies beat earnings with EPS surprise of +14.94% and revenue surprise of +7.90%. Strong filtration demand in industrial and automotive sectors.</p>
+                    </div>
+                </div>
+
+                <!-- ANET - B Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">ANET</div>
+                            <div class="stock-name">Arista Networks Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00d9ff;">76.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$145.57</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+7.73%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+8.25%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+5.88%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (7.73%)</span>
+                            <span class="score-item-value">3/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+5.88%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">3/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+16.34%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+9.44%)</span>
+                            <span class="score-item-value">4/5 (40 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Arista Networks beat Q4 estimates with 29% revenue jump. Raised 2026 outlook on AI spending. Cloud networking leader outshining Cisco in the data center market.</p>
+                    </div>
+                </div>
+
+                <!-- HASI - B Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">HASI</div>
+                            <div class="stock-name">HA Sustainable Infrastructure Capital Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00d9ff;">74.5</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$37.62</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+5.00%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+1.68%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+4.12%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (5.00%)</span>
+                            <span class="score-item-value">3/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+4.12%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+27.09%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+11.18%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>HASI reported earnings with modest EPS surprise. Sustainable infrastructure investments continue to show steady growth. Revenue surprise of +8.42%.</p>
+                    </div>
+                </div>
+
+                <!-- MHK - B Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">MHK</div>
+                            <div class="stock-name">Mohawk Industries Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00d9ff;">72.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$135.72</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+1.68%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+1.13%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+2.90%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (1.68%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+2.90%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">3/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+16.47%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+15.35%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Mohawk Industries beat earnings with modest surprise. Flooring industry showing signs of recovery. Strong technical positioning above key moving averages.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- C-Grade Stocks (55-69 points) -->
+        <section class="grade-section">
+            <div class="grade-header grade-c">
+                <div class="grade-letter">C</div>
+                <div class="grade-info">
+                    <h2>C-Grade Stocks (55-69 points)</h2>
+                    <p>40-54% Historical Success Rate</p>
+                </div>
+            </div>
+            <div class="stocks-grid">
+                <!-- MRNA - C Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">MRNA</div>
+                            <div class="stock-name">Moderna Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffbb00;">68.5</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$40.98</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+1.69%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+72.79%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value negative">-0.54%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (1.69%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (-0.54%)</span>
+                            <span class="score-item-value">2/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+39.65%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+11.61%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Moderna beat Q4 expectations with narrower-than-expected loss. COVID shot sales remain resilient. Reiterates 10% revenue growth target. Some concerns over FDA regulatory setbacks.</p>
+                    </div>
+                </div>
+
+                <!-- AEM - C Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">AEM</div>
+                            <div class="stock-name">Agnico Eagle Mines Ltd</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffbb00;">66.5</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$209.05</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+1.87%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+1.04%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+6.33%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (1.87%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+6.33%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+37.21%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+10.83%)</span>
+                            <span class="score-item-value">4/5 (40 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Agnico Eagle reported modest EPS beat. Gold prices support mining operations. Strong position above 200-day moving average reflects gold sector strength.</p>
+                    </div>
+                </div>
+
+                <!-- IR - C Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">IR</div>
+                            <div class="stock-name">Ingersoll-Rand Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffbb00;">64.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$97.50</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+3.49%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+6.57%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value negative">-1.02%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (3.49%)</span>
+                            <span class="score-item-value">3/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (-1.02%)</span>
+                            <span class="score-item-value">2/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+18.95%)</span>
+                            <span class="score-item-value">5/5 (75 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+13.92%)</span>
+                            <span class="score-item-value">5/5 (50 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Ingersoll-Rand beat estimates with EPS surprise of +6.57%. Industrial equipment demand remains solid. Recent price weakness creates potential entry opportunity.</p>
+                    </div>
+                </div>
+
+                <!-- XP - C Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">XP</div>
+                            <div class="stock-name">XP Inc</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffbb00;">62.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$19.93</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value positive">+0.81%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+2.59%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value positive">+2.78%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (0.81%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+2.78%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+9.96%)</span>
+                            <span class="score-item-value">4/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+10.06%)</span>
+                            <span class="score-item-value">4/5 (40 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>XP Inc reported modest earnings beat. Brazilian fintech showing steady growth. Revenue surprise of +3.66% supports positive outlook.</p>
+                    </div>
+                </div>
+
+                <!-- AL - C Grade -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">AL</div>
+                            <div class="stock-name">Air Lease Corp</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffbb00;">58.0</div>
+                            <div class="score-label">POINTS</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$64.69</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1D Change</div>
+                            <div class="metric-value neutral">+0.05%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+18.44%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1W Performance</div>
+                            <div class="metric-value neutral">+0.22%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <h4>Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-item-name">Gap Size (0.05%)</span>
+                            <span class="score-item-value">2/5 (50 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Pre-Earnings Trend (+0.22%)</span>
+                            <span class="score-item-value">3/5 (90 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">Volume Ratio</span>
+                            <span class="score-item-value">2/5 (40 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA200 Position (+6.10%)</span>
+                            <span class="score-item-value">4/5 (60 wt.)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-item-name">MA50 Position (+0.61%)</span>
+                            <span class="score-item-value">3/5 (30 wt.)</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Analysis</h4>
+                        <p>Air Lease Corp reported strong EPS surprise of +18.44%. Aircraft leasing market remains healthy. Minimal gap-up limits immediate trading opportunity.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Table -->
+        <section class="summary-section">
+            <h2>Summary - All Analyzed Stocks</h2>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Price</th>
+                        <th>1D Change</th>
+                        <th>EPS Surprise</th>
+                        <th>Score</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CRSR</strong></td>
+                        <td>Corsair Gaming Inc</td>
+                        <td>$6.25</td>
+                        <td style="color: #00ff88;">+34.93%</td>
+                        <td style="color: #00ff88;">+57.51%</td>
+                        <td><strong>88.5</strong></td>
+                        <td><span style="color: #00ff88;">A</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AAP</strong></td>
+                        <td>Advance Auto Parts Inc</td>
+                        <td>$64.65</td>
+                        <td style="color: #00ff88;">+10.61%</td>
+                        <td style="color: #00ff88;">+18.83%</td>
+                        <td><strong>86.0</strong></td>
+                        <td><span style="color: #00ff88;">A</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MGA</strong></td>
+                        <td>Magna International Inc</td>
+                        <td>$63.55</td>
+                        <td style="color: #00ff88;">+9.91%</td>
+                        <td style="color: #00ff88;">+21.20%</td>
+                        <td><strong>82.0</strong></td>
+                        <td><span style="color: #00d9ff;">B</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AMAT</strong></td>
+                        <td>Applied Materials Inc</td>
+                        <td>$366.00</td>
+                        <td style="color: #00ff88;">+11.30%</td>
+                        <td style="color: #00ff88;">+7.84%</td>
+                        <td><strong>80.5</strong></td>
+                        <td><span style="color: #00d9ff;">B</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ATMU</strong></td>
+                        <td>Atmus Filtration Technologies Inc</td>
+                        <td>$64.00</td>
+                        <td style="color: #00ff88;">+3.03%</td>
+                        <td style="color: #00ff88;">+14.94%</td>
+                        <td><strong>78.5</strong></td>
+                        <td><span style="color: #00d9ff;">B</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ANET</strong></td>
+                        <td>Arista Networks Inc</td>
+                        <td>$145.57</td>
+                        <td style="color: #00ff88;">+7.73%</td>
+                        <td style="color: #00ff88;">+8.25%</td>
+                        <td><strong>76.0</strong></td>
+                        <td><span style="color: #00d9ff;">B</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>HASI</strong></td>
+                        <td>HA Sustainable Infrastructure</td>
+                        <td>$37.62</td>
+                        <td style="color: #00ff88;">+5.00%</td>
+                        <td style="color: #00ff88;">+1.68%</td>
+                        <td><strong>74.5</strong></td>
+                        <td><span style="color: #00d9ff;">B</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MHK</strong></td>
+                        <td>Mohawk Industries Inc</td>
+                        <td>$135.72</td>
+                        <td style="color: #00ff88;">+1.68%</td>
+                        <td style="color: #00ff88;">+1.13%</td>
+                        <td><strong>72.0</strong></td>
+                        <td><span style="color: #00d9ff;">B</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>MRNA</strong></td>
+                        <td>Moderna Inc</td>
+                        <td>$40.98</td>
+                        <td style="color: #00ff88;">+1.69%</td>
+                        <td style="color: #00ff88;">+72.79%</td>
+                        <td><strong>68.5</strong></td>
+                        <td><span style="color: #ffbb00;">C</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AEM</strong></td>
+                        <td>Agnico Eagle Mines Ltd</td>
+                        <td>$209.05</td>
+                        <td style="color: #00ff88;">+1.87%</td>
+                        <td style="color: #00ff88;">+1.04%</td>
+                        <td><strong>66.5</strong></td>
+                        <td><span style="color: #ffbb00;">C</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>IR</strong></td>
+                        <td>Ingersoll-Rand Inc</td>
+                        <td>$97.50</td>
+                        <td style="color: #00ff88;">+3.49%</td>
+                        <td style="color: #00ff88;">+6.57%</td>
+                        <td><strong>64.0</strong></td>
+                        <td><span style="color: #ffbb00;">C</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>XP</strong></td>
+                        <td>XP Inc</td>
+                        <td>$19.93</td>
+                        <td style="color: #00ff88;">+0.81%</td>
+                        <td style="color: #00ff88;">+2.59%</td>
+                        <td><strong>62.0</strong></td>
+                        <td><span style="color: #ffbb00;">C</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AL</strong></td>
+                        <td>Air Lease Corp</td>
+                        <td>$64.69</td>
+                        <td style="color: #888;">+0.05%</td>
+                        <td style="color: #00ff88;">+18.44%</td>
+                        <td><strong>58.0</strong></td>
+                        <td><span style="color: #ffbb00;">C</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Methodology -->
+        <section class="methodology">
+            <h3>Backtest Scoring Methodology</h3>
+            <div class="methodology-grid">
+                <div class="methodology-item">
+                    <h4>Gap Size (25% weight)</h4>
+                    <p>Measures the magnitude of post-earnings price gap. Moderate gaps (2-10%) show higher success rates.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>Pre-Earnings Trend (30% weight)</h4>
+                    <p>Analyzes price momentum before earnings. Strong upward trends (10-20%+) correlate with continued momentum.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>Volume Trend (20% weight)</h4>
+                    <p>Compares recent volume to historical averages. Moderate increases signal healthy interest.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>MA200 Position (15% weight)</h4>
+                    <p>Long-term trend indicator. Stocks above 200-day MA show stronger fundamentals.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>MA50 Position (10% weight)</h4>
+                    <p>Medium-term trend indicator. Position above 50-day MA confirms recent momentum.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Generated on February 13, 2026 | Data sourced from Finviz, Alpaca, and FMP</p>
+            <p>This analysis is for informational purposes only and does not constitute investment advice.</p>
+            <p><a href="https://elite.finviz.com/screener.ashx?v=211&o=-change&t=CRSR,AAP,MGA,AMAT,ANET" style="color: #00d9ff;">View on Finviz</a></p>
+        </footer>
+    </div>
+</body>
+</html>

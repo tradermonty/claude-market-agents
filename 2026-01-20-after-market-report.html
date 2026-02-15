@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Stock Market Analysis - January 20, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header .date {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .holiday-notice {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .afterhours-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            border-left: 5px solid #ffff00;
+        }
+
+        .earnings-card {
+            position: relative;
+        }
+
+        .afterhours-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff4444;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(255, 68, 68, 0.5);
+        }
+
+        .earnings-surprise {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+
+        .surprise-positive {
+            color: #00ff88;
+        }
+
+        .surprise-negative {
+            color: #ff6b6b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .key-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .key-points li {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #00ff88;
+            border-radius: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-value {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <div class="date">📅 January 20, 2026 (Monday) – Final After-Market Data</div>
+        </header>
+
+        <div class="holiday-notice">
+            🎊 Martin Luther King Jr. Day – U.S. Market Closed 🎊<br>
+            Data shown reflects Friday, January 17, 2026 trading session with extended hours updates
+        </div>
+
+        <!-- Major ETF Performance -->
+        <div class="section">
+            <h2>📊 Major ETF Performance</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">SPY</div>
+                    <div class="card-subtitle">S&P 500 ETF</div>
+                    <div class="card-value negative">$677.56</div>
+                    <div class="negative" style="font-size: 1.3em;">-2.04%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">QQQ</div>
+                    <div class="card-subtitle">Nasdaq-100 ETF</div>
+                    <div class="card-value negative">$608.06</div>
+                    <div class="negative" style="font-size: 1.3em;">-2.12%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">DIA</div>
+                    <div class="card-subtitle">Dow Jones ETF</div>
+                    <div class="card-value negative">$484.96</div>
+                    <div class="negative" style="font-size: 1.3em;">-1.71%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">IWM</div>
+                    <div class="card-subtitle">Russell 2000 ETF</div>
+                    <div class="card-value negative">$262.63</div>
+                    <div class="negative" style="font-size: 1.3em;">-1.18%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">TLT</div>
+                    <div class="card-subtitle">20+ Year Treasury</div>
+                    <div class="card-value negative">$86.65</div>
+                    <div class="negative" style="font-size: 1.3em;">-1.31%</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">GLD</div>
+                    <div class="card-subtitle">Gold ETF</div>
+                    <div class="card-value positive">$437.23</div>
+                    <div class="positive" style="font-size: 1.3em;">+3.78%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Volume Surge Tickers -->
+        <div class="section">
+            <h2>🔥 Top Volume-Surge Tickers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Sector</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CRVS</strong></td>
+                        <td>Corvus Pharmaceuticals</td>
+                        <td>$21.41</td>
+                        <td class="positive">+165.96%</td>
+                        <td>Healthcare</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RAPT</strong></td>
+                        <td>RAPT Therapeutics</td>
+                        <td>$57.57</td>
+                        <td class="positive">+64.02%</td>
+                        <td>Healthcare</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HYMC</strong></td>
+                        <td>Hycroft Mining</td>
+                        <td>$42.77</td>
+                        <td class="positive">+23.51%</td>
+                        <td>Basic Materials</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ACHC</strong></td>
+                        <td>Acadia Healthcare</td>
+                        <td>$14.24</td>
+                        <td class="positive">+21.92%</td>
+                        <td>Healthcare</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DAWN</strong></td>
+                        <td>Day One Biopharmaceuticals</td>
+                        <td>$12.11</td>
+                        <td class="positive">+19.19%</td>
+                        <td>Healthcare</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Post-Close Earnings & After-Hours -->
+        <div class="section afterhours-section">
+            <h2>⏰ Post-Close Earnings & After-Hours</h2>
+            <div class="grid">
+                <div class="card earnings-card">
+                    <div class="afterhours-badge">After-Hours</div>
+                    <div class="card-header">$PRGS</div>
+                    <div style="font-size: 0.9em; margin-bottom: 10px;">Progress Software Corp</div>
+                    <div class="card-value positive">$42.97</div>
+                    <div class="positive" style="font-size: 1.5em;">+11.33%</div>
+                    <div class="earnings-surprise">
+                        <span>EPS Surprise: <span class="surprise-positive">+15.68%</span></span>
+                        <span>Revenue Surprise: <span class="surprise-positive">+4.03%</span></span>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">
+                        <div>Regular Close: $38.60</div>
+                        <div>Sector: Technology</div>
+                        <div>After-Hours Volume: 878.6K</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 10px;">
+                <strong>Earnings Highlight:</strong> Progress Software delivered strong results with EPS beating by 15.68% and revenue exceeding expectations by 4.03%. The stock surged over 11% in after-hours trading, reversing a previous weekly decline of -11.93%.
+            </div>
+        </div>
+
+        <!-- Market Statistics -->
+        <div class="section">
+            <h2>📈 Market Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">70</div>
+                    <div class="stat-label">Volume-Surge Tickers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">870</div>
+                    <div class="stat-label">Up-Trend Tickers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">4.1x</div>
+                    <div class="stat-label">Avg. Relative Volume</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">+10.3%</div>
+                    <div class="stat-label">Avg. Price Move</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Earnings Releases</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sector Performance -->
+        <div class="section">
+            <h2>🏢 Sector Performance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sector</th>
+                        <th>Change</th>
+                        <th>Market Cap (B)</th>
+                        <th>Stocks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic Materials</td>
+                        <td class="positive">+1.31%</td>
+                        <td>$2,832</td>
+                        <td>274</td>
+                    </tr>
+                    <tr>
+                        <td>Consumer Defensive</td>
+                        <td>0.00%</td>
+                        <td>$4,349</td>
+                        <td>245</td>
+                    </tr>
+                    <tr>
+                        <td>Energy</td>
+                        <td class="negative">-0.34%</td>
+                        <td>$3,755</td>
+                        <td>248</td>
+                    </tr>
+                    <tr>
+                        <td>Healthcare</td>
+                        <td class="negative">-0.44%</td>
+                        <td>$8,676</td>
+                        <td>1,086</td>
+                    </tr>
+                    <tr>
+                        <td>Utilities</td>
+                        <td class="negative">-0.74%</td>
+                        <td>$1,763</td>
+                        <td>107</td>
+                    </tr>
+                    <tr>
+                        <td>Real Estate</td>
+                        <td class="negative">-1.82%</td>
+                        <td>$1,701</td>
+                        <td>261</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Today's Key Points -->
+        <div class="section">
+            <h2>🎯 Today's Key Points</h2>
+            <ul class="key-points">
+                <li><strong>🏛️ Market Holiday:</strong> U.S. stock markets closed for Martin Luther King Jr. Day. Extended hours trading data reflects Friday's session continuation.</li>
+
+                <li><strong>📉 Broad Market Weakness:</strong> Major indices declined on Friday with SPY -2.04%, QQQ -2.12%, and DIA -1.71%. Technology (-2.94%) and Consumer Cyclical (-2.69%) sectors led losses.</li>
+
+                <li><strong>🔥 Healthcare Dominance in Volume Surge:</strong> Healthcare biotechnology names dominated the volume surge screener with CRVS (+165.96%), RAPT (+64.02%), and ACHC (+21.92%) showing explosive gains.</li>
+
+                <li><strong>🥇 Gold Shines:</strong> GLD surged +3.78% to $437.23 amid market uncertainty and defensive positioning. Basic Materials sector (+1.31%) was the only positive sector.</li>
+
+                <li><strong>⏰ After-Hours Winner:</strong> Progress Software (PRGS) rallied +11.33% after-hours following strong earnings results with EPS beating expectations by 15.68% and revenue exceeding by 4.03%.</li>
+
+                <li><strong>📊 Volume Surge Characteristics:</strong> 70 stocks showed 1.5x+ relative volume with 2%+ gains, averaging 4.1x normal volume and +10.3% price appreciation.</li>
+
+                <li><strong>⚠️ Risk-Off Sentiment:</strong> Bonds (TLT -1.31%) also declined, suggesting complex market dynamics. Investors appear to be rotating into gold as a safe haven.</li>
+
+                <li><strong>🔮 Next Week Focus:</strong> Markets reopen Tuesday, January 21st. Watch for continuation of sector rotation patterns and whether technology can recover from Friday's weakness.</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p><strong>Data Sources:</strong> Finviz.com, Alpaca Markets API</p>
+            <p><strong>Last Updated:</strong> January 20, 2026 - 4:10 PM PT (Extended Hours Data)</p>
+            <p><strong>Note:</strong> Final after-market data with after-hours earnings information. This report is for informational purposes only and does not constitute financial advice.</p>
+        </footer>
+    </div>
+</body>
+</html>

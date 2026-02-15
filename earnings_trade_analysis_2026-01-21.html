@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - January 21, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        .timestamp {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .summary-card h3 {
+            font-size: 2rem;
+            color: #00d4ff;
+        }
+
+        .summary-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .grade-section {
+            margin-bottom: 40px;
+        }
+
+        .grade-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            margin-bottom: 0;
+        }
+
+        .grade-a { background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(0,255,136,0.05)); border-left: 4px solid #00ff88; }
+        .grade-b { background: linear-gradient(90deg, rgba(0,212,255,0.2), rgba(0,212,255,0.05)); border-left: 4px solid #00d4ff; }
+        .grade-c { background: linear-gradient(90deg, rgba(255,193,7,0.2), rgba(255,193,7,0.05)); border-left: 4px solid #ffc107; }
+        .grade-d { background: linear-gradient(90deg, rgba(255,82,82,0.2), rgba(255,82,82,0.05)); border-left: 4px solid #ff5252; }
+
+        .grade-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .grade-a .grade-badge { background: #00ff88; color: #1a1a2e; }
+        .grade-b .grade-badge { background: #00d4ff; color: #1a1a2e; }
+        .grade-c .grade-badge { background: #ffc107; color: #1a1a2e; }
+        .grade-d .grade-badge { background: #ff5252; color: #fff; }
+
+        .grade-info {
+            flex: 1;
+        }
+
+        .grade-info h2 {
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .grade-info p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 0 0 12px 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-top: none;
+        }
+
+        .stock-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stock-info h3 {
+            font-size: 1.4rem;
+            color: #00d4ff;
+        }
+
+        .stock-info .company {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 3px;
+        }
+
+        .stock-info .sector {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .stock-score {
+            text-align: right;
+        }
+
+        .total-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 1.1rem;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .score-item.full-width {
+            grid-column: span 2;
+        }
+
+        .score-label {
+            color: #aaa;
+        }
+
+        .score-value {
+            font-weight: bold;
+        }
+
+        .score-high { color: #00ff88; }
+        .score-medium { color: #00d4ff; }
+        .score-low { color: #ffc107; }
+        .score-poor { color: #ff5252; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .metric-positive { color: #00ff88; }
+        .metric-negative { color: #ff5252; }
+
+        .news-section {
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .news-title {
+            font-size: 0.9rem;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .news-summary {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        .ma-indicators {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .ma-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .ma-above { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .ma-below { background: rgba(255,82,82,0.2); color: #ff5252; }
+
+        .methodology {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .methodology h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .method-item {
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+
+        .method-item h4 {
+            color: #00ff88;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .method-item p {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .weight-badge {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .disclaimer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .finviz-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            color: #1a1a2e;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .finviz-link:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            .stocks-grid { grid-template-columns: 1fr; }
+            .score-breakdown { grid-template-columns: 1fr; }
+            .score-item.full-width { grid-column: span 1; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">January 21, 2026 - Backtest Scoring System Analysis</p>
+            <p class="timestamp">Analysis Generated: January 21, 2026 06:00 AM PST | Data Source: Finviz, Alpaca</p>
+        </header>
+
+        <div class="summary-dashboard">
+            <div class="summary-card">
+                <h3>7</h3>
+                <p>Stocks Analyzed</p>
+            </div>
+            <div class="summary-card">
+                <h3>0</h3>
+                <p>A-Grade (85+)</p>
+            </div>
+            <div class="summary-card">
+                <h3>3</h3>
+                <p>B-Grade (70-84)</p>
+            </div>
+            <div class="summary-card">
+                <h3>3</h3>
+                <p>C-Grade (55-69)</p>
+            </div>
+            <div class="summary-card">
+                <h3>1</h3>
+                <p>D-Grade (&lt;55)</p>
+            </div>
+        </div>
+
+        <!-- B-Grade Stocks (70-84 points) -->
+        <div class="grade-section">
+            <div class="grade-header grade-b">
+                <span class="grade-badge">B</span>
+                <div class="grade-info">
+                    <h2>B-Grade Stocks (70-84 Points)</h2>
+                    <p>55-69% Historical Success Rate | Recommended for Moderate Position Sizing</p>
+                </div>
+            </div>
+            <div class="stocks-grid">
+                <!-- HAL -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$HAL</h3>
+                            <p class="company">Halliburton Co</p>
+                            <p class="sector">Energy | Oil & Gas Equipment & Services</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">82</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-medium">18/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-high">27/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-high">18/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-high">14/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-medium">5/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+16.30%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+3.92%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$33.17</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+39.72%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+20.79%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">66.86</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+8.24%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+15.87%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+39.72%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">Halliburton Q4 earnings beat estimates with strong international revenue. Stock pops after earnings despite North America weakness. Venezuela opportunity remains a wildcard for future growth. Profit slipped but revenue exceeded expectations.</div>
+                    </div>
+                </div>
+
+                <!-- TDY -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$TDY</h3>
+                            <p class="company">Teledyne Technologies Inc</p>
+                            <p class="sector">Technology | Scientific & Technical Instruments</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">79</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-medium">15/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-high">24/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-high">17/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-high">13/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-high">10/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+1.80%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+0.81%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$586.87</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+12.45%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+16.34%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">73.57</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+8.71%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+12.90%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+12.45%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">Teledyne crushed earnings with strong defense business performance. Issued solid 2026 outlook driven by aerospace unit strength. Q4 beats on revenue with strong quarterly results. NASA BlackCAT CubeSat mission success adds momentum.</div>
+                    </div>
+                </div>
+
+                <!-- PLD -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$PLD</h3>
+                            <p class="company">Prologis Inc</p>
+                            <p class="sector">Real Estate | REIT - Industrial</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">75</div>
+                            <div class="stars">&#9733;&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-high">22/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-medium">18/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-medium">14/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-high">14/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-medium">7/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+22.77%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+1.20%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$133.30</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+16.51%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+4.42%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">62.80</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+2.90%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+4.18%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+16.51%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">Prologis revenue rises as warehouse demand rebounds. Q4 earnings snapshot shows solid fundamentals. Reports Q4 and full year 2025 results with strong EPS surprise of +22.77%. Industrial REIT sector showing resilience.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- C-Grade Stocks (55-69 points) -->
+        <div class="grade-section">
+            <div class="grade-header grade-c">
+                <span class="grade-badge">C</span>
+                <div class="grade-info">
+                    <h2>C-Grade Stocks (55-69 Points)</h2>
+                    <p>40-54% Historical Success Rate | Exercise Caution with Position Sizing</p>
+                </div>
+            </div>
+            <div class="stocks-grid">
+                <!-- SFBS -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$SFBS</h3>
+                            <p class="company">ServisFirst Bancshares Inc</p>
+                            <p class="sector">Financial | Banks - Regional</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">68</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-medium">17/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-medium">18/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-medium">12/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-medium">11/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-high">10/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+14.22%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+6.85%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$77.44</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+1.09%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+6.07%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">59.99</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+3.55%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+6.02%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+1.09%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">ServisFirst Bancshares Q4 2025 highlights strong loan growth and expanded margins. Surprises with strong Q4 results. EPS growth QoQ of +32.55% demonstrates solid execution. Regional bank showing resilience in current rate environment.</div>
+                    </div>
+                </div>
+
+                <!-- BKU -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$BKU</h3>
+                            <p class="company">BankUnited Inc</p>
+                            <p class="sector">Financial | Banks - Regional</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">66</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-medium">14/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-medium">18/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-medium">14/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-high">14/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-medium">6/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+7.43%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-negative">-1.62%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$46.48</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+21.53%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+2.20%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">61.35</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+2.39%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+5.80%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+21.53%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">BankUnited reports Q4 net income of $69M with $0.90 diluted EPS. 6 basis point NIM expansion positive. $485M non-interest bearing deposit growth and $769M core loan growth demonstrate strong fundamentals.</div>
+                    </div>
+                </div>
+
+                <!-- CFG -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$CFG</h3>
+                            <p class="company">Citizens Financial Group Inc</p>
+                            <p class="sector">Financial | Banks - Regional</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">62</div>
+                            <div class="stars">&#9733;&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-low">10/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-medium">18/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-medium">14/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-high">14/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-medium">6/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+2.15%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+0.85%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$60.79</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+24.91%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+4.07%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">59.71</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+1.08%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+7.01%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+24.91%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">Citizens Financial Group Q4 net income of $528M, up 32% YoY. EPS of $1.13, up 36% YoY shows strong profitability improvement. Surprises with Q4 CY2025 sales. Launched Ninth Annual Small Business Community Champion Award Contest.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- D-Grade Stocks (<55 points) -->
+        <div class="grade-section">
+            <div class="grade-header grade-d">
+                <span class="grade-badge">D</span>
+                <div class="grade-info">
+                    <h2>D-Grade Stocks (Below 55 Points)</h2>
+                    <p>Below 40% Historical Success Rate | High Risk - Consider Avoiding or Minimal Position</p>
+                </div>
+            </div>
+            <div class="stocks-grid">
+                <!-- SFNC -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h3>$SFNC</h3>
+                            <p class="company">Simmons First National Corp</p>
+                            <p class="sector">Financial | Banks - Regional</p>
+                        </div>
+                        <div class="stock-score">
+                            <div class="total-score">52</div>
+                            <div class="stars">&#9733;&#9733;</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value score-medium">16/25</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value score-low">12/30</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value score-low">8/20</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-label">MA200 Analysis (15%)</span>
+                            <span class="score-value score-medium">10/15</span>
+                        </div>
+                        <div class="score-item full-width">
+                            <span class="score-label">MA50 Analysis (10%)</span>
+                            <span class="score-value score-medium">6/10</span>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+12.83%</div>
+                            <div class="metric-label">EPS Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+4.34%</div>
+                            <div class="metric-label">Rev Surprise</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">$19.60</div>
+                            <div class="metric-label">Price</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+2.62%</div>
+                            <div class="metric-label">vs MA200</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value metric-positive">+0.72%</div>
+                            <div class="metric-label">1M Perf</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">59.42</div>
+                            <div class="metric-label">RSI</div>
+                        </div>
+                    </div>
+
+                    <div class="ma-indicators">
+                        <span class="ma-badge ma-above">Above MA20 (+2.31%)</span>
+                        <span class="ma-badge ma-above">Above MA50 (+4.25%)</span>
+                        <span class="ma-badge ma-above">Above MA200 (+2.62%)</span>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Latest News Highlights</div>
+                        <div class="news-summary">Simmons First National delivers strong Q4 CY2025 numbers with EPS of $0.54. EPS Growth QoQ of +41.07% is impressive but concerns remain due to weak pre-earnings trend and negative EPS TTM. Lower volume trend suggests limited institutional interest.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Methodology Section -->
+        <div class="methodology">
+            <h2>Backtest Scoring Methodology</h2>
+            <div class="methodology-grid">
+                <div class="method-item">
+                    <h4>Gap Size Performance <span class="weight-badge">25%</span></h4>
+                    <p>Evaluates EPS and revenue surprise magnitude. Higher surprises (>15% EPS, >5% Rev) score higher. Based on historical correlation between surprise size and post-earnings momentum continuation.</p>
+                </div>
+                <div class="method-item">
+                    <h4>Pre-Earnings Trend <span class="weight-badge">30%</span></h4>
+                    <p>Analyzes price action in the 4 weeks before earnings. Strong uptrend (+10%+) with controlled pullbacks scores highest. Assesses institutional positioning before the announcement.</p>
+                </div>
+                <div class="method-item">
+                    <h4>Volume Trend Analysis <span class="weight-badge">20%</span></h4>
+                    <p>Compares recent volume to 20-day average. Rising volume on up days with decreasing volume on down days indicates accumulation. High relative volume on earnings day is a positive signal.</p>
+                </div>
+                <div class="method-item">
+                    <h4>MA200 Analysis <span class="weight-badge">15%</span></h4>
+                    <p>Stocks trading above 200-day MA indicate long-term bullish trend. Distance from MA200 (5-20% optimal) and recent crossover direction are considered.</p>
+                </div>
+                <div class="method-item">
+                    <h4>MA50 Analysis <span class="weight-badge">10%</span></h4>
+                    <p>50-day MA provides intermediate trend context. Price above MA50 with MA50 above MA200 (golden cross) scores highest. Used to confirm trend alignment.</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="https://elite.finviz.com/screener.ashx?v=211&o=-change&t=HAL,TDY,PLD,SFBS,BKU,CFG,SFNC" class="finviz-link" target="_blank">View All Stocks on Finviz</a>
+        </div>
+
+        <div class="disclaimer">
+            <p><strong>DISCLAIMER:</strong> This analysis is for informational purposes only and does not constitute investment advice. Past performance is not indicative of future results. Trading stocks involves significant risk of loss. Always conduct your own research and consider consulting with a financial advisor before making investment decisions. The backtest scores are based on historical patterns and may not accurately predict future performance.</p>
+            <p style="margin-top: 10px;">Analysis generated on January 21, 2026 at 06:00 AM PST</p>
+        </div>
+    </div>
+</body>
+</html>

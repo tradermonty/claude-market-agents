@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - January 20, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header .date {
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .grade-a { color: #00ff88; }
+        .grade-b { color: #00d9ff; }
+        .grade-c { color: #ffd700; }
+        .grade-d { color: #ff6b6b; }
+
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stock-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .stock-info .ticker {
+            font-size: 1rem;
+            color: #00d9ff;
+            font-weight: 600;
+        }
+
+        .stock-info .sector {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .grade-badge {
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .grade-badge.grade-d-badge {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.1));
+            border: 2px solid #ff6b6b;
+        }
+
+        .grade-badge .grade-letter {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .grade-badge .grade-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .price-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        .price-item {
+            text-align: center;
+        }
+
+        .price-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .price-item .label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .price-item .positive { color: #00ff88; }
+        .price-item .negative { color: #ff6b6b; }
+
+        .scores-section {
+            margin-bottom: 25px;
+        }
+
+        .scores-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #00d9ff;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .score-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-item .name {
+            font-size: 0.9rem;
+        }
+
+        .score-item .weight {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .score-item .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .score-low { color: #ff6b6b; }
+        .score-medium { color: #ffd700; }
+        .score-high { color: #00ff88; }
+
+        .news-section {
+            margin-bottom: 25px;
+        }
+
+        .news-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #00d9ff;
+        }
+
+        .news-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00d9ff;
+        }
+
+        .news-item .title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .news-item .meta {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .analysis-section {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .analysis-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #00d9ff;
+        }
+
+        .analysis-content {
+            line-height: 1.6;
+        }
+
+        .analysis-content ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .analysis-content li {
+            margin-bottom: 8px;
+        }
+
+        .warning-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .warning-box h4 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .total-score-display {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .total-score-display .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .total-score-display .score-label {
+            font-size: 1rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .stars {
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+
+        .star-filled { color: #ffd700; }
+        .star-empty { color: #444; }
+
+        .disclaimer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .no-stocks-message {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            margin: 30px 0;
+        }
+
+        .no-stocks-message h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .methodology {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .methodology h3 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .methodology-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .methodology-item h4 {
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .methodology-item p {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stock-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .grade-badge {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="date">January 20, 2026 (Tuesday)</div>
+            <div class="subtitle">Momentum Gap Trading Strategy | Backtest-Based Scoring System</div>
+        </header>
+
+        <div class="summary-dashboard">
+            <div class="summary-card">
+                <div class="value">1</div>
+                <div class="label">Stocks Screened</div>
+            </div>
+            <div class="summary-card">
+                <div class="value grade-a">0</div>
+                <div class="label">A-Grade (70%+ Success)</div>
+            </div>
+            <div class="summary-card">
+                <div class="value grade-b">0</div>
+                <div class="label">B-Grade (55-69% Success)</div>
+            </div>
+            <div class="summary-card">
+                <div class="value grade-c">0</div>
+                <div class="label">C-Grade (40-54% Success)</div>
+            </div>
+            <div class="summary-card">
+                <div class="value grade-d">1</div>
+                <div class="label">D-Grade (<40% Success)</div>
+            </div>
+        </div>
+
+        <!-- USB Stock Card -->
+        <div class="stock-card">
+            <div class="stock-header">
+                <div class="stock-info">
+                    <h2>U.S. Bancorp</h2>
+                    <div class="ticker">NYSE: USB</div>
+                    <div class="sector">Financial Services | Banks - Regional</div>
+                </div>
+                <div class="grade-badge grade-d-badge">
+                    <div class="grade-letter grade-d">D</div>
+                    <div class="grade-text">&lt;40% Success Rate</div>
+                </div>
+            </div>
+
+            <div class="total-score-display">
+                <div class="score-value grade-d">49.00</div>
+                <div class="score-label">Total Weighted Score (out of 100)</div>
+                <div class="stars">
+                    <span class="star-filled">&#9733;</span>
+                    <span class="star-filled">&#9733;</span>
+                    <span class="star-empty">&#9734;</span>
+                    <span class="star-empty">&#9734;</span>
+                    <span class="star-empty">&#9734;</span>
+                </div>
+            </div>
+
+            <div class="price-section">
+                <div class="price-item">
+                    <div class="value">$54.75</div>
+                    <div class="label">Current Price</div>
+                </div>
+                <div class="price-item">
+                    <div class="value">$53.95</div>
+                    <div class="label">Previous Close</div>
+                </div>
+                <div class="price-item">
+                    <div class="value positive">+1.48%</div>
+                    <div class="label">Gap Size</div>
+                </div>
+                <div class="price-item">
+                    <div class="value">$85.11B</div>
+                    <div class="label">Market Cap</div>
+                </div>
+            </div>
+
+            <div class="scores-section">
+                <h3>5-Element Backtest Score Breakdown</h3>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <div>
+                            <div class="name">Gap Size Performance</div>
+                            <div class="weight">Weight: 25%</div>
+                        </div>
+                        <div class="score score-medium">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div>
+                            <div class="name">Pre-Earnings Trend</div>
+                            <div class="weight">Weight: 30%</div>
+                        </div>
+                        <div class="score score-low">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div>
+                            <div class="name">Volume Trend</div>
+                            <div class="weight">Weight: 20%</div>
+                        </div>
+                        <div class="score score-low">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div>
+                            <div class="name">MA200 Position</div>
+                            <div class="weight">Weight: 15%</div>
+                        </div>
+                        <div class="score score-high">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div>
+                            <div class="name">MA50 Position</div>
+                            <div class="weight">Weight: 10%</div>
+                        </div>
+                        <div class="score score-high">4/5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Technical Analysis Summary</h3>
+                <div class="analysis-content">
+                    <ul>
+                        <li><strong>Gap Size (1.48%):</strong> Moderate gap within the 0-2% range, which historically has a 52% success rate - the highest among gap ranges.</li>
+                        <li><strong>Pre-Earnings Trend (-0.86%):</strong> Slight decline over the past 20 trading days indicates a post-correction earnings play with medium risk.</li>
+                        <li><strong>Volume Ratio (207.50%):</strong> Abnormally high volume compared to recent averages, which creates instability and reduces predictability. This is a significant negative factor.</li>
+                        <li><strong>MA200 Position (+17.07%):</strong> Price is significantly above the 200-day moving average, indicating a strong long-term bullish trend. This is a positive factor.</li>
+                        <li><strong>MA50 Position (+6.04%):</strong> Price is above the 50-day moving average, indicating a healthy medium-term trend.</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Risk Warning</h4>
+                    <p>The extremely high volume ratio (207.50%) is a major concern. This indicates abnormal trading activity that could lead to unpredictable price movements. Combined with a flat pre-earnings trend, this setup does not meet the criteria for a high-probability momentum trade. Consider waiting for volume normalization before entering.</p>
+                </div>
+            </div>
+
+            <div class="news-section">
+                <h3>Recent News & Earnings</h3>
+                <div class="news-item">
+                    <div class="title">U.S. Bancorp's Q4 CY2025: Beats On Revenue</div>
+                    <div class="meta">StockStory | January 20, 2026 07:25</div>
+                </div>
+                <div class="news-item">
+                    <div class="title">U.S. Bancorp Reports Fourth Quarter 2025 Results</div>
+                    <div class="meta">Business Wire | January 20, 2026 06:45</div>
+                </div>
+                <div class="news-item">
+                    <div class="title">U.S. Bancorp to Buy BTIG for Up to $1 Billion</div>
+                    <div class="meta">The Wall Street Journal | January 13, 2026</div>
+                </div>
+                <div class="news-item">
+                    <div class="title">Stable NII & Loan Growth to Support U.S. Bancorp's Q4 Earnings</div>
+                    <div class="meta">Zacks | January 19, 2026</div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Earnings Analysis</h3>
+                <div class="analysis-content">
+                    <p><strong>Q4 2025 Results:</strong> U.S. Bancorp reported Q4 results that beat revenue expectations. Key highlights:</p>
+                    <ul>
+                        <li>Revenue beat analyst estimates, driven by stable net interest income (NII)</li>
+                        <li>Loan growth continues to support the core banking business</li>
+                        <li>Strategic acquisition of BTIG announced for up to $1 billion to expand capital markets business</li>
+                        <li>The company is positioning for growth in wealth management and investment services</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>Analyst View:</strong> The earnings beat is positive, but the stock's pre-market reaction with abnormally high volume suggests market uncertainty. The BTIG acquisition may be driving additional speculation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="methodology">
+            <h3>Backtest Scoring Methodology</h3>
+            <div class="methodology-grid">
+                <div class="methodology-item">
+                    <h4>Gap Size (25% Weight)</h4>
+                    <p>0-2% gaps have the highest historical success rate (52%). Larger gaps (10%+) tend to fade with only 28% success.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>Pre-Earnings Trend (30% Weight)</h4>
+                    <p>Stocks with 10-20% gains before earnings show strong momentum continuation. Declining stocks pre-earnings carry higher risk.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>Volume Trend (20% Weight)</h4>
+                    <p>Moderate volume increases (100-120%) indicate healthy interest. Abnormal volume (>120%) often signals instability.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>MA200 Position (15% Weight)</h4>
+                    <p>Stocks significantly above MA200 show long-term bullish trends. Below MA200 indicates bearish conditions.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>MA50 Position (10% Weight)</h4>
+                    <p>Medium-term trend indicator. Stocks above MA50 show healthy momentum.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>Rating System</h4>
+                    <p>A (85+): 70%+ success | B (70-84): 55-69% | C (55-69): 40-54% | D (<55): <40%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <p><strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute investment advice. Past performance does not guarantee future results. Always conduct your own research and consider your risk tolerance before trading. The backtest-based scoring system is designed to identify high-probability setups, but no trading strategy is guaranteed to succeed.</p>
+            <p style="margin-top: 10px;">Analysis generated: January 20, 2026 at 06:00 PST</p>
+        </div>
+    </div>
+</body>
+</html>

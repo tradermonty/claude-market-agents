@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - February 9, 2026</title>
+    <style>
+        :root {
+            --primary-blue: #1e3a5f;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-orange: #f97316;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --grade-a: #10b981;
+            --grade-b: #3b82f6;
+            --grade-c: #f59e0b;
+            --grade-d: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #2d4a7c 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        header .date {
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-card .number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .summary-card .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .grade-legend {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .grade-legend h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .grade-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .grade-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grade-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .grade-a { background: var(--grade-a); }
+        .grade-b { background: var(--grade-b); }
+        .grade-c { background: var(--grade-c); }
+        .grade-d { background: var(--grade-d); }
+
+        .stock-cards {
+            display: grid;
+            gap: 30px;
+        }
+
+        .stock-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stock-header {
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stock-ticker {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stock-name {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .stock-price-info {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .price-change {
+            font-size: 1.2rem;
+            padding: 5px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .price-up {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .grade-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .large-grade {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .grade-score {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .stock-body {
+            padding: 25px;
+        }
+
+        .score-breakdown {
+            margin-bottom: 25px;
+        }
+
+        .score-breakdown h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .score-item {
+            background: rgba(51, 65, 85, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .score-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .score-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .score-item-weight {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .score-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .score-item-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .score-points {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .score-detail {
+            color: var(--text-secondary);
+        }
+
+        .analysis-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .analysis-section {
+            background: rgba(51, 65, 85, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .analysis-section h5 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-section p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .analysis-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .analysis-section li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .analysis-section li:last-child {
+            border-bottom: none;
+        }
+
+        .metric-highlight {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .metric-warning {
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+
+        .metric-danger {
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+
+        .stars {
+            color: #fbbf24;
+            letter-spacing: 2px;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 30px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        footer .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        footer .timestamp {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--accent-green);
+        }
+
+        .methodology {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .methodology h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .methodology-item {
+            padding: 15px;
+            background: rgba(51, 65, 85, 0.5);
+            border-radius: 8px;
+        }
+
+        .methodology-item .weight {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .methodology-item .name {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stock-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .stock-price-info {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="subtitle">Backtest-Based Scoring System for Earnings Trading</div>
+            <div class="date">February 9, 2026 (Monday)</div>
+        </header>
+
+        <div class="summary-dashboard">
+            <div class="summary-card">
+                <div class="number">2</div>
+                <div class="label">Stocks Screened</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" style="color: var(--grade-a);">0</div>
+                <div class="label">A-Grade (85+)</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" style="color: var(--grade-b);">1</div>
+                <div class="label">B-Grade (70-84)</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" style="color: var(--grade-c);">0</div>
+                <div class="label">C-Grade (55-69)</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" style="color: var(--grade-d);">1</div>
+                <div class="label">D-Grade (<55)</div>
+            </div>
+        </div>
+
+        <div class="grade-legend">
+            <h3>Backtest Rating System</h3>
+            <div class="grade-items">
+                <div class="grade-item">
+                    <div class="grade-badge grade-a">A</div>
+                    <span>85+ points | 70%+ Success Rate</span>
+                </div>
+                <div class="grade-item">
+                    <div class="grade-badge grade-b">B</div>
+                    <span>70-84 points | 55-69% Success Rate</span>
+                </div>
+                <div class="grade-item">
+                    <div class="grade-badge grade-c">C</div>
+                    <span>55-69 points | 40-54% Success Rate</span>
+                </div>
+                <div class="grade-item">
+                    <div class="grade-badge grade-d">D</div>
+                    <span><55 points | <40% Success Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="methodology">
+            <h3>5-Element Scoring Methodology</h3>
+            <div class="methodology-grid">
+                <div class="methodology-item">
+                    <div class="weight">30%</div>
+                    <div class="name">Pre-Earnings Trend</div>
+                </div>
+                <div class="methodology-item">
+                    <div class="weight">25%</div>
+                    <div class="name">Gap Size Performance</div>
+                </div>
+                <div class="methodology-item">
+                    <div class="weight">20%</div>
+                    <div class="name">Volume Trend Analysis</div>
+                </div>
+                <div class="methodology-item">
+                    <div class="weight">15%</div>
+                    <div class="name">MA200 Position</div>
+                </div>
+                <div class="methodology-item">
+                    <div class="weight">10%</div>
+                    <div class="name">MA50 Position</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stock-cards">
+            <!-- CURB - B-Grade -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <div>
+                            <div class="stock-ticker">CURB</div>
+                            <div class="stock-name">Curbline Properties Corp | Real Estate (REIT - Retail)</div>
+                        </div>
+                    </div>
+                    <div class="stock-price-info">
+                        <div class="current-price">$26.24</div>
+                        <div class="price-change price-up">+$0.97 (+3.84%)</div>
+                    </div>
+                    <div class="grade-display">
+                        <div class="large-grade grade-b">B</div>
+                        <div class="grade-score">74.0 points</div>
+                        <div class="stars">****</div>
+                    </div>
+                </div>
+                <div class="stock-body">
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-items">
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">Gap Size Performance</span>
+                                    <span class="score-item-weight">25% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 60%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">3/5 points</span>
+                                    <span class="score-detail">+3.84% gap (2-5% range)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">Pre-Earnings Trend</span>
+                                    <span class="score-item-weight">30% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 60%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">3/5 points</span>
+                                    <span class="score-detail">+7.53% (Stable uptrend)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">Volume Trend</span>
+                                    <span class="score-item-weight">20% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 80%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">4/5 points</span>
+                                    <span class="score-detail">103.03% ratio (Rising interest)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">MA200 Position</span>
+                                    <span class="score-item-weight">15% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 100%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">5/5 points</span>
+                                    <span class="score-detail">+13.72% above MA200 (Very bullish)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">MA50 Position</span>
+                                    <span class="score-item-weight">10% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 100%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">5/5 points</span>
+                                    <span class="score-detail">+10.66% above MA50 (Very bullish)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-sections">
+                        <div class="analysis-section">
+                            <h5>Earnings Summary</h5>
+                            <ul>
+                                <li>EPS Surprise: <span class="metric-highlight">+39.97%</span></li>
+                                <li>Revenue Surprise: <span class="metric-highlight">+13.41%</span></li>
+                                <li>EPS Growth QoQ: <span class="metric-highlight">+159.52%</span></li>
+                                <li>Sales Growth QoQ: <span class="metric-highlight">+64.45%</span></li>
+                            </ul>
+                        </div>
+                        <div class="analysis-section">
+                            <h5>Technical Factors</h5>
+                            <ul>
+                                <li>RSI (14): <span class="metric-warning">79.5</span> (Overbought)</li>
+                                <li>Beta: <span class="metric-highlight">0.54</span> (Low volatility)</li>
+                                <li>Weekly Performance: <span class="metric-highlight">+7.98%</span></li>
+                                <li>YTD Performance: <span class="metric-highlight">+13.05%</span></li>
+                            </ul>
+                        </div>
+                        <div class="analysis-section">
+                            <h5>News Analysis</h5>
+                            <p>Curbline Properties (CURB) reported Q4 results that topped analyst expectations for both FFO and revenue. The company posted strong quarterly performance with significant beats on all key metrics. As a REIT focused on retail properties, the company benefits from stable rental income and low beta characteristics.</p>
+                        </div>
+                        <div class="analysis-section">
+                            <h5>Risk Assessment</h5>
+                            <ul>
+                                <li>RSI at 79.5 indicates overbought conditions</li>
+                                <li>Low beta (0.54) limits upside momentum</li>
+                                <li>Dividend yield of 2.50% provides downside support</li>
+                                <li>Success Probability: <span class="metric-highlight">55-69%</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POWW - D-Grade -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <div>
+                            <div class="stock-ticker">POWW</div>
+                            <div class="stock-name">Outdoor Holding Co | Industrials (Aerospace & Defense)</div>
+                        </div>
+                    </div>
+                    <div class="stock-price-info">
+                        <div class="current-price">$1.87</div>
+                        <div class="price-change price-up">+$0.19 (+11.31%)</div>
+                    </div>
+                    <div class="grade-display">
+                        <div class="large-grade grade-d">D</div>
+                        <div class="grade-score">53.0 points</div>
+                        <div class="stars">**</div>
+                    </div>
+                </div>
+                <div class="stock-body">
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-items">
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">Gap Size Performance</span>
+                                    <span class="score-item-weight">25% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 40%; background: var(--accent-yellow);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">2/5 points</span>
+                                    <span class="score-detail">+11.31% gap (10%+ - often fades)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">Pre-Earnings Trend</span>
+                                    <span class="score-item-weight">30% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 20%; background: var(--accent-red);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points" style="color: var(--accent-red);">1/5 points</span>
+                                    <span class="score-detail">-12.04% (Major decline, high risk)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">Volume Trend</span>
+                                    <span class="score-item-weight">20% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 80%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">4/5 points</span>
+                                    <span class="score-detail">101.13% ratio (Average to rising)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">MA200 Position</span>
+                                    <span class="score-item-weight">15% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 100%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">5/5 points</span>
+                                    <span class="score-detail">+18.15% above MA200 (Very bullish)</span>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-header">
+                                    <span class="score-item-name">MA50 Position</span>
+                                    <span class="score-item-weight">10% weight</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: 60%; background: var(--accent-green);"></div>
+                                </div>
+                                <div class="score-item-value">
+                                    <span class="score-points">3/5 points</span>
+                                    <span class="score-detail">+3.07% above MA50 (Slightly bullish)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-sections">
+                        <div class="analysis-section">
+                            <h5>Earnings Summary</h5>
+                            <ul>
+                                <li>EPS Surprise: <span class="metric-highlight">+125.00%</span></li>
+                                <li>Revenue Surprise: <span class="metric-highlight">+3.01%</span></li>
+                                <li>EPS Growth QoQ: <span class="metric-highlight">+104.29%</span></li>
+                                <li>Sales Growth QoQ: <span class="metric-danger">-61.28%</span></li>
+                            </ul>
+                        </div>
+                        <div class="analysis-section">
+                            <h5>Technical Factors</h5>
+                            <ul>
+                                <li>RSI (14): <span class="metric-highlight">60.72</span> (Neutral)</li>
+                                <li>Beta: <span class="metric-warning">1.22</span> (Higher volatility)</li>
+                                <li>Relative Volume: <span class="metric-highlight">4.31x</span></li>
+                                <li>Weekly Performance: <span class="metric-highlight">+9.31%</span></li>
+                            </ul>
+                        </div>
+                        <div class="analysis-section">
+                            <h5>News Analysis</h5>
+                            <p>Outdoor Holding Company reported continued profitability in Q3 FY2026. While EPS significantly exceeded expectations (+125%), revenue showed a notable year-over-year decline of -61.28%. The company is in the Aerospace & Defense industry with a small market cap of $219M.</p>
+                        </div>
+                        <div class="analysis-section">
+                            <h5>Risk Assessment</h5>
+                            <ul>
+                                <li><span class="metric-danger">Large gap (11%+) historically fades 72% of the time</span></li>
+                                <li><span class="metric-danger">Pre-earnings downtrend (-12%) indicates weakness</span></li>
+                                <li>Revenue decline is a major concern</li>
+                                <li>Success Probability: <span class="metric-danger"><40%</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="disclaimer">
+                <strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute investment advice.
+                Past performance based on backtest data does not guarantee future results.
+                All trading involves risk of loss. Please conduct your own research and consider your risk tolerance before making any investment decisions.
+                The success rates shown are based on historical backtest data and may not reflect actual trading results.
+            </div>
+            <div class="timestamp">
+                Analysis generated: February 9, 2026 at 06:00 PST | Data source: Finviz, Alpaca Markets
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

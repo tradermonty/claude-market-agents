@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - December 22, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3436 0%, #000000 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #7c4dff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .header .date {
+            font-size: 1.1rem;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .market-status {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .status-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-card .label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .status-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .status-card .value.positive {
+            color: #00ff88;
+        }
+
+        .status-card .value.negative {
+            color: #ff4757;
+        }
+
+        .status-card .value.neutral {
+            color: #ffa502;
+        }
+
+        .no-stocks-card {
+            background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px dashed #444;
+        }
+
+        .no-stocks-card .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .no-stocks-card h2 {
+            font-size: 1.8rem;
+            color: #ffa502;
+            margin-bottom: 15px;
+        }
+
+        .no-stocks-card p {
+            font-size: 1.1rem;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        .reason-list {
+            list-style: none;
+            text-align: left;
+            max-width: 500px;
+            margin: 30px auto;
+        }
+
+        .reason-list li {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reason-list li::before {
+            content: ">";
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .alternative-section {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d3436 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .alternative-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-surge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .ticker-chip {
+            background: linear-gradient(135deg, #2d3436 0%, #3d4852 100%);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #444;
+        }
+
+        .ticker-chip:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,212,255,0.2);
+        }
+
+        .ticker-chip .symbol {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .ticker-chip .type {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .info-box p {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        .disclaimer {
+            background: rgba(255,165,2,0.1);
+            border: 1px solid rgba(255,165,2,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .disclaimer strong {
+            color: #ffa502;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .no-stocks-card {
+                padding: 40px 20px;
+            }
+
+            .market-status {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="subtitle">Earnings Trading Backtest Scoring System</div>
+            <div class="date">Monday, December 22, 2025</div>
+        </div>
+
+        <div class="market-status">
+            <div class="status-card">
+                <div class="label">S&P 500 (SPY)</div>
+                <div class="value positive">$683.79 (+0.47%)</div>
+            </div>
+            <div class="status-card">
+                <div class="label">NASDAQ 100 (QQQ)</div>
+                <div class="value positive">$620.75 (+0.60%)</div>
+            </div>
+            <div class="status-card">
+                <div class="label">Russell 2000 (IWM)</div>
+                <div class="value positive">$252.52 (+0.69%)</div>
+            </div>
+            <div class="status-card">
+                <div class="label">Gold (GLD)</div>
+                <div class="value positive">$406.95 (+1.99%)</div>
+            </div>
+            <div class="status-card">
+                <div class="label">Market Status</div>
+                <div class="value neutral">Pre-Market</div>
+            </div>
+            <div class="status-card">
+                <div class="label">Earnings Stocks Today</div>
+                <div class="value neutral">0</div>
+            </div>
+        </div>
+
+        <div class="no-stocks-card">
+            <div class="icon">[ ]</div>
+            <h2>No Stocks Available for Earnings Trading</h2>
+            <p>No stocks meeting the earnings trading criteria were found for December 22, 2025. This is expected during the Christmas holiday week when most companies avoid announcing earnings.</p>
+
+            <ul class="reason-list">
+                <li>Christmas Holiday Week - December 22-27, 2025</li>
+                <li>Most Q4 earnings season begins mid-January 2026</li>
+                <li>Trading volumes typically lower during holiday period</li>
+                <li>Limited institutional activity expected</li>
+            </ul>
+        </div>
+
+        <div class="alternative-section">
+            <h3>[ ] Volume Surge Stocks (Alternative Watchlist)</h3>
+            <p style="color: #888; margin-bottom: 20px;">These stocks are showing unusual volume activity and may present trading opportunities:</p>
+
+            <div class="volume-surge-grid">
+                <div class="ticker-chip">
+                    <div class="symbol">UNF</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">HYMC</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">ADEA</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">ABVX</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">CWAN</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">DXYZ</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">DJT</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">MSTR</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+                <div class="ticker-chip">
+                    <div class="symbol">TEM</div>
+                    <div class="type">Volume Surge</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Volume Surge Screening Criteria</h4>
+                <p>Stocks with market cap $300M+, price $10+, relative volume 1.5x+, price change 2%+, and trading above 200-day moving average. These are momentum plays, not earnings-based trades.</p>
+            </div>
+        </div>
+
+        <div class="alternative-section">
+            <h3>[ ] Market Activity Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div class="status-card">
+                    <div class="label">Volume Surge Stocks</div>
+                    <div class="value positive">9</div>
+                </div>
+                <div class="status-card">
+                    <div class="label">Uptrend Stocks</div>
+                    <div class="value positive">932</div>
+                </div>
+                <div class="status-card">
+                    <div class="label">This Week Earnings</div>
+                    <div class="value neutral">2</div>
+                </div>
+            </div>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h4>Top Uptrend Sectors</h4>
+                <p>Financial (200 stocks), Healthcare (162 stocks), Industrials (138 stocks)</p>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>DISCLAIMER:</strong> This report is for informational purposes only and does not constitute investment advice. Past performance does not guarantee future results. The backtest scoring system is based on historical patterns and may not predict future price movements. Always conduct your own research and consider your risk tolerance before making any investment decisions. Trading involves substantial risk of loss.
+        </div>
+
+        <div class="footer">
+            <p>Generated: December 22, 2025 at 06:01 AM PST</p>
+            <p>Data Sources: Finviz Elite, Alpaca Markets</p>
+            <p><a href="https://elite.finviz.com/screener.ashx" target="_blank">Finviz Screener</a></p>
+        </div>
+    </div>
+</body>
+</html>

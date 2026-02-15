@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMCSA (Comcast Corporation) - Comprehensive Stock Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .ticker {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .header .company-info {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        .timestamp {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .metric-card.positive {
+            border-left-color: #28a745;
+        }
+
+        .metric-card.negative {
+            border-left-color: #dc3545;
+        }
+
+        .metric-card.neutral {
+            border-left-color: #ffc107;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .metric-value.positive {
+            color: #28a745;
+        }
+
+        .metric-value.negative {
+            color: #dc3545;
+        }
+
+        .metric-change {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .price-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .price-display .current-price {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .price-display .price-change {
+            font-size: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+            transition: width 0.5s ease;
+        }
+
+        .rating-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin: 10px 5px;
+        }
+
+        .rating-a { background: #28a745; color: white; }
+        .rating-b { background: #20c997; color: white; }
+        .rating-c { background: #ffc107; color: #333; }
+        .rating-d { background: #fd7e14; color: white; }
+        .rating-f { background: #dc3545; color: white; }
+
+        .analyst-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .analyst-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        .disclaimer h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .tech-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tech-indicator .label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .tech-indicator .value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-box h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .summary-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .summary-box li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .summary-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .header .ticker { font-size: 1.4em; }
+            .metrics-grid { grid-template-columns: 1fr; }
+            .price-display .current-price { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="ticker">CMCSA</div>
+            <h1>Comcast Corporation</h1>
+            <div class="company-info">Communication Services | Telecommunications Services | NASDAQ</div>
+        </div>
+
+        <div class="timestamp">
+            Analysis Date: December 22, 2025 | Data Source: Financial Modeling Prep API
+        </div>
+
+        <div class="content">
+            <!-- Executive Summary -->
+            <div class="summary-box">
+                <h3>Executive Summary</h3>
+                <ul>
+                    <li>Current Price: $29.69 with strong monthly momentum (+11.21%)</li>
+                    <li>Market Cap: $108.2 billion - Major telecommunications provider</li>
+                    <li>Overall Rating: A (4/5) with strong profitability metrics</li>
+                    <li>Dividend Yield: 4.46% - Consistent quarterly dividends</li>
+                    <li>Recent Performance: Price above both 20-day and 50-day EMA (bullish signal)</li>
+                    <li>Analyst Consensus: Mixed with price targets ranging $28-$38</li>
+                </ul>
+            </div>
+
+            <!-- Stock Performance Section -->
+            <div class="section">
+                <h2>Stock Performance</h2>
+                <div class="price-display">
+                    <div class="current-price">$29.69</div>
+                    <div class="price-change">Day: +$0.12 | Week: +4.98% | Month: +11.21%</div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">52-Week Range</div>
+                        <div class="metric-value">$25.75 - $38.46</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Current vs 52W Low</div>
+                        <div class="metric-value positive">+15.3%</div>
+                    </div>
+                    <div class="metric-card negative">
+                        <div class="metric-label">Current vs 52W High</div>
+                        <div class="metric-value negative">-22.8%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Average Volume</div>
+                        <div class="metric-value">3.93M</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Overview -->
+            <div class="section">
+                <h2>Company Overview</h2>
+                <p><strong>CEO:</strong> Brian L. Roberts</p>
+                <p><strong>Founded:</strong> 1963 | <strong>Headquarters:</strong> Philadelphia, Pennsylvania</p>
+                <p><strong>Website:</strong> <a href="https://corporate.comcast.com" target="_blank">corporate.comcast.com</a></p>
+                <p style="margin-top: 15px;"><strong>Business Description:</strong></p>
+                <p>Comcast Corporation operates as a media and technology company worldwide through five segments: Cable Communications, Media, Studios, Theme Parks, and Sky. The company offers broadband, video, voice, wireless services under the Xfinity brand, operates NBCUniversal's television and streaming platforms including Peacock, runs Universal theme parks globally, and provides Sky's direct-to-consumer services in Europe.</p>
+            </div>
+
+            <!-- Financial Health -->
+            <div class="section">
+                <h2>Financial Health (FY 2024)</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card positive">
+                        <div class="metric-label">Annual Revenue</div>
+                        <div class="metric-value">$123.73B</div>
+                        <div class="metric-change">YoY Growth: +1.78%</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Net Income</div>
+                        <div class="metric-value">$16.19B</div>
+                        <div class="metric-change">YoY Growth: +5.22%</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">EPS (Diluted)</div>
+                        <div class="metric-value">$4.14</div>
+                        <div class="metric-change">YoY Growth: +11.6%</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">EBITDA</div>
+                        <div class="metric-value">$37.61B</div>
+                        <div class="metric-change">EBITDA Margin: 30.4%</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Operating Income</div>
+                        <div class="metric-value">$23.30B</div>
+                        <div class="metric-change">Operating Margin: 18.8%</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Gross Profit</div>
+                        <div class="metric-value">$71.90B</div>
+                        <div class="metric-change">Gross Margin: 58.1%</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; color: #1e3c72;">Three-Year Financial Trend</h3>
+                <table>
+                    <tr>
+                        <th>Fiscal Year</th>
+                        <th>Revenue</th>
+                        <th>Net Income</th>
+                        <th>EPS (Diluted)</th>
+                        <th>EBITDA</th>
+                    </tr>
+                    <tr>
+                        <td><strong>2024</strong></td>
+                        <td>$123.73B</td>
+                        <td>$16.19B</td>
+                        <td>$4.14</td>
+                        <td>$37.61B</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2023</strong></td>
+                        <td>$121.57B</td>
+                        <td>$15.39B</td>
+                        <td>$3.71</td>
+                        <td>$38.90B</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2022</strong></td>
+                        <td>$121.43B</td>
+                        <td>$5.37B</td>
+                        <td>$1.21</td>
+                        <td>$27.00B</td>
+                    </tr>
+                </table>
+
+                <h3 style="margin-top: 30px; color: #1e3c72;">Recent Quarterly Performance (2025)</h3>
+                <table>
+                    <tr>
+                        <th>Quarter</th>
+                        <th>Revenue</th>
+                        <th>Net Income</th>
+                        <th>EPS (Diluted)</th>
+                        <th>Operating Margin</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Q3 2025</strong></td>
+                        <td>$31.20B</td>
+                        <td>$3.33B</td>
+                        <td>$0.90</td>
+                        <td>17.7%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Q2 2025</strong></td>
+                        <td>$30.31B</td>
+                        <td>$11.12B</td>
+                        <td>$2.97</td>
+                        <td>19.8%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Q1 2025</strong></td>
+                        <td>$29.89B</td>
+                        <td>$3.38B</td>
+                        <td>$0.89</td>
+                        <td>18.9%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Valuation Metrics -->
+            <div class="section">
+                <h2>Valuation & Key Ratios</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Market Capitalization</div>
+                        <div class="metric-value">$108.17B</div>
+                    </div>
+                    <div class="metric-card neutral">
+                        <div class="metric-label">Price/Earnings Ratio</div>
+                        <div class="metric-value">7.17x</div>
+                        <div class="metric-change">Based on FY2024 EPS $4.14</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Beta</div>
+                        <div class="metric-value">0.829</div>
+                        <div class="metric-change">Lower volatility than market</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Net Profit Margin</div>
+                        <div class="metric-value">13.1%</div>
+                        <div class="metric-change">FY 2024</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Operating Margin</div>
+                        <div class="metric-value">18.8%</div>
+                        <div class="metric-change">FY 2024</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">EBITDA Margin</div>
+                        <div class="metric-value">30.4%</div>
+                        <div class="metric-change">FY 2024</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; color: #1e3c72;">FMP Rating Breakdown</h3>
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="rating-badge rating-a">Overall Rating: A (4/5)</span>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card positive">
+                        <div class="metric-label">DCF Score</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;">5/5</div>
+                        </div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">ROE Score</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;">5/5</div>
+                        </div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">ROA Score</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;">5/5</div>
+                        </div>
+                    </div>
+                    <div class="metric-card negative">
+                        <div class="metric-label">Debt to Equity Score</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 40%; background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);">2/5</div>
+                        </div>
+                    </div>
+                    <div class="metric-card neutral">
+                        <div class="metric-label">P/E Score</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%; background: linear-gradient(90deg, #ffc107 0%, #ffb300 100%);">3/5</div>
+                        </div>
+                    </div>
+                    <div class="metric-card neutral">
+                        <div class="metric-label">P/B Score</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%; background: linear-gradient(90deg, #ffc107 0%, #ffb300 100%);">3/5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analyst Sentiment -->
+            <div class="section">
+                <h2>Analyst Sentiment & Price Targets</h2>
+
+                <h3 style="color: #1e3c72; margin-bottom: 15px;">Recent Analyst Price Targets</h3>
+                <table>
+                    <tr>
+                        <th>Analyst Firm</th>
+                        <th>Price Target</th>
+                        <th>Current Price</th>
+                        <th>Upside Potential</th>
+                        <th>Analyst</th>
+                        <th>Date</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Oppenheimer</strong></td>
+                        <td>$38.00</td>
+                        <td>$29.69</td>
+                        <td style="color: #28a745; font-weight: bold;">+28.0%</td>
+                        <td>Timothy Horan</td>
+                        <td>Nov 4, 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UBS</strong></td>
+                        <td>$36.00</td>
+                        <td>$29.69</td>
+                        <td style="color: #28a745; font-weight: bold;">+21.3%</td>
+                        <td>John Hodulik</td>
+                        <td>Dec 18, 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Morgan Stanley</strong></td>
+                        <td>$31.00</td>
+                        <td>$29.69</td>
+                        <td style="color: #28a745; font-weight: bold;">+4.4%</td>
+                        <td>Benjamin Swinburne</td>
+                        <td>Dec 10, 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rosenblatt</strong></td>
+                        <td>$30.00</td>
+                        <td>$29.69</td>
+                        <td style="color: #28a745; font-weight: bold;">+1.0%</td>
+                        <td>Barton Crockett</td>
+                        <td>Dec 1, 2025</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BNP Paribas</strong></td>
+                        <td>$28.00</td>
+                        <td>$29.69</td>
+                        <td style="color: #dc3545; font-weight: bold;">-5.7%</td>
+                        <td>Sam McHugh</td>
+                        <td>Nov 4, 2025</td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #1e3c72; margin-bottom: 15px;">Consensus Analysis</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card positive">
+                            <div class="metric-label">Average Price Target</div>
+                            <div class="metric-value">$32.60</div>
+                            <div class="metric-change">Upside Potential: +9.8%</div>
+                        </div>
+                        <div class="metric-card positive">
+                            <div class="metric-label">High Price Target</div>
+                            <div class="metric-value">$38.00</div>
+                            <div class="metric-change">Oppenheimer (Nov 2025)</div>
+                        </div>
+                        <div class="metric-card neutral">
+                            <div class="metric-label">Low Price Target</div>
+                            <div class="metric-value">$28.00</div>
+                            <div class="metric-change">BNP Paribas (Nov 2025)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: #1e3c72; margin-top: 30px; margin-bottom: 15px;">Future Financial Estimates</h3>
+                <table>
+                    <tr>
+                        <th>Metric</th>
+                        <th>2028 Estimate</th>
+                        <th>2029 Estimate</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Revenue</strong></td>
+                        <td>$129.70B</td>
+                        <td>$128.04B</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EPS</strong></td>
+                        <td>$4.83</td>
+                        <td>$5.34</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Net Income</strong></td>
+                        <td>$18.88B</td>
+                        <td>$20.85B</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EBITDA</strong></td>
+                        <td>$38.06B</td>
+                        <td>$37.57B</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Dividend Analysis -->
+            <div class="section">
+                <h2>Dividend Analysis</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card positive">
+                        <div class="metric-label">Dividend Yield</div>
+                        <div class="metric-value positive">4.46%</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Latest Quarterly Dividend</div>
+                        <div class="metric-value">$0.33</div>
+                        <div class="metric-change">Annual: $1.32</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Payout Ratio</div>
+                        <div class="metric-value">31.9%</div>
+                        <div class="metric-change">Based on FY2024 EPS $4.14</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Dividend Frequency</div>
+                        <div class="metric-value">Quarterly</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px; color: #1e3c72;">Recent Dividend History</h3>
+                <table>
+                    <tr>
+                        <th>Ex-Dividend Date</th>
+                        <th>Dividend Amount</th>
+                        <th>Payment Date</th>
+                        <th>Declaration Date</th>
+                    </tr>
+                    <tr>
+                        <td>2026-01-14</td>
+                        <td><strong>$0.33</strong></td>
+                        <td>2026-02-04</td>
+                        <td>2025-10-30</td>
+                    </tr>
+                    <tr>
+                        <td>2025-10-01</td>
+                        <td><strong>$0.33</strong></td>
+                        <td>2025-10-22</td>
+                        <td>2025-07-23</td>
+                    </tr>
+                    <tr>
+                        <td>2025-07-02</td>
+                        <td><strong>$0.33</strong></td>
+                        <td>2025-07-23</td>
+                        <td>2025-05-21</td>
+                    </tr>
+                    <tr>
+                        <td>2025-04-02</td>
+                        <td><strong>$0.33</strong></td>
+                        <td>2025-04-23</td>
+                        <td>2025-01-30</td>
+                    </tr>
+                    <tr>
+                        <td>2025-01-08</td>
+                        <td>$0.31</td>
+                        <td>2025-01-29</td>
+                        <td>2024-10-23</td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 20px; padding: 15px; background: #e7f5ff; border-radius: 10px; border-left: 4px solid #28a745;">
+                    <strong>Dividend Highlight:</strong> Comcast increased its quarterly dividend from $0.31 to $0.33 in 2025, representing a 6.5% increase. The company has maintained consistent quarterly dividend payments with gradual increases over the past year.
+                </div>
+            </div>
+
+            <!-- Technical Analysis -->
+            <div class="section">
+                <h2>Technical Analysis</h2>
+
+                <div class="tech-indicator">
+                    <span class="label">Current Price:</span>
+                    <span class="value">$29.69</span>
+                </div>
+
+                <div class="tech-indicator">
+                    <span class="label">20-Day EMA:</span>
+                    <span class="value" style="color: #28a745;">$28.35 (Price Above EMA - Bullish)</span>
+                </div>
+
+                <div class="tech-indicator">
+                    <span class="label">50-Day EMA:</span>
+                    <span class="value" style="color: #28a745;">$28.60 (Price Above EMA - Bullish)</span>
+                </div>
+
+                <div class="tech-indicator">
+                    <span class="label">Distance from 20-Day EMA:</span>
+                    <span class="value" style="color: #28a745;">+4.7%</span>
+                </div>
+
+                <div class="tech-indicator">
+                    <span class="label">Distance from 50-Day EMA:</span>
+                    <span class="value" style="color: #28a745;">+3.8%</span>
+                </div>
+
+                <h3 style="margin-top: 30px; color: #1e3c72;">Key Technical Levels</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">52-Week High</div>
+                        <div class="metric-value">$38.46</div>
+                        <div class="metric-change">Resistance Level</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">52-Week Low</div>
+                        <div class="metric-value">$25.75</div>
+                        <div class="metric-change">Support Level</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Recent Momentum</div>
+                        <div class="metric-value positive">Strong</div>
+                        <div class="metric-change">+11.21% monthly gain</div>
+                    </div>
+                    <div class="metric-card positive">
+                        <div class="metric-label">Trend Signal</div>
+                        <div class="metric-value positive">Bullish</div>
+                        <div class="metric-change">Above both EMAs</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #e7f5ff; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <strong>Technical Summary:</strong> CMCSA is showing bullish technical signals with the current price trading above both the 20-day and 50-day exponential moving averages. The stock has demonstrated strong monthly momentum with an 11.21% gain and weekly momentum of 4.98%. The positive distance from both EMAs suggests continued upward momentum in the near term.
+                </div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="section">
+                <h2>Risk Assessment & Key Considerations</h2>
+
+                <h3 style="color: #28a745;">Strengths</h3>
+                <ul style="padding-left: 20px; margin-bottom: 20px;">
+                    <li>Strong profitability with 13.1% net profit margin and 30.4% EBITDA margin</li>
+                    <li>Diversified business model across Cable, Media, Studios, Theme Parks, and Sky segments</li>
+                    <li>Attractive dividend yield of 4.46% with sustainable payout ratio of 31.9%</li>
+                    <li>Excellent ROE and ROA metrics (scored 5/5 by FMP)</li>
+                    <li>Consistent quarterly dividend payments with recent increase from $0.31 to $0.33</li>
+                    <li>Strong brand portfolio including Xfinity, NBCUniversal, Peacock, and Universal Parks</li>
+                    <li>Low beta of 0.829 indicates lower volatility than the overall market</li>
+                </ul>
+
+                <h3 style="color: #dc3545;">Weaknesses & Risks</h3>
+                <ul style="padding-left: 20px; margin-bottom: 20px;">
+                    <li>High debt levels (Debt to Equity Score: 2/5 from FMP)</li>
+                    <li>Stock trading 22.8% below 52-week high of $38.46</li>
+                    <li>Broadband subscriber decline concerns (noted by Oppenheimer downgrade)</li>
+                    <li>Interest expense of $4.13B annually impacting profitability</li>
+                    <li>Competitive pressure in streaming market from established players</li>
+                    <li>Cord-cutting trend affecting traditional cable business</li>
+                    <li>Recent analyst downgrades from Oppenheimer and Morgan Stanley</li>
+                    <li>Regulatory risks in telecommunications and media industries</li>
+                </ul>
+
+                <h3 style="color: #1e3c72;">Key Financial Concerns</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card negative">
+                        <div class="metric-label">Annual Interest Expense</div>
+                        <div class="metric-value negative">$4.13B</div>
+                        <div class="metric-change">FY 2024</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Share Count Decline</div>
+                        <div class="metric-value">-11.3%</div>
+                        <div class="metric-change">From 4.41B (2022) to 3.91B (2024)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investment Thesis -->
+            <div class="section">
+                <h2>Investment Thesis</h2>
+
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3 style="color: white; margin-bottom: 15px;">For Value and Income Investors</h3>
+                    <p style="font-size: 1.1em; line-height: 1.8;">
+                        CMCSA presents a compelling opportunity for value and income-focused investors. Trading at an attractive P/E ratio of 7.17x based on FY2024 earnings, the stock offers significant upside potential with analyst price targets averaging $32.60 (+9.8% upside) and reaching as high as $38 (+28% upside from Oppenheimer). The company provides a generous 4.46% dividend yield with a conservative 31.9% payout ratio, offering both income and growth potential.
+                    </p>
+                </div>
+
+                <h3 style="color: #1e3c72; margin-bottom: 15px;">Bullish Case</h3>
+                <ul style="padding-left: 20px; margin-bottom: 20px;">
+                    <li><strong>Undervalued:</strong> P/E ratio of 7.17x is low compared to industry peers</li>
+                    <li><strong>Income Generation:</strong> 4.46% dividend yield with recent dividend increase of 6.5%</li>
+                    <li><strong>Strong Profitability:</strong> Net profit margin of 13.1% and EBITDA margin of 30.4%</li>
+                    <li><strong>Analyst Support:</strong> Multiple analysts see 10-28% upside potential</li>
+                    <li><strong>Technical Momentum:</strong> Price above both 20-day and 50-day EMAs with +11% monthly gain</li>
+                    <li><strong>EPS Growth:</strong> 11.6% YoY EPS growth in FY2024 and projected to reach $5.34 by 2029</li>
+                    <li><strong>Diversification:</strong> Multiple revenue streams reduce business model risk</li>
+                </ul>
+
+                <h3 style="color: #1e3c72; margin-bottom: 15px;">Bearish Case</h3>
+                <ul style="padding-left: 20px; margin-bottom: 20px;">
+                    <li><strong>Debt Burden:</strong> High debt levels with $4.13B annual interest expense</li>
+                    <li><strong>Subscriber Losses:</strong> Concerns about broadband subscriber declines</li>
+                    <li><strong>Recent Downgrades:</strong> Oppenheimer downgraded on subscriber concerns</li>
+                    <li><strong>Competitive Pressure:</strong> Intense competition in streaming and cable markets</li>
+                    <li><strong>Below 52W High:</strong> Stock trading 22.8% below recent high of $38.46</li>
+                    <li><strong>Industry Headwinds:</strong> Cord-cutting and shift to streaming affecting traditional business</li>
+                </ul>
+
+                <h3 style="color: #1e3c72; margin-bottom: 15px;">Recommendation</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <p style="font-size: 1.1em; line-height: 1.8;">
+                        <strong>HOLD/BUY for Value & Income Investors:</strong> CMCSA is recommended for investors seeking a combination of value, income, and moderate growth. The stock's attractive valuation, strong dividend yield, and solid profitability metrics make it suitable for long-term investors. However, concerns about debt levels and subscriber losses warrant monitoring.
+                    </p>
+                    <p style="font-size: 1.1em; line-height: 1.8; margin-top: 15px;">
+                        <strong>Entry Points:</strong> Current price of $29.69 offers a reasonable entry point with 10% upside to consensus target. Consider adding on weakness toward $28 (near Morgan Stanley target) for better risk/reward.
+                    </p>
+                    <p style="font-size: 1.1em; line-height: 1.8; margin-top: 15px;">
+                        <strong>Risk Tolerance:</strong> Suitable for moderate to conservative investors comfortable with telecommunications sector risks. The 4.46% dividend yield provides downside cushion while waiting for capital appreciation.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer">
+                <h3>Important Disclaimer</h3>
+                <p><strong>This report is for educational and informational purposes only and does not constitute investment advice.</strong></p>
+                <p style="margin-top: 10px;">
+                    The information presented in this analysis is based on publicly available data from Financial Modeling Prep API as of December 22, 2025. Past performance does not guarantee future results. Stock prices, financial metrics, and analyst estimates are subject to change. Investors should conduct their own due diligence and consult with licensed financial advisors before making investment decisions.
+                </p>
+                <p style="margin-top: 10px;">
+                    This analysis does not consider individual investment objectives, risk tolerance, or financial circumstances. The author and affiliated parties assume no liability for investment decisions made based on this information.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Data Source:</strong> Financial Modeling Prep (FMP) API | <strong>Report Generated:</strong> December 22, 2025
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

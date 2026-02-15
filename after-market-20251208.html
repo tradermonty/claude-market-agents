@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Stock Market After-Market Analysis - December 8, 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header .date {
+            font-size: 1.2em;
+            color: #00ff88;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .etf-card:hover {
+            transform: scale(1.05);
+        }
+
+        .etf-symbol {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .etf-price {
+            font-size: 1.4em;
+            margin: 10px 0;
+        }
+
+        .etf-change {
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .top-movers {
+            margin-bottom: 30px;
+        }
+
+        .mover-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .mover-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mover-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .mover-name {
+            font-size: 0.9em;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+
+        .mover-change {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .afterhours-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            border-left: 5px solid #ffff00;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .afterhours-section h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .earnings-card {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .afterhours-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff4444;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .earnings-surprise {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .surprise-positive {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .surprise-negative {
+            color: #ffcccc;
+            font-weight: bold;
+        }
+
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .sector-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .sector-name {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .sector-change {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: #cccccc;
+        }
+
+        .key-points {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .key-points h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            color: #cccccc;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .etf-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .news-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .news-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .news-meta {
+            font-size: 0.85em;
+            color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <div class="date">📅 Monday, December 8, 2025 – Final After-Market Data</div>
+            <p style="margin-top: 10px;">Market Closed: 4:00 PM ET | Report Generated: 4:11 PM ET</p>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📊 Major Index Performance</h2>
+            <div class="etf-grid">
+                <div class="etf-card">
+                    <div class="etf-symbol">S&P 500</div>
+                    <div class="etf-price">$6,847.84</div>
+                    <div class="etf-change negative">-0.33%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Close: 6,847.84</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">NASDAQ</div>
+                    <div class="etf-price">$23,548.80</div>
+                    <div class="etf-change negative">-0.12%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Close: 23,548.80</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">Dow Jones</div>
+                    <div class="etf-price">$47,739.31</div>
+                    <div class="etf-change negative">-0.45%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Close: 47,739.31</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📈 Major ETF Performance</h2>
+            <div class="etf-grid">
+                <div class="etf-card">
+                    <div class="etf-symbol">SPY</div>
+                    <div class="etf-price">$683.63</div>
+                    <div class="etf-change negative">-0.30%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">S&P 500 ETF</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">QQQ</div>
+                    <div class="etf-price">$624.28</div>
+                    <div class="etf-change negative">-0.19%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">NASDAQ-100 ETF</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">DIA</div>
+                    <div class="etf-price">$478.17</div>
+                    <div class="etf-change negative">-0.39%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Dow Jones ETF</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">IWM</div>
+                    <div class="etf-price">$250.87</div>
+                    <div class="etf-change positive">+0.04%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Russell 2000 ETF</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">TLT</div>
+                    <div class="etf-price">$87.88</div>
+                    <div class="etf-change negative">-0.33%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">20+ Year Treasury</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">GLD</div>
+                    <div class="etf-price">$385.42</div>
+                    <div class="etf-change negative">-0.26%</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Gold ETF</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">🚀 Top 10 Volume Surge Stocks</h2>
+            <div class="top-movers">
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$WVE</div>
+                        <div class="mover-name">Wave Life Sciences</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 56.0x</div>
+                    </div>
+                    <div class="mover-change positive">+147.26%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$GPCR</div>
+                        <div class="mover-name">Structure Therapeutics</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 18.5x</div>
+                    </div>
+                    <div class="mover-change positive">+102.49%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$FULC</div>
+                        <div class="mover-name">Fulcrum Therapeutics</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 36.9x</div>
+                    </div>
+                    <div class="mover-change positive">+45.96%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$KYMR</div>
+                        <div class="mover-name">Kymera Therapeutics</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 9.9x</div>
+                    </div>
+                    <div class="mover-change positive">+41.55%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$TERN</div>
+                        <div class="mover-name">Terns Pharmaceuticals</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 4.7x</div>
+                    </div>
+                    <div class="mover-change positive">+37.02%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$CFLT</div>
+                        <div class="mover-name">Confluent Inc</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Technology • Rel Vol: 19.6x</div>
+                    </div>
+                    <div class="mover-change positive">+29.08%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$OCUL</div>
+                        <div class="mover-name">Ocular Therapeutix</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 6.0x</div>
+                    </div>
+                    <div class="mover-change positive">+28.06%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$DBVT</div>
+                        <div class="mover-name">DBV Technologies</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 2.8x</div>
+                    </div>
+                    <div class="mover-change positive">+22.16%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$NRIX</div>
+                        <div class="mover-name">Nurix Therapeutics</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 4.0x</div>
+                    </div>
+                    <div class="mover-change positive">+18.68%</div>
+                </div>
+                <div class="mover-item">
+                    <div>
+                        <div class="mover-symbol">$CGEM</div>
+                        <div class="mover-name">Cullinan Therapeutics</div>
+                        <div style="font-size: 0.85em; color: #aaa;">Healthcare • Rel Vol: 2.6x</div>
+                    </div>
+                    <div class="mover-change positive">+17.47%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="afterhours-section">
+            <h2>⏰ Post-Close Earnings & After-Hours Action</h2>
+            <p style="margin-bottom: 20px; font-size: 1.1em;">Only 1 stock reported earnings after hours today with significant movement.</p>
+
+            <div class="earnings-card">
+                <div class="afterhours-badge">After-Hours</div>
+                <div style="font-size: 1.8em; font-weight: bold; margin-bottom: 10px;">$MAMA</div>
+                <div style="font-size: 1.2em; margin-bottom: 10px;">Mama's Creations Inc</div>
+                <div style="font-size: 1.1em; margin-bottom: 5px; color: #ddd;">Consumer Defensive</div>
+                <div style="font-size: 0.95em; margin-bottom: 15px; color: #ccc;">Regular Session: $11.18 (-2.53%)</div>
+                <div class="etf-change positive" style="font-size: 1.5em; margin: 15px 0;">+17.22% After-Hours</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+33.33% Beat</span></span>
+                    <span>Revenue: <span class="surprise-positive">+4.69% Beat</span></span>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <div style="font-size: 0.9em;">📊 Volume: 746.6K</div>
+                    <div style="font-size: 0.9em;">📈 1-Week Perf: -5.01%</div>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <strong>Note:</strong> Mama's Creations reported Q3 fiscal 2026 results after market close, beating both EPS and revenue estimates.
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.5em;">Other Earnings Reporters Today</h3>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+                <p style="margin-bottom: 10px;"><strong>$PHR (Phreesia)</strong> - Healthcare: EPS Beat +115.95%, Revenue Beat +0.62%, Stock: -0.74%</p>
+                <p style="margin-bottom: 10px;"><strong>$OOMA (Ooma Inc)</strong> - Technology: EPS Beat +14.03%, Revenue Beat +0.97%, Stock: +6.56%</p>
+                <p style="margin-bottom: 10px;"><strong>$TOL (Toll Brothers)</strong> - Consumer Cyclical: EPS Beat +3.50%, Revenue Beat +3.12%, Stock: -2.02%</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📊 Market Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Volume Surge Stocks</div>
+                    <div class="stat-value">60</div>
+                    <div style="font-size: 0.9em; color: #aaa;">1.5x+ relative volume</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Uptrend Stocks</div>
+                    <div class="stat-value">901</div>
+                    <div style="font-size: 0.9em; color: #aaa;">Above 200-day SMA</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Avg Relative Volume</div>
+                    <div class="stat-value">5.2x</div>
+                    <div style="font-size: 0.9em; color: #aaa;">Surge stocks only</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Avg Price Move</div>
+                    <div class="stat-value">+13.2%</div>
+                    <div style="font-size: 0.9em; color: #aaa;">Surge stocks only</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Earnings Releases</div>
+                    <div class="stat-value">8</div>
+                    <div style="font-size: 0.9em; color: #aaa;">Today's reporters</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">This Week Earnings</div>
+                    <div class="stat-value">79</div>
+                    <div style="font-size: 0.9em; color: #aaa;">Scheduled reports</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">🏢 Sector Performance</h2>
+            <div class="sector-grid">
+                <div class="sector-item">
+                    <div class="sector-name">Technology</div>
+                    <div class="sector-change positive">+0.91%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">774 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Industrials</div>
+                    <div class="sector-change negative">-0.27%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">688 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Financial</div>
+                    <div class="sector-change negative">-0.33%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">990 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Energy</div>
+                    <div class="sector-change negative">-0.73%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">254 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Real Estate</div>
+                    <div class="sector-change negative">-0.75%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">262 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Healthcare</div>
+                    <div class="sector-change negative">-0.98%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">1,103 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Consumer Defensive</div>
+                    <div class="sector-change negative">-1.05%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">246 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Utilities</div>
+                    <div class="sector-change negative">-1.10%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">108 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Consumer Cyclical</div>
+                    <div class="sector-change negative">-1.22%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">572 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Basic Materials</div>
+                    <div class="sector-change negative">-1.24%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">274 stocks</div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Communication Services</div>
+                    <div class="sector-change negative">-1.50%</div>
+                    <div style="font-size: 0.85em; color: #aaa; margin-top: 5px;">276 stocks</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="key-points">
+            <h2>📋 Today's Key Takeaways</h2>
+            <ul>
+                <li><strong>Biotech Surge Dominates:</strong> Healthcare/biotech stocks led today's volume surge activity, with obesity and metabolic disease treatments driving massive gains. Wave Life Sciences (+147%) announced positive Phase 1 obesity drug data showing fat loss without muscle loss, while Structure Therapeutics (+102%) reported promising results for its oral GLP-1 weight-loss pill.</li>
+
+                <li><strong>Technology Sector Resilience:</strong> Technology was the only major sector to close in positive territory (+0.91%), driven by Confluent's strong earnings beat. The tech sector continues to show relative strength amid broader market weakness.</li>
+
+                <li><strong>Mixed Market Sentiment:</strong> Major indices closed modestly lower with the Dow leading declines (-0.45%), while small caps (IWM) showed slight resilience (+0.04%). The narrow breadth suggests selective strength rather than broad-based momentum.</li>
+
+                <li><strong>Volume Surge Characteristics:</strong> 60 stocks exhibited volume surge patterns with 1.5x+ relative volume and 2%+ gains. Average price move of +13.2% and relative volume of 5.2x indicates strong conviction in selected names, primarily in healthcare and technology.</li>
+
+                <li><strong>Healthcare Innovation Theme:</strong> Multiple biotech names announced positive clinical trial data, particularly in obesity treatment and inflammatory disease. Kymera Therapeutics (+41.55%) reported positive Phase 1b results for atopic dermatitis treatment, highlighting the sector's innovation pipeline.</li>
+
+                <li><strong>After-Hours Earnings Activity Light:</strong> Only one significant after-hours mover (MAMA +17.22%) following earnings beat. Low after-hours volatility suggests minimal earnings-driven market catalysts for Tuesday's session.</li>
+
+                <li><strong>Defensive Assets Under Pressure:</strong> Both bonds (TLT -0.33%) and gold (GLD -0.26%) declined alongside equities, suggesting concerns about growth rather than risk-off positioning. The simultaneous weakness in defensive assets may indicate rotation concerns.</li>
+
+                <li><strong>Sector Rotation Pattern:</strong> Clear divergence between Technology (+0.91%) and Communication Services (-1.50%), suggesting investors favor high-growth tech over more mature communication stocks. This pattern may reflect shifting growth expectations.</li>
+
+                <li><strong>Public Offerings Impact:</strong> Several top movers (WVE, FULC, GPCR, KYMR) announced public offerings after market close, which could create near-term pressure despite positive clinical news. Watch for dilution impact on Tuesday.</li>
+
+                <li><strong>Market Breadth Warning:</strong> Despite 60 volume surge stocks, only Technology closed positive among major sectors. This narrow leadership and weak breadth (10 of 11 sectors down) suggests caution about sustainability of any rally attempts.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📰 Key News Driving Top Movers</h2>
+            <div class="news-item">
+                <div class="news-title">Wave Life Sciences ($WVE +147.26%)</div>
+                <div class="news-meta">Announced positive Phase 1 INLIGHT trial data for WVE-007 obesity treatment showing fat loss similar to GLP-1 drugs without muscle loss. Company also announced proposed $250M public offering.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-title">Structure Therapeutics ($GPCR +102.49%)</div>
+                <div class="news-meta">Reported positive topline data from ACCESS program for once-daily oral GLP-1 receptor agonist aleniglipron. CEO claims potential for "best-in-class" weight-loss drug. Proposed $500M public offering announced.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-title">Kymera Therapeutics ($KYMR +41.55%)</div>
+                <div class="news-meta">Announced positive Phase 1b clinical trial results for KT-621, first-in-class oral STAT6 degrader for moderate to severe atopic dermatitis. Barron's highlighted potential as "next Dupixent."</div>
+            </div>
+            <div class="news-item">
+                <div class="news-title">Fulcrum Therapeutics ($FULC +45.96%)</div>
+                <div class="news-meta">Announced proposed $150M public offering. No specific clinical data but participating in broader biotech rally.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-title">Terns Pharmaceuticals ($TERN +37.02%)</div>
+                <div class="news-meta">Highlighted additional positive Phase 1 clinical data for TERN-701 in relapsed/refractory CML at 67th ASH Annual Meeting, supporting best-in-disease potential.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-title">Confluent Inc ($CFLT +29.08%)</div>
+                <div class="news-meta">Strong earnings beat with significant volume surge, leading Technology sector strength.</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Data Sources:</strong> Finviz.com, Alpaca Markets, Financial Modeling Prep</p>
+            <p><strong>Last Updated:</strong> December 8, 2025 at 4:11 PM ET</p>
+            <p><strong>Note:</strong> This report includes final after-market data and after-hours information.</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">This analysis is for informational purposes only and does not constitute financial advice.</p>
+        </div>
+    </div>
+</body>
+</html>

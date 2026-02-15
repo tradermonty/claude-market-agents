@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - January 23, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #0f3460;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background: rgba(15, 52, 96, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #0f3460;
+        }
+
+        .summary-card h3 {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .grade-section {
+            margin-bottom: 40px;
+        }
+
+        .grade-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .grade-a { background: linear-gradient(90deg, rgba(0, 255, 136, 0.2), transparent); border-left: 4px solid #00ff88; }
+        .grade-b { background: linear-gradient(90deg, rgba(0, 200, 255, 0.2), transparent); border-left: 4px solid #00c8ff; }
+        .grade-c { background: linear-gradient(90deg, rgba(255, 200, 0, 0.2), transparent); border-left: 4px solid #ffc800; }
+        .grade-d { background: linear-gradient(90deg, rgba(255, 100, 100, 0.2), transparent); border-left: 4px solid #ff6464; }
+
+        .grade-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 15px;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .grade-a .grade-badge { background: #00ff88; color: #1a1a2e; }
+        .grade-b .grade-badge { background: #00c8ff; color: #1a1a2e; }
+        .grade-c .grade-badge { background: #ffc800; color: #1a1a2e; }
+        .grade-d .grade-badge { background: #ff6464; color: #1a1a2e; }
+
+        .grade-info h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .grade-info p {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .stock-card {
+            background: rgba(15, 52, 96, 0.6);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid #0f3460;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .stock-ticker {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .stock-name {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            max-width: 200px;
+        }
+
+        .stock-score {
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+
+        .stars {
+            color: #ffc800;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .metric-value.positive { color: #00ff88; }
+        .metric-value.negative { color: #ff6464; }
+        .metric-value.neutral { color: #ffc800; }
+
+        .score-breakdown {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-breakdown h4 {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 12px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .score-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .score-fill.high { background: #00ff88; }
+        .score-fill.medium { background: #ffc800; }
+        .score-fill.low { background: #ff6464; }
+
+        .news-summary {
+            background: rgba(233, 69, 96, 0.1);
+            border-left: 3px solid #e94560;
+            padding: 12px;
+            border-radius: 0 10px 10px 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .news-summary h4 {
+            color: #e94560;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .probability-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .prob-high { background: #00ff88; color: #1a1a2e; }
+        .prob-medium { background: #ffc800; color: #1a1a2e; }
+        .prob-low { background: #ff6464; color: white; }
+
+        .disclaimer {
+            background: rgba(255, 200, 0, 0.1);
+            border: 1px solid #ffc800;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .disclaimer h3 {
+            color: #ffc800;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer p {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid #0f3460;
+            color: #a0a0a0;
+        }
+
+        .methodology {
+            background: rgba(15, 52, 96, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+        .methodology h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .methodology-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .methodology-item h4 {
+            color: #00c8ff;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .methodology-item p {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .stocks-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest-Based Scoring System for Earnings Momentum Trading</p>
+            <div class="date-badge">January 23, 2026 (Friday)</div>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Total Stocks Analyzed</h3>
+                <div class="value">8</div>
+            </div>
+            <div class="summary-card">
+                <h3>A-Grade Stocks</h3>
+                <div class="value" style="color: #00ff88;">1</div>
+            </div>
+            <div class="summary-card">
+                <h3>B-Grade Stocks</h3>
+                <div class="value" style="color: #00c8ff;">4</div>
+            </div>
+            <div class="summary-card">
+                <h3>C-Grade Stocks</h3>
+                <div class="value" style="color: #ffc800;">3</div>
+            </div>
+            <div class="summary-card">
+                <h3>Top EPS Surprise</h3>
+                <div class="value">+47.9%</div>
+            </div>
+        </div>
+
+        <!-- A-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-a">
+                <span class="grade-badge">A</span>
+                <div class="grade-info">
+                    <h2>A-Grade Stocks (85+ points) - 70%+ Success Rate</h2>
+                    <p>Highest probability setups with strong technical and fundamental alignment</p>
+                </div>
+            </div>
+
+            <div class="stocks-grid">
+                <!-- SLB -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$SLB</div>
+                            <div class="stock-name">SLB Ltd (Schlumberger)</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Energy - Oil & Gas Equipment & Services</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00ff88;">88</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">*****</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$49.79</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+4.97%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+29.90%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+38.48%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+                            <span>2/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Q4 earnings beat estimates with ChampionX acquisition boost. CEO states challenges "are behind us." Company raised dividend and commits to return $4B+ to shareholders in 2026. Strong international activity outlook.</p>
+                        <span class="probability-badge prob-high">70% Success Probability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- B-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-b">
+                <span class="grade-badge">B</span>
+                <div class="grade-info">
+                    <h2>B-Grade Stocks (70-84 points) - 55-69% Success Rate</h2>
+                    <p>Strong setups with good risk/reward profiles</p>
+                </div>
+            </div>
+
+            <div class="stocks-grid">
+                <!-- ERIC -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$ERIC</div>
+                            <div class="stock-name">Telefonaktiebolaget LM Ericsson ADR</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Technology - Communication Equipment</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00c8ff;">82</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">****</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$10.33</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+47.90%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+6.39%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+19.95%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                            <span>4/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Massive EPS surprise of +47.90% with EPS growth QoQ of +219.8%. Profit beats market view. Plans first-ever share buyback of $1.7B. Raised dividend proposal. Strong turnaround story.</p>
+                        <span class="probability-badge prob-high">65% Success Probability</span>
+                    </div>
+                </div>
+
+                <!-- CASH -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$CASH</div>
+                            <div class="stock-name">Pathward Financial Inc</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Financial - Banks Regional</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00c8ff;">78</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">****</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$80.89</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+13.61%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+8.24%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+7.19%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                            <span>4/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Q1 FY2026 EPS surpasses estimates with +25.87% QoQ growth. Strong growth in core business segments. Revenue slightly missed but EPS beat compensates. Low P/E of 10.27.</p>
+                        <span class="probability-badge prob-medium">58% Success Probability</span>
+                    </div>
+                </div>
+
+                <!-- ASB -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$ASB</div>
+                            <div class="stock-name">Associated Banc-Corp</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Financial - Banks Regional</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00c8ff;">75</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">****</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$28.00</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+15.65%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+4.91%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+12.47%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+                            <span>2/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                            <span>4/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Record annual net income of $463M in 2025. Q4 earnings and revenue top estimates. Record net interest income. Strong credit quality metrics. Dividend yield of 3.42%.</p>
+                        <span class="probability-badge prob-medium">56% Success Probability</span>
+                    </div>
+                </div>
+
+                <!-- COLB -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$COLB</div>
+                            <div class="stock-name">Columbia Banking System Inc</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Financial - Banks Regional</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #00c8ff;">72</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">****</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$29.85</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+14.59%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+2.86%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+16.69%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 40%;"></div></div>
+                            <span>2/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+                            <span>2/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                            <span>4/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Q4 earnings and revenue top estimates. Sales top estimates with +6.18% QoQ growth. New board chair elected. High dividend yield of 4.91%. Solid regional bank fundamentals.</p>
+                        <span class="probability-badge prob-medium">55% Success Probability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- C-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-c">
+                <span class="grade-badge">C</span>
+                <div class="grade-info">
+                    <h2>C-Grade Stocks (55-69 points) - 40-54% Success Rate</h2>
+                    <p>Moderate probability setups requiring additional confirmation</p>
+                </div>
+            </div>
+
+            <div class="stocks-grid">
+                <!-- SLM -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$SLM</div>
+                            <div class="stock-name">SLM Corp (Sallie Mae)</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Financial - Credit Services</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffc800;">65</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">***</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$29.00</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+19.62%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+5.34%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value negative">-2.04%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill low" style="width: 20%;"></div></div>
+                            <span>1/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 40%;"></div></div>
+                            <span>2/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Q4 earnings surpass estimates with massive +370% EPS growth QoQ. Strong financial performance. Declared dividends on preferred and common stock. Below 200-day MA is a concern.</p>
+                        <span class="probability-badge prob-medium">48% Success Probability</span>
+                    </div>
+                </div>
+
+                <!-- FFIN -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$FFIN</div>
+                            <div class="stock-name">First Financial Bankshares Inc</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Financial - Banks Regional</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffc800;">62</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">***</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$33.95</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+5.81%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value positive">+8.95%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value neutral">+0.18%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill low" style="width: 20%;"></div></div>
+                            <span>1/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                            <span>4/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Q4 and full-year 2025 earnings announced. Modest EPS surprise of +5.81%. Sales growth QoQ of +11.42%. RSI at 70.3 indicates overbought conditions. Near 200-day MA.</p>
+                        <span class="probability-badge prob-medium">45% Success Probability</span>
+                    </div>
+                </div>
+
+                <!-- EWBC -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$EWBC</div>
+                            <div class="stock-name">East West Bancorp Inc</div>
+                            <div style="color: #a0a0a0; font-size: 0.8rem; margin-top: 5px;">Financial - Banks Regional</div>
+                        </div>
+                        <div class="stock-score">
+                            <div class="score-value" style="color: #ffc800;">58</div>
+                            <div class="score-label">points</div>
+                            <div class="stars">***</div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Current Price</div>
+                            <div class="metric-value">$116.16</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+2.49%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">1M Performance</div>
+                            <div class="metric-value neutral">+0.40%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+14.14%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <h4>5-Element Score Breakdown</h4>
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 40%;"></div></div>
+                            <span>2/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume Trend (20%)</span>
+                            <div class="score-bar"><div class="score-fill low" style="width: 20%;"></div></div>
+                            <span>1/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                            <span>5/5</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                            <span>3/5</span>
+                        </div>
+                    </div>
+
+                    <div class="news-summary">
+                        <h4>Earnings Highlights</h4>
+                        <p>Record net income for 2025 of $1.3B. Diluted EPS of $9.52. Increased dividend by 33%. Modest EPS surprise of +2.49%. Flat 1M performance limits momentum potential.</p>
+                        <span class="probability-badge prob-medium">42% Success Probability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Methodology Section -->
+        <div class="methodology">
+            <h3>Backtest Scoring Methodology</h3>
+            <div class="methodology-grid">
+                <div class="methodology-item">
+                    <h4>1. Gap Size Performance (25%)</h4>
+                    <p>Measures gap-up size. Moderate gaps (0-10%) show higher success rates than extreme gaps.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>2. Pre-Earnings Trend (30%)</h4>
+                    <p>Prior 20-day price momentum. Strong uptrends (>10%) have highest continuation probability.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>3. Volume Trend (20%)</h4>
+                    <p>Recent vs historical volume ratio. 100-120% indicates healthy interest without instability.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>4. MA200 Position (15%)</h4>
+                    <p>Price distance from 200-day MA. Well above (>110%) signals strong long-term trend.</p>
+                </div>
+                <div class="methodology-item">
+                    <h4>5. MA50 Position (10%)</h4>
+                    <p>Price distance from 50-day MA. Above 105% indicates medium-term bullish momentum.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <h3>Risk Disclaimer</h3>
+            <p>This analysis is for informational purposes only and does not constitute investment advice. Past performance does not guarantee future results. Earnings trading involves significant risk, including the potential loss of principal. Always conduct your own research and consider your risk tolerance before making investment decisions. The success rates mentioned are based on historical backtesting and may not reflect actual trading results.</p>
+        </div>
+
+        <footer>
+            <p>Generated on: January 23, 2026 at 06:00 AM PST</p>
+            <p>Data Sources: Finviz, Alpaca Markets, Financial Modeling Prep</p>
+            <p>Analysis Methodology: 5-Element Backtest Scoring System</p>
+        </footer>
+    </div>
+</body>
+</html>

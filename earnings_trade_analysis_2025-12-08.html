@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - December 8, 2025</title>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #3949ab;
+            --accent-color: #00c853;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --success-color: #4caf50;
+            --bg-gradient: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .header .date {
+            font-size: 1.2rem;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .summary-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .summary-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .grade-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .grade-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .grade-a { background: linear-gradient(135deg, #4caf50, #2e7d32); color: white; }
+        .grade-b { background: linear-gradient(135deg, #2196f3, #1565c0); color: white; }
+        .grade-c { background: linear-gradient(135deg, #ff9800, #f57c00); color: white; }
+        .grade-d { background: linear-gradient(135deg, #f44336, #c62828); color: white; }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+        }
+
+        .stock-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            padding: 20px;
+            color: white;
+            position: relative;
+        }
+
+        .card-header.grade-a-bg { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+        .card-header.grade-b-bg { background: linear-gradient(135deg, #2196f3, #1565c0); }
+        .card-header.grade-c-bg { background: linear-gradient(135deg, #ff9800, #f57c00); }
+        .card-header.grade-d-bg { background: linear-gradient(135deg, #f44336, #c62828); }
+
+        .card-header .ticker {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .card-header .company-name {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .card-header .grade-label {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.25);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .card-header .stars {
+            margin-top: 10px;
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .metric-value.positive { color: var(--success-color); }
+        .metric-value.negative { color: var(--danger-color); }
+
+        .score-section {
+            background: #f0f4f8;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .score-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .score-name {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .score-value {
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .score-high { background: #e8f5e9; color: #2e7d32; }
+        .score-medium { background: #fff3e0; color: #f57c00; }
+        .score-low { background: #ffebee; color: #c62828; }
+
+        .total-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .total-score .label {
+            font-size: 1rem;
+        }
+
+        .total-score .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .news-section {
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .news-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .news-item {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.5;
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .probability-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .prob-high { background: #e8f5e9; color: #2e7d32; }
+        .prob-medium { background: #fff3e0; color: #f57c00; }
+        .prob-low { background: #ffebee; color: #c62828; }
+
+        .methodology-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .methodology-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .method-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .method-card h4 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .method-card p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #856404;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .stock-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+        <div class="subtitle">Backtest-Based Earnings Trading Opportunities</div>
+        <div class="date">December 8, 2025 (Monday)</div>
+    </div>
+
+    <div class="container">
+        <div class="summary-section">
+            <h2>Analysis Summary - Today's Earnings Trading Candidates</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                Stocks that announced earnings after Friday's close (Dec 5) or before today's pre-market,
+                showing positive EPS surprises and trading higher. Ranked by 5-element backtest scoring system.
+            </p>
+
+            <div class="grade-legend">
+                <div class="grade-badge grade-a">A-Grade (85+ pts): 70%+ Success Rate</div>
+                <div class="grade-badge grade-b">B-Grade (70-84 pts): 55-69% Success Rate</div>
+                <div class="grade-badge grade-c">C-Grade (55-69 pts): 40-54% Success Rate</div>
+                <div class="grade-badge grade-d">D-Grade (<55 pts): <40% Success Rate</div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead>
+                    <tr style="background: var(--primary-color); color: white;">
+                        <th style="padding: 12px; text-align: left;">Ticker</th>
+                        <th style="padding: 12px; text-align: left;">Company</th>
+                        <th style="padding: 12px; text-align: center;">Grade</th>
+                        <th style="padding: 12px; text-align: center;">Score</th>
+                        <th style="padding: 12px; text-align: center;">EPS Surprise</th>
+                        <th style="padding: 12px; text-align: center;">Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #e8f5e9;">
+                        <td style="padding: 12px; font-weight: bold;">GIII</td>
+                        <td style="padding: 12px;">G-III Apparel Group Ltd</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-a">A</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">92.5</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+74.46%</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+0.07%</td>
+                    </tr>
+                    <tr style="background: #e3f2fd;">
+                        <td style="padding: 12px; font-weight: bold;">FERG</td>
+                        <td style="padding: 12px;">Ferguson Enterprises Inc</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-b">B</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">80.0</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+15.64%</td>
+                        <td style="padding: 12px; text-align: center; color: #c62828;">-0.03%</td>
+                    </tr>
+                    <tr style="background: #e3f2fd;">
+                        <td style="padding: 12px; font-weight: bold;">SAIL</td>
+                        <td style="padding: 12px;">SailPoint Inc</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-b">B</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">72.5</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+62.04%</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+1.04%</td>
+                    </tr>
+                    <tr style="background: #fff3e0;">
+                        <td style="padding: 12px; font-weight: bold;">CNM</td>
+                        <td style="padding: 12px;">Core & Main Inc</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-c">C</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">60.0</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+12.16%</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+0.02%</td>
+                    </tr>
+                    <tr style="background: #fff3e0;">
+                        <td style="padding: 12px; font-weight: bold;">OLLI</td>
+                        <td style="padding: 12px;">Ollie's Bargain Outlet</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-c">C</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">57.5</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+6.77%</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+0.19%</td>
+                    </tr>
+                    <tr style="background: #ffebee;">
+                        <td style="padding: 12px; font-weight: bold;">KFY</td>
+                        <td style="padding: 12px;">Korn Ferry</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-d">D</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">52.5</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+5.97%</td>
+                        <td style="padding: 12px; text-align: center; color: #666;">N/A</td>
+                    </tr>
+                    <tr style="background: #ffebee;">
+                        <td style="padding: 12px; font-weight: bold;">CPB</td>
+                        <td style="padding: 12px;">Campbell's Co</td>
+                        <td style="padding: 12px; text-align: center;"><span class="grade-badge grade-d">D</span></td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold;">40.0</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+10.52%</td>
+                        <td style="padding: 12px; text-align: center; color: #2e7d32;">+0.20%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 style="color: var(--primary-color); margin-bottom: 20px; font-size: 1.5rem;">Detailed Stock Analysis</h2>
+
+        <div class="stock-grid">
+            <!-- GIII - A Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-a-bg">
+                    <span class="grade-label">A-Grade</span>
+                    <div class="ticker">GIII</div>
+                    <div class="company-name">G-III Apparel Group Ltd | Consumer Cyclical</div>
+                    <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$30.40</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$1.28B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+74.46%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+7.37%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (+8.7%) - 30%</span>
+                            <span class="score-value score-high">3 pts (Stable uptrend)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (108%) - 20%</span>
+                            <span class="score-value score-high">4 pts (Rising interest)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (+16.6%) - 15%</span>
+                            <span class="score-value score-high">5 pts (Very bullish)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (+9.4%) - 10%</span>
+                            <span class="score-value score-high">4 pts (Bullish)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">92.5 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q3 FY2026 Results:</strong> Massive EPS beat of +74.46%, exceeding analyst expectations significantly. Revenue surprise of +7.37% shows strong demand despite challenging retail environment.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> Strong performance in licensed brands and wholesale channels. Company maintains solid margin profile with P/E of 7.53x.
+                        </div>
+                        <div class="probability-badge prob-high">Success Probability: 70%+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FERG - B Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-b-bg">
+                    <span class="grade-label">B-Grade</span>
+                    <div class="ticker">FERG</div>
+                    <div class="company-name">Ferguson Enterprises Inc | Industrials</div>
+                    <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$248.30</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$48.7B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+15.64%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+1.16%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (+2.3%) - 30%</span>
+                            <span class="score-value score-high">3 pts (Stable uptrend)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (100%) - 20%</span>
+                            <span class="score-value score-medium">3 pts (Average)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (+18.6%) - 15%</span>
+                            <span class="score-value score-high">5 pts (Very bullish)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (+2.5%) - 10%</span>
+                            <span class="score-value score-high">3 pts (Slightly bullish)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">80.0 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q1 FY2026 Results:</strong> Strong EPS beat of +15.64% with solid revenue growth. EPS Growth QoQ +59.14% demonstrates operational excellence.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> Industrial distribution leader with YTD performance +43.05%. Dividend yield 1.34% adds to total return potential.
+                        </div>
+                        <div class="probability-badge prob-high">Success Probability: 60%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAIL - B Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-b-bg">
+                    <span class="grade-label">B-Grade</span>
+                    <div class="ticker">SAIL</div>
+                    <div class="company-name">SailPoint Inc | Technology</div>
+                    <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$20.45</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$11.38B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+62.04%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+8.70%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (+1.6%) - 30%</span>
+                            <span class="score-value score-high">3 pts (Stable uptrend)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (115%) - 20%</span>
+                            <span class="score-value score-high">5 pts (High interest)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (+0.66%) - 15%</span>
+                            <span class="score-value score-medium">3 pts (Slightly bullish)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (-2.1%) - 10%</span>
+                            <span class="score-value score-low">2 pts (Near MA50)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">72.5 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q3 FY2026 Results:</strong> Outstanding EPS beat of +62.04% driven by strong cybersecurity demand. Revenue growth +33.13% QoQ shows accelerating business momentum.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> Recurring revenue on the upside amid healthy cybersecurity demand. Identity security remains a growth sector.
+                        </div>
+                        <div class="probability-badge prob-high">Success Probability: 58%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CNM - C Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-c-bg">
+                    <span class="grade-label">C-Grade</span>
+                    <div class="ticker">CNM</div>
+                    <div class="company-name">Core & Main Inc | Industrials</div>
+                    <div class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$50.24</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$9.88B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+12.16%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value negative">-1.16%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (+6.5%) - 30%</span>
+                            <span class="score-value score-high">3 pts (Stable uptrend)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (102%) - 20%</span>
+                            <span class="score-value score-high">4 pts (Rising interest)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (-7.6%) - 15%</span>
+                            <span class="score-value score-low">2 pts (Below MA200)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (-0.5%) - 10%</span>
+                            <span class="score-value score-low">2 pts (Near MA50)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">60.0 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q3 FY2025 Results:</strong> Solid EPS beat of +12.16% but revenue missed expectations. Infrastructure spending remains supportive.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> Water infrastructure distributor with +6.57% sales growth QoQ. Below 200-day MA presents some technical headwinds.
+                        </div>
+                        <div class="probability-badge prob-medium">Success Probability: 48%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OLLI - C Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-c-bg">
+                    <span class="grade-label">C-Grade</span>
+                    <div class="ticker">OLLI</div>
+                    <div class="company-name">Ollie's Bargain Outlet | Consumer Defensive</div>
+                    <div class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$121.56</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$7.45B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+6.77%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+2.65%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (-2.7%) - 30%</span>
+                            <span class="score-value score-medium">2 pts (Post-correction)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (118%) - 20%</span>
+                            <span class="score-value score-high">5 pts (High interest)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (+0.25%) - 15%</span>
+                            <span class="score-value score-medium">3 pts (Above MA200)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (-2.0%) - 10%</span>
+                            <span class="score-value score-low">2 pts (Near MA50)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">57.5 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q3 FY2025 Results:</strong> Modest EPS beat of +6.77% with revenue also exceeding expectations. Discount retail remains resilient in current economic environment.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> Strong growth stock (EPS +25% QoQ, Sales +17.5% QoQ). hOLLIEday campaign driving consumer engagement.
+                        </div>
+                        <div class="probability-badge prob-medium">Success Probability: 45%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KFY - D Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-d-bg">
+                    <span class="grade-label">D-Grade</span>
+                    <div class="ticker">KFY</div>
+                    <div class="company-name">Korn Ferry | Industrials</div>
+                    <div class="stars">&#9733;&#9733;&#9734;&#9734;&#9734;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$66.07</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$3.46B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+5.97%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+3.06%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (+1.6%) - 30%</span>
+                            <span class="score-value score-high">3 pts (Stable uptrend)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (98%) - 20%</span>
+                            <span class="score-value score-medium">3 pts (Average)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (-3.8%) - 15%</span>
+                            <span class="score-value score-low">2 pts (Below MA200)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (-1.9%) - 10%</span>
+                            <span class="score-value score-low">2 pts (Near MA50)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">52.5 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q2 FY2026 Results:</strong> Modest EPS beat of +5.97%. Staffing sector faces headwinds but company maintains solid fundamentals.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> Dividend yield 2.85% provides income component. Below key moving averages presents technical challenges.
+                        </div>
+                        <div class="probability-badge prob-low">Success Probability: 38%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CPB - D Grade -->
+            <div class="stock-card">
+                <div class="card-header grade-d-bg">
+                    <span class="grade-label">D-Grade</span>
+                    <div class="ticker">CPB</div>
+                    <div class="company-name">Campbell's Co | Consumer Defensive</div>
+                    <div class="stars">&#9733;&#9733;&#9734;&#9734;&#9734;</div>
+                </div>
+                <div class="card-body">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Price</div>
+                            <div class="metric-value">$29.66</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$8.83B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+10.52%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value negative">-0.36%</div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h4>5-Element Backtest Score Breakdown</h4>
+                        <div class="score-item">
+                            <span class="score-name">1. Gap Size (0-2%) - 25%</span>
+                            <span class="score-value score-medium">2 pts (52% success)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">2. Pre-Earnings Trend (-5.4%) - 30%</span>
+                            <span class="score-value score-medium">2 pts (Post-correction)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">3. Volume Trend (112%) - 20%</span>
+                            <span class="score-value score-high">5 pts (High interest)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">4. MA200 Position (-12.1%) - 15%</span>
+                            <span class="score-value score-low">1 pt (Major decline)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-name">5. MA50 Position (-3.3%) - 10%</span>
+                            <span class="score-value score-low">2 pts (Below MA50)</span>
+                        </div>
+                    </div>
+
+                    <div class="total-score">
+                        <span class="label">Weighted Total Score</span>
+                        <span class="value">40.0 / 100</span>
+                    </div>
+
+                    <div class="news-section">
+                        <h4>Earnings & News Summary</h4>
+                        <div class="news-item">
+                            <strong>Q1 FY2026 Results:</strong> EPS beat of +10.52% but revenue slightly missed. Company facing challenges in consumer packaged goods sector.
+                        </div>
+                        <div class="news-item">
+                            <strong>Key Highlights:</strong> High dividend yield 5.23% but stock down -29.18% YTD. Significant technical weakness below all major moving averages.
+                        </div>
+                        <div class="probability-badge prob-low">Success Probability: 32%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="methodology-section">
+            <h2>Backtest Scoring Methodology</h2>
+            <div class="methodology-grid">
+                <div class="method-card">
+                    <h4>1. Gap Size Performance (25%)</h4>
+                    <p>Evaluates the initial post-earnings gap size. Moderate gaps (0-5%) historically show better continuation rates than extreme gaps (>10%).</p>
+                </div>
+                <div class="method-card">
+                    <h4>2. Pre-Earnings Trend (30%)</h4>
+                    <p>Analyzes the 20-day price trend before earnings. Stocks with stable-to-strong uptrends (0-20%) tend to have higher success rates.</p>
+                </div>
+                <div class="method-card">
+                    <h4>3. Volume Trend (20%)</h4>
+                    <p>Compares recent 20-day average volume to 60-day historical average. Rising volume (100-120%) indicates healthy institutional interest.</p>
+                </div>
+                <div class="method-card">
+                    <h4>4. MA200 Position (15%)</h4>
+                    <p>Stock's position relative to 200-day moving average. Stocks above MA200 (>105%) show stronger long-term bullish momentum.</p>
+                </div>
+                <div class="method-card">
+                    <h4>5. MA50 Position (10%)</h4>
+                    <p>Stock's position relative to 50-day moving average. Confirms medium-term trend alignment with earnings momentum.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute investment advice.
+            Past performance and backtest results do not guarantee future results. Trading stocks involves significant risk of loss.
+            Always conduct your own research and consider your risk tolerance before making investment decisions.
+            The success probability estimates are based on historical patterns and may not reflect future outcomes.
+            <br><br>
+            <strong>Data Sources:</strong> Finviz, Alpaca Markets | Analysis Date: December 8, 2025 06:00 PST
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated by Earnings Trade Analysis System | December 8, 2025</p>
+        <p>Data as of pre-market session</p>
+    </div>
+</body>
+</html>
