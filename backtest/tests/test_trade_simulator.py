@@ -886,3 +886,649 @@ class TestDailyEntryLimitWithReportOpen:
         daily_skips = [s for s in skipped if s.skip_reason == "daily_limit"]
         assert len(daily_skips) == 1
         assert daily_skips[0].ticker == "BBB"
+
+
+class TestTrailingStopEMA:
+    """Trailing stop with weekly EMA."""
+
+    @staticmethod
+    def _make_weekly_bars(weeks, entry_date, report_date, sim):
+        """Build bars for N weeks starting from Monday entry_date.
+
+        weeks: list of (close_price, low_price) per week.
+        Each week has Mon-Fri with simple price data.
+        """
+        from datetime import datetime, timedelta
+
+        bars = []
+        start = datetime.strptime(entry_date, "%Y-%m-%d")
+        # Add report day (before entry)
+        bars.append(make_bar(report_date, 100, 105, 95, 100))
+
+        for week_idx, (week_close, week_low) in enumerate(weeks):
+            monday = start + timedelta(weeks=week_idx)
+            for day_offset in range(5):
+                d = monday + timedelta(days=day_offset)
+                ds = d.strftime("%Y-%m-%d")
+                if day_offset == 4:
+                    # Friday: use week_close and week_low
+                    bars.append(make_bar(ds, week_close, week_close + 5, week_low, week_close))
+                else:
+                    bars.append(make_bar(ds, 100, 105, week_low, 100))
+        return bars
+
+    def test_trailing_ema_exits_on_trend_break(self):
+        """EMA break after transition -> exit_reason='trend_break' at next open."""
+        from datetime import datetime, timedelta
+
+        # Build enough weekly data for 3-period EMA + transition
+        # Entry: 2025-10-06 (Mon), report: 2025-10-03
+        # Need: transition_weeks=3 completed weeks, then EMA break
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,  # Wide stop to avoid triggering
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_ema",
+            trailing_ema_period=3,
+            trailing_transition_weeks=3,
+            entry_mode="next_day_open",
+        )
+
+        # Build bars: entry Mon 10/6, weeks of rising then crashing
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]  # report day
+
+        base = datetime(2025, 10, 6)  # Monday
+        # Weeks 1-3 (transition): rising prices
+        for week_idx in range(3):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                p = 100 + week_idx * 5
+                bars.append(make_bar(d, p, p + 5, p - 3, p + 2))
+
+        # Week 4: still above EMA (prices stay high)
+        for day_off in range(5):
+            d = (base + timedelta(weeks=3, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 115, 120, 112, 116))
+
+        # Week 5: crash below EMA
+        for day_off in range(5):
+            d = (base + timedelta(weeks=4, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 80, 82, 75, 78))
+
+        # Week 6: next week for exit execution
+        for day_off in range(5):
+            d = (base + timedelta(weeks=5, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 76, 80, 74, 77))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        assert t.exit_reason == "trend_break"
+        assert t.entry_date == "2025-10-06"
+
+    def test_trailing_holds_during_uptrend(self):
+        """Price stays above EMA -> no trend_break, exits at end_of_data."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_ema",
+            trailing_ema_period=3,
+            trailing_transition_weeks=2,
+            entry_mode="next_day_open",
+        )
+
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+        # 5 weeks of steadily rising prices
+        for week_idx in range(5):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                p = 100 + week_idx * 10
+                bars.append(make_bar(d, p, p + 5, p - 3, p + 3))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].exit_reason == "end_of_data"
+
+    def test_transition_period_uses_fixed_stop(self):
+        """During transition weeks, trailing stop is inactive."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_ema",
+            trailing_ema_period=3,
+            trailing_transition_weeks=3,
+            entry_mode="next_day_open",
+        )
+
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+        # Week 1: normal
+        for day_off in range(5):
+            d = (base + timedelta(days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 100, 105, 97, 102))
+        # Week 2: crash (would break EMA if transition was over)
+        for day_off in range(5):
+            d = (base + timedelta(weeks=1, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 60, 62, 55, 58))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        # transition_weeks=3 not met (only 2 weeks total), so no trend_break
+        assert trades[0].exit_reason == "end_of_data"
+
+
+class TestTrailingWithDisableMaxHolding:
+    """trailing_stop + max_holding=None."""
+
+    def test_holds_until_trend_break(self):
+        """max_holding=None -> holds until trend breaks (not 90 days)."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_ema",
+            trailing_ema_period=3,
+            trailing_transition_weeks=2,
+            entry_mode="next_day_open",
+        )
+
+        bars = [make_bar("2025-07-01", 100, 105, 95, 100)]
+        base = datetime(2025, 7, 2)
+        # 20 weeks (~140 days, well over 90): steadily rising
+        for week_idx in range(20):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                p = 100 + week_idx * 3
+                bars.append(make_bar(d, p, p + 5, p - 3, p + 2))
+
+        candidate = make_candidate(report_date="2025-07-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        # Should NOT be max_holding (it's disabled)
+        assert t.exit_reason == "end_of_data"
+        assert t.holding_days > 90
+
+
+class TestPendingExitPriority:
+    """stop_loss pending takes priority over trend_break."""
+
+    def test_stop_loss_priority(self):
+        """Same day: close_next_open triggers stop + week_end triggers trend -> stop_loss wins."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            stop_mode="close_next_open",
+            trailing_stop="weekly_ema",
+            trailing_ema_period=3,
+            trailing_transition_weeks=0,  # Immediate trailing
+            entry_mode="next_day_open",
+        )
+
+        # Build bars where stop_loss and trend_break happen on same day
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+
+        # 4 weeks of data for EMA warmup
+        for week_idx in range(4):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                bars.append(make_bar(d, 100, 105, 97, 102))
+
+        # Week 5 Friday: close below both stop and EMA
+        for day_off in range(4):
+            d = (base + timedelta(weeks=4, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 100, 105, 97, 102))
+        fri = (base + timedelta(weeks=4, days=4)).strftime("%Y-%m-%d")
+        # Close = 85 < stop (100*0.9=90)
+        bars.append(make_bar(fri, 90, 92, 83, 85))
+
+        # Next Monday for execution
+        next_mon = (base + timedelta(weeks=5)).strftime("%Y-%m-%d")
+        bars.append(make_bar(next_mon, 84, 86, 80, 83))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        # stop_loss should win since it's checked before trailing
+        assert trades[0].exit_reason == "stop_loss"
+
+
+class TestDataEndDate:
+    """data_end_date truncation and exit behavior."""
+
+    def test_data_end_date_exits_at_close(self):
+        """data_end_date on a trading day -> exit at that day's close."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="next_day_open",
+            data_end_date="2025-10-04",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry
+            make_bar("2025-10-03", 101, 103, 95, 101),
+            make_bar("2025-10-04", 101, 104, 95, 103),  # data_end_date
+            make_bar("2025-10-05", 104, 108, 100, 106),  # should be excluded
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        assert t.exit_date == "2025-10-04"
+        assert t.exit_reason == "end_of_data"
+
+    def test_data_end_date_weekend(self):
+        """data_end_date on Saturday -> exits at Friday close."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="next_day_open",
+            data_end_date="2025-10-11",  # Saturday
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+            make_bar("2025-10-03", 101, 103, 95, 101),
+            make_bar("2025-10-06", 102, 106, 98, 104),
+            make_bar("2025-10-07", 104, 108, 100, 106),
+            make_bar("2025-10-08", 106, 110, 102, 108),
+            make_bar("2025-10-09", 108, 112, 104, 110),
+            make_bar("2025-10-10", 110, 115, 108, 113),  # Friday (last before Saturday)
+            make_bar("2025-10-13", 114, 118, 110, 116),  # Monday (excluded)
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].exit_date == "2025-10-10"
+
+    def test_data_end_date_before_entry(self):
+        """data_end_date < entry_date -> skip."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="next_day_open",
+            data_end_date="2025-09-30",  # Before report date
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, skipped = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 0
+        assert len(skipped) == 1
+        assert skipped[0].skip_reason == "no_price_data"
+
+    def test_pending_stop_next_day_within_data(self):
+        """Pending stop_loss -> exits at next day's open (within data range)."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close_next_open",
+            entry_mode="next_day_open",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
+            make_bar("2025-10-03", 95, 96, 80, 88),  # close=88 < stop=90 -> pending
+            make_bar("2025-10-04", 92, 95, 90, 93),  # exit at open=92
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        assert t.exit_reason == "stop_loss"
+        assert t.exit_date == "2025-10-04"
+
+    def test_pending_stop_last_bar_fallback(self):
+        """Pending stop on last bar -> fallback to close * (1 - slippage)."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            stop_mode="close_next_open",
+            entry_mode="next_day_open",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),  # entry at 100
+            make_bar("2025-10-03", 95, 96, 80, 88),  # close=88 < stop=90, no next bar
+        ]
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        assert t.exit_reason == "stop_loss"
+        assert t.exit_date == "2025-10-03"
+        # fallback: adj_close=88 * (1 - 0.005) = 87.56
+        assert abs(t.exit_price - 87.56) < 0.01
+
+
+class TestNoTrailingBackwardCompatible:
+    """trailing_stop=None preserves original behavior."""
+
+    def test_backward_compatible(self):
+        """No trailing stop -> identical to original simulator."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            entry_mode="next_day_open",
+            trailing_stop=None,
+        )
+        from datetime import datetime, timedelta
+
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+        ]
+        base = datetime(2025, 10, 3)
+        for i in range(100):
+            d = (base + timedelta(days=i)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 102, 106, 95, 103))
+
+        candidate = make_candidate(report_date="2025-10-01")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        assert t.exit_reason == "max_holding"
+        assert t.holding_days >= 90
+
+
+class TestTrailingStopNWeekLow:
+    """Trailing stop with weekly N-week low mode."""
+
+    def test_nweek_low_exits_on_trend_break(self):
+        """Close below N-week low after transition -> exit_reason='trend_break'."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,  # Wide stop to avoid triggering
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_nweek_low",
+            trailing_nweek_period=3,
+            trailing_transition_weeks=2,
+            entry_mode="next_day_open",
+        )
+
+        # Entry: Mon 2025-10-06, report: Fri 2025-10-03
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+
+        # Weeks 1-4: stable prices, low=97 each week
+        for week_idx in range(4):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                bars.append(make_bar(d, 100, 105, 97, 102))
+
+        # Week 5: crash, close=90 < min(97,97,97)=97 -> trend_break
+        for day_off in range(5):
+            d = (base + timedelta(weeks=4, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 92, 95, 88, 90))
+
+        # Week 6: next week for exit execution
+        for day_off in range(5):
+            d = (base + timedelta(weeks=5, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 89, 92, 86, 88))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        t = trades[0]
+        assert t.exit_reason == "trend_break"
+        assert t.entry_date == "2025-10-06"
+
+    def test_nweek_low_holds_above_support(self):
+        """Close stays above N-week low -> no trend_break, exits end_of_data."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_nweek_low",
+            trailing_nweek_period=3,
+            trailing_transition_weeks=2,
+            entry_mode="next_day_open",
+        )
+
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+
+        # 5 weeks: close always above weekly lows (rising trend)
+        for week_idx in range(5):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                p = 100 + week_idx * 5
+                bars.append(make_bar(d, p, p + 5, p - 3, p + 2))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].exit_reason == "end_of_data"
+
+    def test_nweek_low_warmup_no_signal(self):
+        """During warmup (< nweek_period weeks), trailing stop does not fire."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_nweek_low",
+            trailing_nweek_period=4,
+            trailing_transition_weeks=0,  # Immediate activation
+            entry_mode="next_day_open",
+        )
+
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+
+        # Week 1: normal
+        for day_off in range(5):
+            d = (base + timedelta(days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 100, 105, 97, 102))
+
+        # Week 2: drop below typical weekly low (but nweek_period=4, only 2 weeks,
+        # indicators=None so trailing stop can't fire).
+        # Prices must stay above stop_loss (100*0.5=50).
+        for day_off in range(5):
+            d = (base + timedelta(weeks=1, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 75, 78, 70, 72))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        # Should be end_of_data because warmup not met (indicators are None)
+        assert trades[0].exit_reason == "end_of_data"
+
+    def test_nweek_low_transition_blocks_exit(self):
+        """During transition period, nweek_low break does not trigger exit."""
+        from datetime import datetime, timedelta
+
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=50.0,
+            slippage_pct=0.5,
+            max_holding_days=None,
+            trailing_stop="weekly_nweek_low",
+            trailing_nweek_period=2,
+            trailing_transition_weeks=5,  # Long transition
+            entry_mode="next_day_open",
+        )
+
+        bars = [make_bar("2025-10-03", 100, 105, 95, 100)]
+        base = datetime(2025, 10, 6)
+
+        # Weeks 1-3: stable prices
+        for week_idx in range(3):
+            for day_off in range(5):
+                d = (base + timedelta(weeks=week_idx, days=day_off)).strftime("%Y-%m-%d")
+                bars.append(make_bar(d, 100, 105, 97, 102))
+
+        # Week 4: drop below N-week low (but transition_weeks=5, only 4 completed).
+        # Prices must stay above stop_loss (100*0.5=50).
+        for day_off in range(5):
+            d = (base + timedelta(weeks=3, days=day_off)).strftime("%Y-%m-%d")
+            bars.append(make_bar(d, 75, 78, 70, 72))
+
+        candidate = make_candidate(report_date="2025-10-03")
+        trades, _ = sim.simulate_all([candidate], {"TEST": bars})
+        assert len(trades) == 1
+        assert trades[0].exit_reason == "end_of_data"
+
+
+class TestDailyEntryLimitWithDataEndDate:
+    """daily_entry_limit + data_end_date combination tests."""
+
+    def test_cutoff_prevents_post_date_candidate_consuming_slot(self):
+        """Candidates after data_end_date must not consume daily limit slots."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=1,
+            entry_mode="next_day_open",
+            data_end_date="2025-10-05",
+        )
+        # AAA: report 10/01, entry 10/02 (within data_end_date)
+        bars_a = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+            make_bar("2025-10-03", 101, 103, 95, 101),
+            make_bar("2025-10-04", 101, 104, 95, 103),
+            make_bar("2025-10-05", 103, 106, 100, 105),
+        ]
+        # BBB: report 10/01, entry 10/02, higher score but bars extend past cutoff
+        bars_b = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+            make_bar("2025-10-03", 101, 103, 95, 101),
+            make_bar("2025-10-04", 101, 104, 95, 103),
+            make_bar("2025-10-05", 103, 106, 100, 105),
+            make_bar("2025-10-06", 105, 108, 102, 107),  # past cutoff (truncated)
+        ]
+        candidates = [
+            make_candidate("AAA", "2025-10-01", "A", 80),
+            make_candidate("BBB", "2025-10-01", "A", 90),  # Higher score
+        ]
+        price_data = {"AAA": bars_a, "BBB": bars_b}
+        trades, skipped = sim.simulate_all(candidates, price_data)
+
+        # Both candidates have valid entry within data_end_date, limit=1 picks top score
+        assert len(trades) == 1
+        assert trades[0].ticker == "BBB"  # Higher score wins
+        daily_skips = [s for s in skipped if s.skip_reason == "daily_limit"]
+        assert len(daily_skips) == 1
+        assert daily_skips[0].ticker == "AAA"
+
+    def test_post_cutoff_candidate_skipped_not_counted(self):
+        """Candidate whose entry is after data_end_date -> skipped, doesn't take slot."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=1,
+            entry_mode="next_day_open",
+            data_end_date="2025-10-03",
+        )
+        # AAA: report 10/01, entry 10/02 (within data_end_date), lower score
+        bars_a = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+            make_bar("2025-10-03", 101, 103, 95, 101),
+        ]
+        # BBB: report 10/04, entry 10/05 -> after data_end_date, all bars truncated
+        bars_b = [
+            make_bar("2025-10-04", 100, 105, 95, 100),
+            make_bar("2025-10-05", 100, 105, 95, 102),
+        ]
+        candidates = [
+            make_candidate("AAA", "2025-10-01", "A", 70),
+            make_candidate("BBB", "2025-10-04", "A", 95),  # Higher score but post-cutoff
+        ]
+        price_data = {"AAA": bars_a, "BBB": bars_b}
+        trades, skipped = sim.simulate_all(candidates, price_data)
+
+        # BBB should be skipped (no bars after truncation), AAA should trade
+        assert len(trades) == 1
+        assert trades[0].ticker == "AAA"
+        no_data_skips = [s for s in skipped if s.skip_reason == "no_price_data"]
+        assert len(no_data_skips) == 1
+        assert no_data_skips[0].ticker == "BBB"
+
+    def test_same_day_limit_with_truncation(self):
+        """Two same-day candidates, data_end_date limits bars, limit=1 works correctly."""
+        sim = TradeSimulator(
+            position_size=10000,
+            stop_loss_pct=10.0,
+            slippage_pct=0.5,
+            max_holding_days=90,
+            daily_entry_limit=1,
+            entry_mode="next_day_open",
+            data_end_date="2025-10-10",
+        )
+        bars = [
+            make_bar("2025-10-01", 100, 105, 95, 100),
+            make_bar("2025-10-02", 100, 105, 95, 102),
+            make_bar("2025-10-03", 101, 103, 95, 101),
+            make_bar("2025-10-10", 103, 106, 100, 105),
+            make_bar("2025-10-15", 105, 108, 102, 107),  # truncated
+        ]
+        candidates = [
+            make_candidate("AAA", "2025-10-01", "A", 85),
+            make_candidate("BBB", "2025-10-01", "A", 75),
+        ]
+        price_data = {"AAA": bars[:], "BBB": bars[:]}
+        trades, _skipped = sim.simulate_all(candidates, price_data)
+
+        assert len(trades) == 1
+        assert trades[0].ticker == "AAA"
+        # trade exits at data_end_date boundary
+        assert trades[0].exit_date <= "2025-10-10"
+
+
+class TestDisableMaxHoldingWithoutTrailing:
+    """max_holding=None without trailing -> ValueError."""
+
+    def test_raises(self):
+        with pytest.raises(ValueError, match="Cannot disable both"):
+            TradeSimulator(max_holding_days=None, trailing_stop=None)

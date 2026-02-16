@@ -148,6 +148,11 @@ class BacktestMetrics:
     stop_loss_total: int
     stop_loss_rate: float
 
+    # Trend break stats
+    trend_break_total: int = 0
+    trend_break_rate: float = 0.0
+    protective_exit_rate: float = 0.0  # stop_loss + trend_break combined
+
     # Cross filter (gap x score)
     cross_filter_metrics: List[CrossFilterMetrics] = field(default_factory=list)
 
@@ -211,6 +216,16 @@ class MetricsCalculator:
             stop_loss_total=sum(1 for t in trades if t.exit_reason == "stop_loss"),
             stop_loss_rate=round(
                 sum(1 for t in trades if t.exit_reason == "stop_loss") / len(trades) * 100, 1
+            ),
+            trend_break_total=sum(1 for t in trades if t.exit_reason == "trend_break"),
+            trend_break_rate=round(
+                sum(1 for t in trades if t.exit_reason == "trend_break") / len(trades) * 100, 1
+            ),
+            protective_exit_rate=round(
+                sum(1 for t in trades if t.exit_reason in ("stop_loss", "trend_break"))
+                / len(trades)
+                * 100,
+                1,
             ),
             daily_equity=daily_eq,
             peak_positions=peak_pos,
@@ -626,6 +641,9 @@ class MetricsCalculator:
             monthly_metrics=[],
             stop_loss_total=0,
             stop_loss_rate=0,
+            trend_break_total=0,
+            trend_break_rate=0.0,
+            protective_exit_rate=0.0,
             daily_equity=[],
             peak_positions=0,
             capital_requirement=0.0,

@@ -12,6 +12,7 @@ Usage:
 import argparse
 import logging
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from backtest.html_parser import EarningsReportParser
@@ -76,12 +77,48 @@ def parse_args():
         choices=["report_open", "next_day_open"],
         help="Entry timing: report_open (enter at report date) or next_day_open (enter next trading day)",
     )
+    parser.add_argument(
+        "--trailing-stop",
+        default=None,
+        choices=["weekly_ema", "weekly_nweek_low"],
+        help="Trailing stop mode using weekly trend indicators",
+    )
+    parser.add_argument(
+        "--trailing-ema-period", type=int, default=10, help="Weekly EMA period for trailing stop"
+    )
+    parser.add_argument(
+        "--trailing-nweek-period",
+        type=int,
+        default=4,
+        help="N-week low period for trailing stop",
+    )
+    parser.add_argument(
+        "--trailing-transition-weeks",
+        type=int,
+        default=3,
+        help="Completed weeks before trailing stop activates",
+    )
+    parser.add_argument(
+        "--disable-max-holding",
+        action="store_true",
+        help="Disable max holding period (requires --trailing-stop)",
+    )
+    parser.add_argument(
+        "--data-end-date",
+        default=None,
+        help="Backtest end date YYYY-MM-DD (all positions closed at this date's close)",
+    )
     parser.add_argument("--fmp-api-key", default=None, help="FMP API key (overrides env/config)")
     parser.add_argument(
         "--parse-only", action="store_true", help="Only parse HTML, skip price fetch and simulation"
     )
     parser.add_argument("--walk-forward", action="store_true", help="Run walk-forward validation")
     parser.add_argument("--wf-folds", type=int, default=3, help="Number of walk-forward folds")
+    parser.add_argument(
+        "--charts",
+        action="store_true",
+        help="Generate candlestick chart PNGs for each trade",
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
 
@@ -96,7 +133,7 @@ def validate_args(args) -> None:
         errors.append(f"--slippage must be 0-50, got {args.slippage}")
     if args.position_size <= 0:
         errors.append(f"--position-size must be > 0, got {args.position_size}")
-    if args.max_holding < 1:
+    if not args.disable_max_holding and args.max_holding < 1:
         errors.append(f"--max-holding must be >= 1, got {args.max_holding}")
 
     if args.min_score is not None and (args.min_score < 0 or args.min_score > 100):
@@ -122,6 +159,25 @@ def validate_args(args) -> None:
     if args.wf_folds < 1:
         errors.append(f"--wf-folds must be >= 1, got {args.wf_folds}")
 
+    # Trailing stop validation
+    if args.disable_max_holding and args.trailing_stop is None:
+        errors.append("--disable-max-holding requires --trailing-stop")
+    if args.trailing_ema_period < 2:
+        errors.append(f"--trailing-ema-period must be >= 2, got {args.trailing_ema_period}")
+    if args.trailing_nweek_period < 2:
+        errors.append(f"--trailing-nweek-period must be >= 2, got {args.trailing_nweek_period}")
+    if args.trailing_transition_weeks < 0:
+        errors.append(
+            f"--trailing-transition-weeks must be >= 0, got {args.trailing_transition_weeks}"
+        )
+
+    # data_end_date format validation
+    if args.data_end_date:
+        try:
+            datetime.strptime(args.data_end_date, "%Y-%m-%d")
+        except ValueError:
+            errors.append(f"--data-end-date must be YYYY-MM-DD, got {args.data_end_date}")
+
     if errors:
         for e in errors:
             print(f"Error: {e}", file=sys.stderr)
@@ -145,11 +201,13 @@ def main():
     validate_args(args)
     setup_logging(args.verbose)
 
+    max_holding = None if args.disable_max_holding else args.max_holding
+
     config = {
         "position_size": args.position_size,
         "stop_loss": args.stop_loss,
         "slippage": args.slippage,
-        "max_holding": args.max_holding,
+        "max_holding": max_holding,
         "min_grade": args.min_grade,
         "min_score": args.min_score,
         "max_score": args.max_score,
@@ -158,6 +216,10 @@ def main():
         "stop_mode": args.stop_mode,
         "daily_entry_limit": args.daily_entry_limit,
         "entry_mode": args.entry_mode,
+        "trailing_stop": args.trailing_stop,
+        "trailing_ema_period": args.trailing_ema_period,
+        "trailing_nweek_period": args.trailing_nweek_period,
+        "trailing_transition_weeks": args.trailing_transition_weeks,
     }
 
     grade_order = {"A": 0, "B": 1, "C": 2, "D": 3}
@@ -221,11 +283,37 @@ def main():
     logger.info("Step 2: Fetching historical price data")
     logger.info("=" * 60)
 
+    buffer = 400 if args.trailing_stop else 120
     fetcher = PriceFetcher(api_key=args.fmp_api_key)
-    ticker_periods = aggregate_ticker_periods(candidates)
+    ticker_periods = aggregate_ticker_periods(candidates, buffer_days=buffer)
+
+    # data_end_date: limit fetch end to data_end_date
+    if args.data_end_date:
+        original_count = len(ticker_periods)
+        for ticker in list(ticker_periods.keys()):
+            start, end = ticker_periods[ticker]
+            if end > args.data_end_date:
+                ticker_periods[ticker] = (start, args.data_end_date)
+        # Remove tickers where start > end (report too old for data_end_date)
+        ticker_periods = {k: v for k, v in ticker_periods.items() if v[0] <= v[1]}
+        removed = original_count - len(ticker_periods)
+        if removed:
+            logger.warning(f"Removed {removed} tickers with start > data_end_date")
+
     logger.info(f"Fetching prices for {len(ticker_periods)} unique tickers")
 
     price_data = fetcher.bulk_fetch(ticker_periods)
+
+    # Determine effective data_end_date
+    if args.data_end_date:
+        effective_data_end = args.data_end_date
+    else:
+        all_last_dates = [bars[-1].date for bars in price_data.values() if bars]
+        effective_data_end = max(all_last_dates) if all_last_dates else None
+        if effective_data_end:
+            logger.info(f"Auto-detected data_end_date: {effective_data_end}")
+
+    config["data_end_date"] = effective_data_end
 
     # Step 3: Simulate trades
     logger.info("=" * 60)
@@ -236,12 +324,30 @@ def main():
         position_size=args.position_size,
         stop_loss_pct=args.stop_loss,
         slippage_pct=args.slippage,
-        max_holding_days=args.max_holding,
+        max_holding_days=max_holding,
         stop_mode=args.stop_mode,
         daily_entry_limit=args.daily_entry_limit,
         entry_mode=args.entry_mode,
+        trailing_stop=args.trailing_stop,
+        trailing_ema_period=args.trailing_ema_period,
+        trailing_nweek_period=args.trailing_nweek_period,
+        trailing_transition_weeks=args.trailing_transition_weeks,
+        data_end_date=effective_data_end,
     )
     trades, skipped = simulator.simulate_all(candidates, price_data)
+
+    # Post-simulation warnings
+    if not trades:
+        no_data_skips = sum(1 for s in skipped if s.skip_reason == "no_price_data")
+        if effective_data_end and no_data_skips > len(skipped) * 0.8:
+            logger.warning(
+                "No trades: %d/%d skipped as no_price_data. data_end_date (%s) may be too early.",
+                no_data_skips,
+                len(skipped),
+                effective_data_end,
+            )
+        else:
+            logger.error("No trades executed. Check filters (grade/score/gap).")
 
     # Step 4: Calculate metrics
     logger.info("=" * 60)
@@ -276,10 +382,22 @@ def main():
         skipped_count=len(skipped),
     )
 
-    # Step 6 (optional): Walk-forward validation
+    # Step 6 (optional): Generate trade charts
+    if args.charts:
+        logger.info("=" * 60)
+        logger.info("Step 6: Generating trade charts")
+        logger.info("=" * 60)
+        from backtest.chart_generator import ChartGenerator
+
+        chart_gen = ChartGenerator()
+        chart_gen.generate_all_charts(
+            trades, price_data, args.output_dir, stop_loss_pct=args.stop_loss
+        )
+
+    # Step 7 (optional): Walk-forward validation
     if args.walk_forward:
         logger.info("=" * 60)
-        logger.info("Step 6: Walk-Forward Validation")
+        logger.info("Step 7: Walk-Forward Validation")
         logger.info("=" * 60)
         from backtest.walk_forward import WalkForwardValidator
 

@@ -5,7 +5,8 @@ Trade simulator for earnings gap-up backtest.
 Simulates long positions with:
 - Configurable entry timing (report_open or next_day_open)
 - Stop loss with slippage
-- Max holding period (90 calendar days)
+- Max holding period (90 calendar days, optional)
+- Weekly trailing stop (EMA or N-week low based)
 - Fixed position sizing ($10,000)
 """
 
@@ -35,7 +36,7 @@ class TradeResult:
     pnl: float
     return_pct: float
     holding_days: int  # Calendar days
-    exit_reason: str  # "stop_loss" | "max_holding" | "end_of_data"
+    exit_reason: str  # "stop_loss" | "max_holding" | "end_of_data" | "trend_break"
     gap_size: Optional[float] = None
     company_name: Optional[str] = None
 
@@ -54,16 +55,22 @@ class TradeSimulator:
 
     VALID_STOP_MODES = ("intraday", "close", "skip_entry_day", "close_next_open")
     VALID_ENTRY_MODES = ("report_open", "next_day_open")
+    VALID_TRAILING_MODES = (None, "weekly_ema", "weekly_nweek_low")
 
     def __init__(
         self,
         position_size: float = 10000.0,
         stop_loss_pct: float = 10.0,
         slippage_pct: float = 0.5,
-        max_holding_days: int = 90,
+        max_holding_days: Optional[int] = 90,
         stop_mode: str = "intraday",
         daily_entry_limit: Optional[int] = None,
         entry_mode: str = "report_open",
+        trailing_stop: Optional[str] = None,
+        trailing_ema_period: int = 10,
+        trailing_nweek_period: int = 4,
+        trailing_transition_weeks: int = 3,
+        data_end_date: Optional[str] = None,
     ):
         if stop_mode not in self.VALID_STOP_MODES:
             raise ValueError(
@@ -73,6 +80,28 @@ class TradeSimulator:
             raise ValueError(
                 f"Invalid entry_mode: {entry_mode}. Must be one of {self.VALID_ENTRY_MODES}"
             )
+        if trailing_stop not in self.VALID_TRAILING_MODES:
+            raise ValueError(
+                f"Invalid trailing_stop: {trailing_stop}. Must be one of {self.VALID_TRAILING_MODES}"
+            )
+        if trailing_stop is None and max_holding_days is None:
+            raise ValueError(
+                "Cannot disable both trailing_stop and max_holding_days (no exit mechanism)"
+            )
+        if trailing_ema_period < 2:
+            raise ValueError(f"trailing_ema_period must be >= 2, got {trailing_ema_period}")
+        if trailing_nweek_period < 2:
+            raise ValueError(f"trailing_nweek_period must be >= 2, got {trailing_nweek_period}")
+        if trailing_transition_weeks < 0:
+            raise ValueError(
+                f"trailing_transition_weeks must be >= 0, got {trailing_transition_weeks}"
+            )
+        if data_end_date is not None:
+            try:
+                datetime.strptime(data_end_date, "%Y-%m-%d")
+            except ValueError as err:
+                raise ValueError(f"data_end_date must be YYYY-MM-DD, got {data_end_date}") from err
+
         self.position_size = position_size
         self.stop_loss_pct = stop_loss_pct
         self.slippage_pct = slippage_pct
@@ -80,6 +109,23 @@ class TradeSimulator:
         self.stop_mode = stop_mode
         self.daily_entry_limit = daily_entry_limit
         self.entry_mode = entry_mode
+        self.trailing_stop = trailing_stop
+        self.trailing_ema_period = trailing_ema_period
+        self.trailing_nweek_period = trailing_nweek_period
+        self.trailing_transition_weeks = trailing_transition_weeks
+        self.data_end_date = data_end_date
+
+    def _truncate_bars(self, bars: List[PriceBar]) -> List[PriceBar]:
+        """Truncate bars to data_end_date (inclusive). Returns bars unchanged if no data_end_date.
+
+        Called in BOTH simulate_all() and _simulate_single():
+        - simulate_all(): ensures daily_entry_limit ranking excludes post-cutoff candidates
+        - _simulate_single(): ensures all bar references (entry_idx, week_end, loop) are bounded
+        Both calls are necessary; removing either creates subtle data leakage.
+        """
+        if not self.data_end_date:
+            return bars
+        return [b for b in bars if b.date <= self.data_end_date]
 
     def simulate_all(
         self,
@@ -107,6 +153,18 @@ class TradeSimulator:
             simulatable = []
             for candidate in candidates:
                 bars = price_data.get(candidate.ticker)
+                if not bars:
+                    skipped.append(
+                        SkippedTrade(
+                            ticker=candidate.ticker,
+                            report_date=candidate.report_date,
+                            grade=candidate.grade,
+                            score=candidate.score,
+                            skip_reason="no_price_data",
+                        )
+                    )
+                    continue
+                bars = self._truncate_bars(bars)
                 if not bars:
                     skipped.append(
                         SkippedTrade(
@@ -196,6 +254,16 @@ class TradeSimulator:
 
     def _simulate_single(self, candidate, bars: List[PriceBar]):
         """Simulate a single trade."""
+        bars = self._truncate_bars(bars)
+        if not bars:
+            return SkippedTrade(
+                ticker=candidate.ticker,
+                report_date=candidate.report_date,
+                grade=candidate.grade,
+                score=candidate.score,
+                skip_reason="no_price_data",
+            )
+
         report_dt = datetime.strptime(candidate.report_date, "%Y-%m-%d")
 
         # Find entry day based on entry_mode
@@ -245,23 +313,39 @@ class TradeSimulator:
         stop_price = entry_price * (1 - self.stop_loss_pct / 100)
         entry_dt = datetime.strptime(entry_bar.date, "%Y-%m-%d")
 
+        # Pre-compute weekly bars and indicators for trailing stop
+        weekly_bars = []
+        indicators: list = []
+        if self.trailing_stop:
+            from backtest.weekly_bars import (
+                aggregate_daily_to_weekly,
+                compute_weekly_ema,
+                compute_weekly_nweek_low,
+            )
+
+            weekly_bars = aggregate_daily_to_weekly(bars)
+            if self.trailing_stop == "weekly_ema":
+                indicators = compute_weekly_ema(weekly_bars, self.trailing_ema_period)
+            else:
+                indicators = compute_weekly_nweek_low(weekly_bars, self.trailing_nweek_period)
+
         # Scan from entry day onward
         exit_price = None
         exit_date = None
         exit_reason = None
-        close_stop_pending = False
+        pending_exit: Optional[str] = None  # None | "stop_loss" | "trend_break"
 
         for idx, bar in enumerate(bars[entry_idx:]):
             bar_dt = datetime.strptime(bar.date, "%Y-%m-%d")
             calendar_days = (bar_dt - entry_dt).days
 
-            # close_next_open: previous day's close triggered stop → exit at today's open
-            if close_stop_pending:
+            # Pending exit: previous day's signal -> exit at today's open
+            if pending_exit is not None:
                 exit_price = bar.adjusted_open * (1 - self.slippage_pct / 100)
                 exit_date = bar.date
-                exit_reason = "stop_loss"
+                exit_reason = pending_exit
                 logger.debug(
-                    f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) at {bar.date} open, price={exit_price:.4f}"
+                    f"{candidate.ticker} {entry_bar.date}: {exit_reason}(pending) at {bar.date} open, price={exit_price:.4f}"
                 )
                 break
 
@@ -285,7 +369,7 @@ class TradeSimulator:
                     else bar.close
                 )
                 if adj_c > 0 and adj_c <= stop_price:
-                    close_stop_pending = True
+                    pending_exit = "stop_loss"
                     # Don't break — execute at next bar's open
 
             if stop_hit:
@@ -305,8 +389,26 @@ class TradeSimulator:
                 )
                 break
 
+            # Trailing stop check (after stop_loss, before max_holding)
+            if (
+                self.trailing_stop is not None
+                and pending_exit is None
+                and self._is_week_end(bars, entry_idx + idx)
+            ):
+                completed = self._count_completed_weeks(weekly_bars, entry_bar.date, bar.date)
+                if completed >= self.trailing_transition_weeks and self._is_trend_broken(
+                    weekly_bars, indicators, bar.date
+                ):
+                    pending_exit = "trend_break"
+                    # Don't break — exit at next bar's open
+
             # Check max holding period (ensure close is valid)
-            if not close_stop_pending and calendar_days >= self.max_holding_days and bar.close > 0:
+            if (
+                pending_exit is None
+                and self.max_holding_days is not None
+                and calendar_days >= self.max_holding_days
+                and bar.close > 0
+            ):
                 exit_price = (
                     bar.adj_close
                     if (bar.adj_close is not None and bar.adj_close > 0)
@@ -319,8 +421,8 @@ class TradeSimulator:
                 )
                 break
 
-        # If loop ended with close_stop_pending but no next bar: fallback to last bar's close
-        if exit_price is None and close_stop_pending:
+        # If loop ended with pending_exit but no next bar: fallback to last bar's close
+        if exit_price is None and pending_exit is not None:
             last_bar = bars[-1]
             adj_c = (
                 last_bar.adj_close
@@ -329,9 +431,9 @@ class TradeSimulator:
             )
             exit_price = adj_c * (1 - self.slippage_pct / 100)
             exit_date = last_bar.date
-            exit_reason = "stop_loss"
+            exit_reason = pending_exit
             logger.debug(
-                f"{candidate.ticker} {entry_bar.date}: stop_loss({self.stop_mode}) fallback at {last_bar.date}, price={exit_price:.4f}"
+                f"{candidate.ticker} {entry_bar.date}: {exit_reason}(pending) fallback at {last_bar.date}, price={exit_price:.4f}"
             )
 
         # If loop completed without exit (data runs out)
@@ -372,6 +474,39 @@ class TradeSimulator:
             gap_size=candidate.gap_size,
             company_name=candidate.company_name,
         )
+
+    @staticmethod
+    def _is_week_end(bars: List[PriceBar], idx: int) -> bool:
+        """Current bar is the last trading day of its ISO week."""
+        cur = datetime.strptime(bars[idx].date, "%Y-%m-%d")
+        if idx + 1 >= len(bars):
+            return True
+        nxt = datetime.strptime(bars[idx + 1].date, "%Y-%m-%d")
+        return cur.isocalendar()[:2] != nxt.isocalendar()[:2]
+
+    @staticmethod
+    def _count_completed_weeks(weekly_bars, entry_date: str, current_date: str) -> int:
+        """Count weekly bars that started after entry_date and completed by current_date.
+
+        Entry week is always excluded (even if entry is Monday = week_start).
+        This ensures the transition period counts only FULL weeks after entry.
+        """
+        return sum(
+            1 for wb in weekly_bars if wb.week_start > entry_date and wb.week_ending <= current_date
+        )
+
+    def _is_trend_broken(self, weekly_bars, indicators, current_date: str) -> bool:
+        """Check if the most recent completed weekly bar broke the trend indicator."""
+        wb_idx = None
+        for i, wb in enumerate(weekly_bars):
+            if wb.week_ending <= current_date:
+                wb_idx = i
+        if wb_idx is None or indicators[wb_idx] is None:
+            return False
+
+        if self.trailing_stop == "weekly_ema" or self.trailing_stop == "weekly_nweek_low":
+            return weekly_bars[wb_idx].close < indicators[wb_idx]
+        return False
 
     def _find_next_trading_day_index(
         self, bars: List[PriceBar], after_date: datetime

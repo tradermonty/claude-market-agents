@@ -161,6 +161,7 @@ tr:hover {{ background: var(--bg3); }}
 .badge-stop {{ background: rgba(248,81,73,0.2); color: var(--red); }}
 .badge-hold {{ background: rgba(63,185,80,0.2); color: var(--green); }}
 .badge-eod {{ background: rgba(210,153,34,0.2); color: var(--yellow); }}
+.badge-trend {{ background: rgba(188,140,255,0.2); color: var(--purple); }}
 </style>
 </head>
 <body>
@@ -245,10 +246,12 @@ tr:hover {{ background: var(--bg3); }}
   <div id="dist-chart" class="chart"></div>
 </div>
 
-<!-- Stop Loss Analysis -->
+<!-- Protective Exit Analysis -->
 <div class="section">
-  <h2>Stop Loss Analysis</h2>
-  <p>Overall Stop Rate: <strong class="negative">{m.stop_loss_rate:.1f}%</strong> ({m.stop_loss_total}/{m.total_trades})</p>
+  <h2>Protective Exit Analysis</h2>
+  <p>Stop Loss Rate: <strong class="negative">{m.stop_loss_rate:.1f}%</strong> ({m.stop_loss_total}/{m.total_trades}) |
+  Trend Break Rate: <strong>{m.trend_break_rate:.1f}%</strong> ({m.trend_break_total}/{m.total_trades}) |
+  Combined Protective Exit Rate: <strong>{m.protective_exit_rate:.1f}%</strong></p>
   {self._stop_loss_grade_table(m.grade_metrics_html_only)}
 </div>
 
@@ -272,11 +275,13 @@ tr:hover {{ background: var(--bg3); }}
   Position Size: ${cfg.get("position_size", 10000):,} |
   Stop Loss: {cfg.get("stop_loss", 10)}% |
   Slippage: {cfg.get("slippage", 0.5)}% |
-  Max Holding: {cfg.get("max_holding", 90)} days |
+  Max Holding: {cfg.get("max_holding", 90) if cfg.get("max_holding") is not None else "Disabled"} {"days" if cfg.get("max_holding") is not None else ""} |
   Min Grade: {cfg.get("min_grade", "D")} |
   Stop Mode: {cfg.get("stop_mode", "intraday")} |
   Daily Entry Limit: {cfg.get("daily_entry_limit", "None")} |
   Entry Mode: {cfg.get("entry_mode", "report_open")}
+  {"<br>Trailing Stop: " + str(cfg.get("trailing_stop", "")) + " | EMA Period: " + str(cfg.get("trailing_ema_period", 10)) + " | N-Week Period: " + str(cfg.get("trailing_nweek_period", 4)) + " | Transition Weeks: " + str(cfg.get("trailing_transition_weeks", 3)) if cfg.get("trailing_stop") else ""}
+  {"<br>Data End Date: " + str(cfg.get("data_end_date", "")) if cfg.get("data_end_date") else ""}
   {self._filter_config_html(cfg)}
 </div>
 
@@ -676,6 +681,7 @@ tr:hover {{ background: var(--bg3); }}
                 "stop_loss": '<span class="badge badge-stop">STOP</span>',
                 "max_holding": '<span class="badge badge-hold">90D</span>',
                 "end_of_data": '<span class="badge badge-eod">EOD</span>',
+                "trend_break": '<span class="badge badge-trend">TREND</span>',
             }.get(t.exit_reason, t.exit_reason)
 
             rows += f"""<tr>

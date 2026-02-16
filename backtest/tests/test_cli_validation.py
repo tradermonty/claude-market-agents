@@ -72,3 +72,33 @@ class TestCLIValidation:
         result = run_cli("--stop-loss", "10", "--slippage", "0.5")
         # Should not exit with code 2 (may fail for other reasons like missing reports dir)
         assert result.returncode != 2
+
+    def test_disable_max_holding_without_trailing(self):
+        result = run_cli("--disable-max-holding")
+        assert result.returncode == 2
+        assert "--disable-max-holding" in result.stderr
+
+    def test_trailing_ema_period_too_low(self):
+        result = run_cli("--trailing-ema-period", "1")
+        assert result.returncode == 2
+        assert "--trailing-ema-period" in result.stderr
+
+    def test_trailing_nweek_period_too_low(self):
+        result = run_cli("--trailing-nweek-period", "1")
+        assert result.returncode == 2
+        assert "--trailing-nweek-period" in result.stderr
+
+    def test_data_end_date_invalid_format(self):
+        result = run_cli("--data-end-date", "2025-13-01")
+        assert result.returncode == 2
+        assert "--data-end-date" in result.stderr
+
+    def test_data_end_date_valid(self):
+        result = run_cli("--data-end-date", "2025-12-31")
+        # Should not exit with code 2
+        assert result.returncode != 2
+
+    def test_trailing_stop_with_disable_max_holding(self):
+        result = run_cli("--trailing-stop", "weekly_ema", "--disable-max-holding")
+        # Should not exit with code 2 (valid combo)
+        assert result.returncode != 2
