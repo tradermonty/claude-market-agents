@@ -25,12 +25,16 @@
 - `Edit` operations for updating report templates and configurations
 
 ## X Post Policy
-- X投稿は**必ず1つの投稿（シングルポスト）にまとめる**こと。スレッド形式（複数投稿に分割）は禁止
-- テンプレートは `reports/2026-01-27-after-market-xpost-combined.md` を参考にする
-- 主要指数、トップムーバー、アフターアワーズ、セクター、マーケット統計を1投稿に凝縮する
-- ファイル名: `reports/YYYY-MM-DD-after-market-x-post.md`
+- All X posts **must be a single post**. Thread format (splitting into multiple posts) is prohibited
+- Use `reports/2026-01-27-after-market-xpost-combined.md` as template reference
+- Condense major indices, top movers, after-hours, sectors, and market stats into one post
+- File naming: `reports/YYYY-MM-DD-after-market-x-post.md`
+
+## Development Practices
+- Use `/tdd-developer` skill for all code implementation (Test-Driven Development)
+- Follow the Red → Green → Refactor cycle: write tests first, then implement
 
 ## Commands
 - Market analysis commands can be run without explicit permission
 - Report generation workflows are pre-approved for automation
-- レポートを作成する前に最初に本日の日付をコマンドラインで確認するようにして date　コマンドで
+- Always verify today's date with the `date` command before generating reports
