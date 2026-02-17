@@ -1,4 +1,4 @@
-# Trade Analysis
+# Claude Market Agents
 
 An automated US stock market analysis and report generation system powered by Claude Code and MCP (Model Context Protocol) servers.
 
@@ -28,7 +28,7 @@ This project provides automated trading analysis workflows using Claude Code's a
 ## Project Structure
 
 ```
-trade-analysis/
+claude-market-agents/
 ├── .claude/
 │   ├── agents/           # Agent definitions
 │   └── settings.local.json  # Permission configurations
@@ -57,7 +57,7 @@ trade-analysis/
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd trade-analysis
+cd claude-market-agents
 ```
 
 2. Configure MCP servers in `.mcp.json` with your API keys
@@ -89,10 +89,10 @@ crontab -e
 
 # Add entries (US Pacific Time)
 # Earnings Trade Report - 6:00 AM PT (Mon-Fri)
-0 6 * * 1-5 /path/to/trade-analysis/scripts/run_earnings_trade_report.sh
+0 6 * * 1-5 /path/to/claude-market-agents/scripts/run_earnings_trade_report.sh
 
 # After Market Report - 1:10 PM PT (Mon-Fri)
-10 13 * * 1-5 /path/to/trade-analysis/scripts/run_after_market_report.sh
+10 13 * * 1-5 /path/to/claude-market-agents/scripts/run_after_market_report.sh
 ```
 
 See `scripts/README.md` for detailed cron setup instructions.

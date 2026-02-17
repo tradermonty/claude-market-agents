@@ -24,13 +24,13 @@ crontab -e
 # PT = UTC-8 (PST) or UTC-7 (PDT)
 # During PST: 14:00 UTC
 # During PDT: 13:00 UTC
-0 6 * * 1-5 /Users/takueisaotome/PycharmProjects/trade-analysis/scripts/run_earnings_trade_report.sh
+0 6 * * 1-5 /Users/takueisaotome/PycharmProjects/claude-market-agents/scripts/run_earnings_trade_report.sh
 
 # After Market Report - 1:10 PM PT (Mon-Fri)
 # PT = UTC-8 (PST) or UTC-7 (PDT)
 # During PST: 21:10 UTC
 # During PDT: 20:10 UTC
-10 13 * * 1-5 /Users/takueisaotome/PycharmProjects/trade-analysis/scripts/run_after_market_report.sh
+10 13 * * 1-5 /Users/takueisaotome/PycharmProjects/claude-market-agents/scripts/run_after_market_report.sh
 ```
 
 ### 3. Save and exit
@@ -87,7 +87,7 @@ This requires that `settings.local.json` has all necessary permissions pre-appro
 3. Ensure all MCP servers are running
 
 ### Permission errors
-1. Verify `settings.local.json` has `Write(/Users/takueisaotome/PycharmProjects/trade-analysis/**)`
+1. Verify `settings.local.json` has `Write(/Users/takueisaotome/PycharmProjects/claude-market-agents/**)`
 2. Check file permissions on the project directory
 
 ## Manual Execution
