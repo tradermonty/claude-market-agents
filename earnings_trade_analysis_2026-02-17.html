@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis | 2026-02-17</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #4a90a4;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #7b68ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+        .date-badge {
+            display: inline-block;
+            background: #4a90a4;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .grade-section {
+            margin-bottom: 40px;
+        }
+        .grade-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+        }
+        .grade-a { background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.05)); border-left: 4px solid #00d4ff; }
+        .grade-b { background: linear-gradient(90deg, rgba(123, 104, 238, 0.2), rgba(123, 104, 238, 0.05)); border-left: 4px solid #7b68ee; }
+        .grade-c { background: linear-gradient(90deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.05)); border-left: 4px solid #ffc107; }
+        .grade-d { background: linear-gradient(90deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.05)); border-left: 4px solid #dc3545; }
+        .grade-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+        .grade-title {
+            font-size: 1.5rem;
+        }
+        .success-rate {
+            margin-left: auto;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .ticker {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .company-name {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        .score-badge {
+            background: linear-gradient(135deg, #4a90a4, #357abd);
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        .stars {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .metric {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .positive { color: #00e676; }
+        .negative { color: #ff5252; }
+        .neutral { color: #ffc107; }
+        .score-breakdown {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.85rem;
+        }
+        .score-bar {
+            width: 60%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .score-fill-high { background: linear-gradient(90deg, #00e676, #00c853); }
+        .score-fill-mid { background: linear-gradient(90deg, #ffc107, #ff9800); }
+        .score-fill-low { background: linear-gradient(90deg, #ff5252, #d32f2f); }
+        .news-summary {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .news-title {
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+        .methodology {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .methodology h2 {
+            color: #7b68ee;
+            margin-bottom: 20px;
+        }
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .method-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .method-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .method-weight {
+            color: #00d4ff;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0a0a0;
+        }
+        .disclaimer {
+            font-size: 0.8rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest Scoring System for Momentum Gap Trading</p>
+            <div class="date-badge">February 17, 2026 (Pre-Market)</div>
+        </header>
+
+        <!-- Grade A Section -->
+        <section class="grade-section">
+            <div class="grade-header grade-a">
+                <span class="grade-icon">A</span>
+                <span class="grade-title">A-Grade Stocks</span>
+                <span class="success-rate">70%+ Historical Success Rate</span>
+            </div>
+            <div class="stock-grid">
+                <!-- DTE Energy -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">DTE</div>
+                            <div class="company-name">DTE Energy Co</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">4.05</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+2.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+11.2%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value positive">120%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+9.2%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        DTE Energy wins data-center deal with Oracle. Reports 2025 accomplishments and earnings. Bullish analyst sentiment with strong utility fundamentals.
+                    </div>
+                </div>
+
+                <!-- SON -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">SON</div>
+                            <div class="company-name">Sonoco Products Co</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">3.95</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+2.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+16.5%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value positive">105%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+18.0%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        Named to FORTUNE's World's Most Admired List. Provides strategy and financial update to investors. Q4 and full year 2025 results released.
+                    </div>
+                </div>
+
+                <!-- LH -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">LH</div>
+                            <div class="company-name">Labcorp Holdings Inc</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">3.85</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+0.8%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+12.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value positive">115%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+7.9%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-mid" style="width: 40%"></div></div>
+                            <span>2 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        Q4 earnings surpass estimates (Zacks). Announces 2025 Q4 and full year results. Healthcare sector with solid fundamentals.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grade B Section -->
+        <section class="grade-section">
+            <div class="grade-header grade-b">
+                <span class="grade-icon">B</span>
+                <span class="grade-title">B-Grade Stocks</span>
+                <span class="success-rate">55-69% Historical Success Rate</span>
+            </div>
+            <div class="stock-grid">
+                <!-- KRYS -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">KRYS</div>
+                            <div class="company-name">Krystal Biotech Inc</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">3.35</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★★☆</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+2.6%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+14.0%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value neutral">92%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+53.0%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-mid" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        Announces Q4 and full year 2025 financial and operating results. Healthcare biotech with strong price momentum above MAs.
+                    </div>
+                </div>
+
+                <!-- FLR -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">FLR</div>
+                            <div class="company-name">Fluor Corporation</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">3.30</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★★☆</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+3.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+9.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value neutral">100%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+4.9%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-mid" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        Q4 loss reported, missed estimates. Receives $1.35B for NuScale shares. Despite earnings miss, stock gaps up on NuScale deal news.
+                    </div>
+                </div>
+
+                <!-- NESR -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">NESR</div>
+                            <div class="company-name">National Energy Services Reunited</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">3.25</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★★☆</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+2.7%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+31.9%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value positive">110%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+94.4%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 80%"></div></div>
+                            <span>4 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        Beats Q4 earnings and revenue estimates (Zacks). Reports Q4 2025 financial results. Strong energy sector momentum.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grade C Section -->
+        <section class="grade-section">
+            <div class="grade-header grade-c">
+                <span class="grade-icon">C</span>
+                <span class="grade-title">C-Grade Stocks</span>
+                <span class="success-rate">40-54% Historical Success Rate</span>
+            </div>
+            <div class="stock-grid">
+                <!-- CEVA -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">CEVA</div>
+                            <div class="company-name">Ceva Inc</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">2.80</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★★☆☆</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+1.4%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value neutral">+1.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value positive">115%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value negative">-0.8%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-mid" style="width: 40%"></div></div>
+                            <span>2 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-mid" style="width: 40%"></div></div>
+                            <span>2 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 60%"></div></div>
+                            <span>3 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Earnings Highlights</div>
+                        Announces Q4 and full year 2025 results. Highlights breakthrough year for AI licensing and physical AI adoption. Tech semiconductor play.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grade D Section -->
+        <section class="grade-section">
+            <div class="grade-header grade-d">
+                <span class="grade-icon">D</span>
+                <span class="grade-title">D-Grade Stocks</span>
+                <span class="success-rate">&lt;40% Historical Success Rate</span>
+            </div>
+            <div class="stock-grid">
+                <!-- GLDD -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="ticker">GLDD</div>
+                            <div class="company-name">Great Lakes Dredge & Dock</div>
+                        </div>
+                        <div class="score-badge">
+                            <div class="score-value">2.45</div>
+                            <div class="score-label">TOTAL SCORE</div>
+                            <div class="stars">★★☆☆☆</div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value positive">+1.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings 20D</div>
+                            <div class="metric-value positive">+27.4%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value negative">350%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value positive">+39.2%</div>
+                        </div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span>Gap Size (25%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-mid" style="width: 40%"></div></div>
+                            <span>2 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Pre-Earnings (30%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>Volume (20%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-low" style="width: 20%"></div></div>
+                            <span>1 pt</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA200 (15%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                        <div class="score-item">
+                            <span>MA50 (10%)</span>
+                            <div class="score-bar"><div class="score-fill score-fill-high" style="width: 100%"></div></div>
+                            <span>5 pts</span>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <div class="news-title">Caution: Abnormal Volume</div>
+                        Texas Capital downgrades to Hold with $17 target. Volume 350% above normal suggests potential instability. M&A speculation ongoing.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Methodology Section -->
+        <section class="methodology">
+            <h2>Backtest Scoring Methodology</h2>
+            <div class="methodology-grid">
+                <div class="method-item">
+                    <div class="method-icon">📊</div>
+                    <div class="method-weight">25%</div>
+                    <div>Gap Size</div>
+                    <div style="font-size: 0.8rem; color: #a0a0a0;">Optimal: 2-5%</div>
+                </div>
+                <div class="method-item">
+                    <div class="method-icon">📈</div>
+                    <div class="method-weight">30%</div>
+                    <div>Pre-Earnings Trend</div>
+                    <div style="font-size: 0.8rem; color: #a0a0a0;">20-day momentum</div>
+                </div>
+                <div class="method-item">
+                    <div class="method-icon">📉</div>
+                    <div class="method-weight">20%</div>
+                    <div>Volume Analysis</div>
+                    <div style="font-size: 0.8rem; color: #a0a0a0;">20D vs 60D avg</div>
+                </div>
+                <div class="method-item">
+                    <div class="method-icon">🎯</div>
+                    <div class="method-weight">15%</div>
+                    <div>MA200 Position</div>
+                    <div style="font-size: 0.8rem; color: #a0a0a0;">Long-term trend</div>
+                </div>
+                <div class="method-item">
+                    <div class="method-icon">⚡</div>
+                    <div class="method-weight">10%</div>
+                    <div>MA50 Position</div>
+                    <div style="font-size: 0.8rem; color: #a0a0a0;">Medium-term trend</div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p class="disclaimer">
+                <strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute investment advice.
+                Past performance and backtest results do not guarantee future returns. All trading involves risk of loss.
+                Please conduct your own due diligence before making any investment decisions.
+            </p>
+            <p style="margin-top: 15px;">Generated: February 17, 2026 06:00 PST | Data Sources: Finviz, Alpaca, FMP</p>
+        </footer>
+    </div>
+</body>
+</html>
