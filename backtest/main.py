@@ -119,6 +119,46 @@ def parse_args():
         action="store_true",
         help="Generate candlestick chart PNGs for each trade",
     )
+    parser.add_argument(
+        "--max-positions",
+        type=int,
+        default=None,
+        help="Maximum concurrent positions (enables portfolio mode)",
+    )
+    parser.add_argument(
+        "--no-rotation",
+        action="store_true",
+        help="Disable position rotation (requires --max-positions)",
+    )
+    parser.add_argument(
+        "--entry-quality-filter",
+        action="store_true",
+        help="Enable entry quality filter (exclude low-price stocks and high-gap+high-score combos)",
+    )
+    parser.add_argument(
+        "--exclude-price-min",
+        type=float,
+        default=None,
+        help="Entry quality filter: min price for exclusion range (default: 10)",
+    )
+    parser.add_argument(
+        "--exclude-price-max",
+        type=float,
+        default=None,
+        help="Entry quality filter: max price for exclusion range (default: 30)",
+    )
+    parser.add_argument(
+        "--risk-gap-threshold",
+        type=float,
+        default=None,
+        help="Entry quality filter: gap threshold for combo filter (default: 10)",
+    )
+    parser.add_argument(
+        "--risk-score-threshold",
+        type=float,
+        default=None,
+        help="Entry quality filter: score threshold for combo filter (default: 85)",
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
 
@@ -171,12 +211,23 @@ def validate_args(args) -> None:
             f"--trailing-transition-weeks must be >= 0, got {args.trailing_transition_weeks}"
         )
 
+    # Portfolio mode validation
+    if args.max_positions is not None and args.max_positions < 1:
+        errors.append(f"--max-positions must be >= 1, got {args.max_positions}")
+    if args.no_rotation and args.max_positions is None:
+        errors.append("--no-rotation requires --max-positions")
+
     # data_end_date format validation
     if args.data_end_date:
         try:
             datetime.strptime(args.data_end_date, "%Y-%m-%d")
         except ValueError:
             errors.append(f"--data-end-date must be YYYY-MM-DD, got {args.data_end_date}")
+
+    # Entry quality filter validation
+    from backtest.entry_filter import validate_filter_args
+
+    errors.extend(validate_filter_args(args))
 
     if errors:
         for e in errors:
@@ -203,6 +254,35 @@ def main():
 
     max_holding = None if args.disable_max_holding else args.max_holding
 
+    # Entry quality filter — determine activation and effective thresholds
+    from backtest.entry_filter import (
+        EXCLUDE_PRICE_MAX,
+        EXCLUDE_PRICE_MIN,
+        RISK_GAP_THRESHOLD,
+        RISK_SCORE_THRESHOLD,
+        is_filter_active,
+    )
+
+    filter_active = is_filter_active(args)
+    eff_price_min = (
+        args.exclude_price_min if args.exclude_price_min is not None else EXCLUDE_PRICE_MIN
+    )
+    eff_price_max = (
+        args.exclude_price_max if args.exclude_price_max is not None else EXCLUDE_PRICE_MAX
+    )
+    eff_gap_th = (
+        args.risk_gap_threshold if args.risk_gap_threshold is not None else RISK_GAP_THRESHOLD
+    )
+    eff_score_th = (
+        args.risk_score_threshold if args.risk_score_threshold is not None else RISK_SCORE_THRESHOLD
+    )
+
+    if filter_active:
+        logger.info(
+            f"Entry quality filter: price [${eff_price_min}, ${eff_price_max}), "
+            f"gap>={eff_gap_th}% & score>={eff_score_th}"
+        )
+
     config = {
         "position_size": args.position_size,
         "stop_loss": args.stop_loss,
@@ -220,6 +300,13 @@ def main():
         "trailing_ema_period": args.trailing_ema_period,
         "trailing_nweek_period": args.trailing_nweek_period,
         "trailing_transition_weeks": args.trailing_transition_weeks,
+        "max_positions": args.max_positions,
+        "no_rotation": args.no_rotation,
+        "entry_quality_filter": filter_active,
+        "exclude_price_min": eff_price_min if filter_active else None,
+        "exclude_price_max": eff_price_max if filter_active else None,
+        "risk_gap_threshold": eff_gap_th if filter_active else None,
+        "risk_score_threshold": eff_score_th if filter_active else None,
     }
 
     grade_order = {"A": 0, "B": 1, "C": 2, "D": 3}
@@ -260,6 +347,29 @@ def main():
         hi = args.max_gap if args.max_gap is not None else "-"
         logger.info(f"After gap filter [{lo}%, {hi}%): {len(candidates)} candidates")
 
+    # Entry quality filter
+    if filter_active:
+        from backtest.entry_filter import apply_entry_quality_filter
+
+        pre_filter_count = len(candidates)
+        candidates, filter_skipped = apply_entry_quality_filter(
+            candidates,
+            price_min=eff_price_min,
+            price_max=eff_price_max,
+            gap_threshold=eff_gap_th,
+            score_threshold=eff_score_th,
+        )
+        reason_counts = {}
+        for s in filter_skipped:
+            reason_counts[s.skip_reason] = reason_counts.get(s.skip_reason, 0) + 1
+        reason_str = ", ".join(f"{r}: {c}" for r, c in sorted(reason_counts.items()))
+        logger.info(
+            f"After entry quality filter: {len(candidates)} candidates "
+            f"({pre_filter_count - len(candidates)} filtered: {reason_str})"
+        )
+    else:
+        filter_skipped = []
+
     # Summary
     grade_counts = {}
     for c in candidates:
@@ -270,8 +380,9 @@ def main():
 
     if args.parse_only:
         logger.info("Parse-only mode: skipping price fetch and simulation")
-        # Still output CSV of parsed candidates
         _write_candidates_csv(candidates, Path(args.output_dir) / "parsed_candidates.csv")
+        if filter_active:
+            _write_filtered_csv(filter_skipped, Path(args.output_dir) / "filtered_candidates.csv")
         return
 
     if not candidates:
@@ -320,21 +431,50 @@ def main():
     logger.info("Step 3: Simulating trades")
     logger.info("=" * 60)
 
-    simulator = TradeSimulator(
-        position_size=args.position_size,
-        stop_loss_pct=args.stop_loss,
-        slippage_pct=args.slippage,
-        max_holding_days=max_holding,
-        stop_mode=args.stop_mode,
-        daily_entry_limit=args.daily_entry_limit,
-        entry_mode=args.entry_mode,
-        trailing_stop=args.trailing_stop,
-        trailing_ema_period=args.trailing_ema_period,
-        trailing_nweek_period=args.trailing_nweek_period,
-        trailing_transition_weeks=args.trailing_transition_weeks,
-        data_end_date=effective_data_end,
-    )
-    trades, skipped = simulator.simulate_all(candidates, price_data)
+    if args.max_positions is not None:
+        # Portfolio mode
+        from backtest.portfolio_simulator import PortfolioSimulator
+
+        logger.info(
+            f"Portfolio mode: max_positions={args.max_positions}, rotation={'off' if args.no_rotation else 'on'}"
+        )
+        portfolio_sim = PortfolioSimulator(
+            max_positions=args.max_positions,
+            position_size=args.position_size,
+            stop_loss_pct=args.stop_loss,
+            slippage_pct=args.slippage,
+            max_holding_days=max_holding,
+            stop_mode=args.stop_mode,
+            entry_mode=args.entry_mode,
+            trailing_stop=args.trailing_stop,
+            trailing_ema_period=args.trailing_ema_period,
+            trailing_nweek_period=args.trailing_nweek_period,
+            trailing_transition_weeks=args.trailing_transition_weeks,
+            data_end_date=effective_data_end,
+            enable_rotation=not args.no_rotation,
+        )
+        trades, skipped = portfolio_sim.simulate_portfolio(candidates, price_data)
+        simulator = None  # Not used in portfolio mode
+    else:
+        # Independent trade mode (original)
+        simulator = TradeSimulator(
+            position_size=args.position_size,
+            stop_loss_pct=args.stop_loss,
+            slippage_pct=args.slippage,
+            max_holding_days=max_holding,
+            stop_mode=args.stop_mode,
+            daily_entry_limit=args.daily_entry_limit,
+            entry_mode=args.entry_mode,
+            trailing_stop=args.trailing_stop,
+            trailing_ema_period=args.trailing_ema_period,
+            trailing_nweek_period=args.trailing_nweek_period,
+            trailing_transition_weeks=args.trailing_transition_weeks,
+            data_end_date=effective_data_end,
+        )
+        trades, skipped = simulator.simulate_all(candidates, price_data)
+
+    # Merge filter-skipped into skipped list
+    skipped = filter_skipped + skipped
 
     # Post-simulation warnings
     if not trades:
@@ -394,20 +534,23 @@ def main():
             trades, price_data, args.output_dir, stop_loss_pct=args.stop_loss
         )
 
-    # Step 7 (optional): Walk-forward validation
+    # Step 7 (optional): Walk-forward validation (independent mode only)
     if args.walk_forward:
-        logger.info("=" * 60)
-        logger.info("Step 7: Walk-Forward Validation")
-        logger.info("=" * 60)
-        from backtest.walk_forward import WalkForwardValidator
+        if simulator is None:
+            logger.warning("Walk-forward validation is not supported in portfolio mode. Skipping.")
+        else:
+            logger.info("=" * 60)
+            logger.info("Step 7: Walk-Forward Validation")
+            logger.info("=" * 60)
+            from backtest.walk_forward import WalkForwardValidator
 
-        wf = WalkForwardValidator(
-            simulator=simulator,
-            calculator=calculator,
-            n_folds=args.wf_folds,
-        )
-        wf_results = wf.run(candidates, price_data)
-        wf.print_summary(wf_results)
+            wf = WalkForwardValidator(
+                simulator=simulator,
+                calculator=calculator,
+                n_folds=args.wf_folds,
+            )
+            wf_results = wf.run(candidates, price_data)
+            wf.print_summary(wf_results)
 
     # Print summary
     logger.info("=" * 60)
@@ -458,6 +601,19 @@ def _write_candidates_csv(candidates, path):
                 ]
             )
     logger.info(f"Wrote {len(candidates)} candidates to {path}")
+
+
+def _write_filtered_csv(skipped, path):
+    """Write filter-excluded candidates to CSV. Always writes header even if empty."""
+    import csv
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["ticker", "report_date", "grade", "score", "skip_reason"])
+        for s in sorted(skipped, key=lambda x: (x.report_date, x.ticker)):
+            w.writerow([s.ticker, s.report_date, s.grade, s.score, s.skip_reason])
+    logger.info(f"Wrote {len(skipped)} filtered candidates to {path}")
 
 
 if __name__ == "__main__":

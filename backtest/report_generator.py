@@ -162,12 +162,13 @@ tr:hover {{ background: var(--bg3); }}
 .badge-hold {{ background: rgba(63,185,80,0.2); color: var(--green); }}
 .badge-eod {{ background: rgba(210,153,34,0.2); color: var(--yellow); }}
 .badge-trend {{ background: rgba(188,140,255,0.2); color: var(--purple); }}
+.badge-rotate {{ background: rgba(88,166,255,0.2); color: var(--blue); }}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>Earnings Trade Backtest Results</h1>
-<p class="subtitle">Generated: {generated} | Period: {self._trade_period(trades)} | Independent Trade Model</p>
+<p class="subtitle">Generated: {generated} | Period: {self._trade_period(trades)} | {self._model_label(cfg)}</p>
 
 <!-- KPI Dashboard -->
 <div class="kpi-grid">
@@ -255,6 +256,8 @@ tr:hover {{ background: var(--bg3); }}
   {self._stop_loss_grade_table(m.grade_metrics_html_only)}
 </div>
 
+{self._portfolio_stats_html(m, cfg)}
+
 <!-- Skip Breakdown -->
 <div class="section">
   <h2>Skipped Trades ({m.total_skipped})</h2>
@@ -282,6 +285,7 @@ tr:hover {{ background: var(--bg3); }}
   Entry Mode: {cfg.get("entry_mode", "report_open")}
   {"<br>Trailing Stop: " + str(cfg.get("trailing_stop", "")) + " | EMA Period: " + str(cfg.get("trailing_ema_period", 10)) + " | N-Week Period: " + str(cfg.get("trailing_nweek_period", 4)) + " | Transition Weeks: " + str(cfg.get("trailing_transition_weeks", 3)) if cfg.get("trailing_stop") else ""}
   {"<br>Data End Date: " + str(cfg.get("data_end_date", "")) if cfg.get("data_end_date") else ""}
+  {"<br>Portfolio Mode: max_positions=" + str(cfg.get("max_positions", "")) + " | rotation=" + ("off" if cfg.get("no_rotation") else "on") if cfg.get("max_positions") else ""}
   {self._filter_config_html(cfg)}
 </div>
 
@@ -682,6 +686,7 @@ tr:hover {{ background: var(--bg3); }}
                 "max_holding": '<span class="badge badge-hold">90D</span>',
                 "end_of_data": '<span class="badge badge-eod">EOD</span>',
                 "trend_break": '<span class="badge badge-trend">TREND</span>',
+                "rotated_out": '<span class="badge badge-rotate">ROTATE</span>',
             }.get(t.exit_reason, t.exit_reason)
 
             rows += f"""<tr>
@@ -715,9 +720,37 @@ tr:hover {{ background: var(--bg3); }}
             lo = cfg.get("min_gap", "-")
             hi = cfg.get("max_gap", "-")
             parts.append(f"Gap Filter: [{lo}%, {hi}%)")
+        if cfg.get("entry_quality_filter"):
+            p_min = cfg.get("exclude_price_min", 10)
+            p_max = cfg.get("exclude_price_max", 30)
+            g_th = cfg.get("risk_gap_threshold", 10)
+            s_th = cfg.get("risk_score_threshold", 85)
+            parts.append(
+                f"Entry Quality Filter: ON (price ${p_min}-${p_max}, "
+                f"gap\u2265{g_th}%+score\u2265{s_th})"
+            )
         if not parts:
             return ""
         return "<br>" + " | ".join(parts)
+
+    def _model_label(self, cfg: dict) -> str:
+        if cfg.get("max_positions"):
+            return f"Portfolio Mode (max={cfg['max_positions']})"
+        return "Independent Trade Model"
+
+    def _portfolio_stats_html(self, m, cfg: dict) -> str:
+        if not cfg.get("max_positions"):
+            return ""
+        return f"""<div class="section">
+  <h2>Portfolio Statistics</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Max Positions</div><div class="value">{cfg.get("max_positions", "-")}</div></div>
+    <div class="kpi"><div class="label">Rotation</div><div class="value">{"Off" if cfg.get("no_rotation") else "On"}</div></div>
+    <div class="kpi"><div class="label">Rotated Out</div><div class="value">{m.rotated_out_total} ({m.rotated_out_rate:.1f}%)</div></div>
+    <div class="kpi"><div class="label">Capacity Skips</div><div class="value">{m.capacity_skip_total}</div></div>
+    <div class="kpi"><div class="label">Duplicate Skips</div><div class="value">{m.duplicate_skip_total}</div></div>
+  </div>
+</div>"""
 
     def _trade_period(self, trades: List[TradeResult]) -> str:
         if not trades:

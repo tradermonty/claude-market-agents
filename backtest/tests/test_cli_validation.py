@@ -14,6 +14,15 @@ def run_cli(*extra_args: str) -> subprocess.CompletedProcess:
     )
 
 
+def run_experiment_cli(module: str, *extra_args: str) -> subprocess.CompletedProcess:
+    """Run an experiment CLI with --help to verify arg parsing."""
+    return subprocess.run(
+        [sys.executable, "-m", module, *extra_args],
+        capture_output=True,
+        text=True,
+    )
+
+
 class TestCLIValidation:
     """CLI argument validation tests — invalid args should exit with code 2."""
 
@@ -102,3 +111,89 @@ class TestCLIValidation:
         result = run_cli("--trailing-stop", "weekly_ema", "--disable-max-holding")
         # Should not exit with code 2 (valid combo)
         assert result.returncode != 2
+
+    def test_max_positions_zero(self):
+        result = run_cli("--max-positions", "0")
+        assert result.returncode == 2
+        assert "--max-positions" in result.stderr
+
+    def test_no_rotation_without_max_positions(self):
+        result = run_cli("--no-rotation")
+        assert result.returncode == 2
+        assert "--no-rotation" in result.stderr
+
+    def test_max_positions_valid(self):
+        result = run_cli("--max-positions", "20")
+        # Should not exit with code 2
+        assert result.returncode != 2
+
+    def test_max_positions_with_no_rotation(self):
+        result = run_cli("--max-positions", "20", "--no-rotation")
+        # Should not exit with code 2 (valid combo)
+        assert result.returncode != 2
+
+    # --- Entry quality filter tests ---
+    def test_entry_quality_filter_flag_accepted(self):
+        result = run_cli("--entry-quality-filter")
+        assert result.returncode != 2
+
+    def test_exclude_price_min_negative_rejected(self):
+        result = run_cli("--exclude-price-min", "-5")
+        assert result.returncode == 2
+        assert "--exclude-price-min" in result.stderr
+
+    def test_exclude_price_max_less_than_min_rejected(self):
+        result = run_cli("--exclude-price-min", "40", "--exclude-price-max", "30")
+        assert result.returncode == 2
+        assert "--exclude-price-max" in result.stderr
+
+    def test_exclude_price_min_alone_exceeds_default_max_rejected(self):
+        # --exclude-price-min 40, effective max=30 (default) -> error
+        result = run_cli("--exclude-price-min", "40")
+        assert result.returncode == 2
+        assert "--exclude-price-max" in result.stderr
+
+    def test_risk_score_threshold_out_of_range_rejected(self):
+        result = run_cli("--risk-score-threshold", "150")
+        assert result.returncode == 2
+        assert "--risk-score-threshold" in result.stderr
+
+    def test_override_alone_implicitly_activates_filter(self):
+        # --exclude-price-min 15 alone should implicitly activate filter
+        result = run_cli("--exclude-price-min", "15")
+        # Should not exit with code 2 (valid override)
+        assert result.returncode != 2
+        # Verify filter was actually activated via log output
+        assert "Entry quality filter" in result.stderr
+
+
+class TestExperimentCLIFilterValidation:
+    """Regression tests for entry quality filter on experiment CLIs."""
+
+    def test_stop_loss_experiment_accepts_filter_flag(self):
+        result = run_experiment_cli("backtest.stop_loss_experiment", "--help")
+        assert result.returncode == 0
+        assert "--entry-quality-filter" in result.stdout
+
+    def test_stop_loss_experiment_rejects_invalid_threshold(self):
+        result = run_experiment_cli(
+            "backtest.stop_loss_experiment",
+            "--exclude-price-min",
+            "-5",
+        )
+        assert result.returncode == 2
+        assert "--exclude-price-min" in result.stderr
+
+    def test_trailing_experiment_accepts_filter_flag(self):
+        result = run_experiment_cli("backtest.trailing_stop_experiment", "--help")
+        assert result.returncode == 0
+        assert "--entry-quality-filter" in result.stdout
+
+    def test_trailing_experiment_rejects_invalid_threshold(self):
+        result = run_experiment_cli(
+            "backtest.trailing_stop_experiment",
+            "--risk-score-threshold",
+            "150",
+        )
+        assert result.returncode == 2
+        assert "--risk-score-threshold" in result.stderr

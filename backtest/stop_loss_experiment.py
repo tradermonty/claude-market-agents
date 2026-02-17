@@ -2,8 +2,8 @@
 """
 Stop loss mode comparison experiment.
 
-Runs all 3 stop modes (intraday, close, skip_entry_day) on the same candidate set
-and outputs a comparison table.
+Runs all 4 stop modes (intraday, close, skip_entry_day, close_next_open) on the same
+candidate set and outputs a comparison table.
 
 Usage:
     python -m backtest.stop_loss_experiment --reports-dir reports/
@@ -50,6 +50,15 @@ def parse_args():
         help="Entry timing: report_open or next_day_open",
     )
     parser.add_argument("--fmp-api-key", default=None, help="FMP API key")
+    parser.add_argument(
+        "--entry-quality-filter",
+        action="store_true",
+        help="Enable entry quality filter",
+    )
+    parser.add_argument("--exclude-price-min", type=float, default=None)
+    parser.add_argument("--exclude-price-max", type=float, default=None)
+    parser.add_argument("--risk-gap-threshold", type=float, default=None)
+    parser.add_argument("--risk-score-threshold", type=float, default=None)
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
 
@@ -185,11 +194,56 @@ def main():
     grade_order = {"A": 0, "B": 1, "C": 2, "D": 3}
     min_grade_idx = grade_order.get(args.min_grade, 3)
 
+    # Validate entry quality filter args
+    from backtest.entry_filter import (
+        EXCLUDE_PRICE_MAX,
+        EXCLUDE_PRICE_MIN,
+        RISK_GAP_THRESHOLD,
+        RISK_SCORE_THRESHOLD,
+        is_filter_active,
+        validate_filter_args,
+    )
+
+    filter_errors = validate_filter_args(args)
+    if filter_errors:
+        for e in filter_errors:
+            print(f"Error: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    filter_active = is_filter_active(args)
+
     # Parse
     parser = EarningsReportParser()
     candidates = parser.parse_all_reports(args.reports_dir)
     candidates = [c for c in candidates if grade_order.get(c.grade, 3) <= min_grade_idx]
     logger.info(f"Candidates after grade filter: {len(candidates)}")
+
+    # Apply entry quality filter
+    if filter_active:
+        from backtest.entry_filter import apply_entry_quality_filter
+
+        eff_price_min = (
+            args.exclude_price_min if args.exclude_price_min is not None else EXCLUDE_PRICE_MIN
+        )
+        eff_price_max = (
+            args.exclude_price_max if args.exclude_price_max is not None else EXCLUDE_PRICE_MAX
+        )
+        eff_gap_th = (
+            args.risk_gap_threshold if args.risk_gap_threshold is not None else RISK_GAP_THRESHOLD
+        )
+        eff_score_th = (
+            args.risk_score_threshold
+            if args.risk_score_threshold is not None
+            else RISK_SCORE_THRESHOLD
+        )
+        candidates, _ = apply_entry_quality_filter(
+            candidates,
+            price_min=eff_price_min,
+            price_max=eff_price_max,
+            gap_threshold=eff_gap_th,
+            score_threshold=eff_score_th,
+        )
+        logger.info(f"After entry quality filter: {len(candidates)}")
 
     if not candidates:
         logger.error("No candidates found.")
