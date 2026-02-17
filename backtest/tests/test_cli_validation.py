@@ -192,6 +192,8 @@ class TestExperimentCLIFilterValidation:
     def test_trailing_experiment_rejects_invalid_threshold(self):
         result = run_experiment_cli(
             "backtest.trailing_stop_experiment",
+            "--data-end-date",
+            "2026-02-14",
             "--risk-score-threshold",
             "150",
         )
