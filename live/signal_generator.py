@@ -265,6 +265,7 @@ def _generate_ema_signals(
     entries: List[Dict[str, Any]] = []
     skipped: List[Dict[str, Any]] = []
     rotation_done = False
+    daily_entry_count = 0
 
     if (
         config.rotation
@@ -272,6 +273,7 @@ def _generate_ema_signals(
         and open_after_exits == config.max_positions
         and candidates
         and not rotation_done
+        and daily_entry_count < config.daily_entry_limit
     ):
         weakest = _find_weakest_position(db_positions, alpaca_positions)
         if weakest and weakest["ticker"] not in exit_tickers:
@@ -317,6 +319,7 @@ def _generate_ema_signals(
                     )
                     held_tickers.add(best_candidate.ticker)
                     rotation_done = True
+                    daily_entry_count += 1
                     logger.info(
                         "Rotation: exit %s (score=%.1f, pnl=%.2f) -> enter %s (score=%.1f)",
                         weakest["ticker"],
@@ -329,11 +332,12 @@ def _generate_ema_signals(
     # 9. New entries
     open_count = len(db_positions)
     exit_count = len(exits)
-    available_slots = config.max_positions - (open_count - exit_count)
+    available_slots = config.max_positions - (open_count - exit_count + len(entries))
+    remaining_daily = config.daily_entry_limit - daily_entry_count
     entry_tickers = {e["ticker"] for e in entries}
 
     for c in candidates:
-        if available_slots <= 0:
+        if available_slots <= 0 or remaining_daily <= 0:
             break
         if c.ticker in held_tickers:
             skipped.append({"ticker": c.ticker, "reason": "already_held", "score": c.score or 0})
@@ -357,6 +361,7 @@ def _generate_ema_signals(
         )
         entry_tickers.add(c.ticker)
         available_slots -= 1
+        remaining_daily -= 1
 
     # Remaining candidates that didn't fit
     for c in candidates:
@@ -366,7 +371,11 @@ def _generate_ema_signals(
             and c.ticker not in exit_tickers
             and c.ticker not in {s["ticker"] for s in skipped}
         ):
-            skipped.append({"ticker": c.ticker, "reason": "capacity_full", "score": c.score or 0})
+            if remaining_daily <= 0 and available_slots > 0:
+                skip_reason = "daily_limit"
+            else:
+                skip_reason = "capacity_full"
+            skipped.append({"ticker": c.ticker, "reason": skip_reason, "score": c.score or 0})
 
     open_after = open_count - exit_count + len(entries)
 
@@ -384,6 +393,7 @@ def _generate_ema_signals(
             "total_skipped": len(skipped),
             "open_positions_before": open_count,
             "open_positions_after": open_after,
+            "daily_entry_limit": config.daily_entry_limit,
         },
     }
 
@@ -435,6 +445,7 @@ def _generate_shadow_signals(
     held_tickers = {p["ticker"] for p in shadow_positions}
     shadow_entries: List[Dict[str, Any]] = []
     shadow_skipped: List[Dict[str, Any]] = []
+    daily_entry_count = 0
     open_after_exits = len(shadow_positions) - len(shadow_exits)
 
     if (
@@ -442,6 +453,7 @@ def _generate_shadow_signals(
         and len(shadow_positions) > 0
         and open_after_exits == config.max_positions
         and candidates
+        and daily_entry_count < config.daily_entry_limit
     ):
         weakest = _find_weakest_shadow(shadow_positions, config)
         if weakest and weakest["ticker"] not in exit_tickers:
@@ -480,15 +492,17 @@ def _generate_shadow_signals(
                         }
                     )
                     held_tickers.add(best_candidate.ticker)
+                    daily_entry_count += 1
 
     # 14. Shadow entries
     open_count = len(shadow_positions)
     exit_count = len(shadow_exits)
-    available_slots = config.max_positions - (open_count - exit_count)
+    available_slots = config.max_positions - (open_count - exit_count + len(shadow_entries))
+    remaining_daily = config.daily_entry_limit - daily_entry_count
     entry_tickers = {e["ticker"] for e in shadow_entries}
 
     for c in candidates:
-        if available_slots <= 0:
+        if available_slots <= 0 or remaining_daily <= 0:
             break
         if c.ticker in held_tickers:
             shadow_skipped.append(
@@ -514,6 +528,7 @@ def _generate_shadow_signals(
         )
         entry_tickers.add(c.ticker)
         available_slots -= 1
+        remaining_daily -= 1
 
     # 15. Close shadow positions in DB
     if not dry_run:
@@ -567,8 +582,12 @@ def _generate_shadow_signals(
             and c.ticker not in exit_tickers
             and c.ticker not in {s["ticker"] for s in shadow_skipped}
         ):
+            if remaining_daily <= 0 and available_slots > 0:
+                skip_reason = "daily_limit"
+            else:
+                skip_reason = "capacity_full"
             shadow_skipped.append(
-                {"ticker": c.ticker, "reason": "capacity_full", "score": c.score or 0}
+                {"ticker": c.ticker, "reason": skip_reason, "score": c.score or 0}
             )
 
     open_after = open_count - exit_count + len(shadow_entries)
@@ -587,6 +606,7 @@ def _generate_shadow_signals(
             "total_skipped": len(shadow_skipped),
             "open_positions_before": open_count,
             "open_positions_after": open_after,
+            "daily_entry_limit": config.daily_entry_limit,
         },
     }
 

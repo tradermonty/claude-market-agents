@@ -154,7 +154,7 @@ def db():
 
 @pytest.fixture
 def config():
-    return LiveConfig(max_positions=3)
+    return LiveConfig(max_positions=3, daily_entry_limit=10)
 
 
 @pytest.fixture
@@ -267,7 +267,7 @@ class TestTrailingStopExits:
     def test_generates_exit_on_trend_break(self, db):
         """Trailing stop trigger should produce an exit signal."""
         # Use EMA period 3 (smaller) to reduce warmup requirements
-        config = LiveConfig(max_positions=3, primary_trailing_period=3)
+        config = LiveConfig(max_positions=3, primary_trailing_period=3, daily_entry_limit=10)
         _add_db_position(db, "FAIL", entry_date="2025-09-29", entry_price=115.0)
 
         # Build enough bars for EMA-3 warmup + transition (2 weeks) + drop
@@ -306,7 +306,7 @@ class TestTrailingStopExits:
 class TestRotation:
     def test_rotation_logic(self, db):
         """Rotation should replace weakest position with better candidate."""
-        config = LiveConfig(max_positions=2)
+        config = LiveConfig(max_positions=2, daily_entry_limit=10)
 
         # Fill to max positions
         _add_db_position(db, "WEAK", score=50.0, entry_price=100.0)
@@ -516,6 +516,7 @@ class TestSignalFormat:
                 assert "total_skipped" in summary
                 assert "open_positions_before" in summary
                 assert "open_positions_after" in summary
+                assert "daily_entry_limit" in summary
 
             # Verify JSON file was written
             ema_file = os.path.join(tmp_dir, "signals", "trade_signals_2026-02-17_ema_p10.json")
@@ -596,3 +597,264 @@ class TestFilterCandidates:
         assert result[0].ticker == "HIGH"
         assert result[1].ticker == "MID"
         assert result[2].ticker == "LOW"
+
+
+class TestDailyEntryLimit:
+    def test_daily_limit_caps_entries(self, db, price_fetcher):
+        """daily_entry_limit=2, max_positions=10, 5 candidates -> 2 entries, 3 daily_limit skips."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=2)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    ("AAA", 95, "A", 100.0),
+                    ("BBB", 85, "A", 50.0),
+                    ("CCC", 75, "B", 200.0),
+                    ("DDD", 65, "C", 30.0),
+                    ("EEE", 55, "C", 40.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-daily-limit",
+            )
+
+        ema = result["ema_p10"]
+        assert len(ema["entries"]) == 2
+        entry_tickers = [e["ticker"] for e in ema["entries"]]
+        assert "AAA" in entry_tickers
+        assert "BBB" in entry_tickers
+        # Remaining 3 should be skipped with daily_limit reason
+        daily_skips = [s for s in ema["skipped"] if s["reason"] == "daily_limit"]
+        assert len(daily_skips) == 3
+
+    def test_capacity_binds_before_daily_limit(self, db, price_fetcher):
+        """max_positions=1, daily_entry_limit=5, 3 candidates -> 1 entry, 2 capacity_full skips."""
+        config = LiveConfig(max_positions=1, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    ("AAA", 95, "A", 100.0),
+                    ("BBB", 85, "A", 50.0),
+                    ("CCC", 75, "B", 200.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-cap-binds",
+            )
+
+        ema = result["ema_p10"]
+        assert len(ema["entries"]) == 1
+        capacity_skips = [s for s in ema["skipped"] if s["reason"] == "capacity_full"]
+        assert len(capacity_skips) == 2
+
+    def test_rotation_counts_toward_daily_limit(self, db):
+        """daily_entry_limit=1, rotation consumes it -> no additional entries."""
+        config = LiveConfig(max_positions=2, daily_entry_limit=1)
+
+        # Fill to max positions
+        _add_db_position(db, "WEAK", score=50.0, entry_price=100.0)
+        _add_db_position(db, "STRONG", score=90.0, entry_price=100.0)
+
+        # Alpaca positions with WEAK having negative P&L
+        mock_alpaca = _mock_alpaca_client(
+            positions=[
+                {"symbol": "WEAK", "unrealized_pl": "-500.0", "qty": "66"},
+                {"symbol": "STRONG", "unrealized_pl": "200.0", "qty": "66"},
+            ]
+        )
+
+        # Uptrending bars (no trailing stop trigger)
+        bars = _build_weekly_bars(
+            [
+                ("2025-09-08", 100),
+                ("2025-09-15", 105),
+                ("2025-09-22", 110),
+                ("2025-09-29", 115),
+                ("2025-10-06", 120),
+                ("2025-10-13", 125),
+                ("2025-10-20", 130),
+                ("2025-10-27", 135),
+                ("2025-11-03", 140),
+                ("2025-11-10", 145),
+                ("2025-11-17", 150),
+                ("2025-11-24", 155),
+                ("2025-12-01", 160),
+                ("2025-12-08", 165),
+                ("2025-12-15", 170),
+                ("2025-12-22", 175),
+                ("2026-01-05", 180),
+                ("2026-01-12", 185),
+                ("2026-01-19", 190),
+                ("2026-01-26", 195),
+                ("2026-02-02", 200),
+                ("2026-02-09", 205),
+                ("2026-02-16", 210),
+            ]
+        )
+        fetcher = FakePriceFetcher({"WEAK": bars, "STRONG": bars})
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # BETTER triggers rotation, EXTRA should be blocked by daily limit
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    ("BETTER", 95, "A", 80.0),
+                    ("EXTRA", 70, "B", 60.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=mock_alpaca,
+                price_fetcher=fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-rotation-daily",
+            )
+
+        ema = result["ema_p10"]
+        # Rotation used the 1 daily slot: WEAK out, BETTER in
+        entry_tickers = [e["ticker"] for e in ema["entries"]]
+        assert "BETTER" in entry_tickers
+        assert len(ema["entries"]) == 1
+        # EXTRA should be skipped (both capacity and daily limit bind here)
+        skipped_tickers = [s["ticker"] for s in ema["skipped"]]
+        assert "EXTRA" in skipped_tickers
+
+    def test_daily_limit_in_summary(self, db, price_fetcher):
+        """summary should include daily_entry_limit."""
+        config = LiveConfig(max_positions=3, daily_entry_limit=2)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(tmp_dir)
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-summary",
+            )
+
+        assert result["ema_p10"]["summary"]["daily_entry_limit"] == 2
+        assert result["nwl_p4"]["summary"]["daily_entry_limit"] == 2
+
+    def test_shadow_daily_limit(self, db, price_fetcher):
+        """Shadow path also enforces daily_entry_limit independently."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=1)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    ("AAA", 95, "A", 100.0),
+                    ("BBB", 85, "A", 50.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-shadow-daily",
+            )
+
+        nwl = result["nwl_p4"]
+        assert len(nwl["entries"]) == 1
+        daily_skips = [s for s in nwl["skipped"] if s["reason"] == "daily_limit"]
+        assert len(daily_skips) == 1
+
+    def test_rotation_does_not_exceed_max_positions(self, db):
+        """After rotation, open_positions_after must not exceed max_positions."""
+        config = LiveConfig(max_positions=2, daily_entry_limit=10)
+
+        _add_db_position(db, "WEAK", score=50.0, entry_price=100.0)
+        _add_db_position(db, "STRONG", score=90.0, entry_price=100.0)
+
+        mock_alpaca = _mock_alpaca_client(
+            positions=[
+                {"symbol": "WEAK", "unrealized_pl": "-500.0", "qty": "66"},
+                {"symbol": "STRONG", "unrealized_pl": "200.0", "qty": "66"},
+            ]
+        )
+
+        bars = _build_weekly_bars(
+            [
+                ("2025-09-08", 100),
+                ("2025-09-15", 105),
+                ("2025-09-22", 110),
+                ("2025-09-29", 115),
+                ("2025-10-06", 120),
+                ("2025-10-13", 125),
+                ("2025-10-20", 130),
+                ("2025-10-27", 135),
+                ("2025-11-03", 140),
+                ("2025-11-10", 145),
+                ("2025-11-17", 150),
+                ("2025-11-24", 155),
+                ("2025-12-01", 160),
+                ("2025-12-08", 165),
+                ("2025-12-15", 170),
+                ("2025-12-22", 175),
+                ("2026-01-05", 180),
+                ("2026-01-12", 185),
+                ("2026-01-19", 190),
+                ("2026-01-26", 195),
+                ("2026-02-02", 200),
+                ("2026-02-09", 205),
+                ("2026-02-16", 210),
+            ]
+        )
+        fetcher = FakePriceFetcher({"WEAK": bars, "STRONG": bars})
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # BETTER triggers rotation; EXTRA must NOT enter (capacity full)
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    ("BETTER", 95, "A", 80.0),
+                    ("EXTRA", 70, "B", 60.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=mock_alpaca,
+                price_fetcher=fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-rotation-cap",
+            )
+
+        ema = result["ema_p10"]
+        assert ema["summary"]["open_positions_after"] <= config.max_positions
+        entry_tickers = [e["ticker"] for e in ema["entries"]]
+        assert "BETTER" in entry_tickers
+        assert "EXTRA" not in entry_tickers
+        cap_skips = [s for s in ema["skipped"] if s["reason"] == "capacity_full"]
+        assert any(s["ticker"] == "EXTRA" for s in cap_skips)
+
+    def test_negative_daily_limit_rejected(self):
+        """daily_entry_limit < 0 should raise ValueError."""
+        with pytest.raises(ValueError, match="daily_entry_limit"):
+            LiveConfig(daily_entry_limit=-1)
