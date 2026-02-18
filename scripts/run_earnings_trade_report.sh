@@ -35,6 +35,15 @@ claude -p "Run the earnings trade analysis using the earnings-trade-analyst agen
 # Capture exit status
 EXIT_STATUS=$?
 
+# Publish to GitHub Pages if report generation succeeded
+if [ ${EXIT_STATUS} -eq 0 ]; then
+    echo "" >> "${LOG_FILE}"
+    echo "Publishing reports to GitHub Pages..." >> "${LOG_FILE}"
+    "${SCRIPT_DIR}/run_publish_reports.sh" >> "${LOG_FILE}" 2>&1
+    PUBLISH_STATUS=$?
+    echo "Publish Exit Status: ${PUBLISH_STATUS}" >> "${LOG_FILE}"
+fi
+
 # Log completion
 echo "" >> "${LOG_FILE}"
 echo "Completed: $(date)" >> "${LOG_FILE}"

@@ -301,10 +301,14 @@ body{{
 # ---------------------------------------------------------------------------
 
 
-def run_git(*args: str, cwd: str | Path | None = None) -> str:
+def run_git(*args: str, cwd: str | Path | None = None, env: dict | None = None) -> str:
+    run_env = None
+    if env:
+        run_env = {**os.environ, **env}
     result = subprocess.run(
         ["git", *list(args)],
         cwd=cwd,
+        env=run_env,
         capture_output=True,
         text=True,
     )
@@ -366,7 +370,13 @@ def push_to_ghpages(
             return
 
         now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-        run_git("commit", "-m", f"Update reports – {now}", cwd=worktree_path)
+        run_git(
+            "commit",
+            "-m",
+            f"Update reports – {now}",
+            cwd=worktree_path,
+            env={"PRE_COMMIT_ALLOW_NO_CONFIG": "1"},
+        )
 
         if no_push:
             print("Committed to local gh-pages (--no-push). Skipping push.")
