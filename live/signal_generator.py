@@ -17,6 +17,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from backtest.html_parser import EarningsReportParser, TradeCandidate
+from backtest.json_parser import parse_candidates_json
 from backtest.price_fetcher import PriceFetcherProtocol
 from live.alpaca_client import AlpacaClient
 from live.config import ET, LiveConfig, resolve_api_key
@@ -259,8 +260,6 @@ def generate_signals(
     candidates: List[TradeCandidate] = []
 
     if json_path and os.path.exists(json_path):
-        from backtest.json_parser import parse_candidates_json
-
         candidates = parse_candidates_json(json_path)
         if candidates:
             logger.info("Loaded %d candidates from JSON: %s", len(candidates), json_path)

@@ -183,6 +183,241 @@ class TestInvalidJson:
         assert result == []
 
 
+class TestTickerValidation:
+    """Ticker format validation in JSON parser."""
+
+    def test_whitespace_ticker_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "   ", "grade": "A", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_ticker_with_description_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS (Tenaris)", "grade": "A", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_empty_ticker_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "", "grade": "A", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_lowercase_ticker_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "ts", "grade": "A", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_valid_ticker_with_dot(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "BRK.B", "grade": "A", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].ticker == "BRK.B"
+
+
+class TestNaNHandling:
+    """NaN values must be rejected."""
+
+    def test_nan_price_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": 90, "price": float("nan")}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_nan_score_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": float("nan"), "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_inf_price_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": 90, "price": float("inf")}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+
+class TestSchemaValidation:
+    """D3: Grade/score/price validation."""
+
+    def test_invalid_grade_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "X", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_score_out_of_range_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": 150, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_negative_score_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": -10, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_zero_price_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": 90, "price": 0}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_negative_price_rejected(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": 90, "price": -5}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 0
+
+    def test_valid_grade_case_insensitive(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "a", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].grade == "A"
+
+
+class TestBoundaryValues:
+    """D5: Boundary value tests for JSON parser."""
+
+    def test_score_zero_accepted(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "D", "score": 0, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].score == 0.0
+
+    def test_score_100_accepted(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": 100, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].score == 100.0
+
+    def test_string_typed_numbers(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "A", "score": "90", "price": "52.86"}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].score == 90.0
+        assert result[0].price == 52.86
+
+    def test_dollar_sign_ticker(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "$TS", "grade": "A", "score": 90, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].ticker == "TS"
+
+    def test_extra_fields_ignored(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [
+                {
+                    "ticker": "TS",
+                    "grade": "A",
+                    "score": 90,
+                    "price": 52.86,
+                    "unknown_field": "ignored",
+                    "extra_number": 42,
+                }
+            ],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].ticker == "TS"
+        assert result[0].score == 90.0
+
+    def test_lowercase_grade_normalized(self, tmp_path):
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [{"ticker": "TS", "grade": "b", "score": 75, "price": 52.86}],
+        }
+        f = tmp_path / "earnings_trade_candidates_2026-02-19.json"
+        f.write_text(json.dumps(data))
+        result = parse_candidates_json(str(f))
+        assert len(result) == 1
+        assert result[0].grade == "B"
+
+
 class TestReportDateExtraction:
     """report_date from JSON takes precedence, fallback to filename."""
 

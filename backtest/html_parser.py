@@ -321,6 +321,9 @@ class EarningsReportParser:
                 val = float(re.sub(r"[^\d.]", "", text))
                 if val > 5:
                     return self._validate_score(val)
+                # /5 scale total score: check if sibling label says "TOTAL SCORE"
+                if 0 < val <= 5 and self._is_total_score_context(el):
+                    return self._validate_score(val * 20)
             except ValueError:
                 logger.debug(f"Score parse failed: {text!r}")
                 continue
@@ -471,8 +474,39 @@ class EarningsReportParser:
                     val = float(m.group(1))
                     if val > 5:
                         return self._validate_score(val)
+            else:
+                # 8b. Direct text in total-score element (e.g., "92.5 pts")
+                text = total_score_el.get_text(strip=True)
+                m = self.SCORE_PTS_RE.search(text)
+                if m:
+                    val = float(m.group(1))
+                    if val > 5:
+                        return self._validate_score(val)
+                m = re.search(r"(\d+\.?\d*)", text)
+                if m:
+                    val = float(m.group(1))
+                    if val > 5:
+                        return self._validate_score(val)
 
         return None
+
+    def _is_total_score_context(self, el) -> bool:
+        """Check if element is in a total score context (adjacent label with 'TOTAL SCORE')."""
+        # Check preceding sibling label (label-before-value pattern)
+        prev_label = el.find_previous_sibling(class_="score-label")
+        if prev_label:
+            return "TOTAL" in prev_label.get_text(strip=True).upper()
+        # No preceding label: check following sibling (value-before-label pattern)
+        next_label = el.find_next_sibling(class_="score-label")
+        if next_label and "TOTAL" in next_label.get_text(strip=True).upper():
+            return True
+        # Fallback: parent has a single score-label with TOTAL
+        parent = el.parent
+        if parent:
+            labels = parent.find_all(class_="score-label")
+            if len(labels) == 1 and "TOTAL" in labels[0].get_text(strip=True).upper():
+                return True
+        return False
 
     def _validate_score(self, score: float) -> Optional[float]:
         """Validate score is in expected range."""

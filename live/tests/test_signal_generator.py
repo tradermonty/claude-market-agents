@@ -1125,6 +1125,101 @@ class TestPositionSync:
         assert "MSFT" in open_tickers
 
 
+class TestE2EPipeline:
+    """D1: End-to-end integration tests."""
+
+    def test_json_to_signals_e2e(self, db, config, price_fetcher):
+        """JSON candidates -> signal generation -> entries with qty > 0."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Write HTML report (needed as report_file arg)
+            report = _write_fake_report(tmp_dir, report_date="2026-02-19")
+            # Write JSON candidates (preferred source)
+            json_data = {
+                "report_date": "2026-02-19",
+                "candidates": [
+                    {"ticker": "GRMN", "grade": "A", "score": 92.5, "price": 248.93},
+                    {"ticker": "PLTR", "grade": "B", "score": 78, "price": 25.0},
+                ],
+            }
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                json.dump(json_data, f)
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-e2e-json",
+            )
+
+        ema = result["ema_p10"]
+        assert len(ema["entries"]) >= 1
+        for entry in ema["entries"]:
+            assert entry["qty"] > 0
+            assert entry["stop_price"] > 0
+            assert entry["grade"] in ("A", "B", "C", "D")
+
+    def test_html_to_signals_e2e(self, db, config, price_fetcher):
+        """HTML report only (no JSON) -> candidate extraction -> entries with qty > 0."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[
+                    ("CRDO", 92, "A", 80.0),
+                    ("PLTR", 78, "B", 25.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-e2e-html",
+            )
+
+        ema = result["ema_p10"]
+        assert len(ema["entries"]) >= 1
+        for entry in ema["entries"]:
+            assert entry["qty"] > 0
+
+    def test_executor_compatible_output(self, db, config, price_fetcher):
+        """Generated signal JSON matches executor expected format."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("CRDO", 92, "A", 80.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-e2e-compat",
+            )
+
+        for key in ("ema_p10", "nwl_p4"):
+            entries = result[key]["entries"]
+            for entry in entries:
+                assert isinstance(entry["ticker"], str)
+                assert isinstance(entry["qty"], int)
+                assert entry["qty"] > 0
+                assert isinstance(entry["stop_price"], float)
+                assert entry["stop_price"] > 0
+                assert entry["grade"] in ("A", "B", "C", "D")
+
+
 class TestDeriveJsonPath:
     """Tests for _derive_json_path helper."""
 

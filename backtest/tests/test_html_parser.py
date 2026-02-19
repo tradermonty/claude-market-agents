@@ -743,6 +743,120 @@ class TestFormatI:
         assert candidates[0].score == 76.0
 
 
+class TestFormat218:
+    """Feb 2026 2/18 format: total-score direct text '92.5 pts', nested price."""
+
+    def test_total_score_direct_text(self, parser, tmp_path):
+        src = (FIXTURES / "format_feb18.html").read_text()
+        f = tmp_path / "earnings_trade_analysis_2026-02-18.html"
+        f.write_text(src)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) >= 1
+        grmn = next(c for c in candidates if c.ticker == "GRMN")
+        assert grmn.score == 92.5
+
+    def test_stock_price_nested(self, parser, tmp_path):
+        src = (FIXTURES / "format_feb18.html").read_text()
+        f = tmp_path / "earnings_trade_analysis_2026-02-18.html"
+        f.write_text(src)
+        candidates = parser.parse_single_report(str(f))
+        grmn = next(c for c in candidates if c.ticker == "GRMN")
+        assert grmn.price == 248.93
+
+
+class TestFormat217:
+    """Feb 2026 2/17 format: score-value '4.05' /5 scale with TOTAL SCORE label."""
+
+    def test_scale5_score_conversion(self, parser, tmp_path):
+        src = (FIXTURES / "format_feb17.html").read_text()
+        f = tmp_path / "earnings_trade_analysis_2026-02-17.html"
+        f.write_text(src)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) >= 1
+        dte = next(c for c in candidates if c.ticker == "DTE")
+        assert dte.score == 81.0  # 4.05 * 20
+
+    def test_scale5_no_price(self, parser, tmp_path):
+        src = (FIXTURES / "format_feb17.html").read_text()
+        f = tmp_path / "earnings_trade_analysis_2026-02-17.html"
+        f.write_text(src)
+        candidates = parser.parse_single_report(str(f))
+        dte = next(c for c in candidates if c.ticker == "DTE")
+        assert dte.price is None
+
+
+class TestScale5LabelNotFirst:
+    """Issue 3: score-label for TOTAL SCORE is not the first score-label in parent."""
+
+    def test_total_score_label_after_other_labels(self, parser, tmp_path):
+        html = """<html><body>
+        <section class="grade-section">
+          <div class="grade-header grade-a">A-GRADE</div>
+          <div class="stock-card">
+            <div class="stock-header">
+              <div>
+                <div class="ticker">XYZ</div>
+                <div class="company-name">XYZ Corp</div>
+              </div>
+              <div class="score-badge">
+                <div class="score-label">GAP SCORE</div>
+                <div class="score-value">3.5</div>
+                <div class="score-label">TOTAL SCORE</div>
+                <div class="score-value">4.10</div>
+              </div>
+            </div>
+          </div>
+        </section>
+        </body></html>"""
+        f = tmp_path / "earnings_trade_analysis_2026-02-20.html"
+        f.write_text(html)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) >= 1
+        xyz = next(c for c in candidates if c.ticker == "XYZ")
+        # 4.10 * 20 = 82.0 (should find the TOTAL SCORE label even though it's second)
+        assert xyz.score == 82.0
+
+
+class TestRealReportVerification:
+    """Regression tests against real report files (skipped if not available)."""
+
+    @pytest.mark.skipif(
+        not Path("reports/earnings_trade_analysis_2026-02-17.html").exists(),
+        reason="Real report not available",
+    )
+    def test_feb17_real_report(self, parser):
+        candidates = parser.parse_single_report("reports/earnings_trade_analysis_2026-02-17.html")
+        assert len(candidates) >= 1
+        for c in candidates:
+            assert c.grade in ("A", "B", "C", "D")
+            assert c.score is not None
+            assert c.score > 0
+
+    @pytest.mark.skipif(
+        not Path("reports/earnings_trade_analysis_2026-02-18.html").exists(),
+        reason="Real report not available",
+    )
+    def test_feb18_real_report(self, parser):
+        candidates = parser.parse_single_report("reports/earnings_trade_analysis_2026-02-18.html")
+        assert len(candidates) >= 1
+        for c in candidates:
+            assert c.grade in ("A", "B", "C", "D")
+            assert c.score is not None
+            assert c.score > 0
+
+    @pytest.mark.skipif(
+        not Path("reports/earnings_trade_analysis_2026-02-19.html").exists(),
+        reason="Real report not available",
+    )
+    def test_feb19_real_report(self, parser):
+        candidates = parser.parse_single_report("reports/earnings_trade_analysis_2026-02-19.html")
+        assert len(candidates) >= 1
+        for c in candidates:
+            assert c.grade in ("A", "B", "C", "D")
+            assert c.score is not None
+            assert c.score > 0
+
+
 class TestH3ScoreOutsideBreakdown:
     """h3 outside score-breakdown with 'Score' -> extracted via step 5."""
 
