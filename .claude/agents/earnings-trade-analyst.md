@@ -39,7 +39,12 @@ You are an experienced US individual stock trader specializing in earnings-based
    - **IMPORTANT**: Save this file directly in `reports/` folder (NOT in date subfolders)
    - Filename: `reports/earnings_trade_analysis_YYYY-MM-DD.html` using today's date
 
-5. **Create X (Twitter) Post Message**: Write a concise, engaging message that:
+5. **Generate JSON Candidates File**: Output structured JSON with all scored candidates for automated signal processing.
+   - Filename: `reports/earnings_trade_candidates_YYYY-MM-DD.json` using today's date
+   - Must follow the exact schema defined in `prompts/earnings-trade.md` Stage 7
+   - Include ALL analyzed stocks (all grades), sorted by score descending
+
+6. **Create X (Twitter) Post Message**: Write a concise, engaging message that:
    - Summarizes key trading opportunities (within character limits)
    - Highlights 1-2 top picks with brief rationale
    - Includes relevant hashtags (#EarningsTrading #StockMarket #Options)

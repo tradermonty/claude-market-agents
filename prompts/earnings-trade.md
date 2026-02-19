@@ -202,6 +202,39 @@ ${TICKER4} - Score: {points} points ⭐⭐⭐⭐
 #EarningsTrading #StockInvesting #Backtesting
 ```
 
+## Stage 7: Machine-Readable JSON Output
+
+Create a JSON file for automated signal processing.
+
+**Filename**: `reports/earnings_trade_candidates_YYYY-MM-DD.json`
+
+**Exact schema**:
+```json
+{
+  "report_date": "YYYY-MM-DD",
+  "generated_at": "YYYY-MM-DDTHH:MM:SS-05:00",
+  "candidates": [
+    {
+      "ticker": "AAPL",
+      "grade": "A",
+      "score": 90,
+      "price": 198.50,
+      "gap_size": 6.30,
+      "company_name": "Apple Inc."
+    }
+  ]
+}
+```
+
+**Rules**:
+- Include ALL analyzed stocks (all grades), sorted by score descending
+- `ticker`: No $ prefix
+- `grade`: "A"/"B"/"C"/"D"
+- `score`: Weighted total out of 100
+- `price`: Current price in USD
+- `gap_size`: Gap-up %, null if unavailable
+- CRITICAL: Field names and types must match exactly
+
 ## Execution Summary
 
 1. Extract stocks using `finviz:earnings_trading_screener()`
@@ -210,5 +243,6 @@ ${TICKER4} - Score: {points} points ⭐⭐⭐⭐
 4. Execute news analysis
 5. Create integrated report
 6. Generate X post message
+7. Generate JSON candidates file
 
 **Note**: Data acquisition from MCP server is mandatory. If data cannot be retrieved, clearly indicate this in the report.

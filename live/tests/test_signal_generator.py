@@ -14,7 +14,9 @@ from backtest.price_fetcher import PriceBar
 from backtest.tests.fake_price_fetcher import FakePriceFetcher
 from live.config import LiveConfig
 from live.signal_generator import (
+    _derive_json_path,
     _filter_candidates,
+    _sync_positions_from_alpaca,
     generate_signals,
 )
 from live.state_db import StateDB
@@ -224,6 +226,7 @@ class TestReconciliation:
         mock_alpaca = _mock_alpaca_client(
             positions=[{"symbol": "AAPL", "unrealized_pl": "10.0", "qty": "66"}]
         )
+        mock_alpaca.get_order.side_effect = Exception("order not found")
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(tmp_dir)
             with pytest.raises(SystemExit) as exc_info:
@@ -246,6 +249,7 @@ class TestReconciliation:
         mock_alpaca = _mock_alpaca_client(
             positions=[{"symbol": "AAPL", "unrealized_pl": "10.0", "qty": "66"}]
         )
+        mock_alpaca.get_order.side_effect = Exception("order not found")
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(tmp_dir)
             result = generate_signals(
@@ -858,3 +862,381 @@ class TestDailyEntryLimit:
         """daily_entry_limit < 0 should raise ValueError."""
         with pytest.raises(ValueError, match="daily_entry_limit"):
             LiveConfig(daily_entry_limit=-1)
+
+
+class TestPositionSync:
+    """Tests for _sync_positions_from_alpaca auto-close logic."""
+
+    def _make_filled_order(
+        self, filled_avg_price="140.00", filled_qty="66", filled_at="2026-02-16T15:30:00-05:00"
+    ):
+        return {
+            "status": "filled",
+            "filled_avg_price": filled_avg_price,
+            "filled_qty": filled_qty,
+            "filled_at": filled_at,
+        }
+
+    def test_sync_closes_position_when_stop_filled(self, db):
+        """DB position not in Alpaca + stop order filled -> auto-close with correct pnl."""
+        pos_id = _add_db_position(db, "AAPL", entry_price=150.0, shares=66)
+        db_positions = db.get_open_positions()
+        alpaca_positions = []  # AAPL not in Alpaca
+
+        mock_client = MagicMock()
+        mock_client.get_order.return_value = self._make_filled_order(
+            filled_avg_price="140.00",
+            filled_qty="66",
+        )
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            alpaca_positions,
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 1
+        # Verify position is closed
+        open_positions = db.get_open_positions()
+        assert len(open_positions) == 0
+
+        # Verify exit details
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT exit_reason, exit_price, pnl, return_pct FROM positions WHERE position_id = ?",
+                (pos_id,),
+            ).fetchone()
+        assert row["exit_reason"] == "stop_filled_sync"
+        assert row["exit_price"] == 140.0
+        # pnl = (140 - 150) * 66 = -660.0
+        assert row["pnl"] == -660.0
+        # return_pct = ((140/150) - 1) * 100 = -6.67
+        assert row["return_pct"] == -6.67
+
+    def test_sync_uses_filled_at_for_exit_date(self, db):
+        """Exit date should come from filled_at timestamp, not trade_date."""
+        pos_id = _add_db_position(db, "AAPL", entry_price=100.0, shares=10)
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+        mock_client.get_order.return_value = self._make_filled_order(
+            filled_avg_price="95.00",
+            filled_qty="10",
+            filled_at="2026-02-16T10:30:00-05:00",
+        )
+
+        _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT exit_date FROM positions WHERE position_id = ?",
+                (pos_id,),
+            ).fetchone()
+        assert row["exit_date"] == "2026-02-16"
+
+    def test_sync_uses_filled_qty_for_pnl(self, db):
+        """PnL should use filled_qty (60) not DB shares (66)."""
+        _add_db_position(db, "AAPL", entry_price=100.0, shares=66)
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+        mock_client.get_order.return_value = self._make_filled_order(
+            filled_avg_price="90.00",
+            filled_qty="60",
+        )
+
+        _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        with db._connect() as conn:
+            row = conn.execute("SELECT pnl FROM positions WHERE ticker = 'AAPL'").fetchone()
+        # pnl = (90 - 100) * 60 = -600.0
+        assert row["pnl"] == -600.0
+
+    def test_sync_skips_when_no_stop_order_id(self, db):
+        """Position without stop_order_id should be skipped (not auto-closed)."""
+        # Add position with no stop_order_id
+        with db._connect() as conn:
+            conn.execute(
+                """INSERT INTO positions
+                   (ticker, entry_date, entry_price, target_shares, actual_shares,
+                    invested, stop_price, stop_order_id, score, grade, grade_source,
+                    report_date, company_name, gap_size)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    "AAPL",
+                    "2026-02-10",
+                    150.0,
+                    66,
+                    66,
+                    9900.0,
+                    135.0,
+                    None,
+                    70.0,
+                    "B",
+                    "html",
+                    "2026-02-07",
+                    "AAPL Inc.",
+                    3.0,
+                ),
+            )
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        mock_client.get_order.assert_not_called()
+        assert len(db.get_open_positions()) == 1
+
+    def test_sync_skips_when_order_lookup_fails(self, db):
+        """API error on get_order should skip (not crash)."""
+        _add_db_position(db, "AAPL")
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+        mock_client.get_order.side_effect = Exception("API timeout")
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        assert len(db.get_open_positions()) == 1
+
+    def test_sync_skips_when_stop_not_filled(self, db):
+        """Stop order with status='new' should be skipped."""
+        _add_db_position(db, "AAPL")
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+        mock_client.get_order.return_value = {"status": "new"}
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        assert len(db.get_open_positions()) == 1
+
+    def test_sync_skips_when_no_fill_price(self, db):
+        """Filled order with no filled_avg_price should be skipped."""
+        _add_db_position(db, "AAPL")
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+        mock_client.get_order.return_value = {
+            "status": "filled",
+            "filled_avg_price": None,
+            "filled_qty": "66",
+            "filled_at": "2026-02-16T15:30:00-05:00",
+        }
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        assert len(db.get_open_positions()) == 1
+
+    def test_mixed_sync_and_unresolvable(self, db):
+        """AAPL(stop filled) auto-closed, MSFT(no stop_order_id) left open."""
+        # AAPL: has stop_order_id (from _add_db_position)
+        _add_db_position(db, "AAPL", entry_price=150.0, shares=66)
+        # MSFT: no stop_order_id
+        with db._connect() as conn:
+            conn.execute(
+                """INSERT INTO positions
+                   (ticker, entry_date, entry_price, target_shares, actual_shares,
+                    invested, stop_price, stop_order_id, score, grade, grade_source,
+                    report_date, company_name, gap_size)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    "MSFT",
+                    "2026-02-10",
+                    400.0,
+                    25,
+                    25,
+                    10000.0,
+                    360.0,
+                    None,
+                    80.0,
+                    "A",
+                    "html",
+                    "2026-02-07",
+                    "MSFT Inc.",
+                    4.0,
+                ),
+            )
+
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock()
+        # AAPL stop filled, MSFT get_order should not be called
+        mock_client.get_order.return_value = self._make_filled_order(
+            filled_avg_price="140.00",
+            filled_qty="66",
+        )
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 1
+        open_positions = db.get_open_positions()
+        open_tickers = [p["ticker"] for p in open_positions]
+        assert "AAPL" not in open_tickers
+        assert "MSFT" in open_tickers
+
+
+class TestDeriveJsonPath:
+    """Tests for _derive_json_path helper."""
+
+    def test_standard_html_path(self):
+        result = _derive_json_path("reports/earnings_trade_analysis_2026-02-19.html")
+        assert result == "reports/earnings_trade_candidates_2026-02-19.json"
+
+    def test_absolute_path(self):
+        result = _derive_json_path("/home/user/reports/earnings_trade_analysis_2026-02-19.html")
+        assert result == "/home/user/reports/earnings_trade_candidates_2026-02-19.json"
+
+    def test_no_date_in_filename(self):
+        result = _derive_json_path("reports/some_report.html")
+        assert result is None
+
+    def test_preserves_directory(self, tmp_path):
+        result = _derive_json_path(str(tmp_path / "earnings_trade_analysis_2026-02-17.html"))
+        assert result == str(tmp_path / "earnings_trade_candidates_2026-02-17.json")
+
+
+class TestJsonPriorityParsing:
+    """JSON file takes priority over HTML parsing."""
+
+    def test_json_preferred_over_html(self, db, config, price_fetcher):
+        """When JSON exists, candidates should come from JSON (grade_source='json')."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Write HTML report (with different score to distinguish)
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+            )
+            # Write JSON candidates (with higher score)
+            json_data = {
+                "report_date": "2026-02-19",
+                "candidates": [{"ticker": "TS", "grade": "A", "score": 90, "price": 52.86}],
+            }
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                json.dump(json_data, f)
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-json-prio",
+            )
+
+        ema = result["ema_p10"]
+        # Should use JSON data (score=90, grade=A) not HTML (score=80, grade=B)
+        entries = ema["entries"]
+        assert len(entries) >= 1
+        ts_entry = next(e for e in entries if e["ticker"] == "TS")
+        assert ts_entry["score"] == 90
+        assert ts_entry["grade"] == "A"
+
+    def test_html_fallback_when_no_json(self, db, config, price_fetcher):
+        """When no JSON exists, HTML parsing still works."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-html-fallback",
+            )
+
+        ema = result["ema_p10"]
+        entries = ema["entries"]
+        assert len(entries) >= 1
+        ts_entry = next(e for e in entries if e["ticker"] == "TS")
+        assert ts_entry["score"] == 80
+
+    def test_html_fallback_when_json_empty(self, db, config, price_fetcher):
+        """When JSON exists but has no valid candidates, fall back to HTML."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+            )
+            # Write empty JSON candidates
+            json_data = {"report_date": "2026-02-19", "candidates": []}
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                json.dump(json_data, f)
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-empty-json",
+            )
+
+        ema = result["ema_p10"]
+        entries = ema["entries"]
+        assert len(entries) >= 1
+        ts_entry = next(e for e in entries if e["ticker"] == "TS")
+        assert ts_entry["score"] == 80

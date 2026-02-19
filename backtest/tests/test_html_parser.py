@@ -689,6 +689,60 @@ class TestCompoundTicker:
             assert c.grade == "B"
 
 
+class TestFormatI:
+    """Feb 2026 v4: stock-price for price, total-score > span.value for score."""
+
+    def test_extract(self, parser, tmp_path):
+        src = (FIXTURES / "format_i_feb17.html").read_text()
+        f = tmp_path / "earnings_trade_analysis_2026-02-17.html"
+        f.write_text(src)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) == 1
+        c = candidates[0]
+        assert c.ticker == "TS"
+        assert c.grade == "A"
+        assert c.grade_source == "html"
+        assert c.score == 90.0
+        assert c.price == 52.86
+        assert c.company_name == "Tenaris S.A. ADR"
+        assert c.gap_size == 6.30
+
+    def test_stock_price_class(self, parser, tmp_path):
+        """div.stock-price -> price extraction."""
+        html = """<html><body>
+        <div class="grade-section grade-a">
+          <div class="stock-card a-grade">
+            <h2>$AAPL</h2>
+            <div class="stock-price">$198.50</div>
+            <div class="score">85.0</div>
+          </div>
+        </div>
+        </body></html>"""
+        f = tmp_path / "earnings_trade_analysis_2026-02-18.html"
+        f.write_text(html)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) == 1
+        assert candidates[0].price == 198.50
+
+    def test_total_score_value_class(self, parser, tmp_path):
+        """div.total-score > span.value -> score extraction."""
+        html = """<html><body>
+        <div class="grade-section grade-b">
+          <div class="stock-card b-grade">
+            <h2>$MSFT</h2>
+            <div class="total-score">
+              <span class="value">76</span>
+            </div>
+          </div>
+        </div>
+        </body></html>"""
+        f = tmp_path / "earnings_trade_analysis_2026-02-19.html"
+        f.write_text(html)
+        candidates = parser.parse_single_report(str(f))
+        assert len(candidates) == 1
+        assert candidates[0].score == 76.0
+
+
 class TestH3ScoreOutsideBreakdown:
     """h3 outside score-breakdown with 'Score' -> extracted via step 5."""
 

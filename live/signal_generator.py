@@ -10,6 +10,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 import uuid
 from datetime import datetime
@@ -26,6 +27,22 @@ logger = logging.getLogger(__name__)
 
 GRADE_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3}
 
+DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+
+def _derive_json_path(html_path: str) -> Optional[str]:
+    """Derive JSON candidates path from HTML report path.
+
+    e.g. reports/earnings_trade_analysis_2026-02-19.html
+      -> reports/earnings_trade_candidates_2026-02-19.json
+    """
+    m = DATE_RE.search(os.path.basename(html_path))
+    if not m:
+        return None
+    date_str = m.group(1)
+    dirname = os.path.dirname(html_path)
+    return os.path.join(dirname, f"earnings_trade_candidates_{date_str}.json")
+
 
 def _filter_candidates(candidates: List[TradeCandidate], min_grade: str) -> List[TradeCandidate]:
     """Filter candidates by minimum grade and sort by score descending."""
@@ -35,6 +52,90 @@ def _filter_candidates(candidates: List[TradeCandidate], min_grade: str) -> List
     ]
     filtered.sort(key=lambda c: c.score if c.score is not None else 0, reverse=True)
     return filtered
+
+
+def _sync_positions_from_alpaca(
+    db_positions: List[Dict[str, Any]],
+    alpaca_positions: List[Dict[str, Any]],
+    alpaca_client: AlpacaClient,
+    state_db: StateDB,
+    trade_date: str,
+) -> int:
+    """Sync DB with Alpaca: close positions whose stop orders have filled.
+
+    Returns count of positions auto-closed.
+    """
+    alpaca_tickers = {p["symbol"] for p in alpaca_positions}
+    synced_count = 0
+
+    for pos in db_positions:
+        ticker = pos["ticker"]
+        if ticker in alpaca_tickers:
+            continue
+
+        stop_order_id = pos.get("stop_order_id")
+        if not stop_order_id:
+            logger.warning("Sync skip %s: no stop_order_id", ticker)
+            continue
+
+        try:
+            order = alpaca_client.get_order(stop_order_id)
+        except Exception:
+            logger.warning("Sync skip %s: get_order failed for %s", ticker, stop_order_id)
+            continue
+
+        if order.get("status") != "filled":
+            logger.warning("Sync skip %s: stop order status=%s", ticker, order.get("status"))
+            continue
+
+        filled_avg_price = order.get("filled_avg_price")
+        if filled_avg_price is None:
+            logger.warning("Sync skip %s: no filled_avg_price", ticker)
+            continue
+
+        try:
+            fill_price = float(filled_avg_price)
+        except (TypeError, ValueError):
+            logger.warning("Sync skip %s: invalid filled_avg_price=%s", ticker, filled_avg_price)
+            continue
+
+        # Determine exit date from filled_at
+        filled_at = order.get("filled_at")
+        try:
+            exit_date = datetime.fromisoformat(filled_at).strftime("%Y-%m-%d")
+        except (TypeError, ValueError):
+            exit_date = trade_date
+
+        # Determine quantity
+        try:
+            qty = int(order.get("filled_qty", 0))
+        except (TypeError, ValueError):
+            qty = 0
+        if qty <= 0:
+            qty = pos.get("actual_shares", 0)
+
+        entry_price = pos.get("entry_price", 0)
+        pnl = round((fill_price - entry_price) * qty, 2)
+        return_pct = round(((fill_price / entry_price) - 1) * 100, 2) if entry_price else 0.0
+
+        state_db.close_position(
+            pos["position_id"],
+            exit_date,
+            fill_price,
+            "stop_filled_sync",
+            pnl,
+            return_pct,
+        )
+        synced_count += 1
+        logger.info(
+            "Sync closed %s: fill_price=%.2f, pnl=%.2f, return_pct=%.2f%%",
+            ticker,
+            fill_price,
+            pnl,
+            return_pct,
+        )
+
+    return synced_count
 
 
 def _reconcile_positions(
@@ -153,10 +254,23 @@ def generate_signals(
         logger.error("Kill switch is ON. Aborting signal generation.")
         sys.exit(3)
 
-    # 2. Parse report
-    parser = EarningsReportParser()
-    candidates = parser.parse_single_report(report_file)
-    logger.info("Parsed %d candidates from %s", len(candidates), report_file)
+    # 2. Parse report -- prefer JSON, fall back to HTML
+    json_path = _derive_json_path(report_file)
+    candidates: List[TradeCandidate] = []
+
+    if json_path and os.path.exists(json_path):
+        from backtest.json_parser import parse_candidates_json
+
+        candidates = parse_candidates_json(json_path)
+        if candidates:
+            logger.info("Loaded %d candidates from JSON: %s", len(candidates), json_path)
+        else:
+            logger.warning("JSON parse returned empty, falling back to HTML")
+
+    if not candidates:
+        parser = EarningsReportParser()
+        candidates = parser.parse_single_report(report_file)
+        logger.info("Parsed %d candidates from HTML: %s", len(candidates), report_file)
 
     # 3. Filter by min_grade
     candidates = _filter_candidates(candidates, config.min_grade)
@@ -175,6 +289,7 @@ def generate_signals(
         run_id,
         generated_at,
         force,
+        dry_run=dry_run,
     )
 
     # Write ema signal file
@@ -219,6 +334,7 @@ def _generate_ema_signals(
     run_id: str,
     generated_at: str,
     force: bool,
+    dry_run: bool = False,
 ) -> Dict[str, Any]:
     """Generate EMA trailing stop signals for execution."""
     # 4. Get open positions
@@ -228,6 +344,19 @@ def _generate_ema_signals(
     alpaca_positions: List[Dict[str, Any]] = []
     if alpaca_client is not None:
         alpaca_positions = alpaca_client.get_positions()
+
+        # Auto-sync stop-filled positions (skip in dry_run)
+        if not dry_run:
+            synced = _sync_positions_from_alpaca(
+                db_positions,
+                alpaca_positions,
+                alpaca_client,
+                state_db,
+                trade_date,
+            )
+            if synced > 0:
+                db_positions = state_db.get_open_positions()
+
         _reconcile_positions(db_positions, alpaca_positions, force)
 
     # 7. Check trailing stops

@@ -445,10 +445,12 @@ class EarningsReportParser:
                 if val > 5:
                     return self._validate_score(val)
 
-        # 8. total-score section with total-value
+        # 8. total-score section with total-value or value
         total_score_el = card.find(class_="total-score")
         if total_score_el:
             value_el = total_score_el.find(class_="total-value")
+            if value_el is None:
+                value_el = total_score_el.find(class_="value")
             if value_el:
                 text = value_el.get_text(strip=True)
                 # Try pts/points/100 format first (e.g., "76.0 pts")
@@ -459,6 +461,12 @@ class EarningsReportParser:
                         return self._validate_score(val)
                 # Try percentage: "4.10 / 5.00 (82%)"
                 m = re.search(r"\((\d+)%\)", text)
+                if m:
+                    val = float(m.group(1))
+                    if val > 5:
+                        return self._validate_score(val)
+                # Bare number fallback (e.g., "90")
+                m = re.search(r"(\d+\.?\d*)", text)
                 if m:
                     val = float(m.group(1))
                     if val > 5:
@@ -622,6 +630,13 @@ class EarningsReportParser:
 
         # 3. div.price-value
         el = card.find(class_="price-value")
+        if el:
+            price = self._parse_price(el.get_text(strip=True))
+            if price and price > 0:
+                return price
+
+        # 3b. div.stock-price -> "$52.86"
+        el = card.find(class_="stock-price")
         if el:
             price = self._parse_price(el.get_text(strip=True))
             if price and price > 0:
