@@ -121,3 +121,68 @@ def compute_weekly_nweek_low(weekly_bars: List[WeeklyBar], period: int) -> List[
             result.append(min(wb.low for wb in window))
 
     return result
+
+
+def is_week_end_by_date(bars: List[PriceBar], current_date: str) -> bool:
+    """Check if current_date is the last trading day of its ISO week.
+
+    Standalone version of PortfolioSimulator._is_week_end.
+    Searches bars list for current_date, then checks if next bar is in a different week.
+    """
+    if not bars:
+        return False
+    idx = None
+    for i, b in enumerate(bars):
+        if b.date == current_date:
+            idx = i
+            break
+    if idx is None:
+        return False
+    cur_dt = datetime.strptime(current_date, "%Y-%m-%d")
+    if idx + 1 >= len(bars):
+        return True
+    nxt_dt = datetime.strptime(bars[idx + 1].date, "%Y-%m-%d")
+    return cur_dt.isocalendar()[:2] != nxt_dt.isocalendar()[:2]
+
+
+def is_week_end_by_index(bars: List[PriceBar], idx: int) -> bool:
+    """Check if bar at idx is the last trading day of its ISO week.
+
+    Standalone version of TradeSimulator._is_week_end.
+    Index-based lookup (more efficient when index is already known).
+    """
+    cur = datetime.strptime(bars[idx].date, "%Y-%m-%d")
+    if idx + 1 >= len(bars):
+        return True
+    nxt = datetime.strptime(bars[idx + 1].date, "%Y-%m-%d")
+    return cur.isocalendar()[:2] != nxt.isocalendar()[:2]
+
+
+def count_completed_weeks(weekly_bars: List[WeeklyBar], entry_date: str, current_date: str) -> int:
+    """Count weekly bars that started after entry_date and completed by current_date.
+
+    Entry week is always excluded (even if entry is Monday = week_start).
+    This ensures the transition period counts only FULL weeks after entry.
+    """
+    return sum(
+        1 for wb in weekly_bars if wb.week_start > entry_date and wb.week_ending <= current_date
+    )
+
+
+def is_trend_broken(
+    weekly_bars: List[WeeklyBar],
+    indicators: List[Optional[float]],
+    current_date: str,
+) -> bool:
+    """Check if the most recent completed weekly bar broke the trend indicator.
+
+    Returns True if weekly close < indicator value for the last completed week.
+    Works with both EMA and N-week low indicators.
+    """
+    wb_idx = None
+    for i, wb in enumerate(weekly_bars):
+        if wb.week_ending <= current_date:
+            wb_idx = i
+    if wb_idx is None or wb_idx >= len(indicators) or indicators[wb_idx] is None:
+        return False
+    return weekly_bars[wb_idx].close < indicators[wb_idx]

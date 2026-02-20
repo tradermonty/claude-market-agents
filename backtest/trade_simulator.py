@@ -16,6 +16,15 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
 from backtest.price_fetcher import PriceBar
+from backtest.weekly_bars import (
+    count_completed_weeks as _count_completed_weeks_standalone,
+)
+from backtest.weekly_bars import (
+    is_trend_broken as _is_trend_broken_standalone,
+)
+from backtest.weekly_bars import (
+    is_week_end_by_index,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -478,11 +487,7 @@ class TradeSimulator:
     @staticmethod
     def _is_week_end(bars: List[PriceBar], idx: int) -> bool:
         """Current bar is the last trading day of its ISO week."""
-        cur = datetime.strptime(bars[idx].date, "%Y-%m-%d")
-        if idx + 1 >= len(bars):
-            return True
-        nxt = datetime.strptime(bars[idx + 1].date, "%Y-%m-%d")
-        return cur.isocalendar()[:2] != nxt.isocalendar()[:2]
+        return is_week_end_by_index(bars, idx)
 
     @staticmethod
     def _count_completed_weeks(weekly_bars, entry_date: str, current_date: str) -> int:
@@ -491,22 +496,13 @@ class TradeSimulator:
         Entry week is always excluded (even if entry is Monday = week_start).
         This ensures the transition period counts only FULL weeks after entry.
         """
-        return sum(
-            1 for wb in weekly_bars if wb.week_start > entry_date and wb.week_ending <= current_date
-        )
+        return _count_completed_weeks_standalone(weekly_bars, entry_date, current_date)
 
     def _is_trend_broken(self, weekly_bars, indicators, current_date: str) -> bool:
         """Check if the most recent completed weekly bar broke the trend indicator."""
-        wb_idx = None
-        for i, wb in enumerate(weekly_bars):
-            if wb.week_ending <= current_date:
-                wb_idx = i
-        if wb_idx is None or indicators[wb_idx] is None:
+        if self.trailing_stop not in ("weekly_ema", "weekly_nweek_low"):
             return False
-
-        if self.trailing_stop == "weekly_ema" or self.trailing_stop == "weekly_nweek_low":
-            return weekly_bars[wb_idx].close < indicators[wb_idx]
-        return False
+        return _is_trend_broken_standalone(weekly_bars, indicators, current_date)
 
     def _find_next_trading_day_index(
         self, bars: List[PriceBar], after_date: datetime

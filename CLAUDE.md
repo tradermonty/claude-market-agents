@@ -34,6 +34,20 @@
 - Use `/tdd-developer` skill for all code implementation (Test-Driven Development)
 - Follow the Red → Green → Refactor cycle: write tests first, then implement
 
+## Date and Market Calendar Verification (MANDATORY)
+- Always verify today's date with the `date` command at the start of every session
+- Before mentioning holidays or market closures, ALWAYS verify with calendar calculation:
+  ```bash
+  python3 -c "import calendar; print(calendar.month(YYYY, MM))"
+  ```
+- US market holidays with variable dates (must calculate, never guess):
+  - Presidents' Day: 3rd Monday of February
+  - MLK Day: 3rd Monday of January
+  - Memorial Day: Last Monday of May
+  - Labor Day: 1st Monday of September
+  - Thanksgiving: 4th Thursday of November
+- Never assume a date is a holiday without verifying the day of week first
+
 ## Commands
 - Market analysis commands can be run without explicit permission
 - Report generation workflows are pre-approved for automation

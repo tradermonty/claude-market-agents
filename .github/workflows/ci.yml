@@ -1,66 +1,127 @@
-name: CI
+name: PR Quality Gate
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install ruff
-        run: pip install ruff==0.15.1
-      - name: Ruff check
+          cache: pip
+
+      - name: Install ruff and codespell
+        run: pip install ruff==0.15.1 codespell
+
+      - name: ruff check
         run: ruff check .
-      - name: Ruff format check
+
+      - name: ruff format --check
         run: ruff format --check .
 
+      - name: codespell
+        run: codespell backtest/ live/
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: mypy type check
+        run: mypy backtest/ live/ --config-file=pyproject.toml
+
   test:
+    name: Unit Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: pip install -e ".[dev]"
-      - name: Run tests with coverage
-        run: pytest backtest/tests/ -v --cov=backtest --cov-report=term-missing --cov-fail-under=60
+          cache: pip
 
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Install dependencies
-        run: pip install -e ".[dev]"
-      - name: Run mypy
-        run: mypy backtest/ --config-file=pyproject.toml
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run tests
+        run: |
+          pytest backtest/tests/ live/tests/ -v \
+            --cov=backtest --cov=live --cov-fail-under=60 --cov-report=term-missing
 
   security:
+    name: Security Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install bandit
-        run: pip install bandit>=1.7.0
-      - name: Run bandit
-        run: bandit -r backtest/ -x backtest/tests/ --severity-level medium
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Bandit SAST scan
+        run: bandit -c pyproject.toml -r backtest/ live/
+
+      - name: pip-audit dependency scan
+        run: pip-audit --desc on
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: vulture (dead code detection)
+        continue-on-error: true
+        run: vulture backtest/ live/ --min-confidence 80
+
+      - name: deptry (unused dependency detection)
+        continue-on-error: true
+        run: deptry .

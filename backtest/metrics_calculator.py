@@ -161,6 +161,12 @@ class BacktestMetrics:
     peak_positions: int = 0
     capital_requirement: float = 0.0
 
+    # Portfolio mode metrics
+    rotated_out_total: int = 0
+    rotated_out_rate: float = 0.0
+    capacity_skip_total: int = 0
+    duplicate_skip_total: int = 0
+
 
 class MetricsCalculator:
     """Calculate comprehensive backtest performance metrics."""
@@ -230,6 +236,12 @@ class MetricsCalculator:
             daily_equity=daily_eq,
             peak_positions=peak_pos,
             capital_requirement=capital_req,
+            rotated_out_total=sum(1 for t in trades if t.exit_reason == "rotated_out"),
+            rotated_out_rate=round(
+                sum(1 for t in trades if t.exit_reason == "rotated_out") / len(trades) * 100, 1
+            ),
+            capacity_skip_total=sum(1 for s in skipped if s.skip_reason == "capacity_full"),
+            duplicate_skip_total=sum(1 for s in skipped if s.skip_reason == "duplicate_ticker"),
         )
 
     def _daily_equity_series(self, trades: List[TradeResult]) -> List[DailyEquityPoint]:

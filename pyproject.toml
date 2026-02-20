@@ -32,7 +32,10 @@ dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.1.0",
     "codespell>=2.2.0",
-    "bandit>=1.7.0",
+    "bandit[toml]>=1.7.0",
+    "pip-audit>=2.9.0",
+    "vulture>=2.11",
+    "deptry>=0.21.0",
     "pre-commit>=3.3.0",
     "matplotlib>=3.7.0",
     "mplfinance>=0.12.10b0",
@@ -56,10 +59,9 @@ select = ["E", "F", "I", "W", "UP", "B", "C4", "SIM", "RUF", "PT"]
 ignore = [
     "E501",   # line too long (handled by formatter)
     "PT011",  # pytest.raises too broad
-    "UP006",  # use modern type syntax — requires __future__.annotations in 3.9
-    "UP035",  # deprecated typing imports — same reason
-    "UP045",  # X | None syntax — same reason
-    "B905",   # zip(strict=True) — requires Python 3.10+
+    "UP006",  # use modern type syntax — keep for 3.10 compat
+    "UP035",  # deprecated typing imports — keep for 3.10 compat
+    "UP045",  # X | None syntax — keep for 3.10 compat
     "RUF001", # ambiguous unicode chars in strings (intentional en-dash etc.)
     "RUF002", # ambiguous unicode chars in docstrings
 ]
@@ -73,6 +75,15 @@ ignore_missing_imports = true
 warn_return_any = true
 warn_unused_configs = true
 exclude = ["backtest/tests/", "live/tests/"]
+
+[tool.bandit]
+targets = ["backtest", "live"]
+exclude_dirs = ["backtest/tests", "live/tests", ".venv"]
+skips = ["B101"]
+
+[tool.codespell]
+skip = ".venv,*.lock,*.csv,*.json,*.db,reports,logs,htmlcov,.mypy_cache,.ruff_cache"
+ignore-words-list = "nd,te,ot"
 
 [tool.coverage.run]
 source = ["backtest", "live"]
