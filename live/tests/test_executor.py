@@ -619,23 +619,57 @@ class TestOPGBlockedDuringMarketHours:
 class TestOPGAllPhaseRejected:
     def test_opg_all_phase_rejected(self):
         """entry_tif=opg + phase=all should sys.exit(6)."""
-        with patch(
-            "sys.argv",
-            [
-                "executor",
-                "--signals-file",
-                "dummy.json",
-                "--phase",
-                "all",
-                "--state-db",
-                ":memory:",
-            ],
+        with (
+            patch(
+                "sys.argv",
+                [
+                    "executor",
+                    "--signals-file",
+                    "dummy.json",
+                    "--phase",
+                    "all",
+                    "--state-db",
+                    ":memory:",
+                ],
+            ),
+            patch(
+                "live.executor.LiveConfig",
+                return_value=LiveConfig(entry_tif="opg"),
+            ),
         ):
             from live.executor import main
 
             with pytest.raises(SystemExit) as exc_info:
                 main()
             assert exc_info.value.code == 6
+
+
+class TestPollPhaseSkippedForDay:
+    def test_poll_skipped_for_day_mode(self, config, db, mock_alpaca):
+        """execute_poll_phase() returns immediately when entry_tif='day'."""
+        result = execute_poll_phase(
+            config=config,
+            state_db=db,
+            alpaca_client=mock_alpaca,
+            trade_date="2026-01-01",
+            run_id="test-poll-skip",
+        )
+        assert result == {
+            "filled": 0,
+            "stops_placed": 0,
+            "unprotected": 0,
+            "still_pending": 0,
+        }
+        mock_alpaca.get_order.assert_not_called()
+        mock_alpaca.place_order.assert_not_called()
+        # run_log に poll_skipped が記録されていることを確認
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT phase, status FROM run_log WHERE run_id = ?",
+                ("test-poll-skip",),
+            ).fetchone()
+        assert row["phase"] == "poll_skipped"
+        assert row["status"] == "completed"
 
 
 class TestSkipPoll:

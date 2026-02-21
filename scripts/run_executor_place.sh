@@ -1,7 +1,8 @@
 #!/bin/bash
 # Executor Place Phase - launchd Script
-# Schedule: Weekdays 06:20 PT via launchd
-# Places exit sells + OPG buy orders. Does NOT poll for fills.
+# Schedule: Weekdays 06:30 PT via launchd
+# Places exit sells + DAY bracket buy orders, polls for fills.
+# To revert to OPG: change --phase all → --phase place
 
 set -euo pipefail
 
@@ -39,7 +40,7 @@ echo "Using signals file: ${SIGNALS_FILE}" >> "${LOG_FILE}"
 .venv/bin/python -m live.executor \
     --signals-file "${SIGNALS_FILE}" \
     --state-db live/state.db \
-    --phase place \
+    --phase all \
     -v \
     >> "${LOG_FILE}" 2>&1
 

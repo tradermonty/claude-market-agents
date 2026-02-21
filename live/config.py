@@ -56,7 +56,7 @@ class LiveConfig:
     alpaca_base_url: str = "https://paper-api.alpaca.markets"
 
     # Order timing
-    entry_tif: str = "opg"  # "opg" for Market On Open, "day" for market hours
+    entry_tif: str = "day"  # Paper: "day" / Live Elite: "opg" (Market On Open auction)
 
     # Safety
     max_daily_trade_orders: int = 40  # entry + exit

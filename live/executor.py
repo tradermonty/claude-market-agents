@@ -712,6 +712,12 @@ def execute_poll_phase(
     DB-driven — no signals file needed. Idempotent: safe to run multiple times.
     Returns dict with counts: filled, stops_placed, unprotected, still_pending.
     """
+    if config.entry_tif != "opg":
+        logger.info("Poll phase skipped: entry_tif=%s (not opg)", config.entry_tif)
+        state_db.add_run_log(run_id=run_id, run_date=trade_date, phase="poll_skipped")
+        state_db.complete_run_log(run_id=run_id, status="completed")
+        return {"filled": 0, "stops_placed": 0, "unprotected": 0, "still_pending": 0}
+
     if state_db.is_kill_switch_on():
         logger.critical("KILL SWITCH is ON. Aborting poll phase.")
         sys.exit(3)
