@@ -56,6 +56,9 @@ class LiveConfig:
     alpaca_base_url: str = "https://paper-api.alpaca.markets"
 
     # Order timing
+    # OPG復帰チェックリスト (Live Elite移行時):
+    #   1. ここを "opg" に変更
+    #   2. scripts/run_executor_place.sh: --phase all → --phase place
     entry_tif: str = "day"  # Paper: "day" / Live Elite: "opg" (Market On Open auction)
 
     # Safety
