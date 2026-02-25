@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis | 2026-02-25</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .header .date { color: #888; font-size: 1.2em; }
+        .summary-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .summary-card .label { color: #888; font-size: 0.9em; }
+        .summary-card .value { font-size: 2em; font-weight: bold; margin-top: 5px; }
+        .grade-a { color: #00ff88; }
+        .grade-b { color: #00d4ff; }
+        .grade-c { color: #ffcc00; }
+        .grade-d { color: #ff6b6b; }
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .stock-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .stock-card.grade-a-card { border-left: 4px solid #00ff88; }
+        .stock-card.grade-b-card { border-left: 4px solid #00d4ff; }
+        .stock-card.grade-c-card { border-left: 4px solid #ffcc00; }
+        .stock-card.grade-d-card { border-left: 4px solid #ff6b6b; }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .stock-ticker {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .stock-name { color: #888; font-size: 0.9em; }
+        .stock-grade {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .grade-badge-a { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .grade-badge-b { background: rgba(0,212,255,0.2); color: #00d4ff; }
+        .grade-badge-c { background: rgba(255,204,0,0.2); color: #ffcc00; }
+        .grade-badge-d { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .score-section {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .score-item {
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 5px;
+            border-radius: 8px;
+        }
+        .score-item .label { font-size: 0.7em; color: #888; }
+        .score-item .value { font-size: 1.3em; font-weight: bold; margin-top: 5px; }
+        .metrics-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .metrics-row:last-child { border-bottom: none; }
+        .price-change {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .positive { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .negative { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .stars { color: #ffd700; }
+        .news-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        .news-section h4 { color: #00d4ff; margin-bottom: 10px; }
+        .news-section p { color: #aaa; font-size: 0.9em; line-height: 1.5; }
+        .total-score {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .section-title {
+            font-size: 1.8em;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .finviz-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        .finviz-link:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="date">2026-02-25 | Backtest Scoring System</div>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-card">
+                <div class="label">Total Stocks Analyzed</div>
+                <div class="value">25</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">A-Grade (85+)</div>
+                <div class="value grade-a">3</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">B-Grade (70-84)</div>
+                <div class="value grade-b">11</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">C-Grade (55-69)</div>
+                <div class="value grade-c">8</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">D-Grade (&lt;55)</div>
+                <div class="value grade-d">3</div>
+            </div>
+        </div>
+
+        <!-- A-GRADE STOCKS -->
+        <h2 class="section-title grade-a">⭐⭐⭐⭐⭐ A-Grade Stocks (70%+ Success Rate)</h2>
+        <div class="stock-grid">
+            <!-- AROC -->
+            <div class="stock-card grade-a-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$AROC</div>
+                        <div class="stock-name">Archrock Inc | Energy</div>
+                    </div>
+                    <div class="stock-grade grade-badge-a">A-Grade</div>
+                </div>
+                <div class="total-score grade-a">88 pts ⭐⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$34.80</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+2.40%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+72.59%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>MA200 Position</span>
+                    <span>+36.47% above</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Strong EPS beat with +72.59% surprise. Energy sector momentum continues with solid volume trend. Stock well above all major moving averages indicating strong uptrend.</p>
+                </div>
+            </div>
+
+            <!-- ECG -->
+            <div class="stock-card grade-a-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$ECG</div>
+                        <div class="stock-name">Everus Construction Group | Industrials</div>
+                    </div>
+                    <div class="stock-grade grade-badge-a">A-Grade</div>
+                </div>
+                <div class="total-score grade-a">86 pts ⭐⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$116.00</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+11.31%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+40.63%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>MA200 Position</span>
+                    <span>+44.52% above</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Q4 earnings and revenues top estimates. Strong revenue growth guidance for 2026. Construction sector benefiting from infrastructure spending.</p>
+                </div>
+            </div>
+
+            <!-- MATX -->
+            <div class="stock-card grade-a-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$MATX</div>
+                        <div class="stock-name">Matson Inc | Industrials</div>
+                    </div>
+                    <div class="stock-grade grade-badge-a">A-Grade</div>
+                </div>
+                <div class="total-score grade-a">85 pts ⭐⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$170.81</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+2.29%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+24.83%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>MA200 Position</span>
+                    <span>+46.56% above</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Strong shipping volumes and rate environment. Well-positioned in Pacific trade routes. Significant premium to moving averages indicates strong momentum.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- B-GRADE STOCKS -->
+        <h2 class="section-title grade-b">⭐⭐⭐⭐ B-Grade Stocks (55-69% Success Rate)</h2>
+        <div class="stock-grid">
+            <!-- PLAB -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$PLAB</div>
+                        <div class="stock-name">Photronics Inc | Technology</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">82 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$39.88</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+5.24%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+32.36%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Semiconductor photomask manufacturer beats estimates. Strong demand for advanced node technology. +59.45% above 200-day MA shows exceptional strength.</p>
+                </div>
+            </div>
+
+            <!-- FSS -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$FSS</div>
+                        <div class="stock-name">Federal Signal Corp | Industrials</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">80 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$126.50</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+8.13%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+5.92%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Solid industrial equipment results. Consistent growth trajectory with strong municipal demand. All moving averages aligned bullishly.</p>
+                </div>
+            </div>
+
+            <!-- JAZZ -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$JAZZ</div>
+                        <div class="stock-name">Jazz Pharmaceuticals plc | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">78 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$179.99</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+3.54%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+1.88%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Specialty pharmaceutical company with steady performance. Sleep and oncology franchises performing well. +31% above MA200 indicates solid uptrend.</p>
+                </div>
+            </div>
+
+            <!-- HSBC -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$HSBC</div>
+                        <div class="stock-name">HSBC Holdings plc | Financial</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">76 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$92.65</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+5.43%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+0.06%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Global banking giant with revenue surprise +5.76%. Strong net interest income from Asian markets. +32.50% above MA200.</p>
+                </div>
+            </div>
+
+            <!-- SUPN -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$SUPN</div>
+                        <div class="stock-name">Supernus Pharmaceuticals | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">76 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$56.35</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+5.72%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+148.68%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Massive EPS surprise of +148.68%. CNS-focused pharma with strong pipeline execution. Revenue surprise +8.41%.</p>
+                </div>
+            </div>
+
+            <!-- PSTL -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$PSTL</div>
+                        <div class="stock-name">Postal Realty Trust | Real Estate</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">75 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$19.84</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+2.27%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+42.99%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>REIT specializing in postal properties. EPS surprise +42.99%, Revenue surprise +7.68%. Strong dividend yield play.</p>
+                </div>
+            </div>
+
+            <!-- TMDX -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$TMDX</div>
+                        <div class="stock-name">TransMedics Group Inc | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">74 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$143.99</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+4.51%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+500.37%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Record EPS surprise of +500%! Organ transplant technology company beats all estimates. Strong revenue growth amid expanding hospital partnerships.</p>
+                </div>
+            </div>
+
+            <!-- SLDE -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$SLDE</div>
+                        <div class="stock-name">Slide Insurance Holdings | Financial</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">72 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$18.50</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+4.11%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+40.06%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Insurance tech company with EPS surprise +40.06%, Revenue surprise +22.61%. Florida homeowners insurance market recovery.</p>
+                </div>
+            </div>
+
+            <!-- BKV -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$BKV</div>
+                        <div class="stock-name">BKV Corp | Energy</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">72 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$30.15</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+1.48%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+123.21%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Natural gas producer with EPS surprise +123.21%, Revenue surprise +31.88%. Strong commodity pricing environment.</p>
+                </div>
+            </div>
+
+            <!-- GMED -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$GMED</div>
+                        <div class="stock-name">Globus Medical Inc | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">71 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">3/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$93.12</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+1.35%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+12.88%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Medical device company with solid EPS beat. Spine and orthopedic solutions performing well. +33.26% above MA200.</p>
+                </div>
+            </div>
+
+            <!-- BMO -->
+            <div class="stock-card grade-b-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$BMO</div>
+                        <div class="stock-name">Bank of Montreal | Financial</div>
+                    </div>
+                    <div class="stock-grade grade-badge-b">B-Grade</div>
+                </div>
+                <div class="total-score grade-b">70 pts ⭐⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$144.19</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+1.33%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+8.90%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Canadian bank with EPS surprise +8.90%, Revenue surprise +4.15%. Solid North American banking franchise.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- C-GRADE STOCKS -->
+        <h2 class="section-title grade-c">⭐⭐⭐ C-Grade Stocks (40-54% Success Rate)</h2>
+        <div class="stock-grid">
+            <!-- CAVA -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$CAVA</div>
+                        <div class="stock-name">Cava Group Inc | Consumer Cyclical</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">68 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$75.66</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+11.95%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+47.60%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Record revenue and strategic expansion plans. Double-digit revenue growth in Q4. Diners showing improved consumer confidence.</p>
+                </div>
+            </div>
+
+            <!-- HUT -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$HUT</div>
+                        <div class="stock-name">Hut 8 Corp | Financial</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">66 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$60.00</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+0.95%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+460.74%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Bitcoin mining company reports Q4 and full year 2025 results. Massive EPS surprise but high volatility concern (8.16% daily).</p>
+                </div>
+            </div>
+
+            <!-- YOU -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$YOU</div>
+                        <div class="stock-name">Clear Secure Inc | Technology</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">65 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$41.00</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+22.53%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+27.76%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Exceeds Q4 expectations, stock soars. Announced Mount Sinai collaboration. Strong identity verification demand but high gap risk.</p>
+                </div>
+            </div>
+
+            <!-- LFST -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$LFST</div>
+                        <div class="stock-name">LifeStance Health Group | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">64 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$8.21</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+14.99%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+100.00%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Mental health services company with better-than-expected sales. Stock jumps 12.7%. Revenue surprise +1.94%.</p>
+                </div>
+            </div>
+
+            <!-- ACHC -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$ACHC</div>
+                        <div class="stock-name">Acadia Healthcare | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">62 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$19.20</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+12.23%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+9.14%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Q4 2025 sales top estimates, stock jumps 10.8%. Announces Q4 and 2025 results. Behavioral healthcare recovery play.</p>
+                </div>
+            </div>
+
+            <!-- CRCL -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$CRCL</div>
+                        <div class="stock-name">Circle Internet Group | Financial</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">58 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">1/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">3/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$74.07</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+20.38%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+234.73%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Stablecoin leader USDC issuer. Quarterly profit surges on stablecoin demand. Stock jumps 13% after earnings. Revenue tops expectations.</p>
+                </div>
+            </div>
+
+            <!-- RRC -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$RRC</div>
+                        <div class="stock-name">Range Resources Corp | Energy</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">56 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">1/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$38.70</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+0.44%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+15.01%</span>
+                </div>
+                <div class="news-section">
+                    <h4>📰 Earnings Highlights</h4>
+                    <p>Natural gas producer with modest beat. EPS surprise +15.01%, Revenue surprise +8.99%. Appalachian basin focus.</p>
+                </div>
+            </div>
+
+            <!-- BATRK -->
+            <div class="stock-card grade-c-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$BATRK</div>
+                        <div class="stock-name">Atlanta Braves Holdings | Communication Services</div>
+                    </div>
+                    <div class="stock-grade grade-badge-c">C-Grade</div>
+                </div>
+                <div class="total-score grade-c">55 pts ⭐⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">1/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">4/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$43.30</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+0.39%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+66.37%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- D-GRADE STOCKS -->
+        <h2 class="section-title grade-d">⭐⭐ D-Grade Stocks (&lt;40% Success Rate)</h2>
+        <div class="stock-grid">
+            <!-- TREX -->
+            <div class="stock-card grade-d-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$TREX</div>
+                        <div class="stock-name">TREX Co., Inc | Industrials</div>
+                    </div>
+                    <div class="stock-grade grade-badge-d">D-Grade</div>
+                </div>
+                <div class="total-score grade-d">52 pts ⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">3/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$45.15</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+8.93%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+361.44%</span>
+                </div>
+                <div class="news-section">
+                    <h4>⚠️ Risk Factors</h4>
+                    <p>Despite massive EPS surprise, trading below 200-day MA (-9.92%). Recovery play with elevated risk. Decking materials maker facing housing headwinds.</p>
+                </div>
+            </div>
+
+            <!-- MMSI -->
+            <div class="stock-card grade-d-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$MMSI</div>
+                        <div class="stock-name">Merit Medical Systems | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-d">D-Grade</div>
+                </div>
+                <div class="total-score grade-d">48 pts ⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">2/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">3/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">2/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$83.56</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+1.37%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+8.98%</span>
+                </div>
+                <div class="news-section">
+                    <h4>⚠️ Risk Factors</h4>
+                    <p>Below both 50-day and 200-day MA. Negative YTD performance (-5.20%). Medical device maker facing margin pressures.</p>
+                </div>
+            </div>
+
+            <!-- LUCD -->
+            <div class="stock-card grade-d-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">$LUCD</div>
+                        <div class="stock-name">Lucid Diagnostics Inc | Healthcare</div>
+                    </div>
+                    <div class="stock-grade grade-badge-d">D-Grade</div>
+                </div>
+                <div class="total-score grade-d">45 pts ⭐⭐</div>
+                <div class="score-section">
+                    <div class="score-item">
+                        <div class="label">Gap Size</div>
+                        <div class="value">1/3</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings</div>
+                        <div class="value">4/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume</div>
+                        <div class="value">2/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200</div>
+                        <div class="value">5/5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50</div>
+                        <div class="value">5/5</div>
+                    </div>
+                </div>
+                <div class="metrics-row">
+                    <span>Price</span>
+                    <span>$1.47</span>
+                </div>
+                <div class="metrics-row">
+                    <span>Gap Size</span>
+                    <span class="price-change positive">+0.68%</span>
+                </div>
+                <div class="metrics-row">
+                    <span>EPS Surprise</span>
+                    <span class="positive">+7.61%</span>
+                </div>
+                <div class="news-section">
+                    <h4>⚠️ Risk Factors</h4>
+                    <p>Very low gap size (+0.68%). Small market cap ($192.7M) with high volatility (6.54%). Revenue missed estimates (-3.95%).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>📊 Backtest Scoring System | Data as of 2026-02-25</p>
+            <p>Scoring factors: Gap Size (25%) | Pre-Earnings Trend (30%) | Volume (20%) | MA200 (15%) | MA50 (10%)</p>
+            <a href="https://elite.finviz.com/screener.ashx?v=211&o=-change&t=AROC,ECG,MATX,PLAB,FSS,JAZZ,HSBC,SUPN,TMDX,CAVA" class="finviz-link" target="_blank">📈 View on Finviz</a>
+        </div>
+    </div>
+</body>
+</html>
