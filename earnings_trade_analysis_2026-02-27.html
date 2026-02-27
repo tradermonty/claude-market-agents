@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis - 2026-02-27</title>
+<style>
+  :root {
+    --bg-primary: #0f1923;
+    --bg-secondary: #1a2733;
+    --bg-card: #1e2d3d;
+    --text-primary: #e8edf2;
+    --text-secondary: #8899aa;
+    --accent-green: #00c853;
+    --accent-red: #ff1744;
+    --accent-gold: #ffd740;
+    --accent-blue: #448aff;
+    --grade-a: #00e676;
+    --grade-b: #448aff;
+    --grade-c: #ffd740;
+    --grade-d: #ff6e40;
+    --border: #2a3a4a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  header {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 50%, #0d1b2a 100%);
+    border-bottom: 2px solid var(--accent-blue);
+    margin-bottom: 30px;
+  }
+  header h1 { font-size: 2em; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+  header .subtitle { color: var(--text-secondary); font-size: 1.1em; }
+  header .date-badge {
+    display: inline-block; background: var(--accent-blue); color: #fff;
+    padding: 4px 16px; border-radius: 20px; font-size: 0.95em; margin-top: 12px;
+  }
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 30px;
+  }
+  .summary-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: center;
+  }
+  .summary-card .label { color: var(--text-secondary); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+  .summary-card .value { font-size: 2em; font-weight: 700; margin-top: 4px; }
+  .summary-card .value.green { color: var(--accent-green); }
+  .summary-card .value.blue { color: var(--accent-blue); }
+  .summary-card .value.gold { color: var(--accent-gold); }
+  .summary-card .value.red { color: var(--accent-red); }
+  .grade-section { margin-bottom: 40px; }
+  .grade-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
+  }
+  .grade-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; border-radius: 12px;
+    font-size: 1.5em; font-weight: 800; color: #fff;
+  }
+  .grade-badge.a { background: var(--grade-a); color: #0a0a0a; }
+  .grade-badge.b { background: var(--grade-b); }
+  .grade-badge.c { background: var(--grade-c); color: #0a0a0a; }
+  .grade-badge.d { background: var(--grade-d); }
+  .grade-title { font-size: 1.3em; font-weight: 600; }
+  .grade-subtitle { color: var(--text-secondary); font-size: 0.9em; }
+  .stock-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+  .stock-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; transition: transform 0.2s;
+  }
+  .stock-card:hover { transform: translateY(-2px); }
+  .stock-card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .stock-ticker { font-size: 1.4em; font-weight: 700; }
+  .stock-name { color: var(--text-secondary); font-size: 0.9em; }
+  .stock-price { text-align: right; }
+  .stock-price .price { font-size: 1.3em; font-weight: 600; }
+  .stock-price .gap { font-size: 0.9em; padding: 2px 8px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+  .stock-price .gap.positive { background: rgba(0,200,83,0.15); color: var(--accent-green); }
+  .stock-price .gap.negative { background: rgba(255,23,68,0.15); color: var(--accent-red); }
+  .stock-card-body { padding: 16px 20px; }
+  .score-bar-container { margin-bottom: 16px; }
+  .score-bar-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85em; }
+  .score-bar-label span:first-child { color: var(--text-secondary); }
+  .score-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+  .factor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .factor-item { background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; font-size: 0.85em; }
+  .factor-item .factor-label { color: var(--text-secondary); font-size: 0.8em; }
+  .factor-item .factor-value { font-weight: 600; margin-top: 2px; }
+  .news-summary {
+    background: rgba(68,138,255,0.08); border-left: 3px solid var(--accent-blue);
+    padding: 12px; border-radius: 0 8px 8px 0; font-size: 0.88em; color: var(--text-secondary); margin-top: 12px;
+  }
+  .news-summary strong { color: var(--text-primary); }
+  .score-details { display: flex; gap: 6px; margin: 12px 0; flex-wrap: wrap; }
+  .score-pill {
+    padding: 4px 10px; border-radius: 12px; font-size: 0.78em; font-weight: 600;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  }
+  .score-pill .pill-label { color: var(--text-secondary); }
+  .disclaimer {
+    text-align: center; padding: 30px 20px; color: var(--text-secondary);
+    font-size: 0.85em; border-top: 1px solid var(--border); margin-top: 40px;
+  }
+  .methodology {
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 30px;
+  }
+  .methodology h3 { margin-bottom: 12px; color: var(--accent-blue); }
+  .methodology-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;
+  }
+  .method-item { text-align: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+  .method-item .weight { font-size: 1.4em; font-weight: 700; color: var(--accent-gold); }
+  .method-item .method-label { font-size: 0.85em; color: var(--text-secondary); margin-top: 4px; }
+  @media (max-width: 768px) {
+    .stock-cards { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.5em; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .factor-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="subtitle">Backtest-Driven Earnings Momentum Trading Signals</div>
+  <div class="date-badge">2026-02-27 (Friday) | Pre-Market Analysis</div>
+</header>
+<div class="container">
+
+<!-- Summary Dashboard -->
+<div class="summary-grid">
+  <div class="summary-card"><div class="label">Total Screened</div><div class="value blue">21</div></div>
+  <div class="summary-card"><div class="label">A-Grade</div><div class="value green">2</div></div>
+  <div class="summary-card"><div class="label">B-Grade</div><div class="value blue">6</div></div>
+  <div class="summary-card"><div class="label">C-Grade</div><div class="value gold">7</div></div>
+  <div class="summary-card"><div class="label">D-Grade</div><div class="value red">6</div></div>
+</div>
+
+<!-- Methodology -->
+<div class="methodology">
+  <h3>5-Element Backtest Scoring Methodology</h3>
+  <div class="methodology-grid">
+    <div class="method-item"><div class="weight">25%</div><div class="method-label">Gap Size</div></div>
+    <div class="method-item"><div class="weight">30%</div><div class="method-label">Pre-Earnings Trend</div></div>
+    <div class="method-item"><div class="weight">20%</div><div class="method-label">Volume Trend</div></div>
+    <div class="method-item"><div class="weight">15%</div><div class="method-label">MA200 Position</div></div>
+    <div class="method-item"><div class="weight">10%</div><div class="method-label">MA50 Position</div></div>
+  </div>
+</div>
+
+<!-- A-GRADE -->
+<div class="grade-section">
+  <div class="grade-header">
+    <div class="grade-badge a">A</div>
+    <div><div class="grade-title">A-Grade Stocks (85+ Points)</div><div class="grade-subtitle">70%+ Historical Success Rate</div></div>
+  </div>
+  <div class="stock-cards">
+
+    <div class="stock-card" style="border-color: var(--grade-a);">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">RLAY</div><div class="stock-name">Relay Therapeutics</div></div>
+        <div class="stock-price"><div class="price">$9.64</div><div class="gap positive">+5.2% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-a);font-weight:700;">86.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:86%;background:var(--grade-a);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+23.3%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value">105.0%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+70.7% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+15.4% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q4 2025 results reported. Lagged revenue estimates but outlined 2026 milestones. Strong pre-earnings uptrend (+23.3%) and well above all moving averages suggest institutional accumulation. Ideal 5% gap size falls in the optimal range. Participating in two investor conferences in March -- upcoming catalysts ahead.
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card" style="border-color: var(--grade-a);">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">RCKT</div><div class="stock-name">Rocket Pharmaceuticals</div></div>
+        <div class="stock-price"><div class="price">$4.69</div><div class="gap positive">+3.5% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-a);font-weight:700;">86.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:86%;background:var(--grade-a);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+21.8%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value">105.0%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+36.4% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+30.5% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q4 and full year 2025 results with progress highlights on gene therapy pipeline. Strong uptrend (+21.8%) combined with moderate gap (+3.5%) fits the ideal 2-5% gap sweet spot. Upcoming investor conferences signal management confidence. Note: Low share price ($4.69) implies higher volatility risk.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- B-GRADE -->
+<div class="grade-section">
+  <div class="grade-header">
+    <div class="grade-badge b">B</div>
+    <div><div class="grade-title">B-Grade Stocks (70-84 Points)</div><div class="grade-subtitle">55-69% Historical Success Rate</div></div>
+  </div>
+  <div class="stock-cards">
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">DK</div><div class="stock-name">Delek US Holdings</div></div>
+        <div class="stock-price"><div class="price">$36.97</div><div class="gap positive">+1.6% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-b);font-weight:700;">81.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:81%;background:var(--grade-b);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 2/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+28.9%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value">105.3%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+26.7% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+18.6% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q4 2025 results announced pre-market. Recognized as a top oil and gas refinery stock. Strong momentum (+28.9% pre-earnings trend). Small gap size (1.6%) indicates potential for continued upside with measured risk.
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">AAOI</div><div class="stock-name">Applied Optoelectronics</div></div>
+        <div class="stock-price"><div class="price">$67.37</div><div class="gap positive">+25.5% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-b);font-weight:700;">81.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:81%;background:var(--grade-b);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 2/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+50.3%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value">106.9%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+130.5% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+64.3% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Record Q4 revenue. Revenue and earnings guidance top estimates. New product manufacturing ramp in progress. Massive gap (+25.5%) -- historical data shows 10%+ gaps have only 28% success rate for swing continuation. AI server demand is a strong tailwind but exercise caution at this elevated entry point.
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">NATL</div><div class="stock-name">NCR Atleos</div></div>
+        <div class="stock-price"><div class="price">$45.23</div><div class="gap positive">+8.0% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-b);font-weight:700;">80.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:80%;background:var(--grade-b);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+11.3%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value">110.0%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+27.7% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+14.7% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings + M&A:</strong> Surpassed Q4 earnings and revenue estimates. Major catalyst: Brink's announced $6.6 billion acquisition of NCR Atleos. Dual catalyst (strong earnings + acquisition premium) is a high-conviction setup. Gap driven primarily by M&A premium -- upside capped near deal price.
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">BDSX</div><div class="stock-name">Biodesix Inc</div></div>
+        <div class="stock-price"><div class="price">$14.77</div><div class="gap positive">+3.9% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-b);font-weight:700;">78.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:78%;background:var(--grade-b);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 2/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+21.1%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value" style="color:var(--accent-red);">65.0%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+89.8% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+56.1% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q4 loss but beat revenue estimates. Strong revenue growth and strategic initiatives highlighted. Low volume ratio (65%) is a concern -- indicates thinner liquidity. Small cap with ideal gap size (3.9%). Use smaller position sizes due to liquidity risk.
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">BVN</div><div class="stock-name">Buenaventura Mining</div></div>
+        <div class="stock-price"><div class="price">$42.12</div><div class="gap positive">+2.4% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-b);font-weight:700;">76.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:76%;background:var(--grade-b);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+10.9%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value">94.6%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+77.9% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+21.5% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q4 and full year 2025 results announced. One of 3 silver mining stocks identified as poised to keep surging. Gold and silver price strength on tariff threat tailwinds. Gap in ideal 2-5% range. Strong long-term uptrend with MA200 at +77.9%.
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">DELL</div><div class="stock-name">Dell Technologies</div></div>
+        <div class="stock-price"><div class="price">$137.30</div><div class="gap positive">+13.1% gap</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Backtest Score</span><span style="color:var(--grade-b);font-weight:700;">70.0 / 100</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:70%;background:var(--grade-b);"></div></div>
+        </div>
+        <div class="score-details">
+          <div class="score-pill"><span class="pill-label">Gap:</span> 2/5</div>
+          <div class="score-pill"><span class="pill-label">Trend:</span> 3/5</div>
+          <div class="score-pill"><span class="pill-label">Volume:</span> 5/5</div>
+          <div class="score-pill"><span class="pill-label">MA200:</span> 4/5</div>
+          <div class="score-pill"><span class="pill-label">MA50:</span> 5/5</div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">20-Day Trend</div><div class="factor-value" style="color:var(--accent-green);">+5.2%</div></div>
+          <div class="factor-item"><div class="factor-label">Volume Ratio</div><div class="factor-value" style="color:var(--accent-green);">118.3%</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA200</div><div class="factor-value" style="color:var(--accent-green);">+6.6% above</div></div>
+          <div class="factor-item"><div class="factor-label">vs MA50</div><div class="factor-value" style="color:var(--accent-green);">+13.2% above</div></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Record Q4 -- sales surged 39% on AI server demand. Beat earnings and revenue estimates. AI server revenue projected to double to $50B by FY2027. Strong institutional volume (118.3%). Caution: 13%+ gap carries lower historical success rate (28% for 10%+). World's largest hedge fund (Bridgewater) recently bought DELL. Consider pullback entry rather than chasing the gap.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- C-GRADE -->
+<div class="grade-section">
+  <div class="grade-header">
+    <div class="grade-badge c">C</div>
+    <div><div class="grade-title">C-Grade Stocks (55-69 Points)</div><div class="grade-subtitle">40-54% Historical Success Rate</div></div>
+  </div>
+  <div class="stock-cards">
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">DRH</div><div class="stock-name">DiamondRock Hospitality</div></div>
+        <div class="stock-price"><div class="price">$10.33</div><div class="gap positive">+0.0%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">67.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:67%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+9.1%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value">110.0%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">CON</div><div class="stock-name">Concentrix Corp</div></div>
+        <div class="stock-price"><div class="price">$23.80</div><div class="gap positive">+0.7%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">67.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:67%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+9.7%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value">110.0%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">FIGS</div><div class="stock-name">FIGS Inc</div></div>
+        <div class="stock-price"><div class="price">$14.53</div><div class="gap positive">+16.5%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">63.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:63%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+12.8%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value" style="color:var(--accent-red);">121.3% (Abnormal)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">RLJ</div><div class="stock-name">RLJ Lodging Trust</div></div>
+        <div class="stock-price"><div class="price">$8.31</div><div class="gap positive">+0.2%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">63.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:63%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+9.1%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value">95.0%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">PBA</div><div class="stock-name">Pembina Pipeline</div></div>
+        <div class="stock-price"><div class="price">$42.36</div><div class="gap negative">-3.7%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">63.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:63%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+8.6%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value">115.0%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">NWN</div><div class="stock-name">Northwest Natural</div></div>
+        <div class="stock-price"><div class="price">$50.58</div><div class="gap positive">+0.6%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">63.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:63%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+9.7%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value">95.0%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">TECX</div><div class="stock-name">Tectonic Financial</div></div>
+        <div class="stock-price"><div class="price">$23.84</div><div class="gap negative">-0.4%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-c);font-weight:700;">58.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:58%;background:var(--grade-c);"></div></div>
+        </div>
+        <div class="factor-grid">
+          <div class="factor-item"><div class="factor-label">Trend</div><div class="factor-value">+18.7%</div></div>
+          <div class="factor-item"><div class="factor-label">Vol Ratio</div><div class="factor-value" style="color:var(--accent-red);">130.0% (Abnormal)</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- D-GRADE -->
+<div class="grade-section">
+  <div class="grade-header">
+    <div class="grade-badge d">D</div>
+    <div><div class="grade-title">D-Grade Stocks (Below 55 Points)</div><div class="grade-subtitle">Below 40% Historical Success Rate -- High Risk</div></div>
+  </div>
+  <div class="stock-cards">
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">SHO</div><div class="stock-name">Sunstone Hotel Investors</div></div>
+        <div class="stock-price"><div class="price">$9.43</div><div class="gap negative">-2.4%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-d);font-weight:700;">54.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:54%;background:var(--grade-d);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">ARLO</div><div class="stock-name">Arlo Technologies</div></div>
+        <div class="stock-price"><div class="price">$14.51</div><div class="gap positive">+17.6%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-d);font-weight:700;">50.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:50%;background:var(--grade-d);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">BLFS</div><div class="stock-name">BioLife Solutions</div></div>
+        <div class="stock-price"><div class="price">$23.69</div><div class="gap positive">+5.4%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-d);font-weight:700;">49.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:49%;background:var(--grade-d);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">NCMI</div><div class="stock-name">National CineMedia</div></div>
+        <div class="stock-price"><div class="price">$3.68</div><div class="gap positive">+4.8%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-d);font-weight:700;">46.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:46%;background:var(--grade-d);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">PUBM</div><div class="stock-name">PubMatic Inc</div></div>
+        <div class="stock-price"><div class="price">$8.19</div><div class="gap positive">+15.8%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-d);font-weight:700;">37.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:37%;background:var(--grade-d);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stock-card">
+      <div class="stock-card-header">
+        <div><div class="stock-ticker">PRAA</div><div class="stock-name">PRA Group</div></div>
+        <div class="stock-price"><div class="price">$15.13</div><div class="gap positive">+19.4%</div></div>
+      </div>
+      <div class="stock-card-body">
+        <div class="score-bar-container">
+          <div class="score-bar-label"><span>Score</span><span style="color:var(--grade-d);font-weight:700;">32.0</span></div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:32%;background:var(--grade-d);"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="disclaimer">
+  <p><strong>DISCLAIMER:</strong> This analysis is for informational purposes only and does not constitute investment advice.
+  Past performance and backtest data do not guarantee future results. Always conduct your own due diligence and consult
+  with a qualified financial advisor before making investment decisions. Trading involves substantial risk of loss.</p>
+  <p style="margin-top:8px;">Analysis generated: 2026-02-27 06:30 ET | Data sources: Finviz, Alpaca, FMP</p>
+</div>
+
+</div>
+</body>
+</html>
