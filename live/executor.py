@@ -712,11 +712,32 @@ def execute_poll_phase(
     DB-driven — no signals file needed. Idempotent: safe to run multiple times.
     Returns dict with counts: filled, stops_placed, unprotected, still_pending.
     """
+    # Single query for pending entry orders (used by both early-exit and main path)
+    pending_entries = state_db.get_pending_orders(
+        trade_date=trade_date,
+        intent="entry",
+        side="buy",
+    )
+
     if config.entry_tif != "opg":
-        logger.info("Poll phase skipped: entry_tif=%s (not opg)", config.entry_tif)
-        state_db.add_run_log(run_id=run_id, run_date=trade_date, phase="poll_skipped")
-        state_db.complete_run_log(run_id=run_id, status="completed")
-        return {"filled": 0, "stops_placed": 0, "unprotected": 0, "still_pending": 0}
+        if not pending_entries:
+            logger.info(
+                "Poll phase skipped: entry_tif=%s, no pending entry orders",
+                config.entry_tif,
+            )
+            state_db.add_run_log(run_id=run_id, run_date=trade_date, phase="poll_skipped")
+            state_db.complete_run_log(run_id=run_id, status="completed")
+            return {
+                "filled": 0,
+                "stops_placed": 0,
+                "unprotected": 0,
+                "still_pending": 0,
+            }
+        logger.info(
+            "Poll phase: entry_tif=%s but %d pending entry orders found, proceeding",
+            config.entry_tif,
+            len(pending_entries),
+        )
 
     if state_db.is_kill_switch_on():
         logger.critical("KILL SWITCH is ON. Aborting poll phase.")
@@ -726,12 +747,6 @@ def execute_poll_phase(
         run_id=run_id,
         run_date=trade_date,
         phase="poll",
-    )
-
-    pending_entries = state_db.get_pending_orders(
-        trade_date=trade_date,
-        intent="entry",
-        side="buy",
     )
 
     counts = {

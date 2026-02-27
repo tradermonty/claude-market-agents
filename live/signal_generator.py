@@ -21,7 +21,7 @@ from backtest.json_parser import parse_candidates_json
 from backtest.price_fetcher import PriceFetcherProtocol
 from live.alpaca_client import AlpacaClient
 from live.config import ET, LiveConfig, resolve_api_key
-from live.state_db import StateDB
+from live.state_db import TERMINAL_STATUSES, StateDB
 from live.trailing_stop_checker import TrailingStopChecker
 
 logger = logging.getLogger(__name__)
@@ -137,6 +137,266 @@ def _sync_positions_from_alpaca(
         )
 
     return synced_count
+
+
+def _recover_untracked_positions(
+    db_positions: List[Dict[str, Any]],
+    alpaca_positions: List[Dict[str, Any]],
+    alpaca_client: AlpacaClient,
+    state_db: StateDB,
+    trade_date: str,
+) -> List[Dict[str, Any]]:
+    """Recover positions in Alpaca but not in DB.
+
+    Searches pending entry orders by ticker (date-agnostic),
+    checks fill status, avoids stop double-placement via 3-step check,
+    then creates position records.
+    Returns refreshed db_positions if any recovery occurred.
+    """
+    db_tickers = {p["ticker"] for p in db_positions}
+    alpaca_by_ticker = {p["symbol"]: p for p in alpaca_positions}
+    untracked = set(alpaca_by_ticker) - db_tickers
+
+    if not untracked:
+        return db_positions
+
+    recovered = 0
+    for ticker in sorted(untracked):
+        # Find pending entry order by ticker (date-agnostic)
+        pending_order = state_db.get_pending_entry_by_ticker(ticker)
+        if not pending_order:
+            logger.warning("Recovery skip %s: no pending entry order found in DB", ticker)
+            continue
+
+        alpaca_order_id = pending_order.get("alpaca_order_id")
+        if not alpaca_order_id:
+            logger.warning(
+                "Recovery skip %s: no alpaca_order_id on DB order %d",
+                ticker,
+                pending_order["order_id"],
+            )
+            continue
+
+        # Check fill status on Alpaca
+        try:
+            order_detail = alpaca_client.get_order(alpaca_order_id)
+        except Exception as e:
+            logger.warning("Recovery skip %s: get_order failed: %s", ticker, e)
+            continue
+
+        if order_detail.get("status") != "filled":
+            logger.info(
+                "Recovery skip %s: order status=%s (not filled)",
+                ticker,
+                order_detail.get("status"),
+            )
+            continue
+
+        # Order is filled — parse fill data
+        try:
+            fill_price = float(order_detail.get("filled_avg_price", 0))
+        except (TypeError, ValueError):
+            logger.warning(
+                "Recovery skip %s: invalid filled_avg_price=%s",
+                ticker,
+                order_detail.get("filled_avg_price"),
+            )
+            continue
+
+        try:
+            filled_qty = int(float(order_detail.get("filled_qty", 0)))
+        except (TypeError, ValueError):
+            filled_qty = 0
+
+        if filled_qty <= 0:
+            logger.warning(
+                "Recovery skip %s: filled_qty=%s invalid",
+                ticker,
+                order_detail.get("filled_qty"),
+            )
+            continue
+
+        order_trade_date = pending_order["trade_date"]
+
+        state_db.update_order_status(
+            pending_order["order_id"],
+            status="filled",
+            fill_price=fill_price,
+            filled_qty=filled_qty,
+            remaining_qty=0,
+        )
+        logger.info(
+            "Recovery: updated order %d for %s to filled @ %.2f",
+            pending_order["order_id"],
+            ticker,
+            fill_price,
+        )
+
+        # 3-step stop duplication check
+        stop_order_id = None
+        planned_stop = pending_order.get("planned_stop_price")
+        stop_client_id = f"{order_trade_date}_{ticker}_stop_sell"
+        skip_new_stop = False
+
+        # Step 1: Check bracket order legs
+        legs = order_detail.get("legs", [])
+        if legs:
+            leg = legs[0]
+            if leg.get("status") not in TERMINAL_STATUSES:
+                stop_order_id = leg["id"]
+                logger.info("Recovery %s: reusing bracket stop leg %s", ticker, stop_order_id)
+
+        # Step 2: Check DB for existing stop order, then verify on Alpaca
+        if not stop_order_id:
+            db_stop = state_db.get_order_by_client_id(stop_client_id)
+            if db_stop and db_stop.get("status") not in TERMINAL_STATUSES:
+                db_stop_alpaca_id = db_stop.get("alpaca_order_id")
+                if db_stop_alpaca_id:
+                    # Verify actual status on Alpaca (DB status may be stale)
+                    try:
+                        alpaca_stop_detail = alpaca_client.get_order(db_stop_alpaca_id)
+                        actual_status = alpaca_stop_detail.get("status", "")
+                        if actual_status not in TERMINAL_STATUSES:
+                            stop_order_id = db_stop_alpaca_id
+                            logger.info(
+                                "Recovery %s: reusing DB stop order %s (verified: %s)",
+                                ticker,
+                                stop_order_id,
+                                actual_status,
+                            )
+                        else:
+                            logger.warning(
+                                "Recovery %s: DB stop %s is stale (DB=%s, Alpaca=%s), skipping",
+                                ticker,
+                                db_stop_alpaca_id,
+                                db_stop.get("status"),
+                                actual_status,
+                            )
+                    except Exception as e:
+                        logger.warning(
+                            "Recovery %s: failed to verify DB stop %s on Alpaca: %s, skipping",
+                            ticker,
+                            db_stop_alpaca_id,
+                            e,
+                        )
+                else:
+                    # No alpaca_order_id — cannot verify, treat as unreliable
+                    logger.warning(
+                        "Recovery %s: DB stop has no alpaca_order_id, skipping",
+                        ticker,
+                    )
+
+        # Step 3: Check Alpaca for existing stop order
+        if not stop_order_id:
+            try:
+                alpaca_stop = alpaca_client.get_order_by_client_id(stop_client_id)
+                if alpaca_stop and alpaca_stop.get("status") not in TERMINAL_STATUSES:
+                    stop_order_id = alpaca_stop["id"]
+                    logger.info(
+                        "Recovery %s: reusing Alpaca stop order %s",
+                        ticker,
+                        stop_order_id,
+                    )
+            except Exception as e:
+                logger.warning(
+                    "Recovery %s: Alpaca stop lookup failed: %s — skipping new stop placement",
+                    ticker,
+                    e,
+                )
+                skip_new_stop = True
+
+        # Place new GTC stop if none found
+        if not stop_order_id and planned_stop and not skip_new_stop:
+            # Check if client_order_id already used in DB
+            existing = state_db.get_order_by_client_id(stop_client_id)
+            if existing:
+                stop_client_id = f"{order_trade_date}_{ticker}_stop_sell_recovery"
+            try:
+                stop_resp = alpaca_client.place_order(
+                    symbol=ticker,
+                    qty=filled_qty,
+                    side="sell",
+                    type="stop",
+                    time_in_force="gtc",
+                    stop_price=planned_stop,
+                    client_order_id=stop_client_id,
+                )
+                stop_order_id = stop_resp["id"]
+                state_db.add_order(
+                    client_order_id=stop_client_id,
+                    ticker=ticker,
+                    side="sell",
+                    intent="stop",
+                    trade_date=order_trade_date,
+                    qty=filled_qty,
+                    alpaca_order_id=stop_order_id,
+                )
+                logger.info(
+                    "Recovery %s: placed GTC stop %s @ %.2f",
+                    ticker,
+                    stop_order_id,
+                    planned_stop,
+                )
+            except Exception as e:
+                logger.critical("Recovery %s: FAILED to place stop: %s", ticker, e)
+
+        # M4: planned_stop=None warning
+        if planned_stop is None:
+            logger.critical(
+                "Recovery %s: UNPROTECTED — no planned_stop_price, no stop can be placed",
+                ticker,
+            )
+
+        # M2: Idempotency — skip if position already exists
+        existing_positions = state_db.get_open_positions()
+        if any(
+            p["ticker"] == ticker and p["entry_date"] == order_trade_date
+            for p in existing_positions
+        ):
+            logger.info("Recovery %s: position already recorded, skipping", ticker)
+            recovered += 1
+            continue
+
+        # Record position
+        state_db.add_position(
+            ticker=ticker,
+            entry_date=order_trade_date,
+            entry_price=fill_price,
+            target_shares=pending_order["qty"],
+            actual_shares=filled_qty,
+            invested=fill_price * filled_qty,
+            stop_price=planned_stop or 0.0,
+            stop_order_id=stop_order_id,
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+
+        # C1 + C2: Unprotected position → kill switch
+        if planned_stop and not stop_order_id:
+            logger.critical(
+                "Recovery %s: UNPROTECTED — stop not confirmed. ACTIVATING KILL SWITCH",
+                ticker,
+            )
+            state_db.set_kill_switch(True)
+
+        recovered += 1
+        logger.info(
+            "Recovery: created position for %s (%d shares @ %.2f, stop=%s)",
+            ticker,
+            filled_qty,
+            fill_price,
+            stop_order_id,
+        )
+
+    if recovered > 0:
+        db_positions = state_db.get_open_positions()
+        logger.info("Recovery complete: %d positions recovered", recovered)
+
+    return db_positions
 
 
 def _reconcile_positions(
@@ -355,6 +615,15 @@ def _generate_ema_signals(
             )
             if synced > 0:
                 db_positions = state_db.get_open_positions()
+
+            # Recover positions in Alpaca but not in DB (date-agnostic search)
+            db_positions = _recover_untracked_positions(
+                db_positions,
+                alpaca_positions,
+                alpaca_client,
+                state_db,
+                trade_date,
+            )
 
         _reconcile_positions(db_positions, alpaca_positions, force)
 

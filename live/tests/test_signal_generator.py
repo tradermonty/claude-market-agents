@@ -5,7 +5,7 @@ import json
 import os
 import tempfile
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -16,6 +16,7 @@ from live.config import LiveConfig
 from live.signal_generator import (
     _derive_json_path,
     _filter_candidates,
+    _recover_untracked_positions,
     _sync_positions_from_alpaca,
     generate_signals,
 )
@@ -67,9 +68,21 @@ def _make_candidate(
     )
 
 
+_ALPACA_SPEC_SET = [
+    "get_account",
+    "get_positions",
+    "get_clock",
+    "get_order",
+    "get_order_by_client_id",
+    "place_order",
+    "place_bracket_order",
+    "cancel_order",
+]
+
+
 def _mock_alpaca_client(positions=None, clock_date="2026-02-17"):
     """Create a mock AlpacaClient."""
-    client = MagicMock()
+    client = MagicMock(spec_set=_ALPACA_SPEC_SET)
     client.get_positions.return_value = positions or []
     client.get_clock.return_value = {
         "timestamp": f"{clock_date}T09:30:00-05:00",
@@ -883,7 +896,7 @@ class TestPositionSync:
         db_positions = db.get_open_positions()
         alpaca_positions = []  # AAPL not in Alpaca
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         mock_client.get_order.return_value = self._make_filled_order(
             filled_avg_price="140.00",
             filled_qty="66",
@@ -920,7 +933,7 @@ class TestPositionSync:
         pos_id = _add_db_position(db, "AAPL", entry_price=100.0, shares=10)
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         mock_client.get_order.return_value = self._make_filled_order(
             filled_avg_price="95.00",
             filled_qty="10",
@@ -947,7 +960,7 @@ class TestPositionSync:
         _add_db_position(db, "AAPL", entry_price=100.0, shares=66)
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         mock_client.get_order.return_value = self._make_filled_order(
             filled_avg_price="90.00",
             filled_qty="60",
@@ -995,7 +1008,7 @@ class TestPositionSync:
             )
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
 
         synced = _sync_positions_from_alpaca(
             db_positions,
@@ -1014,7 +1027,7 @@ class TestPositionSync:
         _add_db_position(db, "AAPL")
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         mock_client.get_order.side_effect = Exception("API timeout")
 
         synced = _sync_positions_from_alpaca(
@@ -1033,7 +1046,7 @@ class TestPositionSync:
         _add_db_position(db, "AAPL")
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         mock_client.get_order.return_value = {"status": "new"}
 
         synced = _sync_positions_from_alpaca(
@@ -1052,7 +1065,7 @@ class TestPositionSync:
         _add_db_position(db, "AAPL")
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         mock_client.get_order.return_value = {
             "status": "filled",
             "filled_avg_price": None,
@@ -1103,7 +1116,7 @@ class TestPositionSync:
 
         db_positions = db.get_open_positions()
 
-        mock_client = MagicMock()
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
         # AAPL stop filled, MSFT get_order should not be called
         mock_client.get_order.return_value = self._make_filled_order(
             filled_avg_price="140.00",
@@ -1335,3 +1348,584 @@ class TestJsonPriorityParsing:
         assert len(entries) >= 1
         ts_entry = next(e for e in entries if e["ticker"] == "TS")
         assert ts_entry["score"] == 80
+
+
+# ---------------------------------------------------------------------------
+# Recovery tests for _recover_untracked_positions
+# ---------------------------------------------------------------------------
+
+
+class TestRecoverUntrackedPositions:
+    """Tests for _recover_untracked_positions function."""
+
+    def test_recover_filled_order_from_previous_day(self, db):
+        """Recover a position from a previous day's pending order (date-agnostic)."""
+        # Pending order from 2026-02-23 (previous day)
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        db_positions = []  # No positions in DB
+        alpaca_positions = [{"symbol": "LINC", "qty": "10"}]
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        # Alpaca says the order is filled
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "legs": [],
+        }
+        mock_client.get_order_by_client_id.return_value = None
+        mock_client.place_order.return_value = {"id": "alp-stop-linc-001"}
+
+        result = _recover_untracked_positions(
+            db_positions, alpaca_positions, mock_client, db, "2026-02-24"
+        )
+
+        # Should have recovered the position
+        assert len(result) == 1
+        assert result[0]["ticker"] == "LINC"
+        assert result[0]["entry_price"] == 50.0
+        assert result[0]["entry_date"] == "2026-02-23"  # Original trade_date
+        assert result[0]["stop_order_id"] == "alp-stop-linc-001"
+
+        # Verify DB order updated to filled
+        order = db.get_order_by_client_id("2026-02-23_LINC_entry_buy")
+        assert order["status"] == "filled"
+        assert order["fill_price"] == 50.0
+
+        # Verify stop was placed
+        mock_client.place_order.assert_called_once()
+        call_kwargs = mock_client.place_order.call_args.kwargs
+        assert call_kwargs["type"] == "stop"
+        assert call_kwargs["stop_price"] == 45.0
+
+    def test_recover_skips_when_no_pending_order(self, db):
+        """No pending order in DB for the ticker — skip, let reconcile handle."""
+        db_positions = []
+        alpaca_positions = [{"symbol": "UNKNOWN", "qty": "10"}]
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        result = _recover_untracked_positions(
+            db_positions, alpaca_positions, mock_client, db, "2026-02-24"
+        )
+
+        # No recovery, positions unchanged
+        assert result == []
+        mock_client.get_order.assert_not_called()
+
+    def test_recover_skips_when_still_pending(self, db):
+        """Order is still pending on Alpaca — do not recover yet."""
+        db.add_order(
+            client_order_id="2026-02-23_VIV_entry_buy",
+            ticker="VIV",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=5,
+            alpaca_order_id="alp-viv-001",
+            planned_stop_price=20.0,
+        )
+
+        db_positions = []
+        alpaca_positions = [{"symbol": "VIV", "qty": "5"}]
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-viv-001",
+            "status": "accepted",
+            "legs": [],
+        }
+
+        result = _recover_untracked_positions(
+            db_positions, alpaca_positions, mock_client, db, "2026-02-24"
+        )
+
+        # No recovery
+        assert result == []
+        # Order status should not have been changed
+        order = db.get_order_by_client_id("2026-02-23_VIV_entry_buy")
+        assert order["status"] == "pending"
+
+    def test_recover_does_not_double_place_stop_bracket(self, db):
+        """Bracket order with active stop leg — reuse, don't place new stop."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        db_positions = []
+        alpaca_positions = [{"symbol": "LINC", "qty": "10"}]
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "legs": [{"id": "alp-stop-leg-001", "status": "new"}],
+        }
+
+        result = _recover_untracked_positions(
+            db_positions, alpaca_positions, mock_client, db, "2026-02-24"
+        )
+
+        assert len(result) == 1
+        assert result[0]["stop_order_id"] == "alp-stop-leg-001"
+        # place_order should NOT be called (stop already exists as bracket leg)
+        mock_client.place_order.assert_not_called()
+
+    def test_recover_does_not_double_place_stop_existing(self, db):
+        """Existing stop order in DB — verified active on Alpaca, reuse it."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+        # Existing stop order in DB
+        db.add_order(
+            client_order_id="2026-02-23_LINC_stop_sell",
+            ticker="LINC",
+            side="sell",
+            intent="stop",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-stop-existing-001",
+        )
+
+        db_positions = []
+        alpaca_positions = [{"symbol": "LINC", "qty": "10"}]
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+
+        def _get_order(order_id):
+            if order_id == "alp-linc-001":
+                return {
+                    "id": "alp-linc-001",
+                    "status": "filled",
+                    "filled_avg_price": "50.0",
+                    "filled_qty": "10",
+                    "legs": [],
+                }
+            if order_id == "alp-stop-existing-001":
+                # Step 2 verification: stop is still active on Alpaca
+                return {"id": "alp-stop-existing-001", "status": "accepted"}
+            raise ValueError(f"unexpected order_id: {order_id}")
+
+        mock_client.get_order.side_effect = _get_order
+
+        result = _recover_untracked_positions(
+            db_positions, alpaca_positions, mock_client, db, "2026-02-24"
+        )
+
+        assert len(result) == 1
+        assert result[0]["stop_order_id"] == "alp-stop-existing-001"
+        # place_order should NOT be called (stop verified active on Alpaca)
+        mock_client.place_order.assert_not_called()
+
+    def test_recover_stale_db_stop_falls_through_to_step3(self, db):
+        """Step 2: DB stop is stale (canceled on Alpaca) — falls through to Step 3."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+        # Stale stop order in DB (pending in DB, but canceled on Alpaca)
+        db.add_order(
+            client_order_id="2026-02-23_LINC_stop_sell",
+            ticker="LINC",
+            side="sell",
+            intent="stop",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-stop-stale-001",
+        )
+
+        db_positions = []
+        alpaca_positions = [{"symbol": "LINC", "qty": "10"}]
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+
+        def _get_order(order_id):
+            if order_id == "alp-linc-001":
+                return {
+                    "id": "alp-linc-001",
+                    "status": "filled",
+                    "filled_avg_price": "50.0",
+                    "filled_qty": "10",
+                    "legs": [],
+                }
+            if order_id == "alp-stop-stale-001":
+                # Step 2 verification: stop is canceled on Alpaca (stale)
+                return {"id": "alp-stop-stale-001", "status": "canceled"}
+            raise ValueError(f"unexpected order_id: {order_id}")
+
+        mock_client.get_order.side_effect = _get_order
+        # Step 3: no existing stop on Alpaca either → new stop placed
+        mock_client.get_order_by_client_id.return_value = None
+        mock_client.place_order.return_value = {"id": "alp-stop-new-001"}
+
+        result = _recover_untracked_positions(
+            db_positions, alpaca_positions, mock_client, db, "2026-02-24"
+        )
+
+        assert len(result) == 1
+        assert result[0]["stop_order_id"] == "alp-stop-new-001"
+        # A new stop was placed because DB stop was stale
+        mock_client.place_order.assert_called_once()
+
+    # -- C1: stop placement failure → kill switch + position recorded ----------
+
+    def test_recover_stop_failure_activates_kill_switch(self, db):
+        """place_order raises for stop → kill switch ON, position still recorded."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "legs": [],
+        }
+        mock_client.get_order_by_client_id.return_value = None
+        mock_client.place_order.side_effect = Exception("network error")
+
+        result = _recover_untracked_positions(
+            [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+        )
+
+        # Position must be recorded despite stop failure
+        assert len(result) == 1
+        assert result[0]["ticker"] == "LINC"
+        # Kill switch must be ON
+        assert db.is_kill_switch_on() is True
+
+    # -- C2: Step 3 Alpaca lookup fails → skip new stop, kill switch ----------
+
+    def test_recover_step3_alpaca_error_skips_new_stop_and_kill_switch(self, db):
+        """Step 3 API error → no new stop placed, kill switch ON, position recorded."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "legs": [],
+        }
+        # Step 2: no DB stop
+        # Step 3: Alpaca lookup fails
+        mock_client.get_order_by_client_id.side_effect = Exception("Alpaca API down")
+
+        result = _recover_untracked_positions(
+            [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+        )
+
+        # Position must be recorded
+        assert len(result) == 1
+        assert result[0]["ticker"] == "LINC"
+        # place_order should NOT be called (step 3 failed → skip new stop)
+        mock_client.place_order.assert_not_called()
+        # Kill switch must be ON
+        assert db.is_kill_switch_on() is True
+
+    # -- Step 3 reuses Alpaca stop -----------------------------------------------
+
+    def test_recover_reuses_alpaca_stop_step3(self, db):
+        """Step 3 finds an active stop on Alpaca → reuse it, no new placement."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "legs": [],
+        }
+        # Step 2 uses state_db (real DB), not mock_client
+        # Step 3 uses alpaca_client.get_order_by_client_id → return active stop
+        mock_client.get_order_by_client_id.return_value = {
+            "id": "alp-stop-from-alpaca",
+            "status": "new",
+        }
+
+        result = _recover_untracked_positions(
+            [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+        )
+
+        assert len(result) == 1
+        assert result[0]["stop_order_id"] == "alp-stop-from-alpaca"
+        mock_client.place_order.assert_not_called()
+
+    # -- M2: idempotent — no duplicate position -----------------------------------
+
+    def test_recover_idempotent_no_duplicate_position(self, db):
+        """M2: If position already recorded in DB, don't insert a duplicate.
+
+        Pass db_positions=[] so LINC appears in 'untracked' and the function
+        actually reaches the M2 idempotency check (get_open_positions inside
+        the recovery loop).  Also add a stop order record so Steps 1-3 find
+        it and skip new stop placement — isolating the M2 assertion.
+        """
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+        # Existing stop order record in DB (Step 2 will find this)
+        db.add_order(
+            client_order_id="2026-02-23_LINC_stop_sell",
+            ticker="LINC",
+            side="sell",
+            intent="stop",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-stop-linc-001",
+        )
+        # Position already exists in DB (but NOT passed in db_positions)
+        db.add_position(
+            ticker="LINC",
+            entry_date="2026-02-23",
+            entry_price=50.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=500.0,
+            stop_price=45.0,
+            stop_order_id="alp-stop-linc-001",
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+
+        def _get_order(order_id):
+            if order_id == "alp-linc-001":
+                return {
+                    "id": "alp-linc-001",
+                    "status": "filled",
+                    "filled_avg_price": "50.0",
+                    "filled_qty": "10",
+                    "legs": [],
+                }
+            if order_id == "alp-stop-linc-001":
+                # Step 2 verification: stop is active on Alpaca
+                return {"id": "alp-stop-linc-001", "status": "accepted"}
+            raise ValueError(f"unexpected order_id: {order_id}")
+
+        mock_client.get_order.side_effect = _get_order
+
+        _recover_untracked_positions(
+            [],  # Empty — LINC appears in 'untracked', reaches M2 check
+            [{"symbol": "LINC", "qty": "10"}],
+            mock_client,
+            db,
+            "2026-02-24",
+        )
+
+        # M2 path: position already exists → skip add_position, no duplicate
+        positions = db.get_open_positions()
+        assert len(positions) == 1  # Still just one
+        # Stop already found in Step 2 — no new stop placed
+        mock_client.place_order.assert_not_called()
+
+    # -- M3: string/float qty handling -------------------------------------------
+
+    def test_recover_handles_string_float_qty(self, db):
+        """filled_qty='10.0' (string float) is parsed correctly."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10.0",  # String float
+            "legs": [],
+        }
+        mock_client.get_order_by_client_id.return_value = None
+        mock_client.place_order.return_value = {"id": "alp-stop-001"}
+
+        result = _recover_untracked_positions(
+            [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+        )
+
+        assert len(result) == 1
+        assert result[0]["actual_shares"] == 10
+
+    def test_recover_skips_zero_filled_qty(self, db):
+        """filled_qty=0 → skip recovery, update_order_status NOT called."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "0",
+            "legs": [],
+        }
+
+        result = _recover_untracked_positions(
+            [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+        )
+
+        # No recovery
+        assert result == []
+        # Order status should NOT have been updated
+        order = db.get_order_by_client_id("2026-02-23_LINC_entry_buy")
+        assert order["status"] == "pending"
+
+    def test_recover_skips_invalid_fill_price(self, db):
+        """filled_avg_price='N/A' → skip recovery, update_order_status NOT called."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "N/A",
+            "filled_qty": "10",
+            "legs": [],
+        }
+
+        result = _recover_untracked_positions(
+            [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+        )
+
+        # No recovery
+        assert result == []
+        # Order status should NOT have been updated
+        order = db.get_order_by_client_id("2026-02-23_LINC_entry_buy")
+        assert order["status"] == "pending"
+
+    # -- M4: planned_stop=None → CRITICAL log, no kill switch -----------------
+
+    def test_recover_null_planned_stop_logs_critical(self, db):
+        """planned_stop=None → CRITICAL log, kill switch OFF, position recorded."""
+        db.add_order(
+            client_order_id="2026-02-23_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-23",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=None,  # No planned stop
+        )
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "id": "alp-linc-001",
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "legs": [],
+        }
+        mock_client.get_order_by_client_id.return_value = None
+
+        with patch("live.signal_generator.logger") as mock_logger:
+            result = _recover_untracked_positions(
+                [], [{"symbol": "LINC", "qty": "10"}], mock_client, db, "2026-02-24"
+            )
+
+        # Position must be recorded
+        assert len(result) == 1
+        assert result[0]["ticker"] == "LINC"
+        # No stop should be placed
+        mock_client.place_order.assert_not_called()
+        # Kill switch should remain OFF (design-level issue, not failure)
+        assert db.is_kill_switch_on() is False
+        # CRITICAL log emitted
+        critical_calls = [c for c in mock_logger.critical.call_args_list if "UNPROTECTED" in str(c)]
+        assert len(critical_calls) >= 1

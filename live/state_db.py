@@ -436,6 +436,25 @@ class StateDB:
             rows = conn.execute(query, params).fetchall()
             return [dict(row) for row in rows]
 
+    def get_pending_entry_by_ticker(self, ticker: str) -> Optional[Dict[str, Any]]:
+        """Find a pending entry buy order for a ticker (any trade_date).
+
+        Used by recovery logic to find unfilled orders from previous days.
+        Returns the most recent pending entry order, or None.
+        """
+        with self._connect() as conn:
+            row = conn.execute(
+                """
+                SELECT * FROM orders
+                WHERE ticker = ? AND intent = 'entry' AND side = 'buy'
+                    AND status NOT IN ({})
+                ORDER BY trade_date DESC, order_id DESC
+                LIMIT 1
+                """.format(", ".join("?" for _ in TERMINAL_STATUSES)),
+                (ticker, *TERMINAL_STATUSES),
+            ).fetchone()
+            return dict(row) if row else None
+
     # -- Run log --------------------------------------------------------------
 
     def add_run_log(

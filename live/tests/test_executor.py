@@ -645,8 +645,8 @@ class TestOPGAllPhaseRejected:
 
 
 class TestPollPhaseSkippedForDay:
-    def test_poll_skipped_for_day_mode(self, config, db, mock_alpaca):
-        """execute_poll_phase() returns immediately when entry_tif='day'."""
+    def test_poll_skipped_for_day_mode_no_pending(self, config, db, mock_alpaca):
+        """execute_poll_phase() skips when entry_tif='day' and no pending orders."""
         result = execute_poll_phase(
             config=config,
             state_db=db,
@@ -670,6 +670,108 @@ class TestPollPhaseSkippedForDay:
             ).fetchone()
         assert row["phase"] == "poll_skipped"
         assert row["status"] == "completed"
+
+
+class TestPollProcessesPendingDayOrders:
+    def test_poll_processes_pending_day_orders(self, config, db, mock_alpaca):
+        """DAY mode: poll phase processes pending orders, places stop, records position."""
+        # Pre-create a pending entry order (placed by execute_signals in DAY mode)
+        db.add_order(
+            client_order_id=f"{TRADE_DATE}_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date=TRADE_DATE,
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_alpaca.get_order.return_value = {
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "qty": "10",
+        }
+        mock_alpaca.place_order.return_value = {"id": "alp-stop-linc-001"}
+
+        with patch("live.executor.POLL_INTERVAL", 0):
+            counts = execute_poll_phase(
+                config=config,
+                state_db=db,
+                alpaca_client=mock_alpaca,
+                trade_date=TRADE_DATE,
+                run_id="poll-day-001",
+            )
+
+        assert counts["filled"] == 1
+        assert counts["stops_placed"] == 1
+        assert counts["still_pending"] == 0
+
+        # Verify stop was placed
+        mock_alpaca.place_order.assert_called_once()
+        call_kwargs = mock_alpaca.place_order.call_args.kwargs
+        assert call_kwargs["type"] == "stop"
+        assert call_kwargs["stop_price"] == 45.0
+        assert call_kwargs["time_in_force"] == "gtc"
+
+        # Verify position was recorded
+        positions = db.get_open_positions()
+        assert len(positions) == 1
+        assert positions[0]["ticker"] == "LINC"
+        assert positions[0]["entry_price"] == 50.0
+
+    def test_poll_day_mode_idempotent(self, config, db, mock_alpaca):
+        """DAY mode: second poll run with no pending orders skips cleanly."""
+        # First run: process pending order
+        db.add_order(
+            client_order_id=f"{TRADE_DATE}_VIV_entry_buy",
+            ticker="VIV",
+            side="buy",
+            intent="entry",
+            trade_date=TRADE_DATE,
+            qty=5,
+            alpaca_order_id="alp-viv-001",
+            planned_stop_price=20.0,
+        )
+
+        mock_alpaca.get_order.return_value = {
+            "status": "filled",
+            "filled_avg_price": "25.0",
+            "filled_qty": "5",
+            "qty": "5",
+        }
+        mock_alpaca.place_order.return_value = {"id": "alp-stop-viv-001"}
+
+        with patch("live.executor.POLL_INTERVAL", 0):
+            execute_poll_phase(
+                config=config,
+                state_db=db,
+                alpaca_client=mock_alpaca,
+                trade_date=TRADE_DATE,
+                run_id="poll-day-first",
+            )
+
+        # Reset mocks
+        mock_alpaca.reset_mock()
+
+        # Second run: no pending orders remain
+        result = execute_poll_phase(
+            config=config,
+            state_db=db,
+            alpaca_client=mock_alpaca,
+            trade_date=TRADE_DATE,
+            run_id="poll-day-second",
+        )
+
+        assert result == {
+            "filled": 0,
+            "stops_placed": 0,
+            "unprotected": 0,
+            "still_pending": 0,
+        }
+        mock_alpaca.get_order.assert_not_called()
+        mock_alpaca.place_order.assert_not_called()
 
 
 class TestSkipPoll:
@@ -1151,3 +1253,44 @@ class TestAlpacaIdempotentTerminalNotCounted:
 
         # The exit was NOT actually executed (order is terminal)
         assert counts["exits_executed"] == 0
+
+
+class TestPollDayModeSingleQuery:
+    """M1: get_pending_orders is called exactly once, not twice."""
+
+    def test_poll_day_mode_single_query(self, config, db, mock_alpaca):
+        """DAY mode poll phase queries get_pending_orders only once."""
+        # Pre-create a pending entry order
+        db.add_order(
+            client_order_id=f"{TRADE_DATE}_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date=TRADE_DATE,
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+
+        mock_alpaca.get_order.return_value = {
+            "status": "filled",
+            "filled_avg_price": "50.0",
+            "filled_qty": "10",
+            "qty": "10",
+        }
+        mock_alpaca.place_order.return_value = {"id": "alp-stop-001"}
+
+        with (
+            patch("live.executor.POLL_INTERVAL", 0),
+            patch.object(db, "get_pending_orders", wraps=db.get_pending_orders) as spy,
+        ):
+            execute_poll_phase(
+                config=config,
+                state_db=db,
+                alpaca_client=mock_alpaca,
+                trade_date=TRADE_DATE,
+                run_id="poll-single-query",
+            )
+
+        # get_pending_orders must be called exactly once (not twice)
+        assert spy.call_count == 1

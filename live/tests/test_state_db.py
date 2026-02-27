@@ -528,3 +528,67 @@ class TestMigration:
         )
         order = db.get_order_by_client_id("mig-test")
         assert order["planned_stop_price"] == 90.0
+
+
+class TestGetPendingEntryByTicker:
+    """Test get_pending_entry_by_ticker for date-agnostic ticker search."""
+
+    def test_get_pending_entry_by_ticker(self, db: StateDB) -> None:
+        """Finds a pending entry buy order across any trade_date."""
+        db.add_order(
+            client_order_id="2026-02-20_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-20",
+            qty=10,
+            alpaca_order_id="alp-linc-001",
+            planned_stop_price=45.0,
+        )
+        result = db.get_pending_entry_by_ticker("LINC")
+        assert result is not None
+        assert result["ticker"] == "LINC"
+        assert result["trade_date"] == "2026-02-20"
+        assert result["alpaca_order_id"] == "alp-linc-001"
+
+    def test_get_pending_entry_by_ticker_returns_latest(self, db: StateDB) -> None:
+        """When multiple pending orders exist, returns the most recent."""
+        db.add_order(
+            client_order_id="2026-02-19_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-19",
+            qty=5,
+        )
+        db.add_order(
+            client_order_id="2026-02-20_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-20",
+            qty=10,
+        )
+        result = db.get_pending_entry_by_ticker("LINC")
+        assert result is not None
+        assert result["trade_date"] == "2026-02-20"
+        assert result["qty"] == 10
+
+    def test_get_pending_entry_by_ticker_ignores_filled(self, db: StateDB) -> None:
+        """Filled orders are not returned."""
+        oid = db.add_order(
+            client_order_id="2026-02-20_LINC_entry_buy",
+            ticker="LINC",
+            side="buy",
+            intent="entry",
+            trade_date="2026-02-20",
+            qty=10,
+        )
+        db.update_order_status(oid, status="filled", fill_price=50.0, filled_qty=10)
+        result = db.get_pending_entry_by_ticker("LINC")
+        assert result is None
+
+    def test_get_pending_entry_by_ticker_not_found(self, db: StateDB) -> None:
+        """Returns None when no matching order exists."""
+        result = db.get_pending_entry_by_ticker("NONEXISTENT")
+        assert result is None
