@@ -91,7 +91,8 @@ For each earnings ticker:
 
 4. **🆕 Post‑Close Earnings & After‑Hours**
 
-   * After‑hours performance of today’s reporters
+   * **Friday Rule**: On Fridays, **skip this entire section** (and earnings‑related Steps 6‑9 in data fetching). Very few companies report after Friday’s close, and the screener returns stale data from the previous day. Instead, include only a “Next Week’s Major Earnings Calendar” box using `finviz:upcoming_earnings_screener`.
+   * On Mon–Thu: After‑hours performance of today’s reporters
    * EPS/Revenue surprises
    * Tickers moving ±10 %
    * Highlight related news
