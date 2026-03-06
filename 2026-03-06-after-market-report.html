@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇺🇸 U.S. Stock Market Analysis - March 6, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .etf-symbol {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .etf-price {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .etf-change {
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .positive {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .negative {
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        .positive-bg {
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .negative-bg {
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .key-points {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .earnings-section {
+            background: linear-gradient(135deg, #3a5bd6 0%, #5a7be0 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-left: 5px solid #ffd700;
+        }
+
+        .earnings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .earnings-card {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .earnings-ticker {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .earnings-name {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .earnings-date {
+            font-size: 0.95em;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .earnings-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .earnings-detail-item {
+            font-size: 0.85em;
+        }
+
+        .earnings-detail-label {
+            opacity: 0.7;
+            margin-bottom: 3px;
+        }
+
+        .earnings-detail-value {
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid, .etf-grid, .earnings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+            <p>📅 Friday, March 6, 2026 – Final After-Market Data</p>
+        </header>
+
+        <!-- Major ETF Performance -->
+        <section>
+            <h2 style="text-align: center; font-size: 2em; margin-bottom: 30px;">📊 Major ETF Performance</h2>
+            <div class="etf-grid">
+                <div class="etf-card">
+                    <div class="etf-symbol">SPY</div>
+                    <div class="etf-price">$672.38</div>
+                    <div class="etf-change negative-bg negative">-1.31%</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">S&P 500</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">QQQ</div>
+                    <div class="etf-price">$599.75</div>
+                    <div class="etf-change negative-bg negative">-1.50%</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Nasdaq 100</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">DIA</div>
+                    <div class="etf-price">$475.23</div>
+                    <div class="etf-change negative-bg negative">-0.96%</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Dow Jones</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">IWM</div>
+                    <div class="etf-price">$250.89</div>
+                    <div class="etf-change negative-bg negative">-2.29%</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Russell 2000</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">TLT</div>
+                    <div class="etf-price">$88.46</div>
+                    <div class="etf-change negative-bg negative">-0.37%</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">20+ Year Treasury</div>
+                </div>
+
+                <div class="etf-card">
+                    <div class="etf-symbol">GLD</div>
+                    <div class="etf-price">$473.51</div>
+                    <div class="etf-change positive-bg positive">+1.58%</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Gold</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Volume Surge Tickers -->
+        <section class="card">
+            <h2>🔥 Top Volume-Surge Tickers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Volume</th>
+                        <th>Rel. Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>$DAWN</strong></td>
+                        <td>$21.20</td>
+                        <td class="positive">+65.89%</td>
+                        <td>78.2M</td>
+                        <td>27.0x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$QURE</strong></td>
+                        <td>$14.27</td>
+                        <td class="positive">+34.04%</td>
+                        <td>13.6M</td>
+                        <td>1.4x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$TECX</strong></td>
+                        <td>$35.87</td>
+                        <td class="positive">+28.80%</td>
+                        <td>1.1M</td>
+                        <td>2.4x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$IOT</strong></td>
+                        <td>$35.36</td>
+                        <td class="positive">+19.54%</td>
+                        <td>33.4M</td>
+                        <td>1.7x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$SWBI</strong></td>
+                        <td>$13.99</td>
+                        <td class="positive">+18.66%</td>
+                        <td>3.4M</td>
+                        <td>6.6x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$MRVL</strong></td>
+                        <td>$89.47</td>
+                        <td class="positive">+18.23%</td>
+                        <td>87.9M</td>
+                        <td>2.1x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$BATL</strong></td>
+                        <td>$22.36</td>
+                        <td class="positive">+17.68%</td>
+                        <td>34.2M</td>
+                        <td>0.7x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$STRO</strong></td>
+                        <td>$25.29</td>
+                        <td class="positive">+12.40%</td>
+                        <td>264K</td>
+                        <td>1.2x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$AMPX</strong></td>
+                        <td>$16.33</td>
+                        <td class="positive">+9.67%</td>
+                        <td>23.8M</td>
+                        <td>0.8x</td>
+                    </tr>
+                    <tr>
+                        <td><strong>$TRDA</strong></td>
+                        <td>$12.58</td>
+                        <td class="positive">+8.26%</td>
+                        <td>465K</td>
+                        <td>1.1x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Next Week's Major Earnings Calendar (Friday Only) -->
+        <section class="earnings-section">
+            <h2>📅 Next Week's Major Earnings Calendar</h2>
+            <p style="margin-bottom: 20px; font-size: 1.1em;">Major companies reporting earnings March 9-12, 2026:</p>
+            <div class="earnings-grid">
+                <div class="earnings-card">
+                    <div class="earnings-ticker">$ORCL</div>
+                    <div class="earnings-name">Oracle Corp</div>
+                    <div class="earnings-date">📅 Mon, Mar 10 @ 4:30 PM ET</div>
+                    <div class="earnings-details">
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Price</div>
+                            <div class="earnings-detail-value">$152.93</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Market Cap</div>
+                            <div class="earnings-detail-value">$439.5B</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Target Upside</div>
+                            <div class="earnings-detail-value positive">+71.8%</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Sector</div>
+                            <div class="earnings-detail-value">Technology</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-card">
+                    <div class="earnings-ticker">$ULTA</div>
+                    <div class="earnings-name">Ulta Beauty Inc</div>
+                    <div class="earnings-date">📅 Wed, Mar 12 @ 4:30 PM ET</div>
+                    <div class="earnings-details">
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Price</div>
+                            <div class="earnings-detail-value">$646.34</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Market Cap</div>
+                            <div class="earnings-detail-value">$28.7B</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Target Upside</div>
+                            <div class="earnings-detail-value positive">+7.9%</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Sector</div>
+                            <div class="earnings-detail-value">Consumer</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-card">
+                    <div class="earnings-ticker">$PATH</div>
+                    <div class="earnings-name">UiPath Inc</div>
+                    <div class="earnings-date">📅 Tue, Mar 11 @ 4:30 PM ET</div>
+                    <div class="earnings-details">
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Price</div>
+                            <div class="earnings-detail-value">$11.85</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Market Cap</div>
+                            <div class="earnings-detail-value">$6.3B</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Target Upside</div>
+                            <div class="earnings-detail-value positive">+35.6%</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Sector</div>
+                            <div class="earnings-detail-value">Technology</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-card">
+                    <div class="earnings-ticker">$S</div>
+                    <div class="earnings-name">SentinelOne Inc</div>
+                    <div class="earnings-date">📅 Wed, Mar 12 @ 4:30 PM ET</div>
+                    <div class="earnings-details">
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Price</div>
+                            <div class="earnings-detail-value">$14.19</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Market Cap</div>
+                            <div class="earnings-detail-value">$4.8B</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Target Upside</div>
+                            <div class="earnings-detail-value positive">+42.1%</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Sector</div>
+                            <div class="earnings-detail-value">Technology</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-card">
+                    <div class="earnings-ticker">$LEN</div>
+                    <div class="earnings-name">Lennar Corp</div>
+                    <div class="earnings-date">📅 Wed, Mar 12 @ 4:30 PM ET</div>
+                    <div class="earnings-details">
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Price</div>
+                            <div class="earnings-detail-value">$101.15</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Market Cap</div>
+                            <div class="earnings-detail-value">$24.8B</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Target Upside</div>
+                            <div class="earnings-detail-value positive">+3.1%</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Sector</div>
+                            <div class="earnings-detail-value">Consumer</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-card">
+                    <div class="earnings-ticker">$LI</div>
+                    <div class="earnings-name">Li Auto Inc ADR</div>
+                    <div class="earnings-date">📅 Wed, Mar 12 @ 8:30 AM ET</div>
+                    <div class="earnings-details">
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Price</div>
+                            <div class="earnings-detail-value">$17.16</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Market Cap</div>
+                            <div class="earnings-detail-value">$14.5B</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Target Upside</div>
+                            <div class="earnings-detail-value positive">+28.1%</div>
+                        </div>
+                        <div class="earnings-detail-item">
+                            <div class="earnings-detail-label">Sector</div>
+                            <div class="earnings-detail-value">Consumer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Statistics -->
+        <section class="card">
+            <h2>📊 Market Statistics</h2>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value">62</div>
+                    <div class="stat-label">Volume-Surge Tickers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">390</div>
+                    <div class="stat-label">Up-Trend Tickers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2.8x</div>
+                    <div class="stat-label">Avg. Relative Volume</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">+7.2%</div>
+                    <div class="stat-label">Avg. Price Move</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">20+</div>
+                    <div class="stat-label">Next Week's Earnings</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sector Performance -->
+        <div class="grid">
+            <div class="card">
+                <h2>🏢 Sector Performance</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sector</th>
+                            <th>Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Energy</td>
+                            <td class="positive">+0.52%</td>
+                        </tr>
+                        <tr>
+                            <td>Consumer Defensive</td>
+                            <td class="positive">+0.13%</td>
+                        </tr>
+                        <tr>
+                            <td>Utilities</td>
+                            <td class="negative">-0.47%</td>
+                        </tr>
+                        <tr>
+                            <td>Healthcare</td>
+                            <td class="negative">-0.82%</td>
+                        </tr>
+                        <tr>
+                            <td>Communication Services</td>
+                            <td class="negative">-0.97%</td>
+                        </tr>
+                        <tr>
+                            <td>Real Estate</td>
+                            <td class="negative">-1.14%</td>
+                        </tr>
+                        <tr>
+                            <td>Financial</td>
+                            <td class="negative">-1.52%</td>
+                        </tr>
+                        <tr>
+                            <td>Industrials</td>
+                            <td class="negative">-1.73%</td>
+                        </tr>
+                        <tr>
+                            <td>Consumer Cyclical</td>
+                            <td class="negative">-1.81%</td>
+                        </tr>
+                        <tr>
+                            <td>Basic Materials</td>
+                            <td class="negative">-1.98%</td>
+                        </tr>
+                        <tr>
+                            <td>Technology</td>
+                            <td class="negative">-2.03%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Today's Key Points -->
+        <section class="key-points">
+            <h2>💡 Today's Key Points</h2>
+            <ul>
+                <li><strong>🔴 Broad Market Weakness:</strong> Major indices closed lower with technology (-2.03%) and small-caps (IWM -2.29%) hit hardest. S&P 500 down -1.31%, Nasdaq -1.50%.</li>
+
+                <li><strong>⚡ Energy Outperforms:</strong> Energy (+0.52%) and Consumer Defensive (+0.13%) were the only positive sectors, showing defensive rotation as risk-off sentiment dominated.</li>
+
+                <li><strong>🔥 Volume Surge Leaders:</strong> DAWN exploded +65.89% on 27x volume (78M shares). QURE (+34%), TECX (+28.8%), and IOT (+19.5%) all saw significant breakouts with elevated volume.</li>
+
+                <li><strong>💎 Gold Shines:</strong> GLD rallied +1.58% to $473.51, the only major asset in the green, signaling flight-to-safety as equities sold off.</li>
+
+                <li><strong>💻 Tech Under Pressure:</strong> Technology sector led declines at -2.03%, with MRVL (+18.23%) being a notable exception on strong volume (87.9M shares, 2.1x average).</li>
+
+                <li><strong>📅 Next Week's Earnings:</strong> Major reports from ORCL (Mon), PATH (Tue), ULTA/S/LEN/LI (Wed) could drive next week's volatility. Technology names dominate the calendar.</li>
+
+                <li><strong>📉 Bond Market Steady:</strong> TLT dipped slightly -0.37%, showing minimal safe-haven flow despite equity weakness, suggesting yields holding steady.</li>
+
+                <li><strong>🎯 Avg Volume Surge:</strong> 62 stocks with 1.5x+ relative volume and +2%+ gains, averaging +7.2% price move and 2.8x normal volume—indicating selective strength amid broader weakness.</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p><strong>Data Sources:</strong> Finviz Elite, Alpaca Markets</p>
+            <p><strong>Last Updated:</strong> March 6, 2026 at 16:10 ET (Market Close)</p>
+            <p><strong>Note:</strong> This report contains final after-market data. Next week's earnings calendar included per Friday protocol.</p>
+            <p style="margin-top: 15px; font-size: 0.85em;">⚠️ This analysis is for informational purposes only and does not constitute financial advice.</p>
+        </footer>
+    </div>
+</body>
+</html>
