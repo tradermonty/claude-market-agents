@@ -71,6 +71,7 @@ def apply_entry_quality_filter(
             score_threshold=score_threshold,
         )
         if skip:
+            assert reason is not None
             skipped.append(
                 SkippedTrade(
                     ticker=c.ticker,

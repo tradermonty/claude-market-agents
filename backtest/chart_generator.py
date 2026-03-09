@@ -267,11 +267,13 @@ class ChartGenerator:
         """Find the nearest date in a DatetimeIndex on or after target_dt."""
         for d in index:
             if d >= target_dt:
-                return d
+                result: datetime = d.to_pydatetime()
+                return result
         # If no date on or after, try on or before
         for d in reversed(index):
             if d <= target_dt:
-                return d
+                result2: datetime = d.to_pydatetime()
+                return result2
         return None
 
     @staticmethod

@@ -8,7 +8,7 @@ and summary metrics for each backtest run.
 import json
 import logging
 import platform
-import subprocess
+import subprocess  # nosec B404  # git subprocess only
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def _git_sha() -> Optional[str]:
     """Get the current git commit SHA, or None if not in a git repo."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607
             ["git", "rev-parse", "HEAD"],
             capture_output=True,
             text=True,
@@ -35,7 +35,7 @@ def _git_sha() -> Optional[str]:
 def _git_dirty() -> Optional[bool]:
     """Check if the working tree has uncommitted changes."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607
             ["git", "status", "--porcelain"],
             capture_output=True,
             text=True,

@@ -1,4 +1,4 @@
-.PHONY: lint format test typecheck security all install golden
+.PHONY: lint format test typecheck security audit spell all install golden
 
 lint:
 	ruff check . && ruff format --check .
@@ -7,18 +7,24 @@ format:
 	ruff check --fix . && ruff format .
 
 test:
-	pytest backtest/tests/ -v --cov=backtest --cov-report=term-missing --cov-fail-under=60
+	pytest backtest/tests/ live/tests/ -v --cov=backtest --cov=live --cov-report=term-missing --cov-fail-under=70
 
 typecheck:
-	mypy backtest/ --config-file=pyproject.toml
+	mypy backtest/ live/ --config-file=pyproject.toml
 
 security:
-	bandit -r backtest/ -x backtest/tests/ --severity-level medium
+	bandit -c pyproject.toml -r backtest/ live/
+
+audit:
+	pip-audit --desc on
+
+spell:
+	codespell backtest/ live/
 
 golden:
 	python -m backtest.tests.generate_golden
 
-all: lint test typecheck
+all: lint test typecheck security audit spell
 
 install:
 	pip install -e ".[dev]"

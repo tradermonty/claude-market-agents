@@ -129,7 +129,7 @@ class TestStopModeComparison:
         trades2, _ = sim.simulate_all(self.candidates, self.price_data)
 
         assert len(trades1) == len(trades2)
-        for t1, t2 in zip(trades1, trades2):
+        for t1, t2 in zip(trades1, trades2, strict=True):
             assert t1.ticker == t2.ticker
             assert t1.pnl == t2.pnl
             assert t1.return_pct == t2.return_pct

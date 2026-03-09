@@ -45,7 +45,7 @@ def _generate_run_id(trade_date: str) -> str:
 
 
 def _poll_orders(
-    alpaca_client: AlpacaClient,
+    alpaca_client: Optional[AlpacaClient],
     state_db: StateDB,
     order_ids: List[Dict[str, Any]],
     dry_run: bool = False,
@@ -61,6 +61,7 @@ def _poll_orders(
     """
     if dry_run or not order_ids:
         return {}
+    assert alpaca_client is not None
 
     results = {}
     pending = list(order_ids)
@@ -180,7 +181,7 @@ def _is_market_hours_et(alpaca_client: Optional[AlpacaClient]) -> bool:
 def execute_signals(
     config: LiveConfig,
     state_db: StateDB,
-    alpaca_client: AlpacaClient,
+    alpaca_client: Optional[AlpacaClient],
     signals: Dict[str, Any],
     trade_date: str,
     run_id: str,
@@ -207,6 +208,11 @@ def execute_signals(
             strategy,
         )
         sys.exit(5)
+
+    if not dry_run:
+        assert alpaca_client is not None
+    # Local binding for mypy narrowing (used only in non-dry-run paths)
+    client: AlpacaClient = alpaca_client  # type: ignore[assignment]
 
     is_opg = config.entry_tif == "opg"
 
@@ -236,7 +242,7 @@ def execute_signals(
         if stop_order_id:
             if not dry_run:
                 try:
-                    alpaca_client.cancel_order(stop_order_id)
+                    client.cancel_order(stop_order_id)
                     logger.info("Canceled stop order %s for %s", stop_order_id, ticker)
                 except Exception as e:
                     error_msg = str(e)
@@ -277,7 +283,7 @@ def execute_signals(
 
         # Idempotency: check Alpaca
         if not dry_run:
-            alpaca_existing = alpaca_client.get_order_by_client_id(client_order_id)
+            alpaca_existing = client.get_order_by_client_id(client_order_id)
             if alpaca_existing:
                 logger.info(
                     "Sell order already on Alpaca for %s (idempotent skip)",
@@ -294,7 +300,7 @@ def execute_signals(
             continue
 
         try:
-            order = alpaca_client.place_order(
+            order = client.place_order(
                 symbol=ticker,
                 qty=qty,
                 side="sell",
@@ -330,7 +336,7 @@ def execute_signals(
             counts["skipped"] += 1
 
     # ── Phase B: Sell Polling ───────────────────────────────────────────
-    sell_results = _poll_orders(alpaca_client, state_db, sell_orders_to_poll, dry_run)
+    sell_results = _poll_orders(client, state_db, sell_orders_to_poll, dry_run)
 
     for item in sell_orders_to_poll:
         alpaca_id = item["alpaca_order_id"]
@@ -359,7 +365,7 @@ def execute_signals(
         real_open_count = db_open_count - counts["exits_executed"]
         real_open_count = max(real_open_count, 0)
     elif not dry_run:
-        real_positions = alpaca_client.get_positions()
+        real_positions = client.get_positions()
         real_open_count = len(real_positions)
     else:
         open_db_positions = state_db.get_open_positions()
@@ -384,7 +390,7 @@ def execute_signals(
         if not skip_time_check and not dry_run:
             if is_opg:
                 # OPG mode: block if market is open (9:28-19:00 ET)
-                if _is_market_hours_et(alpaca_client):
+                if _is_market_hours_et(client):
                     logger.warning(
                         "OPG entry blocked for %s: market hours (9:28-19:00 ET)",
                         ticker,
@@ -393,7 +399,7 @@ def execute_signals(
                     continue
             else:
                 try:
-                    clock = alpaca_client.get_clock()
+                    clock = client.get_clock()
                     if clock.get("is_open"):
                         now_et = datetime.now(ET)
                         market_open_et = now_et.replace(
@@ -424,7 +430,7 @@ def execute_signals(
         # Buying power check
         if not dry_run:
             try:
-                account = alpaca_client.get_account()
+                account = client.get_account()
                 buying_power = float(account.get("buying_power", 0))
                 if buying_power < config.min_buying_power:
                     logger.warning(
@@ -475,7 +481,7 @@ def execute_signals(
             continue
 
         if not dry_run:
-            alpaca_existing = alpaca_client.get_order_by_client_id(client_order_id)
+            alpaca_existing = client.get_order_by_client_id(client_order_id)
             if alpaca_existing:
                 logger.info(
                     "Buy order already on Alpaca for %s (idempotent skip)",
@@ -504,7 +510,7 @@ def execute_signals(
         if is_opg:
             # OPG: plain buy with tif="opg", no bracket
             try:
-                order = alpaca_client.place_order(
+                order = client.place_order(
                     symbol=ticker,
                     qty=qty,
                     side="buy",
@@ -525,7 +531,7 @@ def execute_signals(
         else:
             # Day mode: try bracket order first, fallback to separate orders
             try:
-                order = alpaca_client.place_bracket_order(
+                order = client.place_bracket_order(
                     symbol=ticker,
                     qty=qty,
                     side="buy",
@@ -546,7 +552,7 @@ def execute_signals(
                     e,
                 )
                 try:
-                    order = alpaca_client.place_order(
+                    order = client.place_order(
                         symbol=ticker,
                         qty=qty,
                         side="buy",
@@ -598,7 +604,7 @@ def execute_signals(
         logger.info("Phase E skipped (--phase place)")
     else:
         buy_results = _poll_orders(
-            alpaca_client,
+            client,
             state_db,
             buy_orders_to_poll,
             dry_run,
@@ -620,7 +626,7 @@ def execute_signals(
                     if not item["used_bracket"]:
                         stop_client_id = f"{trade_date}_{ticker}_stop_sell"
                         try:
-                            stop_order = alpaca_client.place_order(
+                            stop_order = client.place_order(
                                 symbol=ticker,
                                 qty=filled_qty,
                                 side="sell",
@@ -701,7 +707,7 @@ def execute_signals(
 def execute_poll_phase(
     config: LiveConfig,
     state_db: StateDB,
-    alpaca_client: AlpacaClient,
+    alpaca_client: Optional[AlpacaClient],
     trade_date: str,
     run_id: str,
     dry_run: bool = False,
@@ -789,9 +795,12 @@ def execute_poll_phase(
         state_db.complete_run_log(run_id=run_id, status="completed")
         return counts
 
+    assert alpaca_client is not None
+    client: AlpacaClient = alpaca_client
+
     # Poll for fills
     fill_results = _poll_orders(
-        alpaca_client,
+        client,
         state_db,
         orders_to_poll,
         dry_run=False,
@@ -874,7 +883,7 @@ def execute_poll_phase(
 
         # Place GTC stop
         try:
-            stop_order = alpaca_client.place_order(
+            stop_order = client.place_order(
                 symbol=ticker,
                 qty=filled_qty,
                 side="sell",

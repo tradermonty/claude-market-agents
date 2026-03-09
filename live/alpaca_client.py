@@ -6,7 +6,7 @@ Default base_url points to paper trading; non-paper URLs require explicit allow_
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import requests
 
@@ -45,15 +45,15 @@ class AlpacaClient:
 
     def get_account(self) -> dict:
         """Get account information including buying power."""
-        return self._request("GET", "/v2/account")
+        return cast(dict, self._request("GET", "/v2/account"))
 
     def get_positions(self) -> List[dict]:
         """Get all open positions."""
-        return self._request("GET", "/v2/positions")
+        return cast(List[dict], self._request("GET", "/v2/positions"))
 
     def get_clock(self) -> dict:
         """Get market clock (is_open, next_open, next_close, timestamp)."""
-        return self._request("GET", "/v2/clock")
+        return cast(dict, self._request("GET", "/v2/clock"))
 
     def place_order(
         self,
@@ -83,7 +83,7 @@ class AlpacaClient:
             payload["order_class"] = order_class
         if stop_loss:
             payload["stop_loss"] = stop_loss
-        return self._request("POST", "/v2/orders", json=payload)
+        return cast(dict, self._request("POST", "/v2/orders", json=payload))
 
     def place_bracket_order(
         self,
@@ -111,15 +111,18 @@ class AlpacaClient:
 
     def get_order(self, order_id: str) -> dict:
         """Get order by Alpaca order ID."""
-        return self._request("GET", f"/v2/orders/{order_id}")
+        return cast(dict, self._request("GET", f"/v2/orders/{order_id}"))
 
     def get_order_by_client_id(self, client_order_id: str) -> Optional[dict]:
         """Get order by client_order_id. Returns None if not found."""
         try:
-            return self._request(
-                "GET",
-                "/v2/orders:by_client_order_id",
-                params={"client_order_id": client_order_id},
+            return cast(
+                dict,
+                self._request(
+                    "GET",
+                    "/v2/orders:by_client_order_id",
+                    params={"client_order_id": client_order_id},
+                ),
             )
         except requests.HTTPError as e:
             if e.response is not None and e.response.status_code == 404:
@@ -128,4 +131,4 @@ class AlpacaClient:
 
     def cancel_order(self, order_id: str) -> dict:
         """Cancel an order by ID. Returns empty dict on success (204)."""
-        return self._request("DELETE", f"/v2/orders/{order_id}")
+        return cast(dict, self._request("DELETE", f"/v2/orders/{order_id}"))

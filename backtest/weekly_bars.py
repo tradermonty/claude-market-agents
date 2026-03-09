@@ -183,6 +183,9 @@ def is_trend_broken(
     for i, wb in enumerate(weekly_bars):
         if wb.week_ending <= current_date:
             wb_idx = i
-    if wb_idx is None or wb_idx >= len(indicators) or indicators[wb_idx] is None:
+    if wb_idx is None or wb_idx >= len(indicators):
         return False
-    return weekly_bars[wb_idx].close < indicators[wb_idx]
+    val = indicators[wb_idx]
+    if val is None:
+        return False
+    return weekly_bars[wb_idx].close < val

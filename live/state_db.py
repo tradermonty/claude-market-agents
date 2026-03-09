@@ -262,7 +262,8 @@ class StateDB:
                 ),
             )
             conn.commit()
-            position_id = cursor.lastrowid
+            assert cursor.lastrowid is not None
+            position_id = int(cursor.lastrowid)
         logger.info("Added position %s: %s @ %.2f", position_id, ticker, entry_price)
         return position_id
 
@@ -359,7 +360,8 @@ class StateDB:
                 ),
             )
             conn.commit()
-            return cursor.lastrowid
+            assert cursor.lastrowid is not None
+            return int(cursor.lastrowid)
 
     def update_order_status(
         self,
@@ -408,7 +410,7 @@ class StateDB:
                     "SELECT COUNT(*) as cnt FROM orders WHERE trade_date = ?",
                     (trade_date,),
                 ).fetchone()
-            return row["cnt"]
+            return int(row["cnt"])
 
     def get_pending_orders(
         self,
@@ -421,7 +423,7 @@ class StateDB:
         Terminal statuses (filled, canceled, expired, rejected,
         done_for_day, suspended) are excluded.
         """
-        query = "SELECT * FROM orders WHERE trade_date = ? AND status NOT IN ({})".format(
+        query = "SELECT * FROM orders WHERE trade_date = ? AND status NOT IN ({})".format(  # nosec B608  # parameterized: generates ? placeholders from constant
             ", ".join("?" for _ in TERMINAL_STATUSES)
         )
         params: list = [trade_date, *TERMINAL_STATUSES]
@@ -450,7 +452,7 @@ class StateDB:
                     AND status NOT IN ({})
                 ORDER BY trade_date DESC, order_id DESC
                 LIMIT 1
-                """.format(", ".join("?" for _ in TERMINAL_STATUSES)),
+                """.format(", ".join("?" for _ in TERMINAL_STATUSES)),  # nosec B608  # parameterized: generates ? placeholders from constant
                 (ticker, *TERMINAL_STATUSES),
             ).fetchone()
             return dict(row) if row else None
@@ -537,7 +539,8 @@ class StateDB:
                 ),
             )
             conn.commit()
-            return cursor.lastrowid
+            assert cursor.lastrowid is not None
+            return int(cursor.lastrowid)
 
     def get_shadow_positions(self, strategy: str) -> List[Dict[str, Any]]:
         """Return open shadow positions for a given strategy."""
@@ -583,4 +586,5 @@ class StateDB:
                 (trade_date, strategy, signals_json),
             )
             conn.commit()
-            return cursor.lastrowid
+            assert cursor.lastrowid is not None
+            return int(cursor.lastrowid)

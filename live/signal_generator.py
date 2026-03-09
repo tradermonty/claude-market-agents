@@ -103,7 +103,11 @@ def _sync_positions_from_alpaca(
         # Determine exit date from filled_at
         filled_at = order.get("filled_at")
         try:
-            exit_date = datetime.fromisoformat(filled_at).strftime("%Y-%m-%d")
+            exit_date = (
+                datetime.fromisoformat(str(filled_at)).strftime("%Y-%m-%d")
+                if filled_at
+                else trade_date
+            )
         except (TypeError, ValueError):
             exit_date = trade_date
 

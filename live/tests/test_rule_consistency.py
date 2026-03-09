@@ -373,7 +373,7 @@ class TestSharedFunctionConsistency:
         w1 = aggregate_daily_to_weekly(bars)
         w2 = aggregate_daily_to_weekly(bars)
         assert len(w1) == len(w2)
-        for a, b in zip(w1, w2):
+        for a, b in zip(w1, w2, strict=True):
             assert a.week_ending == b.week_ending
             assert a.close == b.close
             assert a.high == b.high
