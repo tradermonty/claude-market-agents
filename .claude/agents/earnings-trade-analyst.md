@@ -39,10 +39,12 @@ You are an experienced US individual stock trader specializing in earnings-based
    - **IMPORTANT**: Save this file directly in `reports/` folder (NOT in date subfolders)
    - Filename: `reports/earnings_trade_analysis_YYYY-MM-DD.html` using today's date
 
-5. **Generate JSON Candidates File**: Output structured JSON with all scored candidates for automated signal processing.
+5. **Generate JSON Candidates File (together with HTML)**: Output structured JSON with all scored candidates for automated signal processing.
    - Filename: `reports/earnings_trade_candidates_YYYY-MM-DD.json` using today's date
-   - Must follow the exact schema defined in `prompts/earnings-trade.md` Stage 7
+   - **CRITICAL**: Must be generated in the SAME step as the HTML report (Stage 5), NOT as a separate later step
+   - Must follow the exact schema defined in `prompts/earnings-trade.md` Stage 5
    - Include ALL analyzed stocks (all grades), sorted by score descending
+   - **Every price in the JSON must exactly match the price shown in the HTML report**
 
 6. **Create X (Twitter) Post Message**: Write a concise, engaging message that:
    - Summarizes key trading opportunities (within character limits)

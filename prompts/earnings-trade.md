@@ -161,7 +161,7 @@ Return analysis results in the following JSON format:
 }
 ```
 
-## Stage 5: Integrated Report Creation
+## Stage 5: Integrated Report Creation (HTML + JSON simultaneously)
 
 ### Infographic Specifications
 
@@ -183,28 +183,9 @@ Return analysis results in the following JSON format:
 3. C-grade stocks (55-69 points)
 4. D-grade stocks (54 points or below)
 
-## Stage 6: X (Twitter) Post Message
+### Machine-Readable JSON Output (MUST generate together with HTML)
 
-Create using the following format:
-
-```
-{Date} Summary of Yesterday's Post-Close and Pre-Market Earnings Releases & Gap-Up Stocks
-昨日の引け後・寄り付き前決算発表とギャップアップ銘柄まとめ ({Date})
-【A-Grade (70%+ Success Rate)】
-${TICKER1} - Score: {points} points ⭐⭐⭐⭐⭐
-${TICKER2} - Score: {points} points ⭐⭐⭐⭐⭐
-【B-Grade (55-69% Success Rate)】
-${TICKER3} - Score: {points} points ⭐⭐⭐⭐
-${TICKER4} - Score: {points} points ⭐⭐⭐⭐
-📊 Backtest Scoring System Adopted
-📈 Based on Historical Data: Gap Size/Pre-Earnings/Volume/MA200/MA50
-🔗 https://elite.finviz.com/screener.ashx?v=211&o=-change&t={TICKER1},{TICKER2},{TICKER3}
-#EarningsTrading #StockInvesting #Backtesting
-```
-
-## Stage 7: Machine-Readable JSON Output
-
-Create a JSON file for automated signal processing.
+**CRITICAL**: The JSON candidates file MUST be generated in the same step as the HTML report to ensure price consistency. Do NOT defer JSON generation to a later step.
 
 **Filename**: `reports/earnings_trade_candidates_YYYY-MM-DD.json`
 
@@ -231,9 +212,29 @@ Create a JSON file for automated signal processing.
 - `ticker`: No $ prefix
 - `grade`: "A"/"B"/"C"/"D"
 - `score`: Weighted total out of 100
-- `price`: Current price in USD
+- `price`: Current price in USD — **MUST exactly match the price shown in the HTML report**
 - `gap_size`: Gap-up %, null if unavailable
 - CRITICAL: Field names and types must match exactly
+- **VERIFY**: After writing JSON, confirm every price field matches the corresponding HTML Price metric value. If any mismatch is found, fix the JSON immediately.
+
+## Stage 6: X (Twitter) Post Message
+
+Create using the following format:
+
+```
+{Date} Summary of Yesterday's Post-Close and Pre-Market Earnings Releases & Gap-Up Stocks
+昨日の引け後・寄り付き前決算発表とギャップアップ銘柄まとめ ({Date})
+【A-Grade (70%+ Success Rate)】
+${TICKER1} - Score: {points} points ⭐⭐⭐⭐⭐
+${TICKER2} - Score: {points} points ⭐⭐⭐⭐⭐
+【B-Grade (55-69% Success Rate)】
+${TICKER3} - Score: {points} points ⭐⭐⭐⭐
+${TICKER4} - Score: {points} points ⭐⭐⭐⭐
+📊 Backtest Scoring System Adopted
+📈 Based on Historical Data: Gap Size/Pre-Earnings/Volume/MA200/MA50
+🔗 https://elite.finviz.com/screener.ashx?v=211&o=-change&t={TICKER1},{TICKER2},{TICKER3}
+#EarningsTrading #StockInvesting #Backtesting
+```
 
 ## Execution Summary
 
@@ -241,8 +242,7 @@ Create a JSON file for automated signal processing.
 2. Acquire MCP data for each stock (moving averages, volume, price)
 3. Calculate 5-element backtest scores
 4. Execute news analysis
-5. Create integrated report
+5. Create integrated report (HTML + JSON simultaneously — prices must match)
 6. Generate X post message
-7. Generate JSON candidates file
 
 **Note**: Data acquisition from MCP server is mandatory. If data cannot be retrieved, clearly indicate this in the report.
