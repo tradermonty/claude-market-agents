@@ -32,6 +32,13 @@ if [ -z "${REPORT_FILE}" ]; then
     exit 1
 fi
 
+# Find JSON candidates file (required for price validation)
+JSON_FILE=$(ls -t "${REPORT_DIR}"/earnings_trade_candidates_"${TODAY}"*.json 2>/dev/null | head -1)
+if [ -z "${JSON_FILE}" ]; then
+    echo "WARNING: No JSON candidates file for ${TODAY}" >> "${LOG_FILE}"
+    echo "Signal generator will run in HTML-only legacy mode (no price validation)" >> "${LOG_FILE}"
+fi
+
 echo "Using report: ${REPORT_FILE}" >> "${LOG_FILE}"
 
 # Run signal generator with --report-file (required argument)

@@ -28,6 +28,11 @@ logger = logging.getLogger(__name__)
 
 GRADE_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3}
 
+
+class PriceValidationError(Exception):
+    """Raised when JSON/HTML price cross-validation fails."""
+
+
 DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
 
 
@@ -498,6 +503,102 @@ def _calculate_stop_price(price: float, stop_loss_pct: float) -> float:
     return round(price * (1 - stop_loss_pct / 100), 2)
 
 
+def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
+    """Load JSON candidates with strict validation.
+
+    Raises PriceValidationError on any structural issue instead of
+    silently returning an empty list.
+    """
+    try:
+        with open(json_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        raise PriceValidationError(f"Invalid JSON: {e}") from e
+    except OSError as e:
+        raise PriceValidationError(f"Cannot read JSON file: {e}") from e
+
+    if not isinstance(data, dict):
+        raise PriceValidationError(f"JSON root is not a dict: {type(data).__name__}")
+
+    raw_candidates = data.get("candidates")
+    if not isinstance(raw_candidates, list):
+        raise PriceValidationError("No 'candidates' list in JSON")
+
+    total_raw = len(raw_candidates)
+    candidates = parse_candidates_json(json_path)
+
+    if len(candidates) < total_raw:
+        dropped = total_raw - len(candidates)
+        raise PriceValidationError(f"Dropped {dropped}/{total_raw} candidates during parse")
+
+    return candidates
+
+
+def _validate_against_html(json_candidates: List[TradeCandidate], html_path: str) -> None:
+    """Cross-validate JSON candidates against HTML report.
+
+    Raises PriceValidationError on any mismatch.
+    """
+    try:
+        html_candidates = EarningsReportParser().parse_single_report(html_path)
+    except Exception as e:
+        raise PriceValidationError(f"HTML parse failed: {e}") from e
+
+    json_tickers = [c.ticker for c in json_candidates]
+    html_tickers = [c.ticker for c in html_candidates]
+
+    # Both empty = no-stocks day → OK
+    if not json_candidates and not html_candidates:
+        return
+
+    errors: List[str] = []
+
+    # Duplicate ticker check
+    json_dupes = [t for t in json_tickers if json_tickers.count(t) > 1]
+    html_dupes = [t for t in html_tickers if html_tickers.count(t) > 1]
+    if json_dupes:
+        errors.append(f"Duplicate tickers in JSON: {set(json_dupes)}")
+    if html_dupes:
+        errors.append(f"Duplicate tickers in HTML: {set(html_dupes)}")
+
+    json_ticker_set = set(json_tickers)
+    html_ticker_set = set(html_tickers)
+
+    # One side empty, other not
+    if not json_candidates and html_candidates:
+        errors.append(f"JSON empty but HTML has {len(html_candidates)} candidates")
+    if json_candidates and not html_candidates:
+        errors.append(f"JSON has {len(json_candidates)} candidates but HTML empty")
+
+    # Ticker set mismatch
+    json_only = json_ticker_set - html_ticker_set
+    html_only = html_ticker_set - json_ticker_set
+    if json_only:
+        errors.append(f"JSON-only tickers (not in HTML): {json_only}")
+    if html_only:
+        errors.append(f"HTML-only tickers (JSON omission): {html_only}")
+
+    # Price comparison (integer cents to avoid float rounding)
+    html_prices = {c.ticker: c.price for c in html_candidates}
+    for jc in json_candidates:
+        if jc.ticker not in html_prices:
+            continue  # already caught by ticker set check
+        hp = html_prices[jc.ticker]
+        if hp is None:
+            errors.append(f"{jc.ticker}: HTML price is None")
+            continue
+        if jc.price is None:
+            errors.append(f"{jc.ticker}: JSON price is None")
+            continue
+        jp_cents = round(jc.price * 100)
+        hp_cents = round(hp * 100)
+        if abs(jp_cents - hp_cents) > 5:  # > $0.05
+            errors.append(f"{jc.ticker}: JSON=${jc.price} vs HTML=${hp}")
+
+    if errors:
+        raise PriceValidationError(f"{len(errors)} validation error(s): " + "; ".join(errors))
+
+
 def generate_signals(
     config: LiveConfig,
     state_db: StateDB,
@@ -519,25 +620,32 @@ def generate_signals(
         logger.error("Kill switch is ON. Aborting signal generation.")
         sys.exit(3)
 
-    # 2. Parse report -- prefer JSON, fall back to HTML
+    # 2. Parse report -- prefer JSON (strict), fall back to HTML (legacy)
     json_path = _derive_json_path(report_file)
     candidates: List[TradeCandidate] = []
+    price_validation_failed = False
 
     if json_path and os.path.exists(json_path):
-        candidates = parse_candidates_json(json_path)
-        if candidates:
-            logger.info("Loaded %d candidates from JSON: %s", len(candidates), json_path)
-        else:
-            logger.warning("JSON parse returned empty, falling back to HTML")
-
-    if not candidates:
+        # JSON exists → strict mode, no HTML fallback
+        try:
+            candidates = _strict_parse_json(json_path)
+            _validate_against_html(candidates, report_file)
+            logger.info("Validated %d candidates (JSON+HTML cross-check passed)", len(candidates))
+        except PriceValidationError as e:
+            logger.critical("PRICE VALIDATION FAILED: %s", e)
+            logger.critical("Entry/rotation will be blocked. Exits will continue.")
+            candidates = []  # block all entries
+            price_validation_failed = True
+    else:
+        # No JSON → HTML fallback (legacy path)
         parser = EarningsReportParser()
         candidates = parser.parse_single_report(report_file)
         logger.info("Parsed %d candidates from HTML: %s", len(candidates), report_file)
 
-    # 3. Filter by min_grade
-    candidates = _filter_candidates(candidates, config.min_grade)
-    logger.info("After grade filter: %d candidates", len(candidates))
+    # 3. Filter by min_grade (skip if validation failed — candidates already empty)
+    if not price_validation_failed:
+        candidates = _filter_candidates(candidates, config.min_grade)
+        logger.info("After grade filter: %d candidates", len(candidates))
 
     generated_at = datetime.now(ET).isoformat()
 
@@ -554,6 +662,9 @@ def generate_signals(
         force,
         dry_run=dry_run,
     )
+
+    # Add validation flag to signal dicts
+    ema_signals["price_validation_failed"] = price_validation_failed
 
     # Write ema signal file
     ema_path = os.path.join(output_dir, f"trade_signals_{trade_date}_ema_p10.json")
@@ -573,6 +684,9 @@ def generate_signals(
         generated_at,
         dry_run,
     )
+
+    # Add validation flag to shadow signals
+    nwl_signals["price_validation_failed"] = price_validation_failed
 
     # Write shadow signal file
     nwl_path = os.path.join(output_dir, f"trade_signals_{trade_date}_nwl_p4.json")
@@ -692,43 +806,50 @@ def _generate_ema_signals(
                 weakest_pnl = float(weakest_alp.get("unrealized_pl", 0))
 
                 if candidate_score > weakest_score and weakest_pnl < 0:
-                    exits.append(
-                        {
-                            "ticker": weakest["ticker"],
-                            "position_id": weakest["position_id"],
-                            "reason": "rotated_out",
-                            "qty": weakest["actual_shares"],
-                            "entry_price": weakest["entry_price"],
-                            "stop_order_id": weakest.get("stop_order_id"),
-                        }
-                    )
-                    exit_tickers.add(weakest["ticker"])
                     price = best_candidate.price or 0
                     qty = _calculate_qty(price, config.position_size)
-                    stop_price = _calculate_stop_price(price, config.stop_loss_pct)
-                    entries.append(
-                        {
-                            "ticker": best_candidate.ticker,
-                            "side": "buy",
-                            "qty": qty,
-                            "score": candidate_score,
-                            "grade": best_candidate.grade,
-                            "report_date": best_candidate.report_date,
-                            "company_name": best_candidate.company_name,
-                            "stop_price": stop_price,
-                        }
-                    )
-                    held_tickers.add(best_candidate.ticker)
-                    rotation_done = True
-                    daily_entry_count += 1
-                    logger.info(
-                        "Rotation: exit %s (score=%.1f, pnl=%.2f) -> enter %s (score=%.1f)",
-                        weakest["ticker"],
-                        weakest_score,
-                        weakest_pnl,
-                        best_candidate.ticker,
-                        candidate_score,
-                    )
+                    if qty <= 0:
+                        logger.warning(
+                            "Rotation skip %s: qty=0 (price=%.2f)",
+                            best_candidate.ticker,
+                            price,
+                        )
+                    else:
+                        exits.append(
+                            {
+                                "ticker": weakest["ticker"],
+                                "position_id": weakest["position_id"],
+                                "reason": "rotated_out",
+                                "qty": weakest["actual_shares"],
+                                "entry_price": weakest["entry_price"],
+                                "stop_order_id": weakest.get("stop_order_id"),
+                            }
+                        )
+                        exit_tickers.add(weakest["ticker"])
+                        stop_price = _calculate_stop_price(price, config.stop_loss_pct)
+                        entries.append(
+                            {
+                                "ticker": best_candidate.ticker,
+                                "side": "buy",
+                                "qty": qty,
+                                "score": candidate_score,
+                                "grade": best_candidate.grade,
+                                "report_date": best_candidate.report_date,
+                                "company_name": best_candidate.company_name,
+                                "stop_price": stop_price,
+                            }
+                        )
+                        held_tickers.add(best_candidate.ticker)
+                        rotation_done = True
+                        daily_entry_count += 1
+                        logger.info(
+                            "Rotation: exit %s (score=%.1f, pnl=%.2f) -> enter %s (score=%.1f)",
+                            weakest["ticker"],
+                            weakest_score,
+                            weakest_pnl,
+                            best_candidate.ticker,
+                            candidate_score,
+                        )
 
     # 9. New entries
     open_count = len(db_positions)
@@ -747,6 +868,9 @@ def _generate_ema_signals(
             continue
         price = c.price or 0
         qty = _calculate_qty(price, config.position_size)
+        if qty <= 0:
+            skipped.append({"ticker": c.ticker, "reason": "qty_zero", "score": c.score or 0})
+            continue
         stop_price = _calculate_stop_price(price, config.stop_loss_pct)
         entries.append(
             {
@@ -867,33 +991,36 @@ def _generate_shadow_signals(
                 weakest_score = weakest.get("score") or 0
                 candidate_score = best_candidate.score or 0
                 if candidate_score > weakest_score:
-                    shadow_exits.append(
-                        {
-                            "ticker": weakest["ticker"],
-                            "shadow_id": weakest["shadow_id"],
-                            "reason": "rotated_out",
-                            "qty": weakest["shares"],
-                            "entry_price": weakest["entry_price"],
-                        }
-                    )
-                    exit_tickers.add(weakest["ticker"])
                     price = best_candidate.price or 0
                     qty = _calculate_qty(price, config.position_size)
-                    stop_price = _calculate_stop_price(price, config.stop_loss_pct)
-                    shadow_entries.append(
-                        {
-                            "ticker": best_candidate.ticker,
-                            "side": "buy",
-                            "qty": qty,
-                            "score": candidate_score,
-                            "grade": best_candidate.grade,
-                            "report_date": best_candidate.report_date,
-                            "company_name": best_candidate.company_name,
-                            "stop_price": stop_price,
-                        }
-                    )
-                    held_tickers.add(best_candidate.ticker)
-                    daily_entry_count += 1
+                    if qty <= 0:
+                        logger.warning("Shadow rotation skip %s: qty=0", best_candidate.ticker)
+                    else:
+                        shadow_exits.append(
+                            {
+                                "ticker": weakest["ticker"],
+                                "shadow_id": weakest["shadow_id"],
+                                "reason": "rotated_out",
+                                "qty": weakest["shares"],
+                                "entry_price": weakest["entry_price"],
+                            }
+                        )
+                        exit_tickers.add(weakest["ticker"])
+                        stop_price = _calculate_stop_price(price, config.stop_loss_pct)
+                        shadow_entries.append(
+                            {
+                                "ticker": best_candidate.ticker,
+                                "side": "buy",
+                                "qty": qty,
+                                "score": candidate_score,
+                                "grade": best_candidate.grade,
+                                "report_date": best_candidate.report_date,
+                                "company_name": best_candidate.company_name,
+                                "stop_price": stop_price,
+                            }
+                        )
+                        held_tickers.add(best_candidate.ticker)
+                        daily_entry_count += 1
 
     # 14. Shadow entries
     open_count = len(shadow_positions)
@@ -914,6 +1041,9 @@ def _generate_shadow_signals(
             continue
         price = c.price or 0
         qty = _calculate_qty(price, config.position_size)
+        if qty <= 0:
+            shadow_skipped.append({"ticker": c.ticker, "reason": "qty_zero", "score": c.score or 0})
+            continue
         stop_price = _calculate_stop_price(price, config.stop_loss_pct)
         shadow_entries.append(
             {
@@ -960,6 +1090,9 @@ def _generate_shadow_signals(
             # Approximate entry price from position size and qty
             if en["qty"] > 0:
                 entry_price = config.position_size / en["qty"]
+            else:
+                logger.warning("Shadow DB write skip %s: qty=0", en["ticker"])
+                continue
             shares = en["qty"]
             invested = entry_price * shares
             state_db.add_shadow_position(

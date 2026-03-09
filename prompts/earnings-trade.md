@@ -170,6 +170,7 @@ Return analysis results in the following JSON format:
 - **Display Items for Each Stock**:
 
   - Stock name & ticker
+  - Current price (USD)
   - Backtest rating rank (A/B/C/D grade)
   - 5-element score details
   - Success probability prediction

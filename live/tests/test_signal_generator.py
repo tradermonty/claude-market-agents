@@ -14,10 +14,13 @@ from backtest.price_fetcher import PriceBar
 from backtest.tests.fake_price_fetcher import FakePriceFetcher
 from live.config import LiveConfig
 from live.signal_generator import (
+    PriceValidationError,
     _derive_json_path,
     _filter_candidates,
     _recover_untracked_positions,
+    _strict_parse_json,
     _sync_positions_from_alpaca,
+    _validate_against_html,
     generate_signals,
 )
 from live.state_db import StateDB
@@ -1144,8 +1147,12 @@ class TestE2EPipeline:
     def test_json_to_signals_e2e(self, db, config, price_fetcher):
         """JSON candidates -> signal generation -> entries with qty > 0."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            # Write HTML report (needed as report_file arg)
-            report = _write_fake_report(tmp_dir, report_date="2026-02-19")
+            # Write HTML report — tickers/prices must match JSON for cross-validation
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("GRMN", 92, "A", 248.93), ("PLTR", 78, "B", 25.0)],
+            )
             # Write JSON candidates (preferred source)
             json_data = {
                 "report_date": "2026-02-19",
@@ -1175,6 +1182,7 @@ class TestE2EPipeline:
             assert entry["qty"] > 0
             assert entry["stop_price"] > 0
             assert entry["grade"] in ("A", "B", "C", "D")
+        assert ema["price_validation_failed"] is False
 
     def test_html_to_signals_e2e(self, db, config, price_fetcher):
         """HTML report only (no JSON) -> candidate extraction -> entries with qty > 0."""
@@ -1259,11 +1267,11 @@ class TestJsonPriorityParsing:
     def test_json_preferred_over_html(self, db, config, price_fetcher):
         """When JSON exists, candidates should come from JSON (grade_source='json')."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            # Write HTML report (with different score to distinguish)
+            # Write HTML report — price must match JSON (within $0.05)
             report = _write_fake_report(
                 tmp_dir,
                 report_date="2026-02-19",
-                candidates=[("TS", 80, "B", 50.0)],
+                candidates=[("TS", 80, "B", 52.86)],
             )
             # Write JSON candidates (with higher score)
             json_data = {
@@ -1318,8 +1326,8 @@ class TestJsonPriorityParsing:
         ts_entry = next(e for e in entries if e["ticker"] == "TS")
         assert ts_entry["score"] == 80
 
-    def test_html_fallback_when_json_empty(self, db, config, price_fetcher):
-        """When JSON exists but has no valid candidates, fall back to HTML."""
+    def test_json_empty_html_nonempty_blocks_entries(self, db, config, price_fetcher):
+        """JSON empty + HTML non-empty = validation failure, entries blocked."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -1344,10 +1352,8 @@ class TestJsonPriorityParsing:
             )
 
         ema = result["ema_p10"]
-        entries = ema["entries"]
-        assert len(entries) >= 1
-        ts_entry = next(e for e in entries if e["ticker"] == "TS")
-        assert ts_entry["score"] == 80
+        assert ema["price_validation_failed"] is True
+        assert len(ema["entries"]) == 0
 
 
 # ---------------------------------------------------------------------------
@@ -1929,3 +1935,444 @@ class TestRecoverUntrackedPositions:
         # CRITICAL log emitted
         critical_calls = [c for c in mock_logger.critical.call_args_list if "UNPROTECTED" in str(c)]
         assert len(critical_calls) >= 1
+
+
+# ---------------------------------------------------------------------------
+# Strict JSON parse tests
+# ---------------------------------------------------------------------------
+
+
+def _write_json_file(tmp_dir, data, report_date="2026-02-19"):
+    """Write a JSON candidates file and return the path."""
+    path = os.path.join(tmp_dir, f"earnings_trade_candidates_{report_date}.json")
+    with open(path, "w") as f:
+        if isinstance(data, str):
+            f.write(data)
+        else:
+            json.dump(data, f)
+    return path
+
+
+class TestStrictParseJson:
+    """Tests for _strict_parse_json."""
+
+    def test_invalid_json_raises(self, tmp_path):
+        path = _write_json_file(str(tmp_path), "not json {{{")
+        with pytest.raises(PriceValidationError, match="Invalid JSON"):
+            _strict_parse_json(path)
+
+    def test_root_not_dict_raises(self, tmp_path):
+        path = _write_json_file(str(tmp_path), [1, 2, 3])
+        with pytest.raises(PriceValidationError, match="not a dict"):
+            _strict_parse_json(path)
+
+    def test_no_candidates_key_raises(self, tmp_path):
+        path = _write_json_file(str(tmp_path), {"report_date": "2026-02-19"})
+        with pytest.raises(PriceValidationError, match="No 'candidates' list"):
+            _strict_parse_json(path)
+
+    def test_dropped_rows_raises(self, tmp_path):
+        # One valid, one missing required fields -> dropped
+        data = {
+            "report_date": "2026-02-19",
+            "candidates": [
+                {"ticker": "AAPL", "grade": "A", "score": 90, "price": 100.0},
+                {"bad_field": "no_ticker"},
+            ],
+        }
+        path = _write_json_file(str(tmp_path), data)
+        with pytest.raises(PriceValidationError, match="Dropped 1/2"):
+            _strict_parse_json(path)
+
+
+# ---------------------------------------------------------------------------
+# Cross-validation tests
+# ---------------------------------------------------------------------------
+
+
+class TestValidateAgainstHtml:
+    """Tests for _validate_against_html."""
+
+    def test_both_empty_passes(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[])
+        _validate_against_html([], report)  # should not raise
+
+    def test_all_match_passes(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
+        _validate_against_html(json_candidates, report)  # should not raise
+
+    def test_price_mismatch_raises(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=200.0)]
+        with pytest.raises(PriceValidationError, match="AAPL"):
+            _validate_against_html(json_candidates, report)
+
+    def test_html_missing_ticker_raises(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
+        json_candidates = [
+            _make_candidate("AAPL", score=90, grade="A", price=150.0),
+            _make_candidate("GOOG", score=80, grade="B", price=100.0),
+        ]
+        with pytest.raises(PriceValidationError, match="JSON-only"):
+            _validate_against_html(json_candidates, report)
+
+    def test_json_omission_raises(self, tmp_path):
+        report = _write_fake_report(
+            str(tmp_path),
+            candidates=[("AAPL", 90, "A", 150.0), ("GOOG", 80, "B", 100.0)],
+        )
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
+        with pytest.raises(PriceValidationError, match="JSON omission"):
+            _validate_against_html(json_candidates, report)
+
+    def test_html_no_price_raises(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
+        # Patch the HTML candidate to have None price
+        with (
+            patch(
+                "live.signal_generator.EarningsReportParser.parse_single_report",
+                return_value=[_make_candidate("AAPL", price=None)],
+            ),
+            pytest.raises(PriceValidationError, match="HTML price is None"),
+        ):
+            _validate_against_html(json_candidates, report)
+
+    def test_json_nonempty_html_empty_raises(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[])
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
+        with pytest.raises(PriceValidationError, match="HTML empty"):
+            _validate_against_html(json_candidates, report)
+
+    def test_json_empty_html_nonempty_raises(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
+        with pytest.raises(PriceValidationError, match="JSON empty"):
+            _validate_against_html([], report)
+
+    def test_html_io_error_raises(self, tmp_path):
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
+        with (
+            patch(
+                "live.signal_generator.EarningsReportParser.parse_single_report",
+                side_effect=FileNotFoundError("No such file"),
+            ),
+            pytest.raises(PriceValidationError, match="HTML parse failed"),
+        ):
+            _validate_against_html(json_candidates, "/nonexistent/report.html")
+
+    def test_duplicate_ticker_in_json_raises(self, tmp_path):
+        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
+        json_candidates = [
+            _make_candidate("AAPL", score=90, grade="A", price=150.0),
+            _make_candidate("AAPL", score=85, grade="A", price=150.0),
+        ]
+        with pytest.raises(PriceValidationError, match="Duplicate tickers in JSON"):
+            _validate_against_html(json_candidates, report)
+
+    def test_duplicate_ticker_in_html_raises(self, tmp_path):
+        report = _write_fake_report(
+            str(tmp_path),
+            candidates=[("AAPL", 90, "A", 150.0), ("AAPL", 85, "A", 150.0)],
+        )
+        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
+        with pytest.raises(PriceValidationError, match="Duplicate tickers in HTML"):
+            _validate_against_html(json_candidates, report)
+
+
+# ---------------------------------------------------------------------------
+# qty guard tests
+# ---------------------------------------------------------------------------
+
+
+def _simple_price_fetcher():
+    """Create a FakePriceFetcher with uptrending bars (no trailing stop trigger)."""
+    bars = _build_weekly_bars(
+        [
+            ("2025-09-08", 100),
+            ("2025-09-15", 105),
+            ("2025-09-22", 110),
+            ("2025-09-29", 115),
+            ("2025-10-06", 120),
+            ("2025-10-13", 125),
+            ("2025-10-20", 130),
+            ("2025-10-27", 135),
+            ("2025-11-03", 140),
+            ("2025-11-10", 145),
+            ("2025-11-17", 150),
+            ("2025-11-24", 155),
+            ("2025-12-01", 160),
+            ("2025-12-08", 165),
+            ("2025-12-15", 170),
+            ("2025-12-22", 175),
+            ("2026-01-05", 180),
+            ("2026-01-12", 185),
+            ("2026-01-19", 190),
+            ("2026-01-26", 195),
+            ("2026-02-02", 200),
+            ("2026-02-09", 205),
+            ("2026-02-16", 210),
+        ]
+    )
+    return FakePriceFetcher({"DEFAULT": bars})
+
+
+class TestQtyGuard:
+    """Tests for qty=0 guard across all entry paths."""
+
+    @pytest.fixture
+    def db(self):
+        return StateDB(":memory:")
+
+    @pytest.fixture
+    def config(self):
+        return LiveConfig(max_positions=3, daily_entry_limit=10)
+
+    @pytest.fixture
+    def price_fetcher(self):
+        return _simple_price_fetcher()
+
+    def test_ema_entry_skipped_when_qty_zero(self, db, config, price_fetcher):
+        """Candidate with price > position_size results in qty=0 and is skipped."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # price=99999 -> qty = int(10000/99999) = 0
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("EXPENSIVE", 90, "A", 99999.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-qty-zero",
+            )
+
+        ema = result["ema_p10"]
+        assert len(ema["entries"]) == 0
+        qty_zero_skipped = [s for s in ema["skipped"] if s.get("reason") == "qty_zero"]
+        assert len(qty_zero_skipped) == 1
+        assert qty_zero_skipped[0]["ticker"] == "EXPENSIVE"
+
+    def test_ema_rotation_cancelled_when_qty_zero(self, db, config, price_fetcher):
+        """Rotation with qty=0 candidate should not exit the weakest position."""
+        config = LiveConfig(max_positions=1, daily_entry_limit=10, rotation=True)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Existing position (weakest)
+            _add_db_position(db, "OLD", score=30, entry_price=50.0, shares=200)
+
+            # New candidate with absurd price -> qty=0
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("EXPENSIVE", 95, "A", 99999.0)],
+            )
+            # Need alpaca positions for rotation logic
+            mock_alpaca = _mock_alpaca_client(
+                positions=[
+                    {
+                        "symbol": "OLD",
+                        "qty": "200",
+                        "unrealized_pl": "-100.0",
+                    }
+                ]
+            )
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=mock_alpaca,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-rot-qty-zero",
+                force=True,
+            )
+
+        ema = result["ema_p10"]
+        # No rotation should have happened
+        assert len(ema["entries"]) == 0
+        # OLD should NOT have been exited
+        rotated_exits = [e for e in ema["exits"] if e.get("reason") == "rotated_out"]
+        assert len(rotated_exits) == 0
+
+    def test_shadow_entry_skipped_when_qty_zero(self, db, config, price_fetcher):
+        """Shadow path: candidate with price > position_size is skipped."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("EXPENSIVE", 90, "A", 99999.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-shadow-qty-zero",
+            )
+
+        nwl = result["nwl_p4"]
+        assert len(nwl["entries"]) == 0
+        qty_zero_skipped = [s for s in nwl["skipped"] if s.get("reason") == "qty_zero"]
+        assert len(qty_zero_skipped) == 1
+
+    def test_shadow_rotation_cancelled_when_qty_zero(self, db, config, price_fetcher):
+        """Shadow rotation with qty=0 candidate should not exit the weakest."""
+        config = LiveConfig(max_positions=1, daily_entry_limit=10, rotation=True)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Add shadow position
+            db.add_shadow_position(
+                strategy="nwl_p4",
+                ticker="OLD",
+                entry_date="2026-02-10",
+                entry_price=50.0,
+                shares=200,
+                invested=10000.0,
+                stop_price=45.0,
+                report_date="2026-02-10",
+                score=30,
+                grade="C",
+            )
+
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("EXPENSIVE", 95, "A", 99999.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-shadow-rot-qty-zero",
+                dry_run=True,
+            )
+
+        nwl = result["nwl_p4"]
+        assert len(nwl["entries"]) == 0
+        rotated_exits = [e for e in nwl["exits"] if e.get("reason") == "rotated_out"]
+        assert len(rotated_exits) == 0
+
+
+# ---------------------------------------------------------------------------
+# Fail-closed integration tests
+# ---------------------------------------------------------------------------
+
+
+class TestFailClosedIntegration:
+    """Integration tests for fail-closed behavior."""
+
+    @pytest.fixture
+    def db(self):
+        return StateDB(":memory:")
+
+    @pytest.fixture
+    def config(self):
+        return LiveConfig(max_positions=3, daily_entry_limit=10)
+
+    @pytest.fixture
+    def price_fetcher(self):
+        return _simple_price_fetcher()
+
+    def test_json_broken_exits_continue(self, db, config, price_fetcher):
+        """Broken JSON -> entry=0, exit continues, HTML parser not called for fallback."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("CRDO", 92, "A", 80.0)],
+            )
+            # Write broken JSON
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                f.write("{invalid json")
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-broken-json",
+            )
+
+        ema = result["ema_p10"]
+        assert ema["price_validation_failed"] is True
+        assert len(ema["entries"]) == 0
+        # Exits structure should still be present (empty since no positions)
+        assert isinstance(ema["exits"], list)
+
+    def test_price_mismatch_exits_continue(self, db, config, price_fetcher):
+        """Price mismatch -> entries blocked, exit still works."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # HTML has price=80, JSON has price=200 -> mismatch
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("CRDO", 92, "A", 80.0)],
+            )
+            json_data = {
+                "report_date": "2026-02-19",
+                "candidates": [{"ticker": "CRDO", "grade": "A", "score": 92, "price": 200.0}],
+            }
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                json.dump(json_data, f)
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-mismatch",
+            )
+
+        ema = result["ema_p10"]
+        assert ema["price_validation_failed"] is True
+        assert len(ema["entries"]) == 0
+
+    def test_validation_failed_flag_in_both_signals(self, db, config, price_fetcher):
+        """price_validation_failed=True appears in both ema_p10 and nwl_p4."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("CRDO", 92, "A", 80.0)],
+            )
+            # Write broken JSON to trigger validation failure
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                f.write("[]")  # root is list, not dict
+
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-flag-both",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["nwl_p4"]["price_validation_failed"] is True
