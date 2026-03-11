@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - 2026-03-11</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #e94560;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+        .header .date {
+            color: #00d9ff;
+            font-size: 1.3em;
+            margin-top: 10px;
+        }
+        .grade-section {
+            margin-bottom: 30px;
+        }
+        .grade-header {
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .grade-a { background: linear-gradient(135deg, #00c853 0%, #009624 100%); }
+        .grade-b { background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%); }
+        .grade-c { background: linear-gradient(135deg, #ff9800 0%, #e65100 100%); }
+        .grade-d { background: linear-gradient(135deg, #f44336 0%, #c62828 100%); }
+        .grade-header h2 {
+            font-size: 1.5em;
+        }
+        .grade-stars {
+            font-size: 1.3em;
+        }
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 20px;
+        }
+        .stock-card {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #374151;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #374151;
+        }
+        .stock-ticker {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+        .stock-name {
+            color: #9ca3af;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .stock-price-info {
+            text-align: right;
+        }
+        .current-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #10b981;
+        }
+        .gap-change {
+            font-size: 1.1em;
+            padding: 3px 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .gap-positive { background: #10b981; color: white; }
+        .gap-negative { background: #ef4444; color: white; }
+        .score-section {
+            background: #111827;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .score-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #374151;
+        }
+        .score-label {
+            font-size: 1.1em;
+            color: #9ca3af;
+        }
+        .score-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: #1f2937;
+            border-radius: 5px;
+            font-size: 0.85em;
+        }
+        .score-item-label {
+            color: #9ca3af;
+        }
+        .score-item-value {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .metric {
+            background: #1f2937;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .metric-label {
+            color: #9ca3af;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .metric-positive { color: #10b981; }
+        .metric-negative { color: #ef4444; }
+        .metric-neutral { color: #fbbf24; }
+        .news-section {
+            background: #111827;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .news-title {
+            color: #e94560;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .news-summary {
+            color: #d1d5db;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 30px;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        .methodology {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #374151;
+        }
+        .methodology h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+        }
+        .methodology ul {
+            list-style: none;
+            color: #9ca3af;
+        }
+        .methodology li {
+            padding: 8px 0;
+            border-bottom: 1px solid #374151;
+        }
+        .methodology li:last-child {
+            border-bottom: none;
+        }
+        .no-stocks {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="subtitle">Backtest Scoring System - 5-Element Evaluation</div>
+            <div class="date">2026-03-11 (Wednesday)</div>
+        </div>
+
+        <!-- A-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-a">
+                <h2>A-Grade (85+ points) - 70%+ Success Rate</h2>
+                <span class="grade-stars">No A-Grade stocks today</span>
+            </div>
+        </div>
+
+        <!-- B-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-b">
+                <h2>B-Grade (70-84 points) - 55-69% Success Rate</h2>
+                <span class="grade-stars">3 stocks</span>
+            </div>
+            <div class="stock-grid">
+                <!-- INR -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$INR</div>
+                            <div class="stock-name">Infinity Natural Resources Inc</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$19.35</div>
+                            <div class="gap-change gap-positive">+9.9%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">82 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">3 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">4 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-positive">+31.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-positive">+22.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-positive">+39.2%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-neutral">0.24x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Q4 and FY2025 results announced with 2026 outlook. Strong performance in natural resources sector with positive operational momentum.</div>
+                    </div>
+                </div>
+
+                <!-- TH -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$TH</div>
+                            <div class="stock-name">Target Hospitality Corp</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$8.79</div>
+                            <div class="gap-change gap-positive">+10.2%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">78 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">3 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">4 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-positive">+13.9%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-positive">+16.5%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-positive">+6.5%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-positive">2.57x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Q4 CY2025 beat revenue estimates. Strategic growth initiatives advancing with expanding customer demand accelerating momentum.</div>
+                    </div>
+                </div>
+
+                <!-- ACTG -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$ACTG</div>
+                            <div class="stock-name">Acacia Research Corp</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$4.64</div>
+                            <div class="gap-change gap-positive">+11.8%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">73 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">4 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-positive">+26.8%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-positive">+16.7%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-positive">+19.0%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-positive">2.45x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Intellectual property and technology investments showing results. Strong uptrend continuing with volume confirmation.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- C-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-c">
+                <h2>C-Grade (55-69 points) - 40-54% Success Rate</h2>
+                <span class="grade-stars">4 stocks</span>
+            </div>
+            <div class="stock-grid">
+                <!-- RERE -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$RERE</div>
+                            <div class="stock-name">ATRenew Inc ADR</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$6.30</div>
+                            <div class="gap-change gap-positive">+1.4%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">68 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">3 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">4 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-positive">+42.2%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-positive">+9.2%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-negative">-0.6%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-positive">1.74x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Q4 and FY2025 results with cash dividend announced. China's leading pre-owned consumer electronics platform showing growth.</div>
+                    </div>
+                </div>
+
+                <!-- AUNA -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$AUNA</div>
+                            <div class="stock-name">Auna S.A</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$5.70</div>
+                            <div class="gap-change gap-positive">+18.8%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">63 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">4 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">5 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-negative">-0.2%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-positive">+15.2%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-positive">+19.0%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-positive">4.57x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Latin American healthcare provider showing strong momentum with significant volume surge indicating institutional interest.</div>
+                    </div>
+                </div>
+
+                <!-- ORCL -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$ORCL</div>
+                            <div class="stock-name">Oracle Corp</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$163.18</div>
+                            <div class="gap-change gap-positive">+9.2%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">57 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">3 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-negative">-26.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-negative">-3.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-negative">-20.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-positive">2.61x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Q3 FY26 beat estimates with 27% net income rise. AI cloud demand accelerating. JPMorgan upgraded to Overweight. Revenue outlook raised to $90B. Barclays raised PT to $240.</div>
+                    </div>
+                </div>
+
+                <!-- OPFI -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$OPFI</div>
+                            <div class="stock-name">OppFi Inc</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$9.67</div>
+                            <div class="gap-change gap-positive">+5.1%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">55 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">3 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-negative">-11.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-negative">-0.6%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-negative">-4.3%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-neutral">0.83x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Financial technology company showing modest earnings beat. Trading below long-term averages with moderate volume.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- D-Grade Section -->
+        <div class="grade-section">
+            <div class="grade-header grade-d">
+                <h2>D-Grade (Below 55 points) - Below 40% Success Rate</h2>
+                <span class="grade-stars">2 stocks</span>
+            </div>
+            <div class="stock-grid">
+                <!-- CXM -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$CXM</div>
+                            <div class="stock-name">Sprinklr Inc</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$6.00</div>
+                            <div class="gap-change gap-positive">+6.8%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">45 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">3 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-negative">-21.7%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-negative">-6.0%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-negative">-21.1%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-neutral">0.15x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Software company showing earnings beat but significant technical weakness. Trading well below all major moving averages with declining volume.</div>
+                    </div>
+                </div>
+
+                <!-- DOMO -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">$DOMO</div>
+                            <div class="stock-name">Domo Inc</div>
+                        </div>
+                        <div class="stock-price-info">
+                            <div class="current-price">$6.18</div>
+                            <div class="gap-change gap-positive">+41.1%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value">42 pts</span>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <span class="score-item-label">Gap Size (25%)</span>
+                                <span class="score-item-value">2 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Pre-Earnings (30%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">Volume (20%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA200 (15%)</span>
+                                <span class="score-item-value">1 pts</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-item-label">MA50 (10%)</span>
+                                <span class="score-item-value">4 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value metric-negative">-47.0%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value metric-positive">+8.8%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value metric-negative">-44.8%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Rel Volume</div>
+                            <div class="metric-value metric-positive">120x</div>
+                        </div>
+                    </div>
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-summary">Q4 FY26 beat with record billings. Stock jumped 39%+ after hours. Despite huge gap, backtest shows high-risk setup due to massive prior decline and abnormal volume spike.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Methodology -->
+        <div class="methodology">
+            <h3>Backtest Scoring Methodology</h3>
+            <ul>
+                <li><strong>Gap Size (25%):</strong> 2-10% gaps historically show better follow-through than extreme gaps >10%</li>
+                <li><strong>Pre-Earnings Trend (30%):</strong> Stocks with 10-20% gains in prior 20 days show strongest continuation</li>
+                <li><strong>Volume Trend (20%):</strong> Modest volume increase (100-120%) indicates healthy accumulation; abnormal spikes suggest instability</li>
+                <li><strong>MA200 Position (15%):</strong> Above 200-day MA indicates long-term bullish structure</li>
+                <li><strong>MA50 Position (10%):</strong> Above 50-day MA indicates medium-term momentum</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Generated: 2026-03-11 06:00 ET | Data Source: Finviz, Alpaca, FMP</p>
+            <p>Disclaimer: This analysis is for informational purposes only. Past performance does not guarantee future results.</p>
+        </div>
+    </div>
+</body>
+</html>
