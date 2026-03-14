@@ -9,6 +9,7 @@ Based on 2026-03 week of 0-6 performance during VIX > 20 regime.
 """
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
@@ -20,40 +21,48 @@ VIX_THRESHOLD_DEFAULT = 20.0
 VIX_LOOKBACK_DAYS = 5  # business-day fallback window
 
 
-def fetch_vix_data(fetcher, from_date: str, to_date: str) -> Dict[str, float]:
-    """Fetch VIX daily close prices via FMP API.
+@dataclass
+class VixDay:
+    """VIX OHLC for a single trading day."""
 
-    Args:
-        fetcher: PriceFetcherProtocol instance.
-        from_date: Start date YYYY-MM-DD (include lookback buffer).
-        to_date: End date YYYY-MM-DD.
+    open: float
+    close: float
+
+
+def fetch_vix_data(fetcher, from_date: str, to_date: str) -> Dict[str, VixDay]:
+    """Fetch VIX daily open/close via FMP API.
 
     Returns:
-        {date_str: close_price} dict.
+        {date_str: VixDay(open, close)} dict.
     """
     bars = fetcher.fetch_prices("^VIX", from_date, to_date)
-    return {bar.date: bar.close for bar in bars}
+    return {bar.date: VixDay(open=bar.open, close=bar.close) for bar in bars}
 
 
-def _resolve_vix(report_date: str, vix_data: Dict[str, float]) -> Optional[float]:
-    """Return the most recent observable VIX close BEFORE report_date.
+def _resolve_vix(report_date: str, vix_data: Dict[str, VixDay]) -> Optional[float]:
+    """Return the VIX value observable at report_date open (entry time).
 
-    Avoids look-ahead bias: on report_date morning (entry decision time),
-    only the previous trading day's VIX close is known. Searches from
-    report_date - 1 day backward up to VIX_LOOKBACK_DAYS.
+    Strategy:
+    1. If report_date is a trading day, use its VIX open (observable at entry).
+    2. Otherwise, fall back to the most recent prior trading day's close
+       (up to VIX_LOOKBACK_DAYS).
     """
+    # First: try report_date's open (same-moment as entry)
+    if report_date in vix_data:
+        return vix_data[report_date].open
+
+    # Fallback: previous trading day's close
     dt = datetime.strptime(report_date, "%Y-%m-%d")
-    # Start from T-1 (previous day) to avoid look-ahead
-    for offset in range(1, VIX_LOOKBACK_DAYS + 2):
+    for offset in range(1, VIX_LOOKBACK_DAYS + 1):
         d = (dt - timedelta(days=offset)).strftime("%Y-%m-%d")
         if d in vix_data:
-            return vix_data[d]
+            return vix_data[d].close
     return None
 
 
 def should_skip_by_vix(
     report_date: str,
-    vix_data: Dict[str, float],
+    vix_data: Dict[str, VixDay],
     vix_threshold: float = VIX_THRESHOLD_DEFAULT,
 ) -> Tuple[bool, Optional[str]]:
     """Check if trade should be skipped due to high VIX.
@@ -72,7 +81,7 @@ def should_skip_by_vix(
 
 def apply_vix_filter(
     candidates: list,
-    vix_data: Dict[str, float],
+    vix_data: Dict[str, VixDay],
     vix_threshold: float = VIX_THRESHOLD_DEFAULT,
 ) -> Tuple[list, List[SkippedTrade]]:
     """Apply VIX filter to candidate list.
