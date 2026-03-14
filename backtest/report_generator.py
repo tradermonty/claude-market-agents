@@ -729,6 +729,9 @@ tr:hover {{ background: var(--bg3); }}
                 f"Entry Quality Filter: ON (price ${p_min}-${p_max}, "
                 f"gap\u2265{g_th}%+score\u2265{s_th})"
             )
+        if cfg.get("vix_filter"):
+            vix_th = cfg.get("vix_threshold", 20.0)
+            parts.append(f"VIX Filter: ON (VIX > {vix_th})")
         if not parts:
             return ""
         return "<br>" + " | ".join(parts)

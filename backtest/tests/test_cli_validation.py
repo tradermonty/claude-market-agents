@@ -132,6 +132,25 @@ class TestCLIValidation:
         # Should not exit with code 2 (valid combo)
         assert result.returncode != 2
 
+    # --- VIX filter tests ---
+    def test_vix_filter_flag_accepted(self):
+        result = run_cli("--vix-filter")
+        assert result.returncode != 2
+
+    def test_vix_threshold_negative_rejected(self):
+        result = run_cli("--vix-threshold", "-5")
+        assert result.returncode == 2
+        assert "--vix-threshold" in result.stderr
+
+    def test_vix_threshold_zero_rejected(self):
+        result = run_cli("--vix-threshold", "0")
+        assert result.returncode == 2
+        assert "--vix-threshold" in result.stderr
+
+    def test_vix_threshold_valid(self):
+        result = run_cli("--vix-threshold", "25")
+        assert result.returncode != 2
+
     # --- Entry quality filter tests ---
     def test_entry_quality_filter_flag_accepted(self):
         result = run_cli("--entry-quality-filter")

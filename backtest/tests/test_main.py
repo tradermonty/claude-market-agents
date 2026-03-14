@@ -47,6 +47,8 @@ def _make_valid_namespace(**overrides):
         "exclude_price_max": None,
         "risk_gap_threshold": None,
         "risk_score_threshold": None,
+        "vix_filter": False,
+        "vix_threshold": None,
     }
     defaults.update(overrides)
     return argparse.Namespace(**defaults)
@@ -122,6 +124,8 @@ class TestParseArgs:
         assert args.max_positions is None
         assert args.no_rotation is False
         assert args.verbose is False
+        assert args.vix_filter is False
+        assert args.vix_threshold is None
         assert args.reports_dir == "reports/"
         assert args.output_dir == "reports/backtest/"
 
@@ -289,3 +293,133 @@ class TestMain:
         mock_calculator_instance.calculate.assert_called_once()
         mock_generator_instance.generate.assert_called_once()
         mock_manifest.assert_called_once()
+
+    def test_parse_only_with_vix_filter_disables_vix(self, monkeypatch, tmp_path):
+        """--parse-only + --vix-filter: warning logged, PriceFetcher not called for VIX."""
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "main",
+                "--parse-only",
+                "--vix-filter",
+                "--output-dir",
+                str(tmp_path),
+            ],
+        )
+
+        candidates = [_make_candidate("AAPL", "2025-01-15", "A")]
+        mock_parser_instance = MagicMock()
+        mock_parser_instance.parse_all_reports.return_value = candidates
+
+        with (
+            patch(
+                "backtest.main.EarningsReportParser",
+                return_value=mock_parser_instance,
+            ),
+            patch("backtest.main.PriceFetcher") as mock_pf_cls,
+        ):
+            main()
+
+        # PriceFetcher should never be instantiated in parse-only mode
+        mock_pf_cls.assert_not_called()
+        # CSV should still be written
+        assert (tmp_path / "parsed_candidates.csv").exists()
+
+    def test_all_candidates_filtered_generates_empty_report(self, monkeypatch, tmp_path):
+        """When all candidates are removed by VIX filter, empty report is generated without crash."""
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "main",
+                "--vix-filter",
+                "--vix-threshold",
+                "15",
+                "--output-dir",
+                str(tmp_path),
+            ],
+        )
+
+        candidates = [
+            _make_candidate("AAPL", "2025-01-15", "A"),
+            _make_candidate("MSFT", "2025-01-16", "B"),
+        ]
+        mock_parser_instance = MagicMock()
+        mock_parser_instance.parse_all_reports.return_value = candidates
+
+        # VIX fetcher returns high VIX for all dates → all candidates filtered
+        from backtest.price_fetcher import PriceBar
+
+        vix_bars = [
+            PriceBar(
+                date="2025-01-10",
+                open=20.0,
+                high=22.0,
+                low=19.0,
+                close=21.0,
+                adj_close=21.0,
+                volume=100000,
+            ),
+            PriceBar(
+                date="2025-01-15",
+                open=20.0,
+                high=22.0,
+                low=19.0,
+                close=21.0,
+                adj_close=21.0,
+                volume=100000,
+            ),
+            PriceBar(
+                date="2025-01-16",
+                open=22.0,
+                high=24.0,
+                low=21.0,
+                close=23.0,
+                adj_close=23.0,
+                volume=120000,
+            ),
+        ]
+        mock_vix_fetcher = MagicMock()
+        mock_vix_fetcher.fetch_prices.return_value = vix_bars
+
+        # Calculate real metrics for empty trades
+        from backtest.metrics_calculator import MetricsCalculator
+
+        real_metrics = MetricsCalculator().calculate([], [], position_size=10000)
+
+        mock_calculator = MagicMock()
+        mock_calculator.calculate.return_value = real_metrics
+        mock_generator = MagicMock()
+
+        with (
+            patch(
+                "backtest.main.EarningsReportParser",
+                return_value=mock_parser_instance,
+            ),
+            patch(
+                "backtest.main.PriceFetcher",
+                return_value=mock_vix_fetcher,
+            ),
+            patch(
+                "backtest.main.MetricsCalculator",
+                return_value=mock_calculator,
+            ),
+            patch(
+                "backtest.main.ReportGenerator",
+                return_value=mock_generator,
+            ),
+            patch("backtest.main.write_manifest") as mock_manifest,
+        ):
+            # Should NOT raise or sys.exit
+            main()
+
+        # Report should be generated with empty trades
+        mock_generator.generate.assert_called_once()
+        call_args = mock_generator.generate.call_args
+        trades_arg = call_args[0][1]  # trades is 2nd positional arg
+        skipped_arg = call_args[0][2]  # skipped is 3rd positional arg
+        assert trades_arg == []
+        assert len(skipped_arg) == 2  # both candidates were VIX-filtered
+        assert all(s.skip_reason.startswith("filter_high_vix") for s in skipped_arg)
+        mock_manifest.assert_called_once()
+        # filtered_candidates.csv should be written
+        assert (tmp_path / "filtered_candidates.csv").exists()

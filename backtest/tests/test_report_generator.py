@@ -120,3 +120,25 @@ class TestReportGenerator:
         assert (tmp_path / "earnings_trade_backtest_result.html").exists()
         assert not (tmp_path / "earnings_trade_backtest_trades.csv").exists()
         assert not (tmp_path / "earnings_trade_backtest_skipped.csv").exists()
+
+
+class TestFilterConfigHtml:
+    """Tests for _filter_config_html() VIX display."""
+
+    def test_filter_config_html_vix_on(self):
+        gen = ReportGenerator()
+        cfg = {"vix_filter": True, "vix_threshold": 20.0}
+        html = gen._filter_config_html(cfg)
+        assert "VIX Filter: ON (VIX > 20.0)" in html
+
+    def test_filter_config_html_vix_off(self):
+        gen = ReportGenerator()
+        cfg = {"vix_filter": False}
+        html = gen._filter_config_html(cfg)
+        assert "VIX" not in html
+
+    def test_filter_config_html_vix_custom_threshold(self):
+        gen = ReportGenerator()
+        cfg = {"vix_filter": True, "vix_threshold": 25.0}
+        html = gen._filter_config_html(cfg)
+        assert "VIX Filter: ON (VIX > 25.0)" in html

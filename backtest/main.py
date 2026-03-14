@@ -159,6 +159,17 @@ def parse_args():
         default=None,
         help="Entry quality filter: score threshold for combo filter (default: 85)",
     )
+    parser.add_argument(
+        "--vix-filter",
+        action="store_true",
+        help="Enable VIX environment filter (skip entries when VIX > threshold)",
+    )
+    parser.add_argument(
+        "--vix-threshold",
+        type=float,
+        default=None,
+        help="VIX threshold for environment filter (default: 20.0)",
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     return parser.parse_args()
 
@@ -229,6 +240,11 @@ def validate_args(args) -> None:
 
     errors.extend(validate_filter_args(args))
 
+    # VIX filter validation
+    from backtest.vix_filter import validate_vix_filter_args
+
+    errors.extend(validate_vix_filter_args(args))
+
     if errors:
         for e in errors:
             print(f"Error: {e}", file=sys.stderr)
@@ -277,6 +293,18 @@ def main():
         args.risk_score_threshold if args.risk_score_threshold is not None else RISK_SCORE_THRESHOLD
     )
 
+    # VIX filter — determine activation and effective threshold
+    from backtest.vix_filter import (
+        VIX_THRESHOLD_DEFAULT,
+        is_vix_filter_active,
+    )
+
+    vix_requested = is_vix_filter_active(args)
+    effective_vix_active = vix_requested and not args.parse_only
+    if vix_requested and args.parse_only:
+        logger.warning("VIX filter disabled in parse-only mode (requires API)")
+    eff_vix_th = args.vix_threshold if args.vix_threshold is not None else VIX_THRESHOLD_DEFAULT
+
     if filter_active:
         logger.info(
             f"Entry quality filter: price [${eff_price_min}, ${eff_price_max}), "
@@ -307,6 +335,8 @@ def main():
         "exclude_price_max": eff_price_max if filter_active else None,
         "risk_gap_threshold": eff_gap_th if filter_active else None,
         "risk_score_threshold": eff_score_th if filter_active else None,
+        "vix_filter": effective_vix_active,
+        "vix_threshold": eff_vix_th if effective_vix_active else None,
     }
 
     grade_order = {"A": 0, "B": 1, "C": 2, "D": 3}
@@ -348,29 +378,59 @@ def main():
         logger.info(f"After gap filter [{lo}%, {hi}%): {len(candidates)} candidates")
 
     # Entry quality filter
+    all_filter_skipped = []
     if filter_active:
         from backtest.entry_filter import apply_entry_quality_filter
 
         pre_filter_count = len(candidates)
-        candidates, filter_skipped = apply_entry_quality_filter(
+        candidates, eq_skipped = apply_entry_quality_filter(
             candidates,
             price_min=eff_price_min,
             price_max=eff_price_max,
             gap_threshold=eff_gap_th,
             score_threshold=eff_score_th,
         )
+        all_filter_skipped.extend(eq_skipped)
         reason_counts = {}
-        for s in filter_skipped:
+        for s in eq_skipped:
             reason_counts[s.skip_reason] = reason_counts.get(s.skip_reason, 0) + 1
         reason_str = ", ".join(f"{r}: {c}" for r, c in sorted(reason_counts.items()))
         logger.info(
             f"After entry quality filter: {len(candidates)} candidates "
             f"({pre_filter_count - len(candidates)} filtered: {reason_str})"
         )
-    else:
-        filter_skipped = []
 
-    # Summary
+    if args.parse_only:
+        logger.info("Parse-only mode: skipping price fetch and simulation")
+        _write_candidates_csv(candidates, Path(args.output_dir) / "parsed_candidates.csv")
+        if filter_active:
+            _write_filtered_csv(
+                all_filter_skipped, Path(args.output_dir) / "filtered_candidates.csv"
+            )
+        return
+
+    # VIX filter — fetch VIX data and apply filter (requires API, skipped in parse-only)
+    if effective_vix_active and candidates:
+        from datetime import timedelta as _td
+
+        from backtest.vix_filter import VIX_LOOKBACK_DAYS, apply_vix_filter, fetch_vix_data
+
+        min_report_dt = min(datetime.strptime(c.report_date, "%Y-%m-%d") for c in candidates)
+        max_report_date = max(c.report_date for c in candidates)
+        vix_from = (min_report_dt - _td(days=VIX_LOOKBACK_DAYS)).strftime("%Y-%m-%d")
+
+        vix_fetcher = PriceFetcher(api_key=args.fmp_api_key)
+        vix_data = fetch_vix_data(vix_fetcher, vix_from, max_report_date)
+
+        pre_vix_count = len(candidates)
+        candidates, vix_skipped = apply_vix_filter(candidates, vix_data, eff_vix_th)
+        all_filter_skipped.extend(vix_skipped)
+        logger.info(
+            f"After VIX filter (>{eff_vix_th}): {len(candidates)} candidates "
+            f"({pre_vix_count - len(candidates)} filtered)"
+        )
+
+    # Summary (after all filters including VIX)
     grade_counts = {}
     for c in candidates:
         grade_counts[c.grade] = grade_counts.get(c.grade, 0) + 1
@@ -378,16 +438,45 @@ def main():
         if g in grade_counts:
             logger.info(f"  Grade {g}: {grade_counts[g]}")
 
-    if args.parse_only:
-        logger.info("Parse-only mode: skipping price fetch and simulation")
-        _write_candidates_csv(candidates, Path(args.output_dir) / "parsed_candidates.csv")
-        if filter_active:
-            _write_filtered_csv(filter_skipped, Path(args.output_dir) / "filtered_candidates.csv")
-        return
-
     if not candidates:
-        logger.error("No candidates found. Check reports directory.")
-        sys.exit(1)
+        if all_filter_skipped:
+            logger.warning("All candidates removed by filters. Generating empty report.")
+            # Skip price fetch/simulation — go straight to metrics & report
+            trades: list = []
+            skipped = all_filter_skipped
+            effective_data_end = args.data_end_date
+            config["data_end_date"] = effective_data_end
+
+            calculator = MetricsCalculator()
+            metrics = calculator.calculate(trades, skipped, position_size=args.position_size)
+
+            generator = ReportGenerator()
+            generator.generate(metrics, trades, skipped, args.output_dir, config)
+
+            write_manifest(
+                output_dir=args.output_dir,
+                config=config,
+                summary_metrics={
+                    "total_trades": metrics.total_trades,
+                    "win_rate": metrics.win_rate,
+                    "total_pnl": metrics.total_pnl,
+                    "profit_factor": metrics.profit_factor,
+                    "trade_sharpe": metrics.trade_sharpe,
+                    "max_drawdown": metrics.max_drawdown,
+                },
+                candidate_count=0,
+                trade_count=0,
+                skipped_count=len(skipped),
+            )
+            if all_filter_skipped:
+                _write_filtered_csv(
+                    all_filter_skipped, Path(args.output_dir) / "filtered_candidates.csv"
+                )
+            logger.info(f"Empty report generated at {args.output_dir}")
+            return
+        else:
+            logger.error("No candidates found. Check reports directory.")
+            sys.exit(1)
 
     # Step 2: Fetch price data
     logger.info("=" * 60)
@@ -474,7 +563,7 @@ def main():
         trades, skipped = simulator.simulate_all(candidates, price_data)
 
     # Merge filter-skipped into skipped list
-    skipped = filter_skipped + skipped
+    skipped = all_filter_skipped + skipped
 
     # Post-simulation warnings
     if not trades:
