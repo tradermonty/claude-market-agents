@@ -36,9 +36,15 @@ def fetch_vix_data(fetcher, from_date: str, to_date: str) -> Dict[str, float]:
 
 
 def _resolve_vix(report_date: str, vix_data: Dict[str, float]) -> Optional[float]:
-    """Return VIX close for report_date, falling back up to 5 days for holidays/weekends."""
+    """Return the most recent observable VIX close BEFORE report_date.
+
+    Avoids look-ahead bias: on report_date morning (entry decision time),
+    only the previous trading day's VIX close is known. Searches from
+    report_date - 1 day backward up to VIX_LOOKBACK_DAYS.
+    """
     dt = datetime.strptime(report_date, "%Y-%m-%d")
-    for offset in range(VIX_LOOKBACK_DAYS + 1):
+    # Start from T-1 (previous day) to avoid look-ahead
+    for offset in range(1, VIX_LOOKBACK_DAYS + 2):
         d = (dt - timedelta(days=offset)).strftime("%Y-%m-%d")
         if d in vix_data:
             return vix_data[d]

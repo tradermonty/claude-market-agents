@@ -73,33 +73,45 @@ class TestFetchVixData:
 
 
 class TestResolveVix:
-    """Tests for _resolve_vix()."""
+    """Tests for _resolve_vix() — uses T-1 to avoid look-ahead bias."""
 
-    def test_exact_date_hit(self):
+    def test_previous_day_hit(self):
+        """report_date=10/15 → looks up 10/14 (T-1)."""
         from backtest.vix_filter import _resolve_vix
 
-        vix_data = {"2025-10-15": 22.0, "2025-10-14": 18.0}
+        vix_data = {"2025-10-14": 22.0, "2025-10-15": 99.0}
+        # Must return T-1 (10/14), NOT report_date (10/15)
         assert _resolve_vix("2025-10-15", vix_data) == 22.0
 
-    def test_weekend_fallback(self):
-        """If report_date is Saturday, fall back to Friday."""
+    def test_report_date_itself_is_ignored(self):
+        """Even if report_date has VIX data, it should not be used (look-ahead)."""
         from backtest.vix_filter import _resolve_vix
 
-        # 2025-10-18 is Saturday, 2025-10-17 is Friday
-        vix_data = {"2025-10-17": 19.0}
-        assert _resolve_vix("2025-10-18", vix_data) == 19.0
+        vix_data = {"2025-10-15": 30.0}  # Only report_date, no T-1
+        # T-1 (10/14) not in data, fallback searches further back → None
+        assert _resolve_vix("2025-10-15", vix_data) is None
+
+    def test_weekend_fallback(self):
+        """report_date is Monday 10/13 → T-1 is Sunday → falls back to Friday 10/10."""
+        from backtest.vix_filter import _resolve_vix
+
+        # 2025-10-13 is Monday, T-1 = Sunday 10/12 (no data), fallback to Friday 10/10
+        vix_data = {"2025-10-10": 19.0}
+        assert _resolve_vix("2025-10-13", vix_data) == 19.0
 
     def test_holiday_fallback_multiple_days(self):
-        """Fall back up to 5 days."""
+        """Fall back up to 5+1 days from T-1."""
         from backtest.vix_filter import _resolve_vix
 
-        # Only data 3 days before
-        vix_data = {"2025-10-12": 21.0}
+        # report_date=10/15, T-1=10/14, data only at 10/11 (3 days before T-1)
+        vix_data = {"2025-10-11": 21.0}
         assert _resolve_vix("2025-10-15", vix_data) == 21.0
 
-    def test_fallback_beyond_5_days_returns_none(self):
+    def test_fallback_beyond_range_returns_none(self):
         from backtest.vix_filter import _resolve_vix
 
+        # report_date=10/15, T-1=10/14, range is T-1 to T-6 (10/14..10/09)
+        # Data at 10/08 is outside range
         vix_data = {"2025-10-08": 21.0}
         assert _resolve_vix("2025-10-15", vix_data) is None
 
@@ -110,22 +122,27 @@ class TestResolveVix:
 
 
 class TestShouldSkipByVix:
-    """Tests for should_skip_by_vix()."""
+    """Tests for should_skip_by_vix().
+
+    All vix_data keys are T-1 relative to report_date since _resolve_vix
+    uses the previous day's close to avoid look-ahead.
+    """
 
     def test_vix_above_threshold_skips(self):
         from backtest.vix_filter import should_skip_by_vix
 
+        # report_date=10/16, VIX on 10/15 (T-1) = 22
         vix_data = {"2025-10-15": 22.0}
-        skip, reason = should_skip_by_vix("2025-10-15", vix_data, vix_threshold=20.0)
+        skip, reason = should_skip_by_vix("2025-10-16", vix_data, vix_threshold=20.0)
         assert skip is True
         assert reason == "filter_high_vix_20.0"
 
-    def test_vix_at_threshold_skips(self):
+    def test_vix_at_threshold_does_not_skip(self):
         """VIX exactly at threshold should NOT skip (> not >=)."""
         from backtest.vix_filter import should_skip_by_vix
 
         vix_data = {"2025-10-15": 20.0}
-        skip, reason = should_skip_by_vix("2025-10-15", vix_data, vix_threshold=20.0)
+        skip, reason = should_skip_by_vix("2025-10-16", vix_data, vix_threshold=20.0)
         assert skip is False
         assert reason is None
 
@@ -133,7 +150,7 @@ class TestShouldSkipByVix:
         from backtest.vix_filter import should_skip_by_vix
 
         vix_data = {"2025-10-15": 19.99}
-        skip, reason = should_skip_by_vix("2025-10-15", vix_data, vix_threshold=20.0)
+        skip, reason = should_skip_by_vix("2025-10-16", vix_data, vix_threshold=20.0)
         assert skip is False
         assert reason is None
 
@@ -141,7 +158,7 @@ class TestShouldSkipByVix:
         from backtest.vix_filter import should_skip_by_vix
 
         vix_data = {"2025-10-15": 20.01}
-        skip, reason = should_skip_by_vix("2025-10-15", vix_data, vix_threshold=20.0)
+        skip, reason = should_skip_by_vix("2025-10-16", vix_data, vix_threshold=20.0)
         assert skip is True
         assert reason == "filter_high_vix_20.0"
 
@@ -149,30 +166,35 @@ class TestShouldSkipByVix:
         """When VIX data is missing, fail open (don't skip)."""
         from backtest.vix_filter import should_skip_by_vix
 
-        skip, reason = should_skip_by_vix("2025-10-15", {}, vix_threshold=20.0)
+        skip, reason = should_skip_by_vix("2025-10-16", {}, vix_threshold=20.0)
         assert skip is False
         assert reason is None
 
     def test_custom_threshold(self):
         from backtest.vix_filter import should_skip_by_vix
 
+        # T-1 data for report_date=10/16
         vix_data = {"2025-10-15": 25.0}
-        skip, reason = should_skip_by_vix("2025-10-15", vix_data, vix_threshold=30.0)
+        skip, reason = should_skip_by_vix("2025-10-16", vix_data, vix_threshold=30.0)
         assert skip is False
 
-        skip, reason = should_skip_by_vix("2025-10-15", vix_data, vix_threshold=24.0)
+        skip, reason = should_skip_by_vix("2025-10-16", vix_data, vix_threshold=24.0)
         assert skip is True
         assert reason == "filter_high_vix_24.0"
 
 
 class TestApplyVixFilter:
-    """Tests for apply_vix_filter()."""
+    """Tests for apply_vix_filter().
+
+    VIX data keyed to T-1 of each candidate's report_date.
+    """
 
     def test_all_pass(self):
         from backtest.vix_filter import apply_vix_filter
 
         candidates = [_make_candidate("AAPL", "2025-10-15"), _make_candidate("MSFT", "2025-10-16")]
-        vix_data = {"2025-10-15": 15.0, "2025-10-16": 18.0}
+        # T-1 data: 10/14 for AAPL, 10/15 for MSFT
+        vix_data = {"2025-10-14": 15.0, "2025-10-15": 18.0}
         passed, skipped = apply_vix_filter(candidates, vix_data, vix_threshold=20.0)
         assert len(passed) == 2
         assert len(skipped) == 0
@@ -181,7 +203,7 @@ class TestApplyVixFilter:
         from backtest.vix_filter import apply_vix_filter
 
         candidates = [_make_candidate("AAPL", "2025-10-15"), _make_candidate("MSFT", "2025-10-16")]
-        vix_data = {"2025-10-15": 25.0, "2025-10-16": 30.0}
+        vix_data = {"2025-10-14": 25.0, "2025-10-15": 30.0}
         passed, skipped = apply_vix_filter(candidates, vix_data, vix_threshold=20.0)
         assert len(passed) == 0
         assert len(skipped) == 2
@@ -190,7 +212,7 @@ class TestApplyVixFilter:
         from backtest.vix_filter import apply_vix_filter
 
         candidates = [_make_candidate("AAPL", "2025-10-15"), _make_candidate("MSFT", "2025-10-16")]
-        vix_data = {"2025-10-15": 15.0, "2025-10-16": 25.0}
+        vix_data = {"2025-10-14": 15.0, "2025-10-15": 25.0}
         passed, skipped = apply_vix_filter(candidates, vix_data, vix_threshold=20.0)
         assert len(passed) == 1
         assert passed[0].ticker == "AAPL"
@@ -201,7 +223,7 @@ class TestApplyVixFilter:
         from backtest.vix_filter import apply_vix_filter
 
         candidates = [_make_candidate("AAPL", "2025-10-15")]
-        vix_data = {"2025-10-15": 25.0}
+        vix_data = {"2025-10-14": 25.0}
         _, skipped = apply_vix_filter(candidates, vix_data, vix_threshold=20.0)
         assert len(skipped) == 1
         s = skipped[0]
