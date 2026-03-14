@@ -67,6 +67,7 @@ class ReportGenerator:
             "exit_reason",
             "gap_size",
             "company_name",
+            "vix_at_entry",
         ]
         with open(path, "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)

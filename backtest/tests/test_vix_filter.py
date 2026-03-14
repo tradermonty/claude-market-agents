@@ -266,6 +266,118 @@ class TestIsVixFilterActive:
         assert is_vix_filter_active(args) is False
 
 
+class TestEnrichTradesWithVix:
+    """Tests for enrich_trades_with_vix()."""
+
+    def _make_trade(self, ticker="AAPL", entry_date="2025-10-15"):
+        from backtest.trade_simulator import TradeResult
+
+        return TradeResult(
+            ticker=ticker,
+            grade="A",
+            grade_source="html",
+            score=85.0,
+            report_date=entry_date,
+            entry_date=entry_date,
+            entry_price=150.0,
+            exit_date="2025-11-15",
+            exit_price=160.0,
+            shares=66,
+            invested=9900.0,
+            pnl=660.0,
+            return_pct=6.67,
+            holding_days=31,
+            exit_reason="max_holding",
+        )
+
+    def test_enriches_vix_at_entry(self):
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        trades = [self._make_trade(entry_date="2025-10-15")]
+        vix_data = {"2025-10-15": VixDay(open=18.5, close=19.0)}
+
+        enrich_trades_with_vix(trades, vix_data)
+        assert trades[0].vix_at_entry == 18.5  # Uses open
+
+    def test_missing_vix_gets_none(self):
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        trades = [self._make_trade(entry_date="2025-10-15")]
+        enrich_trades_with_vix(trades, {})
+        assert trades[0].vix_at_entry is None
+
+    def test_multiple_trades(self):
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        trades = [
+            self._make_trade("AAPL", "2025-10-15"),
+            self._make_trade("MSFT", "2025-10-16"),
+        ]
+        vix_data = {
+            "2025-10-15": VixDay(open=18.0, close=19.0),
+            "2025-10-16": VixDay(open=22.0, close=23.0),
+        }
+        enrich_trades_with_vix(trades, vix_data)
+        assert trades[0].vix_at_entry == 18.0
+        assert trades[1].vix_at_entry == 22.0
+
+    def test_fallback_to_previous_close(self):
+        """Non-trading day entry should fall back to prior close."""
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        trades = [self._make_trade(entry_date="2025-10-18")]  # Saturday
+        vix_data = {"2025-10-17": VixDay(open=20.0, close=21.0)}  # Friday
+        enrich_trades_with_vix(trades, vix_data)
+        assert trades[0].vix_at_entry == 21.0  # Friday's close
+
+    def test_in_place_mutation(self):
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        trade = self._make_trade()
+        assert trade.vix_at_entry is None
+        enrich_trades_with_vix([trade], {"2025-10-15": VixDay(open=17.0, close=18.0)})
+        assert trade.vix_at_entry == 17.0
+
+    def test_empty_trades_no_error(self):
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        enrich_trades_with_vix([], {"2025-10-15": VixDay(open=18.0, close=19.0)})
+
+    def test_entry_date_after_report_date_next_day_open(self):
+        """next_day_open: entry_date is after report_date.
+
+        VIX data must cover entry_date, not just report_date.
+        If vix_data only has up to report_date, entry_date's VIX open
+        would be missing and fallback to prior close — which is wrong.
+        """
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        # report_date=Friday 10/17, entry_date=Monday 10/20 (next_day_open)
+        trade = self._make_trade(entry_date="2025-10-20")
+        trade.report_date = "2025-10-17"
+
+        # VIX data covers through entry_date (10/20)
+        vix_data = {
+            "2025-10-17": VixDay(open=18.0, close=19.0),
+            "2025-10-20": VixDay(open=22.0, close=23.0),
+        }
+        enrich_trades_with_vix([trade], vix_data)
+        assert trade.vix_at_entry == 22.0  # Must use 10/20 open, not 10/17 close
+
+    def test_entry_date_after_report_date_without_coverage(self):
+        """If VIX data stops at report_date, entry_date falls back to prior close."""
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        trade = self._make_trade(entry_date="2025-10-20")
+        trade.report_date = "2025-10-17"
+
+        # VIX data only up to report_date — missing entry_date
+        vix_data = {"2025-10-17": VixDay(open=18.0, close=19.0)}
+        enrich_trades_with_vix([trade], vix_data)
+        # Falls back to 10/17 close (3 days back from 10/20)
+        assert trade.vix_at_entry == 19.0  # Fallback — not ideal
+
+
 class TestValidateVixFilterArgs:
     """Tests for validate_vix_filter_args()."""
 

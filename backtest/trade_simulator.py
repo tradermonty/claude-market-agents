@@ -48,6 +48,7 @@ class TradeResult:
     exit_reason: str  # "stop_loss" | "max_holding" | "end_of_data" | "trend_break"
     gap_size: Optional[float] = None
     company_name: Optional[str] = None
+    vix_at_entry: Optional[float] = None
 
 
 @dataclass

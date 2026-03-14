@@ -409,18 +409,26 @@ def main():
             )
         return
 
-    # VIX filter — fetch VIX data and apply filter (requires API, skipped in parse-only)
-    if effective_vix_active and candidates:
+    # Fetch VIX data (always, for vix_at_entry enrichment; also used by VIX filter)
+    vix_data = {}
+    if not args.parse_only and candidates:
         from datetime import timedelta as _td
 
-        from backtest.vix_filter import VIX_LOOKBACK_DAYS, apply_vix_filter, fetch_vix_data
+        from backtest.vix_filter import VIX_LOOKBACK_DAYS, fetch_vix_data
 
         min_report_dt = min(datetime.strptime(c.report_date, "%Y-%m-%d") for c in candidates)
-        max_report_date = max(c.report_date for c in candidates)
+        max_report_dt = max(datetime.strptime(c.report_date, "%Y-%m-%d") for c in candidates)
         vix_from = (min_report_dt - _td(days=VIX_LOOKBACK_DAYS)).strftime("%Y-%m-%d")
+        # Extend end date to cover entry_date > report_date (next_day_open, holidays)
+        vix_to = (max_report_dt + _td(days=VIX_LOOKBACK_DAYS)).strftime("%Y-%m-%d")
 
         vix_fetcher = PriceFetcher(api_key=args.fmp_api_key)
-        vix_data = fetch_vix_data(vix_fetcher, vix_from, max_report_date)
+        vix_data = fetch_vix_data(vix_fetcher, vix_from, vix_to)
+        logger.info(f"VIX data: {len(vix_data)} trading days")
+
+    # VIX filter — apply filter if active
+    if effective_vix_active and candidates:
+        from backtest.vix_filter import apply_vix_filter
 
         pre_vix_count = len(candidates)
         candidates, vix_skipped = apply_vix_filter(candidates, vix_data, eff_vix_th)
@@ -564,6 +572,12 @@ def main():
 
     # Merge filter-skipped into skipped list
     skipped = all_filter_skipped + skipped
+
+    # Enrich trades with VIX at entry (regardless of VIX filter status)
+    if vix_data and trades:
+        from backtest.vix_filter import enrich_trades_with_vix
+
+        enrich_trades_with_vix(trades, vix_data)
 
     # Post-simulation warnings
     if not trades:

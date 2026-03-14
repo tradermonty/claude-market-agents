@@ -8,12 +8,17 @@ environments degrade gap-up momentum continuation.
 Based on 2026-03 week of 0-6 performance during VIX > 20 regime.
 """
 
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from backtest.trade_simulator import SkippedTrade
+
+if TYPE_CHECKING:
+    from backtest.trade_simulator import TradeResult
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +112,20 @@ def apply_vix_filter(
         else:
             passed.append(c)
     return passed, skipped
+
+
+def enrich_trades_with_vix(
+    trades: List[TradeResult],
+    vix_data: Dict[str, VixDay],
+) -> None:
+    """Attach vix_at_entry to each TradeResult (in-place).
+
+    Uses entry_date to resolve VIX. Trades with unresolvable VIX
+    get None (no error).
+    """
+
+    for trade in trades:
+        trade.vix_at_entry = _resolve_vix(trade.entry_date, vix_data)
 
 
 def is_vix_filter_active(args) -> bool:
