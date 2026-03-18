@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - March 18, 2026</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --success: #00d9a5;
+            --warning: #ffc107;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --card-bg: #1e2a45;
+            --grade-a: #00d9a5;
+            --grade-b: #4ade80;
+            --grade-c: #fbbf24;
+            --grade-d: #f87171;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--highlight), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background: var(--highlight);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stock-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stock-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stock-ticker {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        .stock-name {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .grade-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .grade-A { background: var(--grade-a); }
+        .grade-B { background: var(--grade-b); }
+        .grade-C { background: var(--grade-c); color: #1a1a2e; }
+        .grade-D { background: var(--grade-d); }
+
+        .stock-body {
+            padding: 20px;
+        }
+
+        .price-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .current-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        .gap-change {
+            text-align: right;
+        }
+
+        .gap-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        .gap-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .score-details {
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .score-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .score-value {
+            font-weight: bold;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .score-fill.high { background: var(--success); }
+        .score-fill.medium { background: var(--warning); }
+        .score-fill.low { background: var(--grade-d); }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .metric-item {
+            background: rgba(0,0,0,0.15);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .metric-value.positive { color: var(--success); }
+        .metric-value.negative { color: var(--grade-d); }
+
+        .news-section {
+            background: rgba(0,0,0,0.15);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .news-title {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .news-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .total-score-section {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--accent) 0%, rgba(0,0,0,0.3) 100%);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .total-score-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .total-score-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .disclaimer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .legend {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .legend h3 {
+            margin-bottom: 15px;
+            color: var(--highlight);
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .sector-tag {
+            display: inline-block;
+            background: var(--accent);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .timestamp {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .stocks-grid { grid-template-columns: 1fr; }
+            .summary-section { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest Scoring System for Momentum Gap Trading</p>
+            <div class="date-badge">March 18, 2026</div>
+        </header>
+
+        <div class="summary-section">
+            <div class="summary-card">
+                <h3>Stocks Analyzed</h3>
+                <div class="value">6</div>
+            </div>
+            <div class="summary-card">
+                <h3>A-Grade Stocks</h3>
+                <div class="value" style="color: var(--grade-a);">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>B-Grade Stocks</h3>
+                <div class="value" style="color: var(--grade-b);">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>C-Grade Stocks</h3>
+                <div class="value" style="color: var(--grade-c);">2</div>
+            </div>
+            <div class="summary-card">
+                <h3>D-Grade Stocks</h3>
+                <div class="value" style="color: var(--grade-d);">4</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Backtest Rating System</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-badge grade-A">A</div>
+                    <span>85+ points - 70%+ Success Rate</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-badge grade-B">B</div>
+                    <span>70-84 points - 55-69% Success Rate</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-badge grade-C">C</div>
+                    <span>55-69 points - 40-54% Success Rate</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-badge grade-D">D</div>
+                    <span>54 points or below - Below 40% Success Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px; color: var(--highlight);">C-Grade Stocks (55-69 points)</h2>
+
+        <div class="stocks-grid">
+            <!-- OVID -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">OVID</div>
+                        <div class="stock-name">Ovid Therapeutics Inc</div>
+                        <div class="sector-tag">Healthcare - Biotechnology</div>
+                    </div>
+                    <div class="grade-badge grade-C">C</div>
+                </div>
+                <div class="stock-body">
+                    <div class="price-section">
+                        <div class="current-price">$2.29</div>
+                        <div class="gap-change">
+                            <div class="gap-value">+13.93%</div>
+                            <div class="gap-label">Gap Size</div>
+                        </div>
+                    </div>
+
+                    <div class="score-details">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value">1/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 20%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA200 Position (15%)</span>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA50 Position (10%)</span>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+151.24%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+816.99%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value positive">+36.73%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value negative">156.25%</div>
+                        </div>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-content">
+                            Ovid Therapeutics announced Q4 2025 results featuring massive revenue surprise (+817%) and significant EPS beat (+151%). New OV329 data announced with indication expansion and Phase 1 clearance for OV4071. Company also announced $60M private placement pricing. Very strong upward pre-earnings momentum (+36.73%) but abnormally high volume ratio (156%) may indicate instability.
+                        </div>
+                    </div>
+
+                    <div class="total-score-section">
+                        <div class="total-score-label">Total Backtest Score</div>
+                        <div class="total-score-value" style="color: var(--grade-c);">61.3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANDG -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">ANDG</div>
+                        <div class="stock-name">Andersen Group Inc</div>
+                        <div class="sector-tag">Consumer Cyclical - Personal Services</div>
+                    </div>
+                    <div class="grade-badge grade-C">C</div>
+                </div>
+                <div class="stock-body">
+                    <div class="price-section">
+                        <div class="current-price">$25.29</div>
+                        <div class="gap-change">
+                            <div class="gap-value">+1.61%</div>
+                            <div class="gap-label">Gap Size</div>
+                        </div>
+                    </div>
+
+                    <div class="score-details">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value">4/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA200 Position (15%)</span>
+                            <span class="score-value">4/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA50 Position (10%)</span>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+126.79%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+8.22%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value positive">+14.33%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value negative">71.43%</div>
+                        </div>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-content">
+                            Andersen Group reported record Q4 and full-year 2025 financial results with massive EPS surprise (+127%) and solid revenue beat (+8%). Company initiated 2026 guidance. Strong momentum with +14.33% pre-earnings trend and price above 200-day MA. However, declining volume trend (71%) indicates waning interest. Market cap: $2.81B.
+                        </div>
+                    </div>
+
+                    <div class="total-score-section">
+                        <div class="total-score-label">Total Backtest Score</div>
+                        <div class="total-score-value" style="color: var(--grade-c);">55.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px; color: var(--grade-d);">D-Grade Stocks (Below 54 points)</h2>
+
+        <div class="stocks-grid">
+            <!-- ZTO -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">ZTO</div>
+                        <div class="stock-name">ZTO Express (Cayman) Inc ADR</div>
+                        <div class="sector-tag">Industrials - Integrated Freight & Logistics</div>
+                    </div>
+                    <div class="grade-badge grade-D">D</div>
+                </div>
+                <div class="stock-body">
+                    <div class="price-section">
+                        <div class="current-price">$25.84</div>
+                        <div class="gap-change">
+                            <div class="gap-value">+8.89%</div>
+                            <div class="gap-label">Gap Size</div>
+                        </div>
+                    </div>
+
+                    <div class="score-details">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA200 Position (15%)</span>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA50 Position (10%)</span>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 100%;"></div></div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+6.30%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+1.90%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value negative">-6.17%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Dividend Yield</div>
+                            <div class="metric-value positive">3.17%</div>
+                        </div>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-content">
+                            ZTO Express reported Q4 2025 results with modest EPS and revenue beats. Large-cap China logistics company ($14.86B market cap) with attractive 3.17% dividend yield. Price significantly above 200-day MA (+27.61%) but negative pre-earnings trend (-6.17%) suggests recent weakness prior to earnings.
+                        </div>
+                    </div>
+
+                    <div class="total-score-section">
+                        <div class="total-score-label">Total Backtest Score</div>
+                        <div class="total-score-value" style="color: var(--grade-d);">50.0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HITI -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">HITI</div>
+                        <div class="stock-name">High Tide Inc</div>
+                        <div class="sector-tag">Healthcare - Pharmaceutical Retailers</div>
+                    </div>
+                    <div class="grade-badge grade-D">D</div>
+                </div>
+                <div class="stock-body">
+                    <div class="price-section">
+                        <div class="current-price">$2.65</div>
+                        <div class="gap-change">
+                            <div class="gap-value">+6.43%</div>
+                            <div class="gap-label">Gap Size</div>
+                        </div>
+                    </div>
+
+                    <div class="score-details">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value">4/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA200 Position (15%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA50 Position (10%)</span>
+                            <span class="score-value">4/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+404.17%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+1.80%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value negative">-3.11%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Weekly Performance</div>
+                            <div class="metric-value positive">+7.28%</div>
+                        </div>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-content">
+                            High Tide reported Q1 2026 results with massive EPS surprise (+404%) and record revenue exceeding $700M annualized. Canadian pharmaceutical retailer with small market cap ($232M). Healthy volume trend (103%) but price below 200-day MA (-4.22%) indicates long-term weakness.
+                        </div>
+                    </div>
+
+                    <div class="total-score-section">
+                        <div class="total-score-label">Total Backtest Score</div>
+                        <div class="total-score-value" style="color: var(--grade-d);">46.2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XOMA -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">XOMA</div>
+                        <div class="stock-name">XOMA Royalty Corp</div>
+                        <div class="sector-tag">Healthcare - Biotechnology</div>
+                    </div>
+                    <div class="grade-badge grade-D">D</div>
+                </div>
+                <div class="stock-body">
+                    <div class="price-section">
+                        <div class="current-price">$28.51</div>
+                        <div class="gap-change">
+                            <div class="gap-value">+5.59%</div>
+                            <div class="gap-label">Gap Size</div>
+                        </div>
+                    </div>
+
+                    <div class="score-details">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA200 Position (15%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA50 Position (10%)</span>
+                            <span class="score-value">4/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill high" style="width: 80%;"></div></div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+327.07%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+24.50%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value positive">+4.61%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Volume Ratio</div>
+                            <div class="metric-value negative">32.50%</div>
+                        </div>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-content">
+                            XOMA Royalty reported 2025 financial results with exceptional EPS surprise (+327%) and strong revenue beat (+24.5%). Biotechnology royalty company with $353M market cap. Very low volume trend (32.5%) indicates significantly declining trading interest which is a major concern. Below 200-day MA (-3.65%).
+                        </div>
+                    </div>
+
+                    <div class="total-score-section">
+                        <div class="total-score-label">Total Backtest Score</div>
+                        <div class="total-score-value" style="color: var(--grade-d);">43.7</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HQY -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-ticker">HQY</div>
+                        <div class="stock-name">Healthequity Inc</div>
+                        <div class="sector-tag">Healthcare - Health Information Services</div>
+                    </div>
+                    <div class="grade-badge grade-D">D</div>
+                </div>
+                <div class="stock-body">
+                    <div class="price-section">
+                        <div class="current-price">$82.96</div>
+                        <div class="gap-change">
+                            <div class="gap-value">+4.48%</div>
+                            <div class="gap-label">Gap Size</div>
+                        </div>
+                    </div>
+
+                    <div class="score-details">
+                        <div class="score-item">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Pre-Earnings Trend (30%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">Volume Trend (20%)</span>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 40%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA200 Position (15%)</span>
+                            <span class="score-value">1/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill low" style="width: 20%;"></div></div>
+
+                        <div class="score-item">
+                            <span class="score-label">MA50 Position (10%)</span>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar"><div class="score-fill medium" style="width: 60%;"></div></div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value positive">+5.83%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Revenue Surprise</div>
+                            <div class="metric-value positive">+0.69%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pre-Earnings Trend</div>
+                            <div class="metric-value positive">+0.65%</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Market Cap</div>
+                            <div class="metric-value">$7.09B</div>
+                        </div>
+                    </div>
+
+                    <div class="news-section">
+                        <div class="news-title">Earnings Summary</div>
+                        <div class="news-content">
+                            HealthEquity reported record Q4 FY2026 results with modest EPS and revenue beats. Record HSA growth and strong financial performance led to raised FY2027 outlook. Large-cap ($7.09B) health information services company. Significantly below 200-day MA (-10.42%) indicates major long-term weakness despite recent positive results.
+                        </div>
+                    </div>
+
+                    <div class="total-score-section">
+                        <div class="total-score-label">Total Backtest Score</div>
+                        <div class="total-score-value" style="color: var(--grade-d);">37.5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <h3 style="margin-bottom: 15px; color: var(--highlight);">Disclaimer</h3>
+            <p>This analysis is for informational purposes only and does not constitute investment advice. Past performance and backtest results are not indicative of future returns. All investments involve risk, and you should conduct your own research before making any investment decisions. The backtest scoring system is based on historical patterns and may not accurately predict future stock performance. Trade responsibly and consider consulting with a financial advisor.</p>
+            <p style="margin-top: 15px;"><strong>Analysis Methodology:</strong> Gap Size Performance (25%), Pre-Earnings Trend (30%), Volume Trend (20%), MA200 Position (15%), MA50 Position (10%)</p>
+        </div>
+
+        <div class="timestamp">
+            Report generated: March 18, 2026 at 06:35 AM PDT
+        </div>
+    </div>
+</body>
+</html>
