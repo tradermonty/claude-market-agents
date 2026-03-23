@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Market Report - March 23, 2026 (Monday)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #64b5f6, #42a5f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .date {
+            font-size: 1.2em;
+            color: #90caf9;
+            margin-bottom: 5px;
+        }
+
+        .header .time {
+            font-size: 0.9em;
+            color: #b3d9ff;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #64b5f6;
+            border-bottom: 2px solid rgba(100, 181, 246, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .etf-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .etf-symbol {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #90caf9;
+            margin-bottom: 8px;
+        }
+
+        .etf-price {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .etf-change {
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .positive {
+            color: #4caf50;
+            background: rgba(76, 175, 80, 0.15);
+        }
+
+        .negative {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.15);
+        }
+
+        .volume-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .volume-table th,
+        .volume-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .volume-table th {
+            background: rgba(100, 181, 246, 0.15);
+            color: #90caf9;
+            font-weight: bold;
+        }
+
+        .volume-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .ticker-symbol {
+            color: #64b5f6;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            color: #b3d9ff;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .sector-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .sector-table th,
+        .sector-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sector-table th {
+            background: rgba(100, 181, 246, 0.15);
+            color: #90caf9;
+            font-weight: bold;
+        }
+
+        .sector-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .highlights-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .highlights-list li {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #64b5f6;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #b3d9ff;
+            font-size: 0.9em;
+            margin-top: 30px;
+        }
+
+        .after-hours-section {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+
+        .after-hours-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border-bottom: 2px solid rgba(255, 165, 0, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .earnings-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 165, 0, 0.2);
+        }
+
+        .earnings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .earnings-symbol {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #ffa500;
+        }
+
+        .earnings-ah-change {
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+        }
+
+        .earnings-details {
+            color: #e0e0e0;
+            line-height: 1.8;
+        }
+
+        .earnings-details .label {
+            color: #b3d9ff;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .etf-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .volume-table,
+            .sector-table {
+                font-size: 0.9em;
+            }
+
+            .volume-table th,
+            .volume-table td,
+            .sector-table th,
+            .sector-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🇺🇸 US Market Close Report</h1>
+            <div class="date">Monday, March 23, 2026</div>
+            <div class="time">Market Close: 4:00 PM ET | Report Generated: 1:11 PM PT</div>
+        </div>
+
+        <!-- Major ETF Performance -->
+        <div class="section">
+            <h2 class="section-title">📊 Major ETF Performance</h2>
+            <div class="etf-grid">
+                <div class="etf-card">
+                    <div class="etf-symbol">$SPY</div>
+                    <div class="etf-price">$655.38</div>
+                    <div class="etf-change positive">+1.05%</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">$QQQ</div>
+                    <div class="etf-price">$588.00</div>
+                    <div class="etf-change positive">+1.02%</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">$DIA</div>
+                    <div class="etf-price">$461.97</div>
+                    <div class="etf-change positive">+1.32%</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">$IWM</div>
+                    <div class="etf-price">$247.45</div>
+                    <div class="etf-change positive">+2.13%</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">$TLT</div>
+                    <div class="etf-price">$86.39</div>
+                    <div class="etf-change positive">+0.65%</div>
+                </div>
+                <div class="etf-card">
+                    <div class="etf-symbol">$GLD</div>
+                    <div class="etf-price">$404.04</div>
+                    <div class="etf-change negative">-2.26%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Volume-Surge Tickers -->
+        <div class="section">
+            <h2 class="section-title">🔥 Top Volume-Surge Tickers (191 Total)</h2>
+            <table class="volume-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Sector</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Rel Vol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ticker-symbol">$DMRA</td>
+                        <td>Damora Therapeutics</td>
+                        <td>Healthcare</td>
+                        <td>$23.05</td>
+                        <td class="positive">+27.07%</td>
+                        <td>1.54x</td>
+                    </tr>
+                    <tr>
+                        <td class="ticker-symbol">$APGE</td>
+                        <td>Apogee Therapeutics</td>
+                        <td>Healthcare</td>
+                        <td>$79.17</td>
+                        <td class="positive">+19.88%</td>
+                        <td>3.63x</td>
+                    </tr>
+                    <tr>
+                        <td class="ticker-symbol">$AXTI</td>
+                        <td>AXT Inc</td>
+                        <td>Technology</td>
+                        <td>$64.38</td>
+                        <td class="positive">+18.69%</td>
+                        <td>1.67x</td>
+                    </tr>
+                    <tr>
+                        <td class="ticker-symbol">$LUNR</td>
+                        <td>Intuitive Machines</td>
+                        <td>Industrials</td>
+                        <td>$20.31</td>
+                        <td class="positive">+13.91%</td>
+                        <td>1.63x</td>
+                    </tr>
+                    <tr>
+                        <td class="ticker-symbol">$BWMN</td>
+                        <td>Bowman Consulting</td>
+                        <td>Industrials</td>
+                        <td>$30.09</td>
+                        <td class="positive">+11.20%</td>
+                        <td>2.79x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- After-Hours Earnings -->
+        <div class="after-hours-section">
+            <h2 class="after-hours-title">🌙 Post-Close Earnings & After-Hours Trading</h2>
+
+            <div class="earnings-card">
+                <div class="earnings-header">
+                    <div class="earnings-symbol">$ABVX</div>
+                    <div class="earnings-ah-change">+2.22%</div>
+                </div>
+                <div class="earnings-details">
+                    <strong>Abivax ADR</strong> (Healthcare)<br>
+                    <span class="label">Regular Close:</span> $115.42 (-4.09%)<br>
+                    <span class="label">After-Hours Price:</span> $117.98<br>
+                    <span class="label">EPS Surprise:</span> <span class="negative">-214.27%</span> (significant miss)<br>
+                    <span class="label">Revenue Surprise:</span> <span class="positive">+78.50%</span> (strong beat)<br>
+                    <span class="label">Volume:</span> 1.3M (regular session)<br>
+                    <span class="label">Analysis:</span> Mixed earnings with massive revenue beat offsetting EPS miss. After-hours recovery suggests market focusing on top-line growth strength.
+                </div>
+            </div>
+
+            <div class="earnings-card">
+                <div class="earnings-header">
+                    <div class="earnings-symbol">$PPHC</div>
+                    <div class="earnings-ah-change">+0.00%</div>
+                </div>
+                <div class="earnings-details">
+                    <strong>Public Policy Holding Company</strong> (Industrials)<br>
+                    <span class="label">Regular Close:</span> $13.19 (+1.46%)<br>
+                    <span class="label">After-Hours Price:</span> $13.19<br>
+                    <span class="label">EPS/Revenue Data:</span> Not yet available<br>
+                    <span class="label">Volume:</span> 132K (regular session)<br>
+                    <span class="label">Analysis:</span> No significant after-hours movement. Awaiting full earnings release details.
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Statistics -->
+        <div class="section">
+            <h2 class="section-title">📈 Market Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Volume-Surge Stocks</div>
+                    <div class="stat-value positive">191</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Uptrend Stocks</div>
+                    <div class="stat-value positive">323</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Relative Volume</div>
+                    <div class="stat-value">1.9x</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Price Change</div>
+                    <div class="stat-value positive">+4.5%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">This Week Earnings</div>
+                    <div class="stat-value">145</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Next Week Earnings</div>
+                    <div class="stat-value">16</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sector Performance -->
+        <div class="section">
+            <h2 class="section-title">🏢 Sector Performance (Top 6)</h2>
+            <table class="sector-table">
+                <thead>
+                    <tr>
+                        <th>Sector</th>
+                        <th>Change</th>
+                        <th>Market Cap</th>
+                        <th>P/E Ratio</th>
+                        <th>Stocks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Basic Materials</strong></td>
+                        <td class="positive">+2.80%</td>
+                        <td>$2.64T</td>
+                        <td>23.71</td>
+                        <td>279</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Consumer Cyclical</strong></td>
+                        <td class="positive">+2.56%</td>
+                        <td>$8.58T</td>
+                        <td>29.09</td>
+                        <td>551</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Technology</strong></td>
+                        <td class="positive">+1.74%</td>
+                        <td>$24.76T</td>
+                        <td>34.10</td>
+                        <td>779</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Industrials</strong></td>
+                        <td class="positive">+1.53%</td>
+                        <td>$7.12T</td>
+                        <td>30.86</td>
+                        <td>689</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Financial</strong></td>
+                        <td class="positive">+1.33%</td>
+                        <td>$13.10T</td>
+                        <td>16.49</td>
+                        <td>1,060</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Utilities</strong></td>
+                        <td class="positive">+1.11%</td>
+                        <td>$1.85T</td>
+                        <td>21.17</td>
+                        <td>109</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Today's Key Points -->
+        <div class="section">
+            <h2 class="section-title">💡 Today's Key Points</h2>
+            <ul class="highlights-list">
+                <li><strong>Broad Market Rally:</strong> All major indices closed higher, with small-caps ($IWM +2.13%) leading the advance, outperforming large-caps significantly.</li>
+                <li><strong>Risk-On Rotation:</strong> Strong performance in cyclical sectors (Basic Materials +2.80%, Consumer Cyclical +2.56%) indicates risk appetite and economic optimism.</li>
+                <li><strong>Gold Pullback:</strong> $GLD dropped -2.26% as equities rallied, suggesting flight-to-safety unwind and potential dollar strength or rate outlook shifts.</li>
+                <li><strong>Volume Surge Leadership:</strong> Healthcare and Technology dominated volume-surge stocks, with 191 total stocks showing 1.5x+ relative volume and 2%+ gains.</li>
+                <li><strong>Treasury Strength:</strong> $TLT gained +0.65% despite equity rally, suggesting flight-to-quality demand remains amid geopolitical or macro uncertainties.</li>
+                <li><strong>After-Hours Action:</strong> $ABVX recovered +2.22% post-earnings despite EPS miss, as market rewarded +78.5% revenue beat—indicating growth-over-profit prioritization.</li>
+                <li><strong>Earnings Season Ramps Up:</strong> 145 reports this week with 16 scheduled for next week, including notable consumer defensive names (Nike, McCormick, Conagra).</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>📊 Data Sources: Finviz Elite | Alpaca Markets API</p>
+            <p>⏰ Report Generated: March 23, 2026 at 1:11 PM PT</p>
+            <p>⚠️ For informational purposes only. Not investment advice.</p>
+        </div>
+    </div>
+</body>
+</html>
