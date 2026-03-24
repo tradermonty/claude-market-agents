@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After-Market Report - Tuesday, March 24, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .date {
+            font-size: 1.3em;
+            color: #a0aec0;
+            margin-bottom: 5px;
+        }
+
+        .header .timestamp {
+            font-size: 0.95em;
+            color: #718096;
+        }
+
+        .summary-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #90cdf4;
+        }
+
+        .summary-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .summary-section li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .summary-section li:last-child {
+            border-bottom: none;
+        }
+
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .etf-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .etf-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .etf-card.positive {
+            border-left: 4px solid #48bb78;
+        }
+
+        .etf-card.negative {
+            border-left: 4px solid #f56565;
+        }
+
+        .etf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .etf-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #90cdf4;
+        }
+
+        .etf-change {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .etf-change.positive {
+            color: #48bb78;
+        }
+
+        .etf-change.negative {
+            color: #f56565;
+        }
+
+        .etf-price {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .etf-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .etf-detail {
+            font-size: 0.9em;
+        }
+
+        .etf-detail-label {
+            color: #a0aec0;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .etf-detail-value {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #90cdf4;
+            border-bottom: 2px solid rgba(144, 205, 244, 0.3);
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #90cdf4;
+            border-bottom: 2px solid rgba(144, 205, 244, 0.3);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .positive-change {
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .negative-change {
+            color: #f56565;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            color: #a0aec0;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #90cdf4;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            color: #a0aec0;
+            margin: 5px 0;
+        }
+
+        .sector-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sector-name {
+            width: 200px;
+            font-weight: bold;
+        }
+
+        .sector-bar-fill {
+            flex-grow: 1;
+            height: 25px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .sector-bar-fill.positive {
+            background: linear-gradient(90deg, rgba(72, 187, 120, 0.3) 0%, rgba(72, 187, 120, 0.6) 100%);
+        }
+
+        .sector-bar-fill.negative {
+            background: linear-gradient(90deg, rgba(245, 101, 101, 0.6) 0%, rgba(245, 101, 101, 0.3) 100%);
+        }
+
+        .earnings-tag {
+            display: inline-block;
+            background: rgba(237, 137, 54, 0.2);
+            color: #ed8936;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .highlight-box {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>After-Market Report</h1>
+            <div class="date">Tuesday, March 24, 2026</div>
+            <div class="timestamp">Market Close: 4:00 PM ET | Report Generated: 4:10 PM ET</div>
+        </div>
+
+        <div class="summary-section">
+            <h2>Today's Key Points</h2>
+            <ul>
+                <li><strong>Mixed Market Action:</strong> Small-caps outperformed with IWM gaining 0.55%, while tech-heavy QQQ declined 0.68% as growth stocks faced pressure.</li>
+                <li><strong>Sector Divergence:</strong> Energy (+1.71%) and Basic Materials (+1.36%) led gains on commodity strength, while Communication Services (-2.22%) lagged significantly.</li>
+                <li><strong>Volume Surge Leaders:</strong> Applied Optoelectronics (AAOI) surged 18.94% with exceptional EPS surprise (90.83%), while Shift4 Payments (FOUR) jumped 19.17% on strong volume.</li>
+                <li><strong>Elevated Volatility:</strong> VIX jumped to $26.94 (up $0.79), reflecting heightened market uncertainty and defensive positioning.</li>
+                <li><strong>After-Hours Earnings:</strong> Two tech stocks reporting - Braze (BRZE) up 11.60% after hours despite regular session decline, and Velo3D (VELO) up 3.40%.</li>
+                <li><strong>Treasury Weakness:</strong> TLT fell 0.43% as bond yields rose, indicating concerns about inflation or Fed policy expectations.</li>
+            </ul>
+        </div>
+
+        <h2 style="text-align: center; color: #90cdf4; margin-bottom: 20px;">Major ETF Performance</h2>
+        <div class="etf-grid">
+            <div class="etf-card positive">
+                <div class="etf-header">
+                    <div class="etf-symbol">IWM</div>
+                    <div class="etf-change positive">+0.55%</div>
+                </div>
+                <div class="etf-price">$248.82</div>
+                <div style="color: #a0aec0; font-size: 0.9em; margin-bottom: 10px;">iShares Russell 2000 ETF</div>
+                <div class="etf-details">
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Day Range</span>
+                        <span class="etf-detail-value">$244.60 - $250.16</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Volume</span>
+                        <span class="etf-detail-value">41.4M</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Previous Close</span>
+                        <span class="etf-detail-value">$247.45</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Open</span>
+                        <span class="etf-detail-value">$245.51</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="etf-card positive">
+                <div class="etf-header">
+                    <div class="etf-symbol">GLD</div>
+                    <div class="etf-change positive">+0.03%</div>
+                </div>
+                <div class="etf-price">$404.18</div>
+                <div style="color: #a0aec0; font-size: 0.9em; margin-bottom: 10px;">SPDR Gold Shares ETF</div>
+                <div class="etf-details">
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Day Range</span>
+                        <span class="etf-detail-value">$399.20 - $407.29</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Volume</span>
+                        <span class="etf-detail-value">16.8M</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Previous Close</span>
+                        <span class="etf-detail-value">$404.04</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Open</span>
+                        <span class="etf-detail-value">$400.24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="etf-card negative">
+                <div class="etf-header">
+                    <div class="etf-symbol">DIA</div>
+                    <div class="etf-change negative">-0.18%</div>
+                </div>
+                <div class="etf-price">$461.15</div>
+                <div style="color: #a0aec0; font-size: 0.9em; margin-bottom: 10px;">SPDR Dow Jones Industrial Average ETF</div>
+                <div class="etf-details">
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Day Range</span>
+                        <span class="etf-detail-value">$457.44 - $463.94</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Volume</span>
+                        <span class="etf-detail-value">7.9M</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Previous Close</span>
+                        <span class="etf-detail-value">$461.97</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Open</span>
+                        <span class="etf-detail-value">$458.42</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="etf-card negative">
+                <div class="etf-header">
+                    <div class="etf-symbol">SPY</div>
+                    <div class="etf-change negative">-0.32%</div>
+                </div>
+                <div class="etf-price">$653.26</div>
+                <div style="color: #a0aec0; font-size: 0.9em; margin-bottom: 10px;">SPDR S&P 500 ETF Trust</div>
+                <div class="etf-details">
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Day Range</span>
+                        <span class="etf-detail-value">$649.88 - $657.03</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Volume</span>
+                        <span class="etf-detail-value">85.8M</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Previous Close</span>
+                        <span class="etf-detail-value">$655.38</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Open</span>
+                        <span class="etf-detail-value">$651.32</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="etf-card negative">
+                <div class="etf-header">
+                    <div class="etf-symbol">TLT</div>
+                    <div class="etf-change negative">-0.43%</div>
+                </div>
+                <div class="etf-price">$86.01</div>
+                <div style="color: #a0aec0; font-size: 0.9em; margin-bottom: 10px;">iShares 20+ Year Treasury Bond ETF</div>
+                <div class="etf-details">
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Day Range</span>
+                        <span class="etf-detail-value">$85.56 - $86.29</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Volume</span>
+                        <span class="etf-detail-value">49.1M</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Previous Close</span>
+                        <span class="etf-detail-value">$86.39</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Open</span>
+                        <span class="etf-detail-value">$85.72</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="etf-card negative">
+                <div class="etf-header">
+                    <div class="etf-symbol">QQQ</div>
+                    <div class="etf-change negative">-0.68%</div>
+                </div>
+                <div class="etf-price">$583.98</div>
+                <div style="color: #a0aec0; font-size: 0.9em; margin-bottom: 10px;">Invesco QQQ Trust Series 1</div>
+                <div class="etf-details">
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Day Range</span>
+                        <span class="etf-detail-value">$581.93 - $587.93</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Volume</span>
+                        <span class="etf-detail-value">52.4M</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Previous Close</span>
+                        <span class="etf-detail-value">$588.00</span>
+                    </div>
+                    <div class="etf-detail">
+                        <span class="etf-detail-label">Open</span>
+                        <span class="etf-detail-value">$584.81</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Top Volume Surge Stocks (Top 5)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Sector</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Volume</th>
+                        <th>1W Perf</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>AAOI</strong></td>
+                        <td>Applied Optoelectronics Inc</td>
+                        <td>Technology</td>
+                        <td>$113.90</td>
+                        <td class="positive-change">+18.94%</td>
+                        <td>16.6M</td>
+                        <td class="positive-change">+31.94%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FOUR</strong></td>
+                        <td>Shift4 Payments Inc</td>
+                        <td>Technology</td>
+                        <td>$52.47</td>
+                        <td class="positive-change">+19.17%</td>
+                        <td>7.1M</td>
+                        <td class="positive-change">+16.42%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MRLN</strong></td>
+                        <td>Merlin Inc</td>
+                        <td>Financial</td>
+                        <td>$12.32</td>
+                        <td class="positive-change">+26.23%</td>
+                        <td>3.1M</td>
+                        <td class="positive-change">+36.43%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>YDDL</strong></td>
+                        <td>One and one Green Technologies Inc</td>
+                        <td>Industrials</td>
+                        <td>$12.00</td>
+                        <td class="positive-change">+15.61%</td>
+                        <td>290.3K</td>
+                        <td class="positive-change">+45.81%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NTGR</strong></td>
+                        <td>Netgear Inc</td>
+                        <td>Technology</td>
+                        <td>$24.46</td>
+                        <td class="positive-change">+10.88%</td>
+                        <td>3.2M</td>
+                        <td class="positive-change">+12.93%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <strong>Notable Highlights:</strong>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>AAOI</strong>: Exceptional EPS surprise of 90.83%, revenue surprise 1.50%, driving massive momentum</li>
+                    <li><strong>MRLN</strong>: Highest single-day gain at 26.23%, with relative volume surge of 10.06x</li>
+                    <li><strong>NTGR</strong>: Remarkable EPS surprise of 420%, RSI at overbought 70.81</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Post-Close Earnings & After-Hours Activity</h2>
+
+            <h3 style="color: #90cdf4; margin-top: 20px; margin-bottom: 15px;">After-Hours Earnings Movers</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Regular Session</th>
+                        <th>After-Hours</th>
+                        <th>EPS Surprise</th>
+                        <th>Revenue Surprise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BRZE</strong></td>
+                        <td>Braze Inc</td>
+                        <td class="negative-change">-4.76%</td>
+                        <td class="positive-change">+11.60%</td>
+                        <td class="negative-change">-3.69%</td>
+                        <td class="positive-change">+3.37%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VELO</strong></td>
+                        <td>Velo3D Inc</td>
+                        <td class="positive-change">+2.35%</td>
+                        <td class="positive-change">+3.40%</td>
+                        <td class="negative-change">-3.85%</td>
+                        <td class="positive-change">+0.29%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color: #90cdf4; margin-top: 30px; margin-bottom: 15px;">Notable Earnings Reports (Today)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>Sector</th>
+                        <th>Timing</th>
+                        <th>Price</th>
+                        <th>Target Upside</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>GME</strong></td>
+                        <td>GameStop Corporation</td>
+                        <td>Consumer Cyclical</td>
+                        <td>After Close</td>
+                        <td>$22.84</td>
+                        <td class="negative-change">-40.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>KBH</strong></td>
+                        <td>KB Home</td>
+                        <td>Consumer Cyclical</td>
+                        <td>After Close</td>
+                        <td>$52.89</td>
+                        <td class="positive-change">+18.4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CNM</strong></td>
+                        <td>Core & Main Inc</td>
+                        <td>Industrials</td>
+                        <td>Before Open</td>
+                        <td>$50.59</td>
+                        <td class="positive-change">+20.9%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CNXC</strong></td>
+                        <td>Concentrix Corp</td>
+                        <td>Technology</td>
+                        <td>Before Open</td>
+                        <td>$26.50</td>
+                        <td class="positive-change">+127.4%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Sector Performance</h2>
+            <div style="margin-top: 20px;">
+                <div class="sector-bar">
+                    <div class="sector-name">Energy</div>
+                    <div class="sector-bar-fill positive" style="width: 85%;">
+                        +1.71%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Basic Materials</div>
+                    <div class="sector-bar-fill positive" style="width: 70%;">
+                        +1.36%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Industrials</div>
+                    <div class="sector-bar-fill positive" style="width: 55%;">
+                        +0.70%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Utilities</div>
+                    <div class="sector-bar-fill positive" style="width: 52%;">
+                        +0.60%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Consumer Defensive</div>
+                    <div class="sector-bar-fill positive" style="width: 50%;">
+                        +0.10%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Healthcare</div>
+                    <div class="sector-bar-fill negative" style="width: 51%; justify-content: flex-end;">
+                        -0.11%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Financial</div>
+                    <div class="sector-bar-fill negative" style="width: 51%; justify-content: flex-end;">
+                        -0.13%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Consumer Cyclical</div>
+                    <div class="sector-bar-fill negative" style="width: 54%; justify-content: flex-end;">
+                        -0.38%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Technology</div>
+                    <div class="sector-bar-fill negative" style="width: 58%; justify-content: flex-end;">
+                        -0.55%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Real Estate</div>
+                    <div class="sector-bar-fill negative" style="width: 62%; justify-content: flex-end;">
+                        -0.65%
+                    </div>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-name">Communication Services</div>
+                    <div class="sector-bar-fill negative" style="width: 100%; justify-content: flex-end;">
+                        -2.22%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Market Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">VIX (Volatility Index)</div>
+                    <div class="stat-value" style="color: #f56565;">$26.94</div>
+                    <div style="color: #a0aec0; margin-top: 5px;">+$0.79</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Volume Surge Stocks</div>
+                    <div class="stat-value">79</div>
+                    <div style="color: #a0aec0; margin-top: 5px;">Avg Rel Vol: 2.3x</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Uptrend Stocks</div>
+                    <div class="stat-value">410</div>
+                    <div style="color: #a0aec0; margin-top: 5px;">Above 200-day SMA</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">SPY Volume</div>
+                    <div class="stat-value">85.8M</div>
+                    <div style="color: #a0aec0; margin-top: 5px;">Major ETF</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Earnings This Week</div>
+                    <div class="stat-value">165</div>
+                    <div style="color: #a0aec0; margin-top: 5px;">Companies Reporting</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Gold (GLD)</div>
+                    <div class="stat-value" style="color: #48bb78;">$404.18</div>
+                    <div style="color: #a0aec0; margin-top: 5px;">+0.03%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Data Sources:</strong> Finviz Elite, Alpaca Markets, Financial Modeling Prep</p>
+            <p><strong>Report Generated:</strong> Tuesday, March 24, 2026 at 4:10 PM ET</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">This report is for informational purposes only and does not constitute investment advice.</p>
+        </div>
+    </div>
+</body>
+</html>
