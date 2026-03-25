@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - 2026-03-25</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        .date-badge {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .summary-card h3 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .grade-section {
+            margin-bottom: 40px;
+        }
+        .grade-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+        }
+        .grade-header.grade-a {
+            background: linear-gradient(90deg, rgba(0, 255, 136, 0.2), transparent);
+            border-left: 4px solid #00ff88;
+        }
+        .grade-header.grade-b {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), transparent);
+            border-left: 4px solid #00d4ff;
+        }
+        .grade-header.grade-c {
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.2), transparent);
+            border-left: 4px solid #ffc107;
+        }
+        .grade-header.grade-d {
+            background: linear-gradient(90deg, rgba(255, 87, 87, 0.2), transparent);
+            border-left: 4px solid #ff5757;
+        }
+        .grade-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        .grade-a .grade-badge { background: #00ff88; color: #000; }
+        .grade-b .grade-badge { background: #00d4ff; color: #000; }
+        .grade-c .grade-badge { background: #ffc107; color: #000; }
+        .grade-d .grade-badge { background: #ff5757; color: #fff; }
+        .grade-info {
+            flex: 1;
+        }
+        .grade-info h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        .grade-info p {
+            color: #94a3b8;
+        }
+        .stock-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        .stock-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .stock-ticker {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .stock-name {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .stock-price {
+            text-align: right;
+        }
+        .current-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .price-change {
+            font-size: 1rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .price-change.positive {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        .price-change.negative {
+            background: rgba(255, 87, 87, 0.2);
+            color: #ff5757;
+        }
+        .score-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+        .score-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .score-label {
+            font-size: 1rem;
+            color: #94a3b8;
+        }
+        .score-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .score-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .score-fill.high { background: linear-gradient(90deg, #00ff88, #00d4ff); }
+        .score-fill.medium { background: linear-gradient(90deg, #ffc107, #ff9800); }
+        .score-fill.low { background: linear-gradient(90deg, #ff5757, #ff8a80); }
+        .score-details {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        .score-item {
+            text-align: center;
+            padding: 10px 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .score-item-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        .score-item-value {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .metric {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .news-summary {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid #00d4ff;
+        }
+        .news-summary h4 {
+            font-size: 0.85rem;
+            color: #00d4ff;
+            margin-bottom: 8px;
+        }
+        .news-summary p {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+        .stars {
+            color: #ffc107;
+            letter-spacing: 2px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .no-stocks {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .stock-cards { grid-template-columns: 1fr; }
+            .score-details { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest-Based Scoring System for Earnings Trading</p>
+            <div class="date-badge">March 25, 2026</div>
+        </header>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Total Stocks</h3>
+                <div class="value">8</div>
+            </div>
+            <div class="summary-card">
+                <h3>A-Grade</h3>
+                <div class="value" style="color: #00ff88;">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>B-Grade</h3>
+                <div class="value" style="color: #00d4ff;">3</div>
+            </div>
+            <div class="summary-card">
+                <h3>C-Grade</h3>
+                <div class="value" style="color: #ffc107;">4</div>
+            </div>
+            <div class="summary-card">
+                <h3>D-Grade</h3>
+                <div class="value" style="color: #ff5757;">1</div>
+            </div>
+        </div>
+
+        <!-- B-Grade Section (70-84 points, 55-69% success rate) -->
+        <div class="grade-section">
+            <div class="grade-header grade-b">
+                <div class="grade-badge">B</div>
+                <div class="grade-info">
+                    <h2>B-Grade Stocks (55-69% Success Rate)</h2>
+                    <p>Score: 70-84 points</p>
+                </div>
+                <span class="stars">&#9733;&#9733;&#9733;&#9733;</span>
+            </div>
+            <div class="stock-cards">
+                <!-- KALV -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">KALV</div>
+                            <div class="stock-name">KalVista Pharmaceuticals Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$17.05</div>
+                            <div class="price-change positive">+3.58%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #00d4ff;">78</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill high" style="width: 78%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">5</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+3.58%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">+20.67%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">+7.36%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+11.50%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>KalVista reported 8-month fiscal year results with positive EPS surprise. EKTERLY (sebetralstat) data to be presented at Global Angioedema Leadership Conference. Strong position above all moving averages indicates healthy uptrend.</p>
+                    </div>
+                </div>
+
+                <!-- KC -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">KC</div>
+                            <div class="stock-name">Kingsoft Cloud Holdings Ltd ADR</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$14.37</div>
+                            <div class="price-change positive">+3.60%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #00d4ff;">74</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill high" style="width: 74%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+3.60%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">+8.69%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">+8.38%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+100.00%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Kingsoft Cloud announced Q4 and FY2025 results with significant EPS beat (+100% surprise). Cloud services continue to grow in China market. Strong YTD performance (+38.97%) but volume ratio elevated which adds caution.</p>
+                    </div>
+                </div>
+
+                <!-- PAYX -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">PAYX</div>
+                            <div class="stock-name">Paychex Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$94.34</div>
+                            <div class="price-change positive">+4.12%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #00d4ff;">70</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill high" style="width: 70%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">5</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+4.12%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">-22.31%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">-3.43%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+2.52%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Paychex reported fiscal Q3 results with modest EPS beat. Stable payroll services business but trading well below 200-day MA indicates longer-term weakness. Volume trend is strong at 120% ratio which is a positive signal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- C-Grade Section (55-69 points, 40-54% success rate) -->
+        <div class="grade-section">
+            <div class="grade-header grade-c">
+                <div class="grade-badge">C</div>
+                <div class="grade-info">
+                    <h2>C-Grade Stocks (40-54% Success Rate)</h2>
+                    <p>Score: 55-69 points</p>
+                </div>
+                <span class="stars">&#9733;&#9733;&#9733;</span>
+            </div>
+            <div class="stock-cards">
+                <!-- CGNT -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">CGNT</div>
+                            <div class="stock-name">Cognyte Software Ltd</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$8.70</div>
+                            <div class="price-change positive">+10.41%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #ffc107;">67</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill medium" style="width: 67%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">5</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+10.41%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">+0.36%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">+7.15%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+455.56%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Cognyte reported Q4 and FY2026 results with massive EPS surprise (+455%). Security intelligence software company showing strong growth. Gap size of 10%+ reduces backtest success rate but pre-earnings trend is strong.</p>
+                    </div>
+                </div>
+
+                <!-- CHWY -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">CHWY</div>
+                            <div class="stock-name">Chewy Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$25.92</div>
+                            <div class="price-change positive">+10.49%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #ffc107;">56</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill medium" style="width: 56%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+10.49%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">-25.16%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">-5.17%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+12.18%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Chewy Q4 earnings beat expectations with +12% EPS surprise. Pet e-commerce company benefiting from subscription model. However, trading 25% below 200-day MA and -21.6% YTD indicates structural weakness despite the earnings gap.</p>
+                    </div>
+                </div>
+
+                <!-- PRPL -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">PRPL</div>
+                            <div class="stock-name">Purple Innovation Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$0.71</div>
+                            <div class="price-change positive">+2.46%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #ffc107;">55</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill medium" style="width: 55%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">3</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+2.46%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">-12.86%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">+0.59%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+11.11%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Purple Innovation extended debt maturity and rescheduled Q4/FY2025 earnings call. Mattress company with +11% EPS surprise but below $1 stock price and 12% below 200-day MA indicates structural challenges. Low volume ratio concerning.</p>
+                    </div>
+                </div>
+
+                <!-- BZAI -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">BZAI</div>
+                            <div class="stock-name">Blaize Holdings Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$1.61</div>
+                            <div class="price-change positive">+45.05%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #ffc107;">55</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill medium" style="width: 55%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">5</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">2</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">5</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size</div>
+                            <div class="metric-value">+45.05%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">-42.10%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">+17.18%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+81.67%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Blaize Holdings Q4 2025 beat revenue expectations with +81% EPS surprise. AI chip company showing momentum but extreme gap of 45%+ has only 28% historical success rate. Trading 42% below 200-day MA is a major concern despite strong recent momentum.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- D-Grade Section (54 points or below, below 40% success rate) -->
+        <div class="grade-section">
+            <div class="grade-header grade-d">
+                <div class="grade-badge">D</div>
+                <div class="grade-info">
+                    <h2>D-Grade Stocks (Below 40% Success Rate)</h2>
+                    <p>Score: 54 points or below</p>
+                </div>
+                <span class="stars">&#9733;&#9733;</span>
+            </div>
+            <div class="stock-cards">
+                <!-- QNTM -->
+                <div class="stock-card">
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-ticker">QNTM</div>
+                            <div class="stock-name">Quantum BioPharma Ltd</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="current-price">$4.78</div>
+                            <div class="price-change positive">+1.04%</div>
+                        </div>
+                    </div>
+                    <div class="score-section">
+                        <div class="score-total">
+                            <span class="score-label">Backtest Score</span>
+                            <span class="score-value" style="color: #ff5757;">42</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill low" style="width: 42%;"></div>
+                        </div>
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-item-label">Gap Size</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Pre-Earn</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">Volume</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA200</div>
+                                <div class="score-item-value">1</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-label">MA50</div>
+                                <div class="score-item-value">5</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Gap Size (2-day)</div>
+                            <div class="metric-value">+52.58%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA200 Position</div>
+                            <div class="metric-value">-62.56%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">MA50 Position</div>
+                            <div class="metric-value">+14.98%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">EPS Surprise</div>
+                            <div class="metric-value">+53.53%</div>
+                        </div>
+                    </div>
+                    <div class="news-summary">
+                        <h4>Earnings Summary</h4>
+                        <p>Quantum BioPharma announced peer-reviewed journal publication for Unbuzzd clinical trial. +99% weekly gain is highly speculative. Trading 62% below 200-day MA with abnormal volume (250%+ ratio) indicates extreme volatility risk.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Generated on March 25, 2026 at 09:02 ET</p>
+            <p>Backtest scoring based on historical earnings gap-up success patterns</p>
+            <p>Data sources: Finviz, Alpaca, Financial Modeling Prep</p>
+        </footer>
+    </div>
+</body>
+</html>
