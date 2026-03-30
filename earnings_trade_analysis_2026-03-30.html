@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - 2026-03-30</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #0f3460;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #e94560, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .header .date {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+        .header .timestamp {
+            font-size: 0.9rem;
+            color: #5a6a7a;
+            margin-top: 5px;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: linear-gradient(145deg, #1e2a4a, #0f1a30);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #2a3f5f;
+        }
+        .summary-card .label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+        .summary-card .value.green { color: #27ae60; }
+        .summary-card .value.yellow { color: #f39c12; }
+        .summary-card .value.blue { color: #3498db; }
+
+        .grade-section {
+            margin-bottom: 40px;
+        }
+        .grade-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, rgba(233, 69, 96, 0.2), transparent);
+            border-radius: 10px;
+            border-left: 4px solid #e94560;
+        }
+        .grade-header.b-grade {
+            background: linear-gradient(90deg, rgba(243, 156, 18, 0.2), transparent);
+            border-left-color: #f39c12;
+        }
+        .grade-header.c-grade {
+            background: linear-gradient(90deg, rgba(52, 152, 219, 0.2), transparent);
+            border-left-color: #3498db;
+        }
+        .grade-header.d-grade {
+            background: linear-gradient(90deg, rgba(127, 140, 141, 0.2), transparent);
+            border-left-color: #7f8c8d;
+        }
+        .grade-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: #e94560;
+            color: white;
+        }
+        .grade-badge.b-grade { background: #f39c12; }
+        .grade-badge.c-grade { background: #3498db; }
+        .grade-badge.d-grade { background: #7f8c8d; }
+        .grade-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        .grade-info .success-rate {
+            color: #95a5a6;
+        }
+
+        .stock-card {
+            background: linear-gradient(145deg, #1e2a4a, #0f1a30);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #2a3f5f;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stock-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .ticker {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e94560;
+            margin-bottom: 5px;
+        }
+        .company-name {
+            color: #95a5a6;
+            font-size: 1rem;
+        }
+        .sector-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #2a3f5f;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #7fb3d5;
+            margin-top: 10px;
+        }
+        .price-info {
+            text-align: right;
+            min-width: 150px;
+        }
+        .price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .price-change {
+            font-size: 1.2rem;
+            color: #27ae60;
+        }
+        .price-change.negative { color: #e74c3c; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric {
+            background: rgba(47, 54, 64, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .metric .label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .metric .value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e8e8e8;
+        }
+        .metric .value.positive { color: #27ae60; }
+        .metric .value.negative { color: #e74c3c; }
+        .metric .value.neutral { color: #f39c12; }
+
+        .score-breakdown {
+            background: rgba(47, 54, 64, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .score-breakdown h4 {
+            margin-bottom: 15px;
+            color: #e8e8e8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #2a3f5f;
+        }
+        .score-item:last-child {
+            border-bottom: none;
+        }
+        .score-item .factor {
+            color: #95a5a6;
+        }
+        .score-item .points {
+            font-weight: bold;
+            color: #e8e8e8;
+        }
+        .score-item .weight {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+        .total-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: linear-gradient(90deg, #e94560, #f39c12);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .total-score .label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+        .total-score .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .news-section {
+            background: rgba(47, 54, 64, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .news-section h4 {
+            margin-bottom: 15px;
+            color: #e8e8e8;
+        }
+        .news-item {
+            padding: 15px;
+            background: rgba(30, 42, 74, 0.5);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .news-item:last-child {
+            margin-bottom: 0;
+        }
+        .news-title {
+            color: #7fb3d5;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .news-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        .analysis-section {
+            background: rgba(47, 54, 64, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .analysis-section h4 {
+            margin-bottom: 15px;
+            color: #e8e8e8;
+        }
+        .analysis-item {
+            margin-bottom: 15px;
+        }
+        .analysis-item .label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .analysis-item .content {
+            color: #e8e8e8;
+            line-height: 1.6;
+        }
+
+        .disclaimer {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .disclaimer h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        .disclaimer p {
+            color: #95a5a6;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .stars {
+            color: #f39c12;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .stock-header {
+                flex-direction: column;
+            }
+            .price-info {
+                text-align: left;
+            }
+        }
+
+        .warning-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #e74c3c;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="date">Monday, March 30, 2026</div>
+            <div class="timestamp">Generated at: 2026-03-30T09:01:00-04:00 (Pre-Market)</div>
+        </header>
+
+        <!-- Summary Dashboard -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="label">Total Stocks Analyzed</div>
+                <div class="value blue">2</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">A-Grade Stocks</div>
+                <div class="value">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">B-Grade Stocks</div>
+                <div class="value yellow">1</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">D-Grade Stocks</div>
+                <div class="value">1</div>
+            </div>
+        </div>
+
+        <!-- B-Grade Section -->
+        <section class="grade-section">
+            <div class="grade-header b-grade">
+                <div class="grade-badge b-grade">B</div>
+                <div class="grade-info">
+                    <h3>B-Grade Stocks (55-69% Success Rate)</h3>
+                    <div class="success-rate"><span class="stars">****</span> Moderate probability setups</div>
+                </div>
+            </div>
+
+            <!-- BCAX Card -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <div class="ticker">BCAX</div>
+                        <div class="company-name">Bicara Therapeutics Inc</div>
+                        <div class="sector-badge">Healthcare - Biotechnology</div>
+                    </div>
+                    <div class="price-info">
+                        <div class="price">$19.75</div>
+                        <div class="price-change">+7.51%</div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="label">Gap Size</div>
+                        <div class="value positive">+7.51%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Pre-Earnings Trend</div>
+                        <div class="value positive">+4.43%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Volume Ratio</div>
+                        <div class="value positive">113.99%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">MA200 Position</div>
+                        <div class="value positive">+33.65%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">MA50 Position</div>
+                        <div class="value positive">+14.72%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">RSI (14)</div>
+                        <div class="value neutral">62.24</div>
+                    </div>
+                </div>
+
+                <div class="score-breakdown">
+                    <h4>Backtest Score Breakdown</h4>
+                    <div class="score-item">
+                        <span class="factor">1. Gap Size (7.5%)</span>
+                        <span class="weight">25% weight</span>
+                        <span class="points">3 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">2. Pre-Earnings Trend (+4.4%)</span>
+                        <span class="weight">30% weight</span>
+                        <span class="points">3 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">3. Volume Trend (114%)</span>
+                        <span class="weight">20% weight</span>
+                        <span class="points">5 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">4. MA200 Analysis (+33.7%)</span>
+                        <span class="weight">15% weight</span>
+                        <span class="points">5 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">5. MA50 Analysis (+14.7%)</span>
+                        <span class="weight">10% weight</span>
+                        <span class="points">5 points</span>
+                    </div>
+                    <div class="total-score">
+                        <span class="label">Total Score</span>
+                        <span class="value">78.0 / 100</span>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <h4>Recent News & Earnings</h4>
+                    <div class="news-item">
+                        <div class="news-title">Bicara Therapeutics Reports Fourth Quarter and Full Year 2025 Financial Results and Provides Business Update</div>
+                        <div class="news-meta">
+                            <span>Source: GlobeNewswire</span>
+                            <span>Date: 2026-03-30 07:30</span>
+                        </div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-title">Bicara gains buy rating as BofA sees SoC potential in cancer drug Ficera</div>
+                        <div class="news-meta">
+                            <span>Source: Proactive</span>
+                            <span>Date: 2026-03-25 14:50</span>
+                            <span>Category: Analyst</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <h4>Analysis Summary</h4>
+                    <div class="analysis-item">
+                        <div class="label">Earnings Result</div>
+                        <div class="content">
+                            Q4 2025 financial results announced. EPS surprise: -23.82% (missed estimates). However, stock is trading up +7.51% likely due to positive business updates and pipeline developments. BofA recently initiated coverage with a Buy rating, citing potential for cancer drug Ficera.
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="label">Technical Factors</div>
+                        <div class="content">
+                            Strong technical setup with price well above all major moving averages. MA200 position at +33.65% indicates strong long-term uptrend. Volume ratio of 114% shows sustained institutional interest. Pre-earnings trend of +4.43% shows stable momentum going into earnings.
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="label">Risk Assessment</div>
+                        <div class="content">
+                            <span class="warning-badge">EPS Miss Warning</span> Despite the gap up, the stock missed EPS estimates by -23.82%. The positive reaction may be driven by forward guidance or pipeline news rather than current quarter performance. Biotechnology stocks can be highly volatile. Market cap of $1.25B puts this in small-cap territory with higher volatility risk.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- D-Grade Section -->
+        <section class="grade-section">
+            <div class="grade-header d-grade">
+                <div class="grade-badge d-grade">D</div>
+                <div class="grade-info">
+                    <h3>D-Grade Stocks (Below 40% Success Rate)</h3>
+                    <div class="success-rate"><span class="stars">**</span> Lower probability setups - Caution advised</div>
+                </div>
+            </div>
+
+            <!-- SGML Card -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <div class="ticker">SGML</div>
+                        <div class="company-name">Sigma Lithium Corporation</div>
+                        <div class="sector-badge">Basic Materials - Industrial Metals & Mining</div>
+                    </div>
+                    <div class="price-info">
+                        <div class="price">$12.93</div>
+                        <div class="price-change">+23.61%</div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="label">Gap Size</div>
+                        <div class="value positive">+23.61%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Pre-Earnings Trend</div>
+                        <div class="value negative">-25.39%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">Volume Ratio</div>
+                        <div class="value negative">64.50%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">MA200 Position</div>
+                        <div class="value positive">+47.09%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">MA50 Position</div>
+                        <div class="value positive">+4.76%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="label">RSI (14)</div>
+                        <div class="value neutral">56.07</div>
+                    </div>
+                </div>
+
+                <div class="score-breakdown">
+                    <h4>Backtest Score Breakdown</h4>
+                    <div class="score-item">
+                        <span class="factor">1. Gap Size (23.6%)</span>
+                        <span class="weight">25% weight</span>
+                        <span class="points">2 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">2. Pre-Earnings Trend (-25.4%)</span>
+                        <span class="weight">30% weight</span>
+                        <span class="points">1 point</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">3. Volume Trend (64.5%)</span>
+                        <span class="weight">20% weight</span>
+                        <span class="points">2 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">4. MA200 Analysis (+47.1%)</span>
+                        <span class="weight">15% weight</span>
+                        <span class="points">5 points</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="factor">5. MA50 Analysis (+4.8%)</span>
+                        <span class="weight">10% weight</span>
+                        <span class="points">3 points</span>
+                    </div>
+                    <div class="total-score" style="background: linear-gradient(90deg, #7f8c8d, #95a5a6);">
+                        <span class="label">Total Score</span>
+                        <span class="value">45.0 / 100</span>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <h4>Recent News & Earnings</h4>
+                    <div class="news-item">
+                        <div class="news-title">Sigma Lithium Announces Full Year 2025 Results: US$31M Cash Flow and 47% Cash Margin in 4Q25; Signed US$146M in Two Offtake Agreements</div>
+                        <div class="news-meta">
+                            <span>Source: Newsfile</span>
+                            <span>Date: 2026-03-30 06:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <h4>Analysis Summary</h4>
+                    <div class="analysis-item">
+                        <div class="label">Earnings Result</div>
+                        <div class="content">
+                            Full Year 2025 results announced with US$31M cash flow and 47% cash margin in Q4 2025. Company signed US$146M in offtake agreements. However, EPS surprise was -32.53% and revenue surprise was -41.93%, both significant misses. The gap-up appears driven by offtake agreement news rather than earnings beat.
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="label">Technical Factors</div>
+                        <div class="content">
+                            Large gap size of 23.6% historically has only 28% success rate for continuation. Pre-earnings trend of -25.4% shows stock was in major decline before earnings (high risk bounce pattern). Volume ratio of 64.5% indicates declining institutional interest. However, MA200 position at +47.1% shows long-term uptrend intact.
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div class="label">Risk Assessment</div>
+                        <div class="content">
+                            <span class="warning-badge">High Risk</span> <span class="warning-badge">EPS Miss -32.53%</span> <span class="warning-badge">Revenue Miss -41.93%</span>
+                            Multiple risk factors: (1) Large gap often reverses, (2) Stock was down 25% before earnings suggesting catch-up bounce, (3) Significant EPS and revenue misses, (4) Declining volume trend. Lithium sector faces headwinds from EV demand uncertainty. Brazil-based company adds currency risk. NOT RECOMMENDED for momentum trading.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <h4>Disclaimer</h4>
+            <p>
+                This analysis is for informational purposes only and does not constitute investment advice.
+                Past performance does not guarantee future results. The backtest scoring system is based on historical patterns
+                and may not accurately predict future stock movements. Always conduct your own research and consider your risk tolerance
+                before making any investment decisions. Trading involves substantial risk of loss.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
