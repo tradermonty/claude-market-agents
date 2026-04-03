@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - 2026-04-03</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .header .date {
+            font-size: 1.2rem;
+            color: #8892b0;
+        }
+        .header .subtitle {
+            font-size: 1rem;
+            color: #64ffda;
+            margin-top: 10px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .summary-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .summary-card .label {
+            font-size: 0.9rem;
+            color: #8892b0;
+            margin-top: 5px;
+        }
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .ticker {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .company-name {
+            font-size: 1.1rem;
+            color: #8892b0;
+        }
+        .grade-badge {
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .grade-a { background: linear-gradient(135deg, #00ff88, #00d4ff); color: #1a1a2e; }
+        .grade-b { background: linear-gradient(135deg, #00d4ff, #7b68ee); color: #1a1a2e; }
+        .grade-c { background: linear-gradient(135deg, #ffd93d, #ff6b6b); color: #1a1a2e; }
+        .grade-d { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: #1a1a2e; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .metric {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .metric .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .metric .value.negative {
+            color: #ff6b6b;
+        }
+        .metric .label {
+            font-size: 0.8rem;
+            color: #8892b0;
+            margin-top: 5px;
+        }
+        .scoring-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .scoring-section h3 {
+            font-size: 1.2rem;
+            color: #64ffda;
+            margin-bottom: 15px;
+        }
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .score-row:last-child {
+            border-bottom: none;
+        }
+        .score-row .factor {
+            color: #ccd6f6;
+        }
+        .score-row .weight {
+            color: #8892b0;
+            font-size: 0.85rem;
+        }
+        .score-row .points {
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-left: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            border-radius: 4px;
+        }
+        .news-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .news-section h3 {
+            font-size: 1.2rem;
+            color: #64ffda;
+            margin-bottom: 15px;
+        }
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        .news-title {
+            color: #ccd6f6;
+            margin-bottom: 5px;
+        }
+        .news-meta {
+            font-size: 0.85rem;
+            color: #8892b0;
+        }
+        .total-score {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.2));
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .total-score .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .total-score .score-label {
+            color: #8892b0;
+            margin-top: 5px;
+        }
+        .disclaimer {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .disclaimer h4 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+        .disclaimer p {
+            color: #8892b0;
+            font-size: 0.9rem;
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #8892b0;
+            font-size: 0.85rem;
+        }
+        .stars {
+            color: #ffd93d;
+            font-size: 1.2rem;
+        }
+        .technical-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .indicator-tag {
+            background: rgba(0, 212, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #00d4ff;
+        }
+        .indicator-tag.bullish {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        .indicator-tag.bearish {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+        .no-stocks-message {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .no-stocks-message h2 {
+            color: #ffd93d;
+            margin-bottom: 15px;
+        }
+        .no-stocks-message p {
+            color: #8892b0;
+        }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .stock-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .ticker {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="date">April 3, 2026 (Friday)</p>
+            <p class="subtitle">Backtest Scoring System - Earnings Trade Candidates</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="number">1</div>
+                <div class="label">Total Candidates</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">0</div>
+                <div class="label">A-Grade (70%+ Success)</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">0</div>
+                <div class="label">B-Grade (55-69% Success)</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">1</div>
+                <div class="label">C-Grade (40-54% Success)</div>
+            </div>
+        </div>
+
+        <!-- SNX Stock Card -->
+        <div class="stock-card">
+            <div class="stock-header">
+                <div class="stock-info">
+                    <span class="ticker">SNX</span>
+                    <div>
+                        <div class="company-name">TD Synnex Corp</div>
+                        <div style="color: #64ffda; font-size: 0.9rem;">Technology - Electronics & Computer Distribution</div>
+                    </div>
+                </div>
+                <div class="grade-badge grade-c">C-Grade <span class="stars">&#9733;&#9733;&#9733;</span></div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric">
+                    <div class="value">$186.92</div>
+                    <div class="label">Current Price</div>
+                </div>
+                <div class="metric">
+                    <div class="value">+17.09%</div>
+                    <div class="label">Weekly Performance</div>
+                </div>
+                <div class="metric">
+                    <div class="value">+43.04%</div>
+                    <div class="label">EPS Surprise</div>
+                </div>
+                <div class="metric">
+                    <div class="value">+9.67%</div>
+                    <div class="label">Revenue Surprise</div>
+                </div>
+                <div class="metric">
+                    <div class="value">+104.41%</div>
+                    <div class="label">EPS Growth QoQ</div>
+                </div>
+                <div class="metric">
+                    <div class="value">+18.10%</div>
+                    <div class="label">Sales Growth QoQ</div>
+                </div>
+            </div>
+
+            <div class="scoring-section">
+                <h3>5-Element Backtest Scoring</h3>
+                <div class="score-row">
+                    <div>
+                        <span class="factor">1. Gap Size Performance</span>
+                        <span class="weight">(25% weight) - Gap: +17.1% (>10%)</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="points">2 / 5</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 40%;"></div></div>
+                    </div>
+                </div>
+                <div class="score-row">
+                    <div>
+                        <span class="factor">2. Pre-Earnings Trend</span>
+                        <span class="weight">(30% weight) - 20-day trend: +2.5%</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="points">3 / 5</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 60%;"></div></div>
+                    </div>
+                </div>
+                <div class="score-row">
+                    <div>
+                        <span class="factor">3. Volume Trend Analysis</span>
+                        <span class="weight">(20% weight) - Rel Vol: 1.52x</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="points">4 / 5</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 80%;"></div></div>
+                    </div>
+                </div>
+                <div class="score-row">
+                    <div>
+                        <span class="factor">4. MA200 Analysis</span>
+                        <span class="weight">(15% weight) - +22.89% above SMA200</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="points">5 / 5</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+                    </div>
+                </div>
+                <div class="score-row">
+                    <div>
+                        <span class="factor">5. MA50 Analysis</span>
+                        <span class="weight">(10% weight) - +16.50% above SMA50</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="points">5 / 5</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+                    </div>
+                </div>
+
+                <div class="total-score">
+                    <div class="score-value">69</div>
+                    <div class="score-label">Total Score (out of 100) - C-Grade: 40-54% Success Rate</div>
+                </div>
+            </div>
+
+            <div class="technical-indicators">
+                <span class="indicator-tag bullish">RSI: 75.75 (Overbought)</span>
+                <span class="indicator-tag bullish">Above SMA20 (+16.67%)</span>
+                <span class="indicator-tag bullish">Above SMA50 (+16.50%)</span>
+                <span class="indicator-tag bullish">Above SMA200 (+22.89%)</span>
+                <span class="indicator-tag">P/E: 15.53</span>
+                <span class="indicator-tag">Forward P/E: 10.46</span>
+                <span class="indicator-tag">PEG: 0.68</span>
+            </div>
+
+            <div class="news-section" style="margin-top: 20px;">
+                <h3>Recent News & Earnings Highlights</h3>
+                <div class="news-item">
+                    <div class="news-title">TD Synnex Corp (SNX) Q1 2026 Earnings Call Highlights: Record Growth Amid Cautious Optimism</div>
+                    <div class="news-meta">GuruFocus.com - March 31, 2026</div>
+                </div>
+                <div class="news-item">
+                    <div class="news-title">TD SYNNEX Reports Record Fiscal 2026 First Quarter Results</div>
+                    <div class="news-meta">Business Wire - March 31, 2026</div>
+                </div>
+                <div class="news-item">
+                    <div class="news-title">FatPipe Announces Partnership with TD SYNNEX</div>
+                    <div class="news-meta">PR Newswire - March 31, 2026</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 15px; padding: 20px; margin-top: 20px;">
+                <h3 style="color: #64ffda; margin-bottom: 15px;">Analysis Summary</h3>
+                <p style="color: #ccd6f6; line-height: 1.6;">
+                    <strong>Earnings Result:</strong> TD SYNNEX delivered a massive EPS surprise of +43.04% with revenue beating estimates by +9.67%. EPS growth QoQ was exceptional at +104.41%, indicating strong operational performance. Sales growth QoQ of +18.10% shows robust demand in the technology distribution sector.
+                </p>
+                <p style="color: #ccd6f6; line-height: 1.6; margin-top: 10px;">
+                    <strong>Technical Factors:</strong> The stock is trading significantly above all major moving averages (SMA20, SMA50, SMA200), indicating a strong bullish trend. RSI at 75.75 suggests overbought conditions which may limit near-term upside. The large gap (+17.1%) historically has a lower follow-through success rate (28% for 10%+ gaps).
+                </p>
+                <p style="color: #ccd6f6; line-height: 1.6; margin-top: 10px;">
+                    <strong>Risk Assessment:</strong> While fundamentals are excellent (PEG 0.68 indicates undervaluation), the extended move above moving averages and overbought RSI warrant caution. The C-grade rating reflects the statistical challenge of large gap stocks to provide additional upside momentum in the short term. Consider waiting for a pullback to the 20-day SMA (~$160) for a better risk-reward entry.
+                </p>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <h4>Disclaimer</h4>
+            <p>This analysis is for informational purposes only and does not constitute investment advice. Past performance does not guarantee future results. Trading stocks involves risk, including the possible loss of principal. Always conduct your own research and consider your risk tolerance before making investment decisions.</p>
+        </div>
+
+        <footer class="footer">
+            <p>Generated on April 3, 2026 at 06:00 AM ET</p>
+            <p>Backtest Scoring System v2.0 - Earnings Trade Analysis</p>
+            <p style="margin-top: 10px;">
+                <a href="https://elite.finviz.com/screener.ashx?v=211&o=-change&t=SNX" style="color: #00d4ff;">View on Finviz</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
