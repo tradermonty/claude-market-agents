@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - 2026-04-09</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+        }
+        .header .date {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .summary-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .summary-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .summary-item .count {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .summary-item .label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .grade-a .count { color: #00ff88; }
+        .grade-b .count { color: #00d4ff; }
+        .grade-c .count { color: #ffa500; }
+        .grade-d .count { color: #ff4444; }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+        .stock-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+        }
+        .stock-card.grade-a { border-left: 4px solid #00ff88; }
+        .stock-card.grade-b { border-left: 4px solid #00d4ff; }
+        .stock-card.grade-c { border-left: 4px solid #ffa500; }
+        .stock-card.grade-d { border-left: 4px solid #ff4444; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .ticker-info h2 {
+            font-size: 1.8rem;
+            color: #fff;
+        }
+        .ticker-info .company-name {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .ticker-info .sector {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+        .grade-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .grade-badge.a { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .grade-badge.b { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
+        .grade-badge.c { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        .grade-badge.d { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+        .price-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+        }
+        .current-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .price-change {
+            font-size: 1.2rem;
+            padding: 5px 12px;
+            border-radius: 8px;
+        }
+        .price-change.positive { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .price-change.negative { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+        .score-section {
+            margin-bottom: 20px;
+        }
+        .score-section h3 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        .score-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .score-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .score-label {
+            width: 120px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .bar-container {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .bar-fill.high { background: linear-gradient(90deg, #00ff88, #00d4ff); }
+        .bar-fill.medium { background: linear-gradient(90deg, #ffa500, #ffcc00); }
+        .bar-fill.low { background: linear-gradient(90deg, #ff4444, #ff6666); }
+        .score-value {
+            width: 60px;
+            text-align: right;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .total-score {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .total-score .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .total-score .label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .total-score.grade-a .value { color: #00ff88; }
+        .total-score.grade-b .value { color: #00d4ff; }
+        .total-score.grade-c .value { color: #ffa500; }
+        .total-score.grade-d .value { color: #ff4444; }
+
+        .earnings-section {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .earnings-section h3 {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .earnings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .earnings-item {
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 5px;
+        }
+        .earnings-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .earnings-item .label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .earnings-item .value.positive { color: #00ff88; }
+        .earnings-item .value.negative { color: #ff4444; }
+
+        .news-section {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+        .news-section h3 {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .news-summary {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #bbb;
+        }
+
+        .stars {
+            color: #ffd700;
+            letter-spacing: 2px;
+        }
+
+        .ma-indicators {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .ma-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        .ma-item .label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .ma-item .value {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .ma-item .value.above { color: #00ff88; }
+        .ma-item .value.below { color: #ff4444; }
+
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8rem; }
+            .stock-grid { grid-template-columns: 1fr; }
+            .summary-bar { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <div class="subtitle">Backtest Scoring System - Momentum Gap Trading</div>
+            <div class="date">April 9, 2026 | After-hours & Pre-market Earnings</div>
+        </div>
+
+        <div class="summary-bar">
+            <div class="summary-item grade-a">
+                <div class="count">0</div>
+                <div class="label">A-Grade (70%+ Win)</div>
+            </div>
+            <div class="summary-item grade-b">
+                <div class="count">2</div>
+                <div class="label">B-Grade (55-69% Win)</div>
+            </div>
+            <div class="summary-item grade-c">
+                <div class="count">1</div>
+                <div class="label">C-Grade (40-54% Win)</div>
+            </div>
+            <div class="summary-item grade-d">
+                <div class="count">0</div>
+                <div class="label">D-Grade (<40% Win)</div>
+            </div>
+        </div>
+
+        <div class="stock-grid">
+            <!-- PSMT - B-Grade -->
+            <div class="stock-card grade-b">
+                <div class="card-header">
+                    <div class="ticker-info">
+                        <h2>$PSMT</h2>
+                        <div class="company-name">PriceSmart Inc</div>
+                        <div class="sector">Consumer Defensive | Discount Stores</div>
+                    </div>
+                    <div class="grade-badge b">B-Grade</div>
+                </div>
+
+                <div class="price-section">
+                    <div class="current-price">$159.55</div>
+                    <div class="price-change positive">+5.41% (1W)</div>
+                </div>
+
+                <div class="ma-indicators">
+                    <div class="ma-item">
+                        <div class="label">MA20</div>
+                        <div class="value above">+7.04%</div>
+                    </div>
+                    <div class="ma-item">
+                        <div class="label">MA50</div>
+                        <div class="value above">+6.20%</div>
+                    </div>
+                    <div class="ma-item">
+                        <div class="label">MA200</div>
+                        <div class="value above">+26.39%</div>
+                    </div>
+                </div>
+
+                <div class="total-score grade-b">
+                    <div class="value">78</div>
+                    <div class="label">Total Score | <span class="stars">&#9733;&#9733;&#9733;&#9733;</span></div>
+                </div>
+
+                <div class="score-section">
+                    <h3>5-Element Backtest Scores</h3>
+                    <div class="score-bars">
+                        <div class="score-bar">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 60%;"></div>
+                            </div>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">Pre-Earnings (30%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 100%;"></div>
+                            </div>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">Volume (20%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill medium" style="width: 60%;"></div>
+                            </div>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">MA200 (15%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 100%;"></div>
+                            </div>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">MA50 (10%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 80%;"></div>
+                            </div>
+                            <span class="score-value">4/5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-section">
+                    <h3>Earnings Data</h3>
+                    <div class="earnings-grid">
+                        <div class="earnings-item">
+                            <div class="value positive">+3.24%</div>
+                            <div class="label">EPS Surprise</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value positive">+1.37%</div>
+                            <div class="label">Revenue Surprise</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value positive">+11.51%</div>
+                            <div class="label">EPS QoQ Growth</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value positive">+9.65%</div>
+                            <div class="label">Sales QoQ Growth</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <h3>News Analysis</h3>
+                    <div class="news-summary">
+                        PriceSmart announced strong Q2 fiscal 2026 results with beat on both EPS and revenue. Company announced plans for an eighth club in Guatemala, signaling continued expansion in Latin America. Strong +30% YTD performance reflects solid execution and consumer resilience in key markets.
+                    </div>
+                </div>
+            </div>
+
+            <!-- BB - B-Grade -->
+            <div class="stock-card grade-b">
+                <div class="card-header">
+                    <div class="ticker-info">
+                        <h2>$BB</h2>
+                        <div class="company-name">BlackBerry Ltd</div>
+                        <div class="sector">Technology | Software - Infrastructure</div>
+                    </div>
+                    <div class="grade-badge b">B-Grade</div>
+                </div>
+
+                <div class="price-section">
+                    <div class="current-price">$3.79</div>
+                    <div class="price-change positive">+12.80% (1W)</div>
+                </div>
+
+                <div class="ma-indicators">
+                    <div class="ma-item">
+                        <div class="label">MA20</div>
+                        <div class="value above">+13.10%</div>
+                    </div>
+                    <div class="ma-item">
+                        <div class="label">MA50</div>
+                        <div class="value above">+10.77%</div>
+                    </div>
+                    <div class="ma-item">
+                        <div class="label">MA200</div>
+                        <div class="value below">-4.65%</div>
+                    </div>
+                </div>
+
+                <div class="total-score grade-b">
+                    <div class="value">72</div>
+                    <div class="label">Total Score | <span class="stars">&#9733;&#9733;&#9733;&#9733;</span></div>
+                </div>
+
+                <div class="score-section">
+                    <h3>5-Element Backtest Scores</h3>
+                    <div class="score-bars">
+                        <div class="score-bar">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill medium" style="width: 40%;"></div>
+                            </div>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">Pre-Earnings (30%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 80%;"></div>
+                            </div>
+                            <span class="score-value">4/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">Volume (20%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 100%;"></div>
+                            </div>
+                            <span class="score-value">5/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">MA200 (15%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill medium" style="width: 40%;"></div>
+                            </div>
+                            <span class="score-value">2/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">MA50 (10%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 100%;"></div>
+                            </div>
+                            <span class="score-value">5/5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-section">
+                    <h3>Earnings Data</h3>
+                    <div class="earnings-grid">
+                        <div class="earnings-item">
+                            <div class="value positive">+25.00%</div>
+                            <div class="label">EPS Surprise</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value positive">+4.57%</div>
+                            <div class="label">Revenue Surprise</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value positive">+223.66%</div>
+                            <div class="label">EPS QoQ Growth</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value negative">-0.84%</div>
+                            <div class="label">Sales QoQ Growth</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <h3>News Analysis</h3>
+                    <div class="news-summary">
+                        BlackBerry reported strong Q4 fiscal 2026 results with +25% EPS surprise. Company announced turnaround is "complete" and forecast upbeat quarterly revenue. Stock jumped after earnings as management signaled growth ahead. Strong volume surge (2.13x relative volume) confirms institutional interest.
+                    </div>
+                </div>
+            </div>
+
+            <!-- RGP - C-Grade -->
+            <div class="stock-card grade-c">
+                <div class="card-header">
+                    <div class="ticker-info">
+                        <h2>$RGP</h2>
+                        <div class="company-name">Resources Connection Inc</div>
+                        <div class="sector">Industrials | Consulting Services</div>
+                    </div>
+                    <div class="grade-badge c">C-Grade</div>
+                </div>
+
+                <div class="price-section">
+                    <div class="current-price">$3.86</div>
+                    <div class="price-change positive">+5.84% (1W)</div>
+                </div>
+
+                <div class="ma-indicators">
+                    <div class="ma-item">
+                        <div class="label">MA20</div>
+                        <div class="value above">+5.15%</div>
+                    </div>
+                    <div class="ma-item">
+                        <div class="label">MA50</div>
+                        <div class="value above">+0.64%</div>
+                    </div>
+                    <div class="ma-item">
+                        <div class="label">MA200</div>
+                        <div class="value below">-17.15%</div>
+                    </div>
+                </div>
+
+                <div class="total-score grade-c">
+                    <div class="value">55</div>
+                    <div class="label">Total Score | <span class="stars">&#9733;&#9733;&#9733;</span></div>
+                </div>
+
+                <div class="score-section">
+                    <h3>5-Element Backtest Scores</h3>
+                    <div class="score-bars">
+                        <div class="score-bar">
+                            <span class="score-label">Gap Size (25%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill high" style="width: 60%;"></div>
+                            </div>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">Pre-Earnings (30%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill low" style="width: 20%;"></div>
+                            </div>
+                            <span class="score-value">1/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">Volume (20%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill medium" style="width: 60%;"></div>
+                            </div>
+                            <span class="score-value">3/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">MA200 (15%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill low" style="width: 20%;"></div>
+                            </div>
+                            <span class="score-value">1/5</span>
+                        </div>
+                        <div class="score-bar">
+                            <span class="score-label">MA50 (10%)</span>
+                            <div class="bar-container">
+                                <div class="bar-fill medium" style="width: 60%;"></div>
+                            </div>
+                            <span class="score-value">3/5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="earnings-section">
+                    <h3>Earnings Data</h3>
+                    <div class="earnings-grid">
+                        <div class="earnings-item">
+                            <div class="value positive">+2.70%</div>
+                            <div class="label">EPS Surprise</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value negative">-0.24%</div>
+                            <div class="label">Revenue Surprise</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value positive">+79.00%</div>
+                            <div class="label">EPS QoQ Growth</div>
+                        </div>
+                        <div class="earnings-item">
+                            <div class="value negative">-16.62%</div>
+                            <div class="label">Sales QoQ Growth</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-section">
+                    <h3>News Analysis</h3>
+                    <div class="news-summary">
+                        Resources Connection reported Q3 fiscal 2026 results with slight EPS beat but revenue miss. Company is navigating revenue declines in consulting services sector. New financial services industry leader appointment signals focus on growth acceleration. High dividend yield (7.25%) provides some downside protection.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Generated on April 9, 2026 | Backtest Scoring System</p>
+            <p style="margin-top: 10px;">
+                <a href="https://elite.finviz.com/screener.ashx?v=211&o=-change&t=PSMT,BB,RGP" target="_blank">
+                    View on Finviz Screener
+                </a>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.8rem; color: #555;">
+                Disclaimer: This analysis is for informational purposes only and does not constitute investment advice.
+                Past performance does not guarantee future results.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
