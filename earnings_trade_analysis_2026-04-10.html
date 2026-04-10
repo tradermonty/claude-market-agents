@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - April 10, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        .timestamp {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .summary-card h3 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .summary-card .value.green { color: #10b981; }
+        .summary-card .value.yellow { color: #f59e0b; }
+        .summary-card .value.red { color: #ef4444; }
+        .summary-card .value.blue { color: #3b82f6; }
+        .stock-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stock-info h2 {
+            font-size: 1.8rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ticker {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .company-name {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+        .grade-badge {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .grade-a { background: linear-gradient(135deg, #10b981, #059669); }
+        .grade-b { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .grade-c { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .grade-d { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .metric {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .metric-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .metric-value.positive { color: #10b981; }
+        .metric-value.negative { color: #ef4444; }
+        .score-section {
+            margin-top: 20px;
+        }
+        .score-section h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .score-bars {
+            display: grid;
+            gap: 12px;
+        }
+        .score-item {
+            display: grid;
+            grid-template-columns: 150px 1fr 60px;
+            align-items: center;
+            gap: 15px;
+        }
+        .score-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .score-bar-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            height: 24px;
+            overflow: hidden;
+        }
+        .score-bar {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        .score-bar.high { background: linear-gradient(90deg, #10b981, #34d399); }
+        .score-bar.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .score-bar.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .score-points {
+            color: #fff;
+            font-weight: bold;
+            text-align: right;
+        }
+        .analysis-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .analysis-section h3 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .analysis-card {
+            background: rgba(0,0,0,0.2);
+            padding: 18px;
+            border-radius: 10px;
+        }
+        .analysis-card h4 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .analysis-card p {
+            color: #e0e0e0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .news-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .news-title {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .news-meta {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        .total-score-display {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .total-score-display .label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .total-score-display .score {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .total-score-display .success-rate {
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+        .disclaimer {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 30px;
+            text-align: center;
+            color: #fca5a5;
+            font-size: 0.85rem;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            margin-top: 30px;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            .stock-header { flex-direction: column; }
+            .score-item { grid-template-columns: 1fr; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest-Based Scoring System for Earnings Momentum Trading</p>
+            <p class="timestamp">Report Date: April 10, 2026 | Generated at: 06:00 AM PDT</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Stocks Analyzed</h3>
+                <div class="value blue">1</div>
+            </div>
+            <div class="summary-card">
+                <h3>A-Grade (85+)</h3>
+                <div class="value green">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>B-Grade (70-84)</h3>
+                <div class="value blue">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>C-Grade (55-69)</h3>
+                <div class="value yellow">1</div>
+            </div>
+            <div class="summary-card">
+                <h3>D-Grade (&lt;55)</h3>
+                <div class="value red">0</div>
+            </div>
+        </div>
+
+        <!-- SLP Stock Card -->
+        <div class="stock-card">
+            <div class="stock-header">
+                <div class="stock-info">
+                    <h2><span class="ticker">SLP</span> Simulations Plus Inc</h2>
+                    <p class="company-name">Healthcare | Health Information Services</p>
+                </div>
+                <div class="grade-badge grade-c">C-Grade (64 pts)</div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric">
+                    <div class="metric-label">Current Price</div>
+                    <div class="metric-value">$15.13</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Gap Size</div>
+                    <div class="metric-value positive">+16.47%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">EPS Surprise</div>
+                    <div class="metric-value positive">+9.37%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Revenue Surprise</div>
+                    <div class="metric-value positive">+12.15%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Week Performance</div>
+                    <div class="metric-value positive">+26.16%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">RSI (14)</div>
+                    <div class="metric-value">76.87</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Relative Volume</div>
+                    <div class="metric-value">3.08x</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Market Cap</div>
+                    <div class="metric-value">$304.7M</div>
+                </div>
+            </div>
+
+            <div class="score-section">
+                <h3>5-Element Backtest Score Analysis</h3>
+                <div class="score-bars">
+                    <div class="score-item">
+                        <span class="score-label">Gap Size (25%)</span>
+                        <div class="score-bar-container">
+                            <div class="score-bar low" style="width: 40%;">2/5</div>
+                        </div>
+                        <span class="score-points">10 pts</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">Pre-Earnings Trend (30%)</span>
+                        <div class="score-bar-container">
+                            <div class="score-bar high" style="width: 100%;">5/5</div>
+                        </div>
+                        <span class="score-points">30 pts</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">Volume Trend (20%)</span>
+                        <div class="score-bar-container">
+                            <div class="score-bar low" style="width: 40%;">2/5</div>
+                        </div>
+                        <span class="score-points">8 pts</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">MA200 Position (15%)</span>
+                        <div class="score-bar-container">
+                            <div class="score-bar low" style="width: 40%;">2/5</div>
+                        </div>
+                        <span class="score-points">6 pts</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">MA50 Position (10%)</span>
+                        <div class="score-bar-container">
+                            <div class="score-bar high" style="width: 100%;">5/5</div>
+                        </div>
+                        <span class="score-points">10 pts</span>
+                    </div>
+                </div>
+                <div class="total-score-display">
+                    <div class="label">Total Weighted Score</div>
+                    <div class="score" style="color: #f59e0b;">64 / 100</div>
+                    <div class="success-rate">Historical Success Rate: 40-54%</div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Technical Factor Analysis</h3>
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h4>MA Position Analysis</h4>
+                        <p>
+                            <strong>20-Day SMA:</strong> +24.49% above ($12.15)<br>
+                            <strong>50-Day SMA:</strong> +18.84% above ($12.73)<br>
+                            <strong>200-Day SMA:</strong> -2.76% below ($15.56)<br><br>
+                            Price is significantly above short-term MAs but still below the 200-day MA, indicating recent recovery momentum within a longer-term downtrend.
+                        </p>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>Volume Analysis</h4>
+                        <p>
+                            <strong>Relative Volume:</strong> 3.08x normal<br>
+                            <strong>20-Day Avg Vol:</strong> ~230,000<br>
+                            <strong>60-Day Avg Vol:</strong> ~300,000<br>
+                            <strong>Volume Ratio:</strong> 77% (declining trend)<br><br>
+                            While today's volume surge is significant, the declining 20/60 day volume trend suggests waning institutional interest prior to earnings.
+                        </p>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>Pre-Earnings Trend</h4>
+                        <p>
+                            <strong>20-Day Change:</strong> +26.9%<br>
+                            <strong>Trend Category:</strong> Very Strong Uptrend<br><br>
+                            The stock was already in a strong recovery phase before earnings, which contributed maximum points to the score but increases risk of profit-taking.
+                        </p>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>Gap Size Assessment</h4>
+                        <p>
+                            <strong>Gap Size:</strong> +16.47%<br>
+                            <strong>Risk Category:</strong> Extended Gap (10%+)<br><br>
+                            Historical data shows gaps over 10% have only 28% follow-through success rate. Consider waiting for pullback before entry.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Earnings Analysis Summary</h3>
+                <div class="analysis-card">
+                    <h4>Q2 FY2026 Earnings Highlights</h4>
+                    <p>
+                        <strong>1. EPS Beat:</strong> Delivered +9.37% surprise vs analyst estimates<br>
+                        <strong>2. Revenue Beat:</strong> +12.15% above consensus expectations<br>
+                        <strong>3. EPS Growth:</strong> +47.76% quarter-over-quarter improvement<br>
+                        <strong>4. Sales Growth:</strong> +8.29% QoQ revenue expansion<br><br>
+                        Simulations Plus reported strong Q2 results driven by software segment growth in pharmaceutical modeling and simulation tools. The company serves major pharma clients with biosimulation software.
+                    </p>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Recent News</h3>
+                <div class="news-item">
+                    <div class="news-title">Simulations Plus Inc (SLP) Q2 2026 Earnings Call Highlights: Strong Revenue Growth</div>
+                    <div class="news-meta">GuruFocus.com | April 10, 2026 03:00 AM</div>
+                </div>
+                <div class="news-item">
+                    <div class="news-title">Simulations Plus: Fiscal Q2 Earnings Snapshot</div>
+                    <div class="news-meta">Associated Press | April 9, 2026 04:11 PM</div>
+                </div>
+                <div class="news-item">
+                    <div class="news-title">Simulations Plus Reports Second Quarter Fiscal 2026 Financial Results</div>
+                    <div class="news-meta">Business Wire | April 9, 2026 04:05 PM</div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>Trading Considerations</h3>
+                <div class="analysis-card">
+                    <h4>Risk Assessment</h4>
+                    <p>
+                        <strong>Positive Factors:</strong><br>
+                        - Strong earnings beat (EPS +9.37%, Revenue +12.15%)<br>
+                        - Very strong pre-earnings momentum (+26.9% in 20 days)<br>
+                        - High relative volume (3.08x) shows interest<br><br>
+                        <strong>Negative Factors:</strong><br>
+                        - Extended gap (+16.47%) historically has low follow-through<br>
+                        - Still below 200-day MA (longer-term downtrend intact)<br>
+                        - RSI overbought at 76.87<br>
+                        - Declining institutional volume trend pre-earnings<br>
+                        - Small cap ($304M) with higher volatility<br><br>
+                        <strong>Recommendation:</strong> C-Grade suggests moderate success probability (40-54%). Consider waiting for pullback to 50-day MA (~$12.73) before entry, or use reduced position size with tight stops.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>DISCLAIMER:</strong> This analysis is for informational purposes only and does not constitute investment advice.
+            Past performance is not indicative of future results. Trading stocks involves substantial risk of loss.
+            Always conduct your own research and consult with a qualified financial advisor before making investment decisions.
+        </div>
+
+        <footer>
+            <p>Generated by Earnings Trade Analyst | Backtest Scoring System v2.0</p>
+            <p>Data sources: Finviz, Alpaca, FMP | Analysis timestamp: 2026-04-10 06:00:42 PDT</p>
+        </footer>
+    </div>
+</body>
+</html>
