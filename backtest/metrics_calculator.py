@@ -292,32 +292,32 @@ class MetricsCalculator:
         return result
 
     def _max_drawdown(self, trades: List[TradeResult]) -> float:
-        """Calculate max drawdown from cumulative PnL (dollar amount)."""
-        sorted_trades = sorted(trades, key=lambda t: t.entry_date)
-        cumulative = 0.0
+        """Calculate max drawdown from daily equity series (dollar amount)."""
+        series = self._daily_equity_series(trades)
+        if not series:
+            return 0.0
         peak = 0.0
         max_dd = 0.0
-        for t in sorted_trades:
-            cumulative += t.pnl
-            if cumulative > peak:
-                peak = cumulative
-            dd = peak - cumulative
+        for point in series:
+            if point.equity > peak:
+                peak = point.equity
+            dd = peak - point.equity
             if dd > max_dd:
                 max_dd = dd
         return max_dd
 
     def _max_drawdown_pct(self, trades: List[TradeResult]) -> float:
         """Calculate max drawdown as percentage of peak equity."""
-        sorted_trades = sorted(trades, key=lambda t: t.entry_date)
-        cumulative = 0.0
+        series = self._daily_equity_series(trades)
+        if not series:
+            return 0.0
         peak = 0.0
         max_dd_pct = 0.0
-        for t in sorted_trades:
-            cumulative += t.pnl
-            if cumulative > peak:
-                peak = cumulative
+        for point in series:
+            if point.equity > peak:
+                peak = point.equity
             if peak > 0:
-                dd_pct = (peak - cumulative) / peak * 100
+                dd_pct = (peak - point.equity) / peak * 100
                 if dd_pct > max_dd_pct:
                     max_dd_pct = dd_pct
         return max_dd_pct

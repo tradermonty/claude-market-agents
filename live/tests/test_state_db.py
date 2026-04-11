@@ -592,3 +592,65 @@ class TestGetPendingEntryByTicker:
         """Returns None when no matching order exists."""
         result = db.get_pending_entry_by_ticker("NONEXISTENT")
         assert result is None
+
+
+class TestPositionIdempotent:
+    """Test idempotent position insertion and ticker+date lookup."""
+
+    def test_add_position_idempotent(self, db: StateDB) -> None:
+        """Inserting the same ticker+entry_date twice returns the same position_id."""
+        pid1 = db.add_position(
+            ticker="AAPL",
+            entry_date="2026-01-01",
+            entry_price=150.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=1500.0,
+            stop_price=135.0,
+            stop_order_id=None,
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        pid2 = db.add_position(
+            ticker="AAPL",
+            entry_date="2026-01-01",
+            entry_price=150.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=1500.0,
+            stop_price=135.0,
+            stop_order_id=None,
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        assert pid1 == pid2
+
+    def test_get_open_position_by_ticker_date(self, db: StateDB) -> None:
+        """Finds an open position by ticker+date, returns None for mismatches."""
+        db.add_position(
+            ticker="AAPL",
+            entry_date="2026-01-01",
+            entry_price=150.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=1500.0,
+            stop_price=135.0,
+            stop_order_id=None,
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        assert db.get_open_position_by_ticker_date("AAPL", "2026-01-01") is not None
+        assert db.get_open_position_by_ticker_date("MSFT", "2026-01-01") is None
+        assert db.get_open_position_by_ticker_date("AAPL", "2026-01-02") is None

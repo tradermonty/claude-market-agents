@@ -4,9 +4,15 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 
 from live.config import LiveConfig
-from live.executor import _is_market_hours_et, execute_poll_phase, execute_signals
+from live.executor import (
+    KillSwitchError,
+    _is_market_hours_et,
+    execute_poll_phase,
+    execute_signals,
+)
 from live.state_db import StateDB
 
 
@@ -52,6 +58,15 @@ TRADE_DATE = "2026-02-17"
 RUN_ID = "exec-2026-02-17-test"
 
 
+def _make_http_error(status_code: int, body: dict) -> requests.HTTPError:
+    """Create a requests.HTTPError with a mock response."""
+    response = MagicMock()
+    response.status_code = status_code
+    response.json.return_value = body
+    error = requests.HTTPError(response=response)
+    return error
+
+
 def _make_signals(exits=None, entries=None):
     return {
         "trade_date": TRADE_DATE,
@@ -62,9 +77,9 @@ def _make_signals(exits=None, entries=None):
 
 class TestKillSwitch:
     def test_kill_switch_blocks(self, config, db, mock_alpaca):
-        """Kill switch on => sys.exit(3)."""
+        """Kill switch on => KillSwitchError."""
         db.set_kill_switch(True)
-        with pytest.raises(SystemExit) as exc_info:
+        with pytest.raises(KillSwitchError):
             execute_signals(
                 config,
                 db,
@@ -73,7 +88,6 @@ class TestKillSwitch:
                 TRADE_DATE,
                 RUN_ID,
             )
-        assert exc_info.value.code == 3
 
 
 class TestPhaseA:
@@ -114,22 +128,29 @@ class TestPhaseA:
         assert counts["exits_executed"] == 1
 
     def test_stop_already_filled(self, config, db, mock_alpaca):
-        """If stop was already filled, skip market sell."""
-        mock_alpaca.cancel_order.side_effect = Exception("422 order already filled")
+        """If stop was already filled (422), fetch fill price from Alpaca and close position."""
+        mock_alpaca.cancel_order.side_effect = _make_http_error(
+            422, {"code": 42210000, "message": "order is not cancelable"}
+        )
+        mock_alpaca.get_order.return_value = {
+            "status": "filled",
+            "filled_avg_price": "135.00",
+            "filled_qty": "10",
+        }
 
+        # Signal matches production format: no stop_price/pnl/return_pct
         signals = _make_signals(
             exits=[
                 {
                     "ticker": "AAPL",
                     "position_id": 1,
                     "qty": 10,
+                    "entry_price": 150.0,
                     "stop_order_id": "stop-filled-001",
-                    "stop_price": 135.0,
                 }
             ]
         )
 
-        # Add a position so close_position works
         pid = db.add_position(
             ticker="AAPL",
             entry_date="2026-02-10",
@@ -161,11 +182,160 @@ class TestPhaseA:
 
         # No market sell should be placed
         mock_alpaca.place_order.assert_not_called()
+        # Fill price fetched from Alpaca
+        mock_alpaca.get_order.assert_called_with("stop-filled-001")
         assert counts["exits_executed"] == 1
-
-        # Position should be closed
+        # Position should be closed with correct exit price and PnL
         open_pos = db.get_open_positions()
         assert len(open_pos) == 0
+
+    def test_stop_filled_get_order_fails(self, config, db, mock_alpaca):
+        """If stop filled but cannot fetch fill price, leave position open."""
+        mock_alpaca.cancel_order.side_effect = _make_http_error(
+            422, {"code": 42210000, "message": "order is not cancelable"}
+        )
+        mock_alpaca.get_order.side_effect = Exception("API timeout")
+
+        signals = _make_signals(
+            exits=[
+                {
+                    "ticker": "AAPL",
+                    "position_id": 1,
+                    "qty": 10,
+                    "entry_price": 150.0,
+                    "stop_order_id": "stop-filled-001",
+                }
+            ]
+        )
+
+        pid = db.add_position(
+            ticker="AAPL",
+            entry_date="2026-02-10",
+            entry_price=150.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=1500.0,
+            stop_price=135.0,
+            stop_order_id="stop-filled-001",
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        signals["exits"][0]["position_id"] = pid
+
+        counts = execute_signals(
+            config,
+            db,
+            mock_alpaca,
+            signals,
+            TRADE_DATE,
+            RUN_ID,
+            skip_time_check=True,
+        )
+
+        # Position left open for reconciliation
+        open_pos = db.get_open_positions()
+        assert len(open_pos) == 1
+        assert counts["stop_filled_unresolved"] == 1
+
+    def test_stop_cancel_422_unknown_message(self, config, db, mock_alpaca):
+        """422 with unknown message should not be treated as stop filled."""
+        mock_alpaca.cancel_order.side_effect = _make_http_error(
+            422, {"code": 99999999, "message": "unknown error"}
+        )
+
+        signals = _make_signals(
+            exits=[
+                {
+                    "ticker": "AAPL",
+                    "position_id": 1,
+                    "qty": 10,
+                    "entry_price": 150.0,
+                    "stop_order_id": "stop-err-001",
+                }
+            ]
+        )
+        pid = db.add_position(
+            ticker="AAPL",
+            entry_date="2026-02-10",
+            entry_price=150.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=1500.0,
+            stop_price=135.0,
+            stop_order_id="stop-err-001",
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        signals["exits"][0]["position_id"] = pid
+
+        execute_signals(
+            config,
+            db,
+            mock_alpaca,
+            signals,
+            TRADE_DATE,
+            RUN_ID,
+            skip_time_check=True,
+        )
+
+        # Should proceed to market sell (not treated as stop filled)
+        mock_alpaca.place_order.assert_called_once()
+
+    def test_stop_cancel_500_not_treated_as_filled(self, config, db, mock_alpaca):
+        """HTTP 500 should not be treated as stop filled."""
+        mock_alpaca.cancel_order.side_effect = _make_http_error(
+            500, {"message": "internal server error"}
+        )
+
+        signals = _make_signals(
+            exits=[
+                {
+                    "ticker": "AAPL",
+                    "position_id": 1,
+                    "qty": 10,
+                    "entry_price": 150.0,
+                    "stop_order_id": "stop-500-001",
+                }
+            ]
+        )
+        pid = db.add_position(
+            ticker="AAPL",
+            entry_date="2026-02-10",
+            entry_price=150.0,
+            target_shares=10,
+            actual_shares=10,
+            invested=1500.0,
+            stop_price=135.0,
+            stop_order_id="stop-500-001",
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        signals["exits"][0]["position_id"] = pid
+
+        execute_signals(
+            config,
+            db,
+            mock_alpaca,
+            signals,
+            TRADE_DATE,
+            RUN_ID,
+            skip_time_check=True,
+        )
+
+        # Should attempt market sell (not treated as stop filled)
+        mock_alpaca.place_order.assert_called_once()
 
 
 class TestIdempotency:
@@ -1251,8 +1421,122 @@ class TestAlpacaIdempotentTerminalNotCounted:
             skip_poll=True,
         )
 
-        # The exit was NOT actually executed (order is terminal)
+        # The exit was NOT actually executed (order is terminal/canceled)
         assert counts["exits_executed"] == 0
+
+
+class TestAlpacaExitFilledRecovery:
+    """Crash recovery: exit order filled on Alpaca but not recorded in DB."""
+
+    def test_alpaca_exit_filled_closes_position(self, opg_config, db, mock_alpaca):
+        """When Alpaca has a filled sell order, close position in DB."""
+        pid = db.add_position(
+            ticker="TSLA",
+            entry_date=TRADE_DATE,
+            entry_price=200.0,
+            target_shares=5,
+            actual_shares=5,
+            invested=1000.0,
+            stop_price=180.0,
+            stop_order_id=None,
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        signals = {
+            "trade_date": TRADE_DATE,
+            "strategy": "ema_p10",
+            "exits": [
+                {
+                    "ticker": "TSLA",
+                    "position_id": pid,
+                    "reason": "trend_break",
+                    "qty": 5,
+                    "entry_price": 200.0,
+                }
+            ],
+            "entries": [],
+        }
+
+        mock_alpaca.get_order_by_client_id.return_value = {
+            "id": "alp-sell-filled",
+            "status": "filled",
+            "filled_avg_price": "195.00",
+            "filled_qty": "5",
+        }
+
+        counts = execute_signals(
+            opg_config,
+            db,
+            mock_alpaca,
+            signals,
+            trade_date=TRADE_DATE,
+            run_id="test-exit-recovery",
+            skip_poll=True,
+        )
+
+        assert counts["exits_executed"] == 1
+        open_pos = db.get_open_positions()
+        assert len(open_pos) == 0
+
+    def test_alpaca_exit_filled_no_price_leaves_open(self, opg_config, db, mock_alpaca):
+        """When filled but price unavailable, leave position open."""
+        pid = db.add_position(
+            ticker="TSLA",
+            entry_date=TRADE_DATE,
+            entry_price=200.0,
+            target_shares=5,
+            actual_shares=5,
+            invested=1000.0,
+            stop_price=180.0,
+            stop_order_id=None,
+            score=None,
+            grade=None,
+            grade_source=None,
+            report_date=None,
+            company_name=None,
+            gap_size=None,
+        )
+        signals = {
+            "trade_date": TRADE_DATE,
+            "strategy": "ema_p10",
+            "exits": [
+                {
+                    "ticker": "TSLA",
+                    "position_id": pid,
+                    "reason": "trend_break",
+                    "qty": 5,
+                    "entry_price": 200.0,
+                }
+            ],
+            "entries": [],
+        }
+
+        mock_alpaca.get_order_by_client_id.return_value = {
+            "id": "alp-sell-filled",
+            "status": "filled",
+            "filled_avg_price": None,
+            "filled_qty": "5",
+        }
+
+        counts = execute_signals(
+            opg_config,
+            db,
+            mock_alpaca,
+            signals,
+            trade_date=TRADE_DATE,
+            run_id="test-exit-no-price",
+            skip_poll=True,
+        )
+
+        # exits_executed NOT incremented when close_position was not called
+        assert counts["exits_executed"] == 0
+        # Position left open because exit price unavailable
+        open_pos = db.get_open_positions()
+        assert len(open_pos) == 1
 
 
 class TestPollDayModeSingleQuery:

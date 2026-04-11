@@ -123,11 +123,21 @@ def compute_weekly_nweek_low(weekly_bars: List[WeeklyBar], period: int) -> List[
     return result
 
 
-def is_week_end_by_date(bars: List[PriceBar], current_date: str) -> bool:
+def is_week_end_by_date(
+    bars: List[PriceBar],
+    current_date: str,
+    expected_end_date: Optional[str] = None,
+) -> bool:
     """Check if current_date is the last trading day of its ISO week.
 
     Standalone version of PortfolioSimulator._is_week_end.
     Searches bars list for current_date, then checks if next bar is in a different week.
+
+    If expected_end_date is provided and the last bar's date is earlier than
+    expected_end_date, the data is considered incomplete and False is returned.
+    This prevents treating stale data as a week-end signal in live trading.
+    When expected_end_date is None (backtest mode), the last bar is always
+    treated as week end for backward compatibility.
     """
     if not bars:
         return False
@@ -140,20 +150,28 @@ def is_week_end_by_date(bars: List[PriceBar], current_date: str) -> bool:
         return False
     cur_dt = datetime.strptime(current_date, "%Y-%m-%d")
     if idx + 1 >= len(bars):
-        return True
+        # Last bar: if we expected more recent data, data is incomplete
+        return not (expected_end_date and bars[-1].date < expected_end_date)
     nxt_dt = datetime.strptime(bars[idx + 1].date, "%Y-%m-%d")
     return cur_dt.isocalendar()[:2] != nxt_dt.isocalendar()[:2]
 
 
-def is_week_end_by_index(bars: List[PriceBar], idx: int) -> bool:
+def is_week_end_by_index(
+    bars: List[PriceBar],
+    idx: int,
+    expected_end_date: Optional[str] = None,
+) -> bool:
     """Check if bar at idx is the last trading day of its ISO week.
 
     Standalone version of TradeSimulator._is_week_end.
     Index-based lookup (more efficient when index is already known).
+
+    If expected_end_date is provided and the last bar's date is earlier than
+    expected_end_date, the data is considered incomplete and False is returned.
     """
     cur = datetime.strptime(bars[idx].date, "%Y-%m-%d")
     if idx + 1 >= len(bars):
-        return True
+        return not (expected_end_date and bars[-1].date < expected_end_date)
     nxt = datetime.strptime(bars[idx + 1].date, "%Y-%m-%d")
     return cur.isocalendar()[:2] != nxt.isocalendar()[:2]
 

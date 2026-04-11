@@ -41,11 +41,14 @@ fi
 
 echo "Using report: ${REPORT_FILE}" >> "${LOG_FILE}"
 
+MANIFEST="${MANIFEST:-reports/backtest/run_manifest.json}"
+
 # Run signal generator with --report-file (required argument)
 # --trade-date is omitted; Python resolves via datetime.now(ET)
 .venv/bin/python -m live.signal_generator \
     --report-file "${REPORT_FILE}" \
     --state-db live/state.db \
+    --manifest "${MANIFEST}" \
     -v \
     >> "${LOG_FILE}" 2>&1
 

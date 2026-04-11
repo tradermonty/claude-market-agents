@@ -402,3 +402,19 @@ class TestSharedFunctionConsistency:
             is_end = is_week_end_by_date(bars, bar.date)
             if bar.date in week_ending_dates:
                 assert is_end, f"{bar.date} should be week end"
+
+
+# ---------------------------------------------------------------------------
+# Tests: Parameter parity across backtest and live
+# ---------------------------------------------------------------------------
+
+
+def test_trailing_transition_weeks_defaults_aligned():
+    """All trailing_transition_weeks defaults must match the backtested value."""
+    from backtest.tests.fake_price_fetcher import FakePriceFetcher
+    from live.config import LiveConfig
+    from live.trailing_stop_checker import TrailingStopChecker
+
+    assert LiveConfig().trailing_transition_weeks == 2
+    checker = TrailingStopChecker(price_fetcher=FakePriceFetcher({}))
+    assert checker.trailing_transition_weeks == 2

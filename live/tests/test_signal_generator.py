@@ -14,7 +14,9 @@ from backtest.price_fetcher import PriceBar
 from backtest.tests.fake_price_fetcher import FakePriceFetcher
 from live.config import LiveConfig
 from live.signal_generator import (
+    KillSwitchError,
     PriceValidationError,
+    ReconciliationError,
     _derive_json_path,
     _filter_candidates,
     _recover_untracked_positions,
@@ -215,11 +217,11 @@ def price_fetcher():
 
 class TestKillSwitch:
     def test_kill_switch_blocks(self, db, config, price_fetcher):
-        """Kill switch ON should exit with code 3."""
+        """Kill switch ON should raise KillSwitchError."""
         db.set_kill_switch(True)
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(tmp_dir)
-            with pytest.raises(SystemExit) as exc_info:
+            with pytest.raises(KillSwitchError):
                 generate_signals(
                     config=config,
                     state_db=db,
@@ -230,7 +232,6 @@ class TestKillSwitch:
                     trade_date="2026-02-17",
                     run_id="test-kill",
                 )
-            assert exc_info.value.code == 3
 
 
 class TestReconciliation:
@@ -245,7 +246,7 @@ class TestReconciliation:
         mock_alpaca.get_order.side_effect = Exception("order not found")
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(tmp_dir)
-            with pytest.raises(SystemExit) as exc_info:
+            with pytest.raises(ReconciliationError):
                 generate_signals(
                     config=config,
                     state_db=db,
@@ -256,7 +257,6 @@ class TestReconciliation:
                     trade_date="2026-02-17",
                     run_id="test-mismatch",
                 )
-            assert exc_info.value.code == 4
 
     def test_db_alpaca_mismatch_force(self, db, config, price_fetcher):
         """Position mismatch with --force should continue."""

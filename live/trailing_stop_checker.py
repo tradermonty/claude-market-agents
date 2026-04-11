@@ -92,7 +92,7 @@ class TrailingStopChecker:
             )
 
         # Check if as_of_date is the last trading day of its ISO week
-        week_end = is_week_end_by_date(bars, as_of_date)
+        week_end = is_week_end_by_date(bars, as_of_date, expected_end_date=as_of_date)
 
         if not week_end:
             return TrailingStopResult(

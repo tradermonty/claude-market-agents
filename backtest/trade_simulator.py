@@ -79,7 +79,7 @@ class TradeSimulator:
         trailing_stop: Optional[str] = None,
         trailing_ema_period: int = 10,
         trailing_nweek_period: int = 4,
-        trailing_transition_weeks: int = 3,
+        trailing_transition_weeks: int = 2,
         data_end_date: Optional[str] = None,
     ):
         if stop_mode not in self.VALID_STOP_MODES:

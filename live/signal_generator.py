@@ -33,6 +33,14 @@ class PriceValidationError(Exception):
     """Raised when JSON/HTML price cross-validation fails."""
 
 
+class KillSwitchError(Exception):
+    """Raised when the kill switch is engaged."""
+
+
+class ReconciliationError(Exception):
+    """Raised when position reconciliation fails."""
+
+
 DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
 
 
@@ -447,7 +455,7 @@ def _reconcile_positions(
 
     if not force:
         logger.error(msg)
-        sys.exit(4)
+        raise ReconciliationError(msg)
     else:
         logger.warning("%s\n  Continuing with --force", msg)
 
@@ -618,7 +626,7 @@ def generate_signals(
     # 1. Kill switch check
     if state_db.is_kill_switch_on():
         logger.error("Kill switch is ON. Aborting signal generation.")
-        sys.exit(3)
+        raise KillSwitchError("Kill switch is ON")
 
     # 2. Parse report -- prefer JSON (strict), fall back to HTML (legacy)
     json_path = _derive_json_path(report_file)
@@ -1215,18 +1223,23 @@ def main() -> None:
 
     run_id = f"sig_{trade_date.replace('-', '')}_{uuid.uuid4().hex[:6]}"
 
-    generate_signals(
-        config=config,
-        state_db=state_db,
-        alpaca_client=alpaca_client,
-        price_fetcher=price_fetcher,
-        report_file=args.report_file,
-        output_dir=args.output_dir,
-        trade_date=trade_date,
-        run_id=run_id,
-        force=args.force,
-        dry_run=args.dry_run,
-    )
+    try:
+        generate_signals(
+            config=config,
+            state_db=state_db,
+            alpaca_client=alpaca_client,
+            price_fetcher=price_fetcher,
+            report_file=args.report_file,
+            output_dir=args.output_dir,
+            trade_date=trade_date,
+            run_id=run_id,
+            force=args.force,
+            dry_run=args.dry_run,
+        )
+    except KillSwitchError:
+        sys.exit(3)
+    except ReconciliationError:
+        sys.exit(4)
 
 
 if __name__ == "__main__":

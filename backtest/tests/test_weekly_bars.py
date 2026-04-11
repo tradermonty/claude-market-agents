@@ -164,6 +164,99 @@ class TestComputeWeeklyEMA:
         assert abs(ema[1] - 120.0) < 0.01
 
 
+class TestIsWeekEndByDateExpectedEndDate:
+    """Tests for data freshness check via expected_end_date parameter."""
+
+    def test_last_bar_data_incomplete_not_week_end(self):
+        """When data is stale (last bar before expected_end_date), not week end."""
+        from backtest.weekly_bars import is_week_end_by_date
+
+        bars = [
+            PriceBar(
+                date="2025-10-13",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+            PriceBar(
+                date="2025-10-14",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+            PriceBar(
+                date="2025-10-15",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+        ]
+        # Wednesday is last bar, but we expected data through Thursday
+        assert is_week_end_by_date(bars, "2025-10-15", expected_end_date="2025-10-16") is False
+
+    def test_last_bar_data_complete_is_week_end(self):
+        """When last bar matches expected_end_date, treat as week end."""
+        from backtest.weekly_bars import is_week_end_by_date
+
+        bars = [
+            PriceBar(
+                date="2025-10-13",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+            PriceBar(
+                date="2025-10-14",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+            PriceBar(
+                date="2025-10-16",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+        ]
+        # Thursday is last bar and matches expected_end_date (holiday-shortened week)
+        assert is_week_end_by_date(bars, "2025-10-16", expected_end_date="2025-10-16") is True
+
+    def test_last_bar_no_expectation_is_week_end(self):
+        """Without expected_end_date, last bar is always week end (backtest compat)."""
+        from backtest.weekly_bars import is_week_end_by_date
+
+        bars = [
+            PriceBar(
+                date="2025-10-15",
+                open=100,
+                high=101,
+                low=99,
+                close=100,
+                adj_close=100,
+                volume=1000,
+            ),
+        ]
+        assert is_week_end_by_date(bars, "2025-10-15") is True
+
+
 class TestComputeWeeklyNWeekLow:
     """Weekly N-week low computation tests."""
 

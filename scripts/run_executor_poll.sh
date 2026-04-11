@@ -21,11 +21,14 @@ echo "=======================================" >> "${LOG_FILE}"
 echo "Executor Poll - Started: $(date)" >> "${LOG_FILE}"
 echo "=======================================" >> "${LOG_FILE}"
 
+MANIFEST="${MANIFEST:-reports/backtest/run_manifest.json}"
+
 # Run executor in poll phase
 # --trade-date is omitted; Python resolves via datetime.now(ET)
 # Idempotent: safe to run multiple times
 .venv/bin/python -m live.executor \
     --state-db live/state.db \
+    --manifest "${MANIFEST}" \
     --phase poll \
     -v \
     >> "${LOG_FILE}" 2>&1

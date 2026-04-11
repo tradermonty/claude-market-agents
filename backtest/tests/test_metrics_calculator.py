@@ -356,6 +356,72 @@ class TestCrossFilterBreakdown:
         assert ("20%+", "55-69") in lookup  # score=55, gap=20
 
 
+class TestDrawdownUsesExitDateOrder:
+    """Drawdown should be calculated based on PnL realization order (exit_date)."""
+
+    def test_drawdown_uses_exit_date_order(self):
+        """Entry_date vs exit_date ordering gives different results; exit_date is correct."""
+        trades = [
+            TradeResult(
+                ticker="A",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-09-30",
+                entry_date="2025-10-01",
+                exit_date="2025-10-30",
+                entry_price=100,
+                exit_price=98,
+                shares=100,
+                invested=10000,
+                pnl=-200,
+                return_pct=-2.0,
+                holding_days=29,
+                exit_reason="max_holding",
+            ),
+            TradeResult(
+                ticker="B",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-10-04",
+                entry_date="2025-10-05",
+                exit_date="2025-10-10",
+                entry_price=100,
+                exit_price=105,
+                shares=100,
+                invested=10000,
+                pnl=500,
+                return_pct=5.0,
+                holding_days=5,
+                exit_reason="max_holding",
+            ),
+            TradeResult(
+                ticker="C",
+                grade="A",
+                grade_source="html",
+                score=85.0,
+                report_date="2025-10-14",
+                entry_date="2025-10-15",
+                exit_date="2025-10-20",
+                entry_price=100,
+                exit_price=92,
+                shares=100,
+                invested=10000,
+                pnl=-800,
+                return_pct=-8.0,
+                holding_days=5,
+                exit_reason="max_holding",
+            ),
+        ]
+        calc = MetricsCalculator()
+        # By exit_date order: B(+500), C(-800)->-300, A(-200)->-500
+        # Peak=500, trough=-500, drawdown=1000
+        # By entry_date order: A(-200), B(+300), C(-500)
+        # Peak=300, trough=-500, drawdown=800 (WRONG)
+        assert calc._max_drawdown(trades) == 1000.0
+
+
 class TestConstantInputCorrelation:
     """Constant scores/returns must not trigger ConstantInputWarning."""
 

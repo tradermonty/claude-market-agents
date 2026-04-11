@@ -27,11 +27,89 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+import requests
+
 from live.alpaca_client import AlpacaClient
 from live.config import ET, LiveConfig, resolve_api_key
 from live.state_db import TERMINAL_STATUSES, StateDB
 
 logger = logging.getLogger(__name__)
+
+
+class KillSwitchError(Exception):
+    """Raised when the kill switch is engaged."""
+
+
+class StrategyMismatchError(Exception):
+    """Raised when signals contain a non-permitted strategy."""
+
+
+def _is_duplicate_order_error(e: Exception) -> bool:
+    """Check if error is a duplicate client_order_id rejection.
+
+    Uses Alpaca error code as primary discriminant, message as fallback.
+    """
+    if not isinstance(e, requests.HTTPError) or e.response is None:
+        return False
+    if e.response.status_code not in (409, 422):
+        return False
+    try:
+        body = e.response.json()
+        # Alpaca error codes: 40910000 = "order already exists"
+        code = body.get("code")
+        if code is not None:
+            return code == 40910000
+        # code absent -> fall back to message
+        msg = body.get("message", "").lower()
+        return "already exists" in msg or "duplicate" in msg
+    except (ValueError, AttributeError):
+        return False  # Unknown -> not duplicate
+
+
+def _is_order_not_cancelable(e: requests.HTTPError) -> bool:
+    """Check if cancel failed because order is already filled/expired.
+
+    Uses Alpaca error code as primary discriminant, message as fallback.
+    """
+    if e.response is None or e.response.status_code != 422:
+        return False
+    try:
+        body = e.response.json()
+        # Alpaca error codes: 42210000 = "order is not cancelable"
+        code = body.get("code")
+        if code is not None:
+            return code == 42210000
+        # code absent -> fall back to message
+        msg = body.get("message", "").lower()
+        return "not cancelable" in msg or "already filled" in msg
+    except (ValueError, AttributeError):
+        # JSON parse failed -> unknown 422 -> safe side: not cancelable = False
+        return False
+
+
+def _parse_fill_price(order: dict, context: str) -> Optional[float]:
+    """Extract fill price from order dict. Returns None if unavailable."""
+    raw = order.get("filled_avg_price")
+    if raw is None:
+        logger.warning("filled_avg_price is None for %s, deferring", context)
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        logger.warning("filled_avg_price invalid '%s' for %s", raw, context)
+        return None
+
+
+def _parse_fill_qty(order: dict, fallback_qty: int = 0) -> int:
+    """Extract fill qty from order dict with fallback."""
+    raw = order.get("filled_qty")
+    if raw is None:
+        return fallback_qty
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return fallback_qty
+
 
 POLL_INTERVAL = 5  # seconds between order status polls
 POLL_TIMEOUT = 60  # max seconds to wait for order fill (phase B/E)
@@ -86,8 +164,11 @@ def _poll_orders(
 
             status = order.get("status", "unknown")
             if status == "filled":
-                fill_price = float(order.get("filled_avg_price", 0))
-                filled_qty = int(order.get("filled_qty", 0))
+                fill_price = _parse_fill_price(order, f"{ticker}/{alpaca_id}")
+                if fill_price is None:
+                    still_pending.append(item)
+                    continue
+                filled_qty = _parse_fill_qty(order)
                 state_db.update_order_status(
                     db_id,
                     status="filled",
@@ -104,8 +185,12 @@ def _poll_orders(
                     filled_qty,
                 )
             elif status == "partially_filled":
-                filled_qty = int(order.get("filled_qty", 0))
-                remaining = int(order.get("qty", 0)) - filled_qty
+                filled_qty = _parse_fill_qty(order)
+                try:
+                    total_qty = int(order.get("qty", 0) or 0)
+                except (TypeError, ValueError):
+                    total_qty = 0
+                remaining = total_qty - filled_qty
                 state_db.update_order_status(
                     db_id,
                     status="partially_filled",
@@ -197,7 +282,7 @@ def execute_signals(
     # Kill switch check
     if state_db.is_kill_switch_on():
         logger.critical("KILL SWITCH is ON. Aborting execution.")
-        sys.exit(3)
+        raise KillSwitchError("Kill switch is ON")
 
     # Strategy guard: only execute ema_p10 signals
     strategy = signals.get("strategy", "")
@@ -207,7 +292,7 @@ def execute_signals(
             "Only ema_p10.json should be passed to executor.",
             strategy,
         )
-        sys.exit(5)
+        raise StrategyMismatchError(f"Non-ema_p10 strategy: {strategy}")
 
     if not dry_run:
         assert alpaca_client is not None
@@ -225,7 +310,7 @@ def execute_signals(
 
     exits = signals.get("exits", [])
     entries = signals.get("entries", [])
-    counts = {"exits_executed": 0, "entries_executed": 0, "skipped": 0}
+    counts = {"exits_executed": 0, "entries_executed": 0, "skipped": 0, "stop_filled_unresolved": 0}
 
     # ── Phase A: Stop Cancel + Sell ─────────────────────────────────────
     sell_orders_to_poll: List[Dict[str, Any]] = []
@@ -244,26 +329,51 @@ def execute_signals(
                 try:
                     client.cancel_order(stop_order_id)
                     logger.info("Canceled stop order %s for %s", stop_order_id, ticker)
-                except Exception as e:
-                    error_msg = str(e)
-                    if "filled" in error_msg.lower() or "422" in error_msg:
+                except requests.HTTPError as e:
+                    if _is_order_not_cancelable(e):
                         logger.info(
-                            "Stop already filled for %s, skipping market sell",
+                            "Stop already filled for %s (HTTP 422), skipping market sell",
                             ticker,
                         )
-                        if position_id:
-                            state_db.close_position(
-                                position_id=position_id,
-                                exit_date=trade_date,
-                                exit_price=ex.get("stop_price", 0),
-                                exit_reason="stop_filled",
-                                pnl=ex.get("pnl", 0),
-                                return_pct=ex.get("return_pct", 0),
-                            )
-                        counts["exits_executed"] += 1
+                        if position_id and stop_order_id:
+                            try:
+                                filled_order = client.get_order(stop_order_id)
+                                raw_price = filled_order.get("filled_avg_price")
+                                if raw_price is None:
+                                    raise ValueError("filled_avg_price is None")
+                                exit_price = float(raw_price)
+                                entry_price = ex.get("entry_price", 0)
+                                qty_val = ex.get("qty", 0)
+                                pnl = (exit_price - entry_price) * qty_val
+                                return_pct = (
+                                    ((exit_price / entry_price) - 1) * 100 if entry_price else 0
+                                )
+                                state_db.close_position(
+                                    position_id=position_id,
+                                    exit_date=trade_date,
+                                    exit_price=exit_price,
+                                    exit_reason="stop_filled",
+                                    pnl=pnl,
+                                    return_pct=return_pct,
+                                )
+                                counts["exits_executed"] += 1
+                            except Exception as fetch_err:
+                                logger.critical(
+                                    "STOP FILLED for %s but cannot retrieve fill price: %s. "
+                                    "Position left OPEN for reconciliation.",
+                                    ticker,
+                                    fetch_err,
+                                )
+                                counts["stop_filled_unresolved"] += 1
                         continue
                     else:
-                        logger.error("Failed to cancel stop %s: %s", stop_order_id, e)
+                        logger.error(
+                            "Failed to cancel stop %s: HTTP %s",
+                            stop_order_id,
+                            e.response.status_code if e.response else "?",
+                        )
+                except Exception as e:
+                    logger.error("Failed to cancel stop %s: %s", stop_order_id, e)
             else:
                 logger.info("[DRY RUN] Would cancel stop %s for %s", stop_order_id, ticker)
 
@@ -285,12 +395,35 @@ def execute_signals(
         if not dry_run:
             alpaca_existing = client.get_order_by_client_id(client_order_id)
             if alpaca_existing:
-                logger.info(
-                    "Sell order already on Alpaca for %s (idempotent skip)",
-                    ticker,
-                )
                 alpaca_status = alpaca_existing.get("status", "")
-                if alpaca_status not in TERMINAL_STATUSES:
+                logger.info(
+                    "Sell order already on Alpaca for %s (status=%s, idempotent skip)",
+                    ticker,
+                    alpaca_status,
+                )
+                if alpaca_status == "filled" and position_id:
+                    # Crash-recovery: order filled on Alpaca but not recorded in DB
+                    fill_price = _parse_fill_price(alpaca_existing, f"exit_recovery/{ticker}")
+                    if fill_price is not None:
+                        filled_qty = _parse_fill_qty(alpaca_existing, fallback_qty=qty)
+                        entry_price = ex.get("entry_price", 0)
+                        pnl = (fill_price - entry_price) * filled_qty if entry_price else 0
+                        return_pct = ((fill_price / entry_price) - 1) * 100 if entry_price else 0
+                        state_db.close_position(
+                            position_id=position_id,
+                            exit_date=trade_date,
+                            exit_price=fill_price,
+                            exit_reason="signal_exit_recovered",
+                            pnl=pnl,
+                            return_pct=return_pct,
+                        )
+                        counts["exits_executed"] += 1
+                    else:
+                        logger.critical(
+                            "Exit filled for %s but price unavailable, leaving open",
+                            ticker,
+                        )
+                elif alpaca_status not in TERMINAL_STATUSES:
                     counts["exits_executed"] += 1
                 continue
 
@@ -344,9 +477,11 @@ def execute_signals(
         if alpaca_id in sell_results and position_id:
             result = sell_results[alpaca_id]
             if result.get("status") == "filled":
-                fill_price = float(result.get("filled_avg_price", 0))
+                fill_price = _parse_fill_price(result, f"sell/{item.get('ticker')}")
+                if fill_price is None:
+                    continue  # Cannot close without valid exit price
                 entry_price = item.get("entry_price", 0)
-                qty = int(result.get("filled_qty", 0))
+                qty = _parse_fill_qty(result, fallback_qty=item.get("qty", 0))
                 pnl = (fill_price - entry_price) * qty if entry_price else 0
                 return_pct = ((fill_price / entry_price) - 1) * 100 if entry_price else 0
                 state_db.close_position(
@@ -618,8 +753,10 @@ def execute_signals(
             if alpaca_id in buy_results:
                 result = buy_results[alpaca_id]
                 if result.get("status") == "filled":
-                    fill_price = float(result.get("filled_avg_price", 0))
-                    filled_qty = int(result.get("filled_qty", 0))
+                    fill_price = _parse_fill_price(result, f"buy/{ticker}")
+                    if fill_price is None:
+                        continue  # Defer — will be picked up next poll
+                    filled_qty = _parse_fill_qty(result)
                     actual_stop_order_id = item.get("stop_leg_id")
 
                     # If not bracket, place separate GTC stop
@@ -687,19 +824,27 @@ def execute_signals(
                     )
 
     # Complete run log
+    run_status = "completed"
+    error_msg = None
+    if counts["stop_filled_unresolved"] > 0:
+        run_status = "completed_with_errors"
+        error_msg = f"{counts['stop_filled_unresolved']} stop-filled positions unresolved"
+
     state_db.complete_run_log(
         run_id=run_id,
-        status="completed",
+        status=run_status,
         exits_count=counts["exits_executed"],
         entries_count=counts["entries_executed"],
         skipped_count=counts["skipped"],
+        error_message=error_msg,
     )
 
     logger.info(
-        "Execution complete: exits=%d entries=%d skipped=%d",
+        "Execution complete: exits=%d entries=%d skipped=%d stop_filled_unresolved=%d",
         counts["exits_executed"],
         counts["entries_executed"],
         counts["skipped"],
+        counts["stop_filled_unresolved"],
     )
     return counts
 
@@ -747,7 +892,7 @@ def execute_poll_phase(
 
     if state_db.is_kill_switch_on():
         logger.critical("KILL SWITCH is ON. Aborting poll phase.")
-        sys.exit(3)
+        raise KillSwitchError("Kill switch is ON (poll phase)")
 
     state_db.add_run_log(
         run_id=run_id,
@@ -823,8 +968,10 @@ def execute_poll_phase(
             continue
 
         counts["filled"] += 1
-        fill_price = float(result.get("filled_avg_price", 0))
-        filled_qty = int(result.get("filled_qty", 0))
+        fill_price = _parse_fill_price(result, f"poll/{ticker}")
+        if fill_price is None:
+            continue  # Defer — will be picked up next poll
+        filled_qty = _parse_fill_qty(result)
 
         # Check if GTC stop already exists (idempotent)
         stop_client_id = f"{trade_date}_{ticker}_stop_sell"
@@ -911,14 +1058,38 @@ def execute_poll_phase(
                 planned_stop,
             )
         except Exception as e:
-            logger.critical(
-                "FAILED to place stop for %s: %s — ACTIVATING KILL SWITCH",
-                ticker,
-                e,
-            )
-            state_db.set_kill_switch(True)
-            counts["unprotected"] += 1
-            unprotected_tickers.append(ticker)
+            if _is_duplicate_order_error(e):
+                logger.warning("Duplicate stop order for %s (idempotent): %s", ticker, e)
+                existing = client.get_order_by_client_id(stop_client_id)
+                if existing:
+                    stop_order_id = existing["id"]
+                    state_db.add_order(
+                        client_order_id=stop_client_id,
+                        ticker=ticker,
+                        side="sell",
+                        intent="stop",
+                        trade_date=trade_date,
+                        qty=filled_qty,
+                        run_id=run_id,
+                        alpaca_order_id=stop_order_id,
+                    )
+                    counts["stops_placed"] += 1
+                else:
+                    logger.error(
+                        "Duplicate error but stop not found on Alpaca for %s",
+                        ticker,
+                    )
+                    counts["unprotected"] += 1
+                    unprotected_tickers.append(ticker)
+            else:
+                logger.critical(
+                    "FAILED to place stop for %s: %s — ACTIVATING KILL SWITCH",
+                    ticker,
+                    e,
+                )
+                state_db.set_kill_switch(True)
+                counts["unprotected"] += 1
+                unprotected_tickers.append(ticker)
 
         # Record position
         _ensure_position_recorded(
@@ -974,10 +1145,9 @@ def _ensure_position_recorded(
     stop_client_id: Optional[str],
 ) -> None:
     """Record position if not already exists (idempotent)."""
-    open_positions = state_db.get_open_positions()
-    for pos in open_positions:
-        if pos["ticker"] == ticker and pos["entry_date"] == trade_date:
-            return  # Already recorded
+    existing = state_db.get_open_position_by_ticker_date(ticker, trade_date)
+    if existing:
+        return  # Already recorded
 
     # Look up stop order ID if available
     stop_order_id = None
@@ -1099,58 +1269,69 @@ def main() -> None:
 
     state_db = StateDB(args.state_db)
 
-    if args.phase == "poll":
-        # Poll phase: DB-driven, no signals file needed
-        if not alpaca_client and not args.dry_run:
-            logger.critical("Alpaca API keys required for poll phase")
-            sys.exit(1)
-        run_id = _generate_run_id(trade_date)
-        logger.info(
-            "Starting execution: run_id=%s trade_date=%s phase=%s", run_id, trade_date, args.phase
-        )
-        if args.dry_run:
-            logger.info("DRY RUN mode — no orders will be placed")
-        execute_poll_phase(
-            config=config,
-            state_db=state_db,
-            alpaca_client=alpaca_client,
-            trade_date=trade_date,
-            run_id=run_id,
-            dry_run=args.dry_run,
-        )
-    else:
-        # Place or all phase: signals file required
-        if not args.signals_file:
-            logger.critical("--signals-file is required for --phase %s", args.phase)
-            sys.exit(1)
+    try:
+        if args.phase == "poll":
+            # Poll phase: DB-driven, no signals file needed
+            if not alpaca_client and not args.dry_run:
+                logger.critical("Alpaca API keys required for poll phase")
+                sys.exit(1)
+            run_id = _generate_run_id(trade_date)
+            logger.info(
+                "Starting execution: run_id=%s trade_date=%s phase=%s",
+                run_id,
+                trade_date,
+                args.phase,
+            )
+            if args.dry_run:
+                logger.info("DRY RUN mode — no orders will be placed")
+            execute_poll_phase(
+                config=config,
+                state_db=state_db,
+                alpaca_client=alpaca_client,
+                trade_date=trade_date,
+                run_id=run_id,
+                dry_run=args.dry_run,
+            )
+        else:
+            # Place or all phase: signals file required
+            if not args.signals_file:
+                logger.critical("--signals-file is required for --phase %s", args.phase)
+                sys.exit(1)
 
-        with open(args.signals_file) as f:
-            signals = json.load(f)
-        signals["_source_file"] = args.signals_file
+            with open(args.signals_file) as f:
+                signals = json.load(f)
+            signals["_source_file"] = args.signals_file
 
-        # Use trade_date from signals if available, else from args
-        if not args.trade_date:
-            trade_date = signals.get("trade_date", trade_date)
+            # Use trade_date from signals if available, else from args
+            if not args.trade_date:
+                trade_date = signals.get("trade_date", trade_date)
 
-        # Generate run_id AFTER trade_date is finalized
-        run_id = _generate_run_id(trade_date)
-        logger.info(
-            "Starting execution: run_id=%s trade_date=%s phase=%s", run_id, trade_date, args.phase
-        )
-        if args.dry_run:
-            logger.info("DRY RUN mode — no orders will be placed")
+            # Generate run_id AFTER trade_date is finalized
+            run_id = _generate_run_id(trade_date)
+            logger.info(
+                "Starting execution: run_id=%s trade_date=%s phase=%s",
+                run_id,
+                trade_date,
+                args.phase,
+            )
+            if args.dry_run:
+                logger.info("DRY RUN mode — no orders will be placed")
 
-        execute_signals(
-            config=config,
-            state_db=state_db,
-            alpaca_client=alpaca_client,
-            signals=signals,
-            trade_date=trade_date,
-            run_id=run_id,
-            dry_run=args.dry_run,
-            skip_time_check=args.skip_time_check,
-            skip_poll=(args.phase == "place"),
-        )
+            execute_signals(
+                config=config,
+                state_db=state_db,
+                alpaca_client=alpaca_client,
+                signals=signals,
+                trade_date=trade_date,
+                run_id=run_id,
+                dry_run=args.dry_run,
+                skip_time_check=args.skip_time_check,
+                skip_poll=(args.phase == "place"),
+            )
+    except KillSwitchError:
+        sys.exit(3)
+    except StrategyMismatchError:
+        sys.exit(5)
 
 
 if __name__ == "__main__":

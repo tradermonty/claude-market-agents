@@ -174,6 +174,16 @@ class StateDB:
                 conn.commit()
                 logger.info("Migrated orders table: added planned_stop_price column")
 
+            # Add unique index for open positions
+            try:
+                conn.execute(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS idx_positions_open_ticker_date "
+                    "ON positions(ticker, entry_date) WHERE exit_date IS NULL"
+                )
+                conn.commit()
+            except Exception:
+                pass  # Index may already exist or partial index not supported
+
     @contextmanager
     def _connect(self):
         """Context manager for database connections with row_factory.
@@ -234,11 +244,11 @@ class StateDB:
         company_name: Optional[str],
         gap_size: Optional[float],
     ) -> int:
-        """Insert a new open position. Returns position_id."""
+        """Insert a new open position (idempotent). Returns position_id."""
         with self._connect() as conn:
             cursor = conn.execute(
                 """
-                INSERT INTO positions (
+                INSERT OR IGNORE INTO positions (
                     ticker, entry_date, entry_price, target_shares, actual_shares,
                     invested, stop_price, stop_order_id, score, grade,
                     grade_source, report_date, company_name, gap_size
@@ -262,10 +272,20 @@ class StateDB:
                 ),
             )
             conn.commit()
-            assert cursor.lastrowid is not None
-            position_id = int(cursor.lastrowid)
-        logger.info("Added position %s: %s @ %.2f", position_id, ticker, entry_price)
-        return position_id
+            if cursor.lastrowid and cursor.rowcount > 0:
+                position_id = int(cursor.lastrowid)
+                logger.info("Added position %s: %s @ %.2f", position_id, ticker, entry_price)
+                return position_id
+            # Already exists — return existing position_id
+            row = conn.execute(
+                "SELECT position_id FROM positions "
+                "WHERE ticker = ? AND entry_date = ? AND exit_date IS NULL",
+                (ticker, entry_date),
+            ).fetchone()
+            if row:
+                logger.info("Position already exists for %s on %s (idempotent)", ticker, entry_date)
+                return int(row[0])
+            raise RuntimeError(f"Failed to add or find position for {ticker} on {entry_date}")
 
     def get_open_positions(self) -> List[Dict[str, Any]]:
         """Return all positions where exit_date is NULL."""
@@ -274,6 +294,17 @@ class StateDB:
                 "SELECT * FROM positions WHERE exit_date IS NULL ORDER BY entry_date"
             ).fetchall()
             return [dict(row) for row in rows]
+
+    def get_open_position_by_ticker_date(
+        self, ticker: str, entry_date: str
+    ) -> Optional[Dict[str, Any]]:
+        """Get an open position by ticker and entry_date, or None."""
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM positions WHERE ticker = ? AND entry_date = ? AND exit_date IS NULL",
+                (ticker, entry_date),
+            ).fetchone()
+            return dict(row) if row else None
 
     def close_position(
         self,

@@ -35,11 +35,14 @@ fi
 
 echo "Using signals file: ${SIGNALS_FILE}" >> "${LOG_FILE}"
 
+MANIFEST="${MANIFEST:-reports/backtest/run_manifest.json}"
+
 # Run executor in place phase
 # --trade-date is omitted; Python resolves via datetime.now(ET)
 .venv/bin/python -m live.executor \
     --signals-file "${SIGNALS_FILE}" \
     --state-db live/state.db \
+    --manifest "${MANIFEST}" \
     --phase all \
     -v \
     >> "${LOG_FILE}" 2>&1
