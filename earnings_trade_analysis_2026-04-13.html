@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis - April 13, 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        .timestamp {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .no-data-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .no-data-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+
+        .no-data-title {
+            font-size: 1.8rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        .no-data-message {
+            font-size: 1.1rem;
+            color: #64748b;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .explanation-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.05));
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .explanation-card h3 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .explanation-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .explanation-card li {
+            padding: 8px 0;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+        }
+
+        .explanation-card li::before {
+            content: ">";
+            color: #3b82f6;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        .scoring-system {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .scoring-system h3 {
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .score-factors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .factor {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .factor-name {
+            color: #e4e4e7;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .factor-weight {
+            color: #8b5cf6;
+            font-size: 0.9rem;
+        }
+
+        .grade-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .grade-item {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .grade-a {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .grade-b {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .grade-c {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .grade-d {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .grade-letter {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .grade-a .grade-letter { color: #22c55e; }
+        .grade-b .grade-letter { color: #3b82f6; }
+        .grade-c .grade-letter { color: #eab308; }
+        .grade-d .grade-letter { color: #ef4444; }
+
+        .grade-info {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .disclaimer {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .disclaimer h4 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .no-data-card {
+                padding: 40px 20px;
+            }
+
+            .no-data-icon {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest-Based Momentum Trading Signals</p>
+            <p class="timestamp">Report Date: April 13, 2026 | Generated at: 06:01 AM PDT</p>
+        </header>
+
+        <div class="no-data-card">
+            <div class="no-data-icon">--</div>
+            <h2 class="no-data-title">No Stocks Available for Earnings Trading</h2>
+            <p class="no-data-message">
+                No stocks matching the earnings trading criteria were found for today's analysis.
+                This typically occurs on Mondays and other days with limited earnings announcements.
+                The screener filters for stocks that announced earnings after yesterday's close or
+                before today's pre-market with positive price movement.
+            </p>
+        </div>
+
+        <div class="explanation-card">
+            <h3>Why No Stocks Today?</h3>
+            <ul>
+                <li>Monday (April 13, 2026) is typically a low-volume earnings day</li>
+                <li>Most companies report mid-week (Tuesday through Thursday)</li>
+                <li>Screener requires: earnings announcement + gap-up + volume criteria</li>
+                <li>No stocks met all required criteria for high-probability setups</li>
+            </ul>
+        </div>
+
+        <div class="scoring-system">
+            <h3>Backtest Scoring System Reference</h3>
+            <div class="score-factors">
+                <div class="factor">
+                    <div class="factor-name">Gap Size Performance</div>
+                    <div class="factor-weight">25% Weight</div>
+                </div>
+                <div class="factor">
+                    <div class="factor-name">Pre-Earnings Trend</div>
+                    <div class="factor-weight">30% Weight</div>
+                </div>
+                <div class="factor">
+                    <div class="factor-name">Volume Trend</div>
+                    <div class="factor-weight">20% Weight</div>
+                </div>
+                <div class="factor">
+                    <div class="factor-name">MA200 Analysis</div>
+                    <div class="factor-weight">15% Weight</div>
+                </div>
+                <div class="factor">
+                    <div class="factor-name">MA50 Analysis</div>
+                    <div class="factor-weight">10% Weight</div>
+                </div>
+            </div>
+
+            <div class="grade-legend">
+                <div class="grade-item grade-a">
+                    <div class="grade-letter">A-Grade</div>
+                    <div class="grade-info">85+ points | 70%+ success rate</div>
+                </div>
+                <div class="grade-item grade-b">
+                    <div class="grade-letter">B-Grade</div>
+                    <div class="grade-info">70-84 points | 55-69% success rate</div>
+                </div>
+                <div class="grade-item grade-c">
+                    <div class="grade-letter">C-Grade</div>
+                    <div class="grade-info">55-69 points | 40-54% success rate</div>
+                </div>
+                <div class="grade-item grade-d">
+                    <div class="grade-letter">D-Grade</div>
+                    <div class="grade-info">54 points or below | Below 40% success rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <h4>Risk Disclaimer</h4>
+            <p>
+                This analysis is for informational purposes only and does not constitute investment advice.
+                Past performance does not guarantee future results. Earnings trading involves significant risk.
+                Always conduct your own research and consider your risk tolerance before trading.
+            </p>
+        </div>
+
+        <footer>
+            <p>Analysis powered by Finviz, Alpaca, and FMP data sources</p>
+            <p>Backtest Scoring System based on historical earnings momentum patterns</p>
+        </footer>
+    </div>
+</body>
+</html>
