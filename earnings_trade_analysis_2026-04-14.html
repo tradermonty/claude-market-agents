@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Earnings Gap-Up Stock Analysis | April 14, 2026</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --success: #34a853;
+            --warning: #fbbc04;
+            --danger: #ea4335;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #5f6368;
+            --border: #dadce0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .header .date {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .summary-card .label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .summary-card .value.primary { color: var(--primary); }
+        .summary-card .value.success { color: var(--success); }
+        .summary-card .value.warning { color: var(--warning); }
+
+        .stock-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .stock-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .stock-ticker {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stock-name {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+
+        .stock-sector {
+            display: inline-block;
+            background: #e8f0fe;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .stock-price-box {
+            text-align: right;
+        }
+
+        .current-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .price-change {
+            font-size: 1.1rem;
+            color: var(--success);
+            margin-top: 4px;
+        }
+
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin: 20px auto;
+        }
+
+        .grade-A { background: linear-gradient(135deg, #34a853, #0d652d); }
+        .grade-B { background: linear-gradient(135deg, #1a73e8, #0d47a1); }
+        .grade-C { background: linear-gradient(135deg, #fbbc04, #f57c00); }
+        .grade-D { background: linear-gradient(135deg, #ea4335, #b71c1c); }
+
+        .score-section {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .score-section h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .score-item {
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .score-item .label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .score-item .points {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .score-item .max-points {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .score-item .detail {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .fill-high { background: linear-gradient(90deg, #34a853, #00c853); }
+        .fill-medium { background: linear-gradient(90deg, #fbbc04, #ff9800); }
+        .fill-low { background: linear-gradient(90deg, #ea4335, #ff5722); }
+
+        .news-section {
+            margin-top: 24px;
+        }
+
+        .news-section h3 {
+            color: var(--dark);
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+
+        .news-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .news-item {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .news-item .headline {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .news-item .source {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .analysis-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .analysis-box h3 {
+            color: #1b5e20;
+            margin-bottom: 16px;
+        }
+
+        .analysis-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .analysis-box li {
+            padding: 8px 0;
+            color: #2e7d32;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .analysis-box li::before {
+            content: "+";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .technical-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .tech-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .tech-item .label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            text-transform: uppercase;
+        }
+
+        .tech-item .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .tech-item .value.positive { color: var(--success); }
+        .tech-item .value.negative { color: var(--danger); }
+        .tech-item .value.neutral { color: var(--warning); }
+
+        .ma-chart {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .ma-bar-container {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            gap: 16px;
+        }
+
+        .ma-label {
+            width: 80px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .ma-bar-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .ma-bar-bg {
+            background: #e0e0e0;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .ma-bar {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .ma-bar.above { background: linear-gradient(90deg, #4caf50, #8bc34a); }
+        .ma-bar.below { background: linear-gradient(90deg, #f44336, #ff7043); }
+
+        .disclaimer {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .disclaimer h4 {
+            color: var(--warning);
+            margin-bottom: 8px;
+        }
+
+        .disclaimer p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.6rem; }
+            .stock-ticker { font-size: 1.5rem; }
+            .current-price { font-size: 2rem; }
+            .grade-badge { width: 80px; height: 80px; font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+            <p class="subtitle">Backtest-Based Momentum Gap Trading Opportunities</p>
+            <span class="date">April 14, 2026 (Tuesday) | Pre-Market Analysis</span>
+        </div>
+
+        <!-- Summary Dashboard -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="label">Stocks Analyzed</div>
+                <div class="value primary">1</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">A-Grade</div>
+                <div class="value success">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">B-Grade</div>
+                <div class="value primary">0</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">C-Grade</div>
+                <div class="value warning">1</div>
+            </div>
+        </div>
+
+        <!-- BLK Stock Card -->
+        <div class="stock-card">
+            <div class="stock-header">
+                <div class="stock-info">
+                    <div class="stock-ticker">BLK</div>
+                    <div class="stock-name">BlackRock, Inc.</div>
+                    <span class="stock-sector">Financial - Asset Management</span>
+                </div>
+                <div class="stock-price-box">
+                    <div class="current-price">$1,040.00</div>
+                    <div class="price-change">+$16.35 (+1.60%) Gap-Up</div>
+                </div>
+            </div>
+
+            <!-- Grade Badge -->
+            <div style="text-align: center;">
+                <div class="grade-badge grade-C">C</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">57.8 Points</div>
+                <div style="color: var(--gray); margin-top: 4px;">40-54% Success Rate</div>
+            </div>
+
+            <!-- 5-Element Score Section -->
+            <div class="score-section">
+                <h3>5-Element Backtest Scoring Analysis</h3>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <div class="label">Gap Size (25%)</div>
+                        <div class="points">2</div>
+                        <div class="max-points">/ 3 max</div>
+                        <div class="detail">+1.60% (0-2% range)</div>
+                        <div class="progress-bar">
+                            <div class="fill fill-medium" style="width: 66%;"></div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Pre-Earnings (30%)</div>
+                        <div class="points">3</div>
+                        <div class="max-points">/ 5 max</div>
+                        <div class="detail">+5.72% (0-10% range)</div>
+                        <div class="progress-bar">
+                            <div class="fill fill-medium" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Volume Trend (20%)</div>
+                        <div class="points">3</div>
+                        <div class="max-points">/ 5 max</div>
+                        <div class="detail">93.45% ratio (avg)</div>
+                        <div class="progress-bar">
+                            <div class="fill fill-medium" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA200 Position (15%)</div>
+                        <div class="points">2</div>
+                        <div class="max-points">/ 5 max</div>
+                        <div class="detail">-4.01% (below)</div>
+                        <div class="progress-bar">
+                            <div class="fill fill-low" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">MA50 Position (10%)</div>
+                        <div class="points">3</div>
+                        <div class="max-points">/ 5 max</div>
+                        <div class="detail">+2.31% (above)</div>
+                        <div class="progress-bar">
+                            <div class="fill fill-medium" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moving Average Chart -->
+            <div class="ma-chart">
+                <h3 style="margin-bottom: 16px; color: var(--dark);">Moving Average Position Analysis</h3>
+                <div class="ma-bar-container">
+                    <span class="ma-label">MA20</span>
+                    <div class="ma-bar-wrapper">
+                        <div class="ma-bar-bg">
+                            <div class="ma-bar above" style="width: 66%;">+6.64%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ma-bar-container">
+                    <span class="ma-label">MA50</span>
+                    <div class="ma-bar-wrapper">
+                        <div class="ma-bar-bg">
+                            <div class="ma-bar above" style="width: 52%;">+2.31%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ma-bar-container">
+                    <span class="ma-label">MA200</span>
+                    <div class="ma-bar-wrapper">
+                        <div class="ma-bar-bg">
+                            <div class="ma-bar below" style="width: 40%;">-4.01%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Indicators -->
+            <div style="margin-top: 24px;">
+                <h3 style="color: var(--dark); margin-bottom: 12px;">Key Technical Indicators</h3>
+                <div class="technical-grid">
+                    <div class="tech-item">
+                        <div class="label">RSI (14)</div>
+                        <div class="value neutral">63.5</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="label">Beta</div>
+                        <div class="value neutral">1.48</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="label">Volatility</div>
+                        <div class="value neutral">2.11%</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="label">Rel. Volume</div>
+                        <div class="value negative">0.38x</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="label">52W High</div>
+                        <div class="value negative">-14.75%</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="label">52W Low</div>
+                        <div class="value positive">+22.96%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earnings Analysis -->
+            <div class="analysis-box">
+                <h3>Q1 2026 Earnings Analysis</h3>
+                <ul>
+                    <li>EPS Surprise: +7.53% beat vs. analyst estimates</li>
+                    <li>Revenue Surprise: +2.25% beat, driven by strong investment fee growth</li>
+                    <li>Quarterly profit surged 46% on growth in investment fees</li>
+                    <li>Sales Growth QoQ: +25.69% demonstrates robust asset under management growth</li>
+                </ul>
+            </div>
+
+            <!-- News Section -->
+            <div class="news-section">
+                <h3>Recent News Highlights</h3>
+                <div class="news-list">
+                    <div class="news-item">
+                        <div class="headline">BlackRock Posts 46% Gain in Quarterly Profit on Growth in Investment Fees</div>
+                        <div class="source">The Wall Street Journal - April 14, 2026</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="headline">BlackRock Earnings and Revenue Beat Expectations</div>
+                        <div class="source">Barron's - April 14, 2026</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="headline">Why Two Wall Street Titans Have Turned Bullish on U.S. Stocks</div>
+                        <div class="source">MarketWatch - April 14, 2026</div>
+                    </div>
+                    <div class="news-item">
+                        <div class="headline">BlackRock Pivots Back to US Stocks With Strategists Seeing Iran War Contained</div>
+                        <div class="source">Bloomberg - April 13, 2026</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Analysis -->
+            <div style="background: var(--light); border-radius: 12px; padding: 24px; margin-top: 24px;">
+                <h3 style="color: var(--dark); margin-bottom: 16px;">Trading Consideration</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div>
+                        <div style="font-weight: 600; color: var(--gray); font-size: 0.85rem;">MARKET CAP</div>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: var(--dark);">$169.50B</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--gray); font-size: 0.85rem;">P/E RATIO</div>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: var(--dark);">29.71</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--gray); font-size: 0.85rem;">FORWARD P/E</div>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: var(--dark);">17.24</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--gray); font-size: 0.85rem;">DIVIDEND YIELD</div>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: var(--dark);">2.29%</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 16px; background: white; border-radius: 8px; border-left: 4px solid var(--warning);">
+                    <p style="color: var(--dark); line-height: 1.6;">
+                        <strong>C-Grade Assessment:</strong> While BLK delivered strong earnings with 46% profit growth and beat on EPS (+7.53%) and revenue (+2.25%), the technical setup shows mixed signals. The stock is trading 4% below its 200-day moving average, indicating longer-term weakness. The modest gap-up of 1.60% and average volume trend suggest limited immediate momentum. Historical success rate for this profile is 40-54%.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <h4>Risk Disclaimer</h4>
+            <p>
+                This analysis is for informational purposes only and does not constitute financial advice.
+                Earnings-based trading carries significant risk, including the potential for rapid price movements
+                in either direction. Past performance does not guarantee future results. Always conduct your own
+                research and consider your risk tolerance before making any investment decisions. The backtest
+                scores are based on historical patterns and may not accurately predict future outcomes.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Generated on April 14, 2026 at 09:00 AM ET</p>
+            <p>Data Sources: Finviz, Alpaca Markets, FMP</p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">
+                Backtest Scoring System: Gap Size (25%) + Pre-Earnings Trend (30%) + Volume (20%) + MA200 (15%) + MA50 (10%)
+            </p>
+        </div>
+    </div>
+</body>
+</html>
