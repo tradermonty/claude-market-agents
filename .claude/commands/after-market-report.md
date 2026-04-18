@@ -92,10 +92,11 @@ For each earnings ticker:
 4. **🆕 Post‑Close Earnings & After‑Hours**
 
    * **Friday Rule**: On Fridays, **skip this entire section** (and earnings‑related Steps 6‑9 in data fetching). Very few companies report after Friday’s close, and the screener returns stale data from the previous day. Instead, include only a “Next Week’s Major Earnings Calendar” box using `finviz:upcoming_earnings_screener`.
-   * On Mon–Thu: After‑hours performance of today’s reporters
-   * EPS/Revenue surprises
-   * Tickers moving ±10 %
-   * Highlight related news
+   * **Mon–Thu with after‑hours results**: Show after‑hours performance of today’s reporters, EPS/Revenue surprises, tickers moving ±10 %, and highlight related news.
+   * **Mon–Thu with NO after‑hours results (fallback)**: When `earnings_afterhours_screener` returns empty, do NOT jump to next week’s earnings. Instead:
+     1. Note any BMO (before‑market‑open) earnings that reported TODAY and their market‑session impact
+     2. Show **“This Week’s Remaining Earnings Calendar”** using `finviz:upcoming_earnings_screener` filtered to the current week (Mon–Fri)
+     3. Only show “Next Week’s Major Earnings” as a secondary section if space permits and the current week is nearly over (Thu/Fri)
 
 5. **Market Statistics**
 
