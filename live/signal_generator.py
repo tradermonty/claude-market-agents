@@ -16,9 +16,11 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from backtest.entry_filter import apply_entry_quality_filter
 from backtest.html_parser import EarningsReportParser, TradeCandidate
 from backtest.json_parser import parse_candidates_json
 from backtest.price_fetcher import PriceFetcherProtocol
+from backtest.trade_simulator import SkippedTrade
 from live.alpaca_client import AlpacaClient
 from live.config import ET, LiveConfig, resolve_api_key
 from live.state_db import TERMINAL_STATUSES, StateDB
@@ -651,9 +653,24 @@ def generate_signals(
         logger.info("Parsed %d candidates from HTML: %s", len(candidates), report_file)
 
     # 3. Filter by min_grade (skip if validation failed — candidates already empty)
+    quality_skipped: List[SkippedTrade] = []
     if not price_validation_failed:
         candidates = _filter_candidates(candidates, config.min_grade)
         logger.info("After grade filter: %d candidates", len(candidates))
+
+        # Entry quality filter: parity with backtest + sub-$10 penny-stock block.
+        # Range [0, 30) widens backtest [10, 30) so PLBY-class tickers are blocked.
+        candidates, quality_skipped = apply_entry_quality_filter(
+            candidates,
+            price_min=0,
+            price_max=30,
+        )
+        if quality_skipped:
+            logger.info(
+                "Entry quality filter skipped %d: %s",
+                len(quality_skipped),
+                [(s.ticker, s.skip_reason) for s in quality_skipped],
+            )
 
     generated_at = datetime.now(ET).isoformat()
 
@@ -669,6 +686,7 @@ def generate_signals(
         generated_at,
         force,
         dry_run=dry_run,
+        pre_skipped=quality_skipped,
     )
 
     # Add validation flag to signal dicts
@@ -691,6 +709,7 @@ def generate_signals(
         run_id,
         generated_at,
         dry_run,
+        pre_skipped=quality_skipped,
     )
 
     # Add validation flag to shadow signals
@@ -720,6 +739,7 @@ def _generate_ema_signals(
     generated_at: str,
     force: bool,
     dry_run: bool = False,
+    pre_skipped: Optional[List[SkippedTrade]] = None,
 ) -> Dict[str, Any]:
     """Generate EMA trailing stop signals for execution."""
     # 4. Get open positions
@@ -787,6 +807,9 @@ def _generate_ema_signals(
     held_tickers = {p["ticker"] for p in db_positions}
     entries: List[Dict[str, Any]] = []
     skipped: List[Dict[str, Any]] = []
+    if pre_skipped:
+        for s in pre_skipped:
+            skipped.append({"ticker": s.ticker, "reason": s.skip_reason, "score": s.score or 0})
     rotation_done = False
     daily_entry_count = 0
 
@@ -940,6 +963,7 @@ def _generate_shadow_signals(
     run_id: str,
     generated_at: str,
     dry_run: bool,
+    pre_skipped: Optional[List[SkippedTrade]] = None,
 ) -> Dict[str, Any]:
     """Generate NWL trailing stop signals for shadow tracking."""
     # 11. Get shadow positions
@@ -978,6 +1002,11 @@ def _generate_shadow_signals(
     held_tickers = {p["ticker"] for p in shadow_positions}
     shadow_entries: List[Dict[str, Any]] = []
     shadow_skipped: List[Dict[str, Any]] = []
+    if pre_skipped:
+        for s in pre_skipped:
+            shadow_skipped.append(
+                {"ticker": s.ticker, "reason": s.skip_reason, "score": s.score or 0}
+            )
     daily_entry_count = 0
     open_after_exits = len(shadow_positions) - len(shadow_exits)
 

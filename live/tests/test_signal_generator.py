@@ -97,12 +97,22 @@ def _mock_alpaca_client(positions=None, clock_date="2026-02-17"):
 
 
 def _write_fake_report(tmp_dir, report_date="2026-02-14", candidates=None):
-    """Write a minimal HTML report that EarningsReportParser can parse."""
+    """Write a minimal HTML report that EarningsReportParser can parse.
+
+    Each candidate is a 4- or 5-tuple:
+        (ticker, score, grade, price) -> gap_size defaults to 5.0
+        (ticker, score, grade, price, gap_size)
+    """
     if candidates is None:
-        candidates = [("CRDO", 92, "A", 80.0), ("PLTR", 78, "B", 25.0)]
+        candidates = [("CRDO", 92, "A", 80.0), ("PLTR", 78, "B", 35.0)]
 
     cards = []
-    for ticker, score, grade, price in candidates:
+    for c in candidates:
+        if len(c) == 5:
+            ticker, score, grade, price, gap_size = c
+        else:
+            ticker, score, grade, price = c
+            gap_size = 5.0
         cards.append(f"""
         <div class="stock-card {grade.lower()}-grade">
             <div class="stock-ticker"><span class="ticker-symbol">${ticker}</span></div>
@@ -115,7 +125,7 @@ def _write_fake_report(tmp_dir, report_date="2026-02-14", candidates=None):
             </div>
             <div class="metric-box">
                 <div class="metric-label">Gap Up</div>
-                <div class="metric-value">5.0%</div>
+                <div class="metric-value">{gap_size}%</div>
             </div>
         </div>
         """)
@@ -439,7 +449,7 @@ class TestNewEntries:
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
-                candidates=[("CRDO", 92, "A", 80.0), ("PLTR", 78, "B", 25.0)],
+                candidates=[("CRDO", 92, "A", 80.0), ("PLTR", 78, "B", 35.0)],
             )
             result = generate_signals(
                 config=config,
@@ -617,6 +627,161 @@ class TestFilterCandidates:
         assert result[0].ticker == "HIGH"
         assert result[1].ticker == "MID"
         assert result[2].ticker == "LOW"
+
+
+class TestEntryQualityFilter:
+    """Entry quality filter integration in generate_signals.
+
+    Config: price_min=0, price_max=30 (exclude all $0-$30, extends backtest
+    [10,30) to also block sub-$10 penny stocks). gap>=10 & score>=85 combo
+    excluded (backtest default). Filter runs after grade filter.
+    """
+
+    def test_penny_stock_excluded(self, db, price_fetcher):
+        """PLBY-style $1.87 penny stock must be excluded."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    ("PLBY", 71, "B", 1.87),
+                    ("SAFE", 70, "B", 50.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-penny",
+            )
+        ema = result["ema_p10"]
+        entry_tickers = [e["ticker"] for e in ema["entries"]]
+        assert "PLBY" not in entry_tickers
+        assert "SAFE" in entry_tickers
+        skipped_reasons = {s["ticker"]: s["reason"] for s in ema["skipped"]}
+        assert "PLBY" in skipped_reasons
+        assert "low_price" in skipped_reasons["PLBY"]
+
+    def test_price_boundary_9_99_excluded(self, db, price_fetcher):
+        """$9.99 below $30 ceiling -> excluded."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[("LOW", 80, "B", 9.99), ("PASS", 75, "B", 50.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-999",
+            )
+        entry_tickers = [e["ticker"] for e in result["ema_p10"]["entries"]]
+        assert "LOW" not in entry_tickers
+        assert "PASS" in entry_tickers
+
+    def test_price_boundary_29_99_excluded(self, db, price_fetcher):
+        """$29.99 still inside [0,30) -> excluded."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[("EDGE", 80, "B", 29.99), ("PASS", 75, "B", 50.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-2999",
+            )
+        entry_tickers = [e["ticker"] for e in result["ema_p10"]["entries"]]
+        assert "EDGE" not in entry_tickers
+        assert "PASS" in entry_tickers
+
+    def test_price_boundary_30_passes(self, db, price_fetcher):
+        """$30.00 exactly -> passes (range is exclusive on upper bound)."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[("EXACT", 80, "B", 30.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-30",
+            )
+        entry_tickers = [e["ticker"] for e in result["ema_p10"]["entries"]]
+        assert "EXACT" in entry_tickers
+
+    def test_gap_score_combo_excluded(self, db, price_fetcher):
+        """gap>=10 & score>=85 combo excluded even with safe price."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[
+                    # (ticker, score, grade, price, gap_size)
+                    ("RISKY", 90, "A", 100.0, 12.0),  # gap=12 & score=90 -> excluded
+                    ("SAFE", 75, "B", 100.0, 5.0),
+                ],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-combo",
+            )
+        ema = result["ema_p10"]
+        entry_tickers = [e["ticker"] for e in ema["entries"]]
+        assert "RISKY" not in entry_tickers
+        assert "SAFE" in entry_tickers
+        skipped_reasons = {s["ticker"]: s["reason"] for s in ema["skipped"]}
+        assert "RISKY" in skipped_reasons
+        assert "high_gap_score" in skipped_reasons["RISKY"]
+
+    def test_shadow_also_filtered(self, db, price_fetcher):
+        """Shadow path must apply the same filter."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[("PLBY", 71, "B", 1.87), ("SAFE", 70, "B", 50.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-shadow-filter",
+            )
+        shadow_entries = [e["ticker"] for e in result["nwl_p4"]["entries"]]
+        assert "PLBY" not in shadow_entries
+        assert "SAFE" in shadow_entries
 
 
 class TestDailyEntryLimit:
@@ -1151,14 +1316,14 @@ class TestE2EPipeline:
             report = _write_fake_report(
                 tmp_dir,
                 report_date="2026-02-19",
-                candidates=[("GRMN", 92, "A", 248.93), ("PLTR", 78, "B", 25.0)],
+                candidates=[("GRMN", 92, "A", 248.93), ("PLTR", 78, "B", 35.0)],
             )
             # Write JSON candidates (preferred source)
             json_data = {
                 "report_date": "2026-02-19",
                 "candidates": [
                     {"ticker": "GRMN", "grade": "A", "score": 92.5, "price": 248.93},
-                    {"ticker": "PLTR", "grade": "B", "score": 78, "price": 25.0},
+                    {"ticker": "PLTR", "grade": "B", "score": 78, "price": 35.0},
                 ],
             }
             json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
@@ -1192,7 +1357,7 @@ class TestE2EPipeline:
                 report_date="2026-02-19",
                 candidates=[
                     ("CRDO", 92, "A", 80.0),
-                    ("PLTR", 78, "B", 25.0),
+                    ("PLTR", 78, "B", 35.0),
                 ],
             )
             result = generate_signals(
