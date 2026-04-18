@@ -12,6 +12,7 @@ import pytest
 from backtest.html_parser import TradeCandidate
 from backtest.price_fetcher import PriceBar
 from backtest.tests.fake_price_fetcher import FakePriceFetcher
+from backtest.trade_simulator import SkippedTrade
 from live.config import LiveConfig
 from live.signal_generator import (
     KillSwitchError,
@@ -20,6 +21,7 @@ from live.signal_generator import (
     _derive_json_path,
     _filter_candidates,
     _recover_untracked_positions,
+    _skipped_trades_to_dicts,
     _strict_parse_json,
     _sync_positions_from_alpaca,
     _validate_against_html,
@@ -629,6 +631,43 @@ class TestFilterCandidates:
         assert result[2].ticker == "LOW"
 
 
+class TestSkippedTradesToDicts:
+    """Unit tests for the shared SkippedTrade -> skipped dict converter."""
+
+    def test_none_returns_empty_list(self):
+        assert _skipped_trades_to_dicts(None) == []
+
+    def test_empty_list_returns_empty_list(self):
+        assert _skipped_trades_to_dicts([]) == []
+
+    def test_single_item_preserves_fields(self):
+        s = SkippedTrade(
+            ticker="PLBY",
+            report_date="2026-02-17",
+            grade="B",
+            score=71.0,
+            skip_reason="filter_low_price_0_30",
+        )
+        assert _skipped_trades_to_dicts([s]) == [
+            {"ticker": "PLBY", "reason": "filter_low_price_0_30", "score": 71.0},
+        ]
+
+    def test_score_none_coerces_to_zero(self):
+        s = SkippedTrade(
+            ticker="X", report_date="2026-02-17", grade="C", score=None, skip_reason="r"
+        )
+        result = _skipped_trades_to_dicts([s])
+        assert result[0]["score"] == 0
+
+    def test_multiple_items_preserve_order(self):
+        items = [
+            SkippedTrade(ticker=t, report_date="2026-02-17", grade="B", score=50.0, skip_reason="r")
+            for t in ("A", "B", "C")
+        ]
+        tickers = [d["ticker"] for d in _skipped_trades_to_dicts(items)]
+        assert tickers == ["A", "B", "C"]
+
+
 class TestEntryQualityFilter:
     """Entry quality filter integration in generate_signals.
 
@@ -710,8 +749,14 @@ class TestEntryQualityFilter:
         assert "EDGE" not in entry_tickers
         assert "PASS" in entry_tickers
 
-    def test_price_boundary_30_passes(self, db, price_fetcher):
-        """$30.00 exactly -> passes (range is exclusive on upper bound)."""
+    def test_price_boundary_30_not_excluded(self, db, price_fetcher):
+        """$30.00 exactly -> passes (range is exclusive on upper bound).
+
+        Asserts the candidate makes it all the way to a placed entry with
+        qty > 0 and does NOT appear in skipped with a filter reason.
+        This distinguishes "filter with correct boundary" from "no filter
+        at all" which would also let $30 pass.
+        """
         config = LiveConfig(max_positions=10, daily_entry_limit=5)
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
@@ -728,8 +773,12 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-30",
             )
-        entry_tickers = [e["ticker"] for e in result["ema_p10"]["entries"]]
-        assert "EXACT" in entry_tickers
+        ema = result["ema_p10"]
+        entries = [e for e in ema["entries"] if e["ticker"] == "EXACT"]
+        assert len(entries) == 1
+        assert entries[0]["qty"] > 0
+        filter_reasons = {s["reason"] for s in ema["skipped"] if s["ticker"] == "EXACT"}
+        assert not any("low_price" in r or "high_gap_score" in r for r in filter_reasons)
 
     def test_gap_score_combo_excluded(self, db, price_fetcher):
         """gap>=10 & score>=85 combo excluded even with safe price."""
@@ -762,7 +811,13 @@ class TestEntryQualityFilter:
         assert "high_gap_score" in skipped_reasons["RISKY"]
 
     def test_shadow_also_filtered(self, db, price_fetcher):
-        """Shadow path must apply the same filter."""
+        """Shadow path must record filter rejections in its own skipped list.
+
+        Asserts the pre_skipped wiring for shadow is live: if this wire
+        is removed, PLBY is still filtered from candidates so entries
+        would look fine, but shadow_skipped would lose the audit trail
+        which this assertion catches.
+        """
         config = LiveConfig(max_positions=10, daily_entry_limit=5)
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
@@ -779,9 +834,13 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-shadow-filter",
             )
-        shadow_entries = [e["ticker"] for e in result["nwl_p4"]["entries"]]
+        shadow = result["nwl_p4"]
+        shadow_entries = [e["ticker"] for e in shadow["entries"]]
         assert "PLBY" not in shadow_entries
         assert "SAFE" in shadow_entries
+        shadow_skipped = {s["ticker"]: s["reason"] for s in shadow["skipped"]}
+        assert "PLBY" in shadow_skipped
+        assert "low_price" in shadow_skipped["PLBY"]
 
 
 class TestDailyEntryLimit:

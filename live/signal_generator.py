@@ -30,6 +30,18 @@ logger = logging.getLogger(__name__)
 
 GRADE_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3}
 
+# Entry quality filter thresholds (see apply_entry_quality_filter call below).
+# These are INTENTIONALLY WIDER than backtest/entry_filter defaults:
+# backtest uses [10, 30) for price; live extends to [0, 30) to additionally
+# block sub-$10 penny stocks (e.g. PLBY @ $1.87 that slipped through in
+# production on 2026-03-17 and triggered the kill switch).
+# gap/score thresholds match backtest defaults (pinned here so that future
+# backtest tuning does not silently change live entry behavior).
+LIVE_PRICE_MIN = 0
+LIVE_PRICE_MAX = 30
+LIVE_GAP_THRESHOLD = 10
+LIVE_SCORE_THRESHOLD = 85
+
 
 class PriceValidationError(Exception):
     """Raised when JSON/HTML price cross-validation fails."""
@@ -58,6 +70,21 @@ def _derive_json_path(html_path: str) -> Optional[str]:
     date_str = m.group(1)
     dirname = os.path.dirname(html_path)
     return os.path.join(dirname, f"earnings_trade_candidates_{date_str}.json")
+
+
+def _skipped_trades_to_dicts(
+    pre_skipped: Optional[List[SkippedTrade]],
+) -> List[Dict[str, Any]]:
+    """Convert SkippedTrade records into the dict shape used in signal JSON.
+
+    Shared by EMA and shadow paths so both trees record filter rejections
+    identically.
+    """
+    if not pre_skipped:
+        return []
+    return [
+        {"ticker": s.ticker, "reason": s.skip_reason, "score": s.score or 0} for s in pre_skipped
+    ]
 
 
 def _filter_candidates(candidates: List[TradeCandidate], min_grade: str) -> List[TradeCandidate]:
@@ -658,12 +685,15 @@ def generate_signals(
         candidates = _filter_candidates(candidates, config.min_grade)
         logger.info("After grade filter: %d candidates", len(candidates))
 
-        # Entry quality filter: parity with backtest + sub-$10 penny-stock block.
-        # Range [0, 30) widens backtest [10, 30) so PLBY-class tickers are blocked.
+        # Entry quality filter. Thresholds are pinned at module level so that
+        # backtest.entry_filter default changes never silently alter live
+        # entry behavior. See LIVE_* constants for the rationale.
         candidates, quality_skipped = apply_entry_quality_filter(
             candidates,
-            price_min=0,
-            price_max=30,
+            price_min=LIVE_PRICE_MIN,
+            price_max=LIVE_PRICE_MAX,
+            gap_threshold=LIVE_GAP_THRESHOLD,
+            score_threshold=LIVE_SCORE_THRESHOLD,
         )
         if quality_skipped:
             logger.info(
@@ -806,10 +836,7 @@ def _generate_ema_signals(
     open_after_exits = len(db_positions) - len(exits)
     held_tickers = {p["ticker"] for p in db_positions}
     entries: List[Dict[str, Any]] = []
-    skipped: List[Dict[str, Any]] = []
-    if pre_skipped:
-        for s in pre_skipped:
-            skipped.append({"ticker": s.ticker, "reason": s.skip_reason, "score": s.score or 0})
+    skipped: List[Dict[str, Any]] = _skipped_trades_to_dicts(pre_skipped)
     rotation_done = False
     daily_entry_count = 0
 
@@ -1001,12 +1028,7 @@ def _generate_shadow_signals(
     exit_tickers = {e["ticker"] for e in shadow_exits}
     held_tickers = {p["ticker"] for p in shadow_positions}
     shadow_entries: List[Dict[str, Any]] = []
-    shadow_skipped: List[Dict[str, Any]] = []
-    if pre_skipped:
-        for s in pre_skipped:
-            shadow_skipped.append(
-                {"ticker": s.ticker, "reason": s.skip_reason, "score": s.score or 0}
-            )
+    shadow_skipped: List[Dict[str, Any]] = _skipped_trades_to_dicts(pre_skipped)
     daily_entry_count = 0
     open_after_exits = len(shadow_positions) - len(shadow_exits)
 
