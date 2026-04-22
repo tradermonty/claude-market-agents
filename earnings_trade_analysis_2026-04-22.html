@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis - 2026-04-22</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --panel-alt: #273449;
+  --accent: #38bdf8;
+  --accent-2: #22d3ee;
+  --good: #22c55e;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #334155;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: var(--text);
+  line-height: 1.55;
+}
+.header {
+  background: linear-gradient(135deg, #0c4a6e 0%, #1e40af 100%);
+  padding: 32px 24px;
+  border-bottom: 3px solid var(--accent);
+}
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: -0.4px;
+}
+.header .sub {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+.notice {
+  background: #7c2d12;
+  color: #fff7ed;
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-top: 12px;
+  font-size: 13px;
+  border-left: 4px solid #fb923c;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+}
+.stat-card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+.stat-card .value { font-size: 28px; font-weight: 700; margin-top: 6px; color: var(--accent); }
+.stat-card.green .value { color: var(--good); }
+.stat-card.yellow .value { color: var(--warn); }
+.stat-card.red .value { color: var(--bad); }
+h2 {
+  margin: 32px 0 16px;
+  font-size: 20px;
+  color: var(--accent-2);
+  border-left: 4px solid var(--accent);
+  padding-left: 12px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 13px;
+}
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { background: #0c1729; color: var(--accent); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+tr:hover td { background: var(--panel-alt); }
+.grade-A { background: #14532d; color: #86efac; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+.grade-B { background: #14532d; color: #bbf7d0; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+.grade-C { background: #78350f; color: #fed7aa; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+.grade-D { background: #7f1d1d; color: #fecaca; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+.pos { color: var(--good); font-weight: 600; }
+.neg { color: var(--bad); font-weight: 600; }
+.neu { color: var(--muted); }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.card.grade-B-border { border-top: 4px solid #22c55e; }
+.card.grade-C-border { border-top: 4px solid #f59e0b; }
+.card.grade-D-border { border-top: 4px solid #ef4444; }
+.card h3 { margin: 0 0 4px; font-size: 18px; color: var(--accent); }
+.card .name { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+.card .price-line { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.card .price { font-size: 22px; font-weight: 700; }
+.card .gap-up { font-size: 13px; }
+.scores { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: 11px; margin-top: 10px; }
+.score-cell { background: var(--panel-alt); border-radius: 4px; padding: 6px; text-align: center; }
+.score-cell .lbl { color: var(--muted); font-size: 10px; }
+.score-cell .val { font-weight: 700; font-size: 14px; color: var(--accent); }
+.summary-tag { font-size: 11px; padding: 2px 6px; background: #1e293b; border: 1px solid var(--border); border-radius: 3px; color: var(--muted); margin-right: 4px; }
+.disclaimer {
+  margin-top: 40px;
+  padding: 16px;
+  border: 1px dashed #475569;
+  border-radius: 8px;
+  background: rgba(248,113,113,0.06);
+  font-size: 12px;
+  color: #fca5a5;
+}
+.footer { margin-top: 24px; text-align: center; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report Date: Wednesday, April 22, 2026 &nbsp;&middot;&nbsp; Backtest-Based 5-Factor Scoring &nbsp;&middot;&nbsp; Data retrieved 15:28 PT</div>
+  <div class="notice">
+    <strong>Generated post-close as catch-up for missed morning run.</strong>
+    The 06:00 PT scheduled job failed (Claude CLI 2.1.117 + --dangerously-skip-permissions regression).
+    Gap-up %, intraday volume, and current-price metrics below use today's <em>confirmed-final closing values</em> rather than
+    pre-market estimates.
+  </div>
+</div>
+
+<div class="container">
+
+<h2>Screening Summary</h2>
+<div class="dashboard">
+  <div class="stat-card"><div class="label">Screened</div><div class="value">22</div></div>
+  <div class="stat-card green"><div class="label">A-Grade</div><div class="value">0</div></div>
+  <div class="stat-card green"><div class="label">B-Grade</div><div class="value">7</div></div>
+  <div class="stat-card yellow"><div class="label">C-Grade</div><div class="value">8</div></div>
+  <div class="stat-card red"><div class="label">D-Grade</div><div class="value">7</div></div>
+  <div class="stat-card"><div class="label">Top Score</div><div class="value">78</div></div>
+</div>
+
+<h2>Full Candidate Table (Sorted by Score)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Rank</th><th>Ticker</th><th>Company</th><th>Grade</th><th>Score</th>
+      <th>Price</th><th>Gap %</th><th>20D Trend</th><th>Vol Ratio</th>
+      <th>MA200 Dev</th><th>MA50 Dev</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td><strong>GEV</strong></td><td>GE Vernova Inc.</td><td><span class="grade-B">B</span></td><td><strong>78</strong></td><td>$1,127.56</td><td class="pos">+8.56%</td><td class="pos">+23.99%</td><td class="neu">87.6%</td><td class="pos">+63.60%</td><td class="pos">+27.73%</td></tr>
+    <tr><td>2</td><td><strong>MAS</strong></td><td>Masco Corporation</td><td><span class="grade-B">B</span></td><td><strong>78</strong></td><td>$73.96</td><td class="pos">+11.10%</td><td class="pos">+22.51%</td><td class="pos">105.0%</td><td class="pos">+9.79%</td><td class="pos">+11.97%</td></tr>
+    <tr><td>3</td><td><strong>ZWS</strong></td><td>Zurn Elkay Water Solutions</td><td><span class="grade-B">B</span></td><td><strong>78</strong></td><td>$52.48</td><td class="pos">+4.40%</td><td class="pos">+15.42%</td><td class="pos">101.6%</td><td class="pos">+13.54%</td><td class="pos">+9.61%</td></tr>
+    <tr><td>4</td><td><strong>TMHC</strong></td><td>Taylor Morrison Home</td><td><span class="grade-B">B</span></td><td><strong>76</strong></td><td>$65.00</td><td class="pos">+4.39%</td><td class="pos">+10.32%</td><td class="pos">111.6%</td><td class="pos">+3.37%</td><td class="pos">+5.57%</td></tr>
+    <tr><td>5</td><td><strong>HAFC</strong></td><td>Hanmi Financial</td><td><span class="grade-B">B</span></td><td><strong>72</strong></td><td>$29.57</td><td class="pos">+2.32%</td><td class="pos">+13.21%</td><td class="neu">80.3%</td><td class="pos">+12.82%</td><td class="pos">+10.90%</td></tr>
+    <tr><td>6</td><td><strong>HCSG</strong></td><td>Healthcare Services Group</td><td><span class="grade-B">B</span></td><td><strong>71</strong></td><td>$22.89</td><td class="pos">+24.03%</td><td class="pos">+18.11%</td><td class="neu">97.8%</td><td class="pos">+29.46%</td><td class="pos">+14.46%</td></tr>
+    <tr><td>7</td><td><strong>BA</strong></td><td>Boeing Company</td><td><span class="grade-B">B</span></td><td><strong>71</strong></td><td>$231.28</td><td class="pos">+3.60%</td><td class="pos">+17.75%</td><td class="neu">90.3%</td><td class="pos">+5.35%</td><td class="pos">+5.69%</td></tr>
+    <tr><td>8</td><td><strong>EWBC</strong></td><td>East West Bancorp</td><td><span class="grade-C">C</span></td><td><strong>69</strong></td><td>$122.09</td><td class="pos">+1.51%</td><td class="pos">+15.41%</td><td class="neu">90.7%</td><td class="pos">+12.45%</td><td class="pos">+8.95%</td></tr>
+    <tr><td>9</td><td><strong>TDY</strong></td><td>Teledyne Technologies</td><td><span class="grade-C">C</span></td><td><strong>66</strong></td><td>$656.69</td><td class="pos">+3.46%</td><td class="pos">+4.89%</td><td class="neu">90.2%</td><td class="pos">+14.81%</td><td class="pos">+1.51%</td></tr>
+    <tr><td>10</td><td><strong>ELV</strong></td><td>Elevance Health</td><td><span class="grade-C">C</span></td><td><strong>64</strong></td><td>$328.20</td><td class="pos">+2.98%</td><td class="pos">+13.04%</td><td class="neu">78.3%</td><td class="pos">+1.21%</td><td class="pos">+6.21%</td></tr>
+    <tr><td>11</td><td><strong>ONB</strong></td><td>Old National Bancorp</td><td><span class="grade-C">C</span></td><td><strong>64</strong></td><td>$24.02</td><td class="pos">+0.42%</td><td class="pos">+10.59%</td><td class="neu">95.7%</td><td class="pos">+7.26%</td><td class="pos">+4.17%</td></tr>
+    <tr><td>12</td><td><strong>WAB</strong></td><td>Wabtec Corporation</td><td><span class="grade-C">C</span></td><td><strong>60</strong></td><td>$261.52</td><td class="neg">-1.61%</td><td class="pos">+6.47%</td><td class="pos">102.7%</td><td class="pos">+19.96%</td><td class="pos">+3.00%</td></tr>
+    <tr><td>13</td><td><strong>FMNB</strong></td><td>Farmers &amp; Merchants Bank</td><td><span class="grade-C">C</span></td><td><strong>58</strong></td><td>$13.92</td><td class="pos">+3.21%</td><td class="pos">+8.50%</td><td class="neu">70.4%</td><td class="pos">+1.51%</td><td class="pos">+5.35%</td></tr>
+    <tr><td>14</td><td><strong>ISRG</strong></td><td>Intuitive Surgical</td><td><span class="grade-C">C</span></td><td><strong>57</strong></td><td>$483.62</td><td class="pos">+2.23%</td><td class="pos">+2.48%</td><td class="neu">97.2%</td><td class="neg">-3.66%</td><td class="pos">+1.05%</td></tr>
+    <tr><td>15</td><td><strong>MHO</strong></td><td>M/I Homes</td><td><span class="grade-C">C</span></td><td><strong>57</strong></td><td>$133.64</td><td class="pos">+2.62%</td><td class="pos">+8.74%</td><td class="neu">92.1%</td><td class="neu">-0.01%</td><td class="pos">+1.80%</td></tr>
+    <tr><td>16</td><td><strong>MCO</strong></td><td>Moody's Corporation</td><td><span class="grade-D">D</span></td><td><strong>55</strong></td><td>$466.72</td><td class="pos">+3.19%</td><td class="pos">+8.93%</td><td class="neu">73.1%</td><td class="neg">-3.79%</td><td class="pos">+5.07%</td></tr>
+    <tr><td>17</td><td><strong>WFRD</strong></td><td>Weatherford International</td><td><span class="grade-D">D</span></td><td><strong>52</strong></td><td>$100.99</td><td class="neg">-2.92%</td><td class="pos">+8.34%</td><td class="neu">87.5%</td><td class="pos">+30.58%</td><td class="pos">+3.68%</td></tr>
+    <tr><td>18</td><td><strong>WRB</strong></td><td>W. R. Berkley</td><td><span class="grade-D">D</span></td><td><strong>51</strong></td><td>$67.50</td><td class="pos">+2.87%</td><td class="pos">+3.80%</td><td class="neu">89.8%</td><td class="neg">-4.03%</td><td class="neg">-1.04%</td></tr>
+    <tr><td>19</td><td><strong>PM</strong></td><td>Philip Morris International</td><td><span class="grade-D">D</span></td><td><strong>51</strong></td><td>$163.95</td><td class="pos">+3.00%</td><td class="neu">+0.05%</td><td class="neu">88.9%</td><td class="neg">-0.50%</td><td class="neg">-3.90%</td></tr>
+    <tr><td>20</td><td><strong>NLY</strong></td><td>Annaly Capital Management</td><td><span class="grade-D">D</span></td><td><strong>51</strong></td><td>$22.63</td><td class="pos">+1.55%</td><td class="pos">+7.35%</td><td class="neu">81.8%</td><td class="pos">+3.71%</td><td class="pos">+1.71%</td></tr>
+    <tr><td>21</td><td><strong>WAL</strong></td><td>Western Alliance Bancorp</td><td><span class="grade-D">D</span></td><td><strong>49</strong></td><td>$78.37</td><td class="neg">-0.91%</td><td class="pos">+12.46%</td><td class="neu">81.7%</td><td class="neg">-5.09%</td><td class="pos">+0.44%</td></tr>
+    <tr><td>22</td><td><strong>MANH</strong></td><td>Manhattan Associates</td><td><span class="grade-D">D</span></td><td><strong>45</strong></td><td>$142.88</td><td class="pos">+10.46%</td><td class="pos">+7.68%</td><td class="neu">88.3%</td><td class="neg">-19.61%</td><td class="pos">+4.06%</td></tr>
+  </tbody>
+</table>
+
+<h2>B-Grade Stocks (55-69% success rate)</h2>
+<div class="cards">
+
+  <div class="card grade-B-border">
+    <h3>GEV <span class="grade-B">B</span></h3>
+    <div class="name">GE Vernova Inc.</div>
+    <div class="price-line"><div class="price">$1,127.56</div><div class="gap-up pos">Gap: +8.56%</div></div>
+    <div>Score: <strong>78</strong> &middot; 20D Trend <span class="pos">+23.99%</span> &middot; Vol 87.6%</div>
+    <div style="margin-top:6px">MA50 +27.73% &middot; MA200 <strong class="pos">+63.60%</strong></div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">2</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">5</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Power equipment leader. Strong Q1 beat + capex/backlog commentary drove ~+8.6% gap. Stock is
+      already extended (+64% above MA200, +23.99% in 20 days), so volatility contraction or a brief
+      pullback is the higher-probability long-side entry. Below-1x volume ratio suggests interest has
+      plateaued going into the print.
+    </p>
+    <span class="summary-tag">Electrification</span><span class="summary-tag">Momentum</span>
+  </div>
+
+  <div class="card grade-B-border">
+    <h3>MAS <span class="grade-B">B</span></h3>
+    <div class="name">Masco Corporation</div>
+    <div class="price-line"><div class="price">$73.96</div><div class="gap-up pos">Gap: +11.10%</div></div>
+    <div>Score: <strong>78</strong> &middot; 20D Trend <span class="pos">+22.51%</span> &middot; Vol 105.0%</div>
+    <div style="margin-top:6px">MA50 +11.97% &middot; MA200 +9.79%</div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">2</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">5</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Plumbing + decorative architectural products. Double-digit gap on a Q1 beat and raised
+      guidance, with bullish tariff-mitigation commentary. 20-day trend +22.5% is very strong,
+      20-day volume is now running slightly hot (105% of 60-day). Gap &gt;10% historically converts
+      to follow-through only ~28% of the time, so prefer waiting for a tight inside-day entry.
+    </p>
+    <span class="summary-tag">Housing/Repair-Remodel</span><span class="summary-tag">Guidance Raise</span>
+  </div>
+
+  <div class="card grade-B-border">
+    <h3>ZWS <span class="grade-B">B</span></h3>
+    <div class="name">Zurn Elkay Water Solutions</div>
+    <div class="price-line"><div class="price">$52.48</div><div class="gap-up pos">Gap: +4.40%</div></div>
+    <div>Score: <strong>78</strong> &middot; 20D Trend <span class="pos">+15.42%</span> &middot; Vol 101.6%</div>
+    <div style="margin-top:6px">MA50 +9.61% &middot; MA200 +13.54%</div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">4</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Water-infrastructure play. Clean 4.4% gap on EPS beat; price is now above all three MAs with
+      MA200 +13.5%. Volume expanding (101.6% of 60-day) confirms institutional interest. Ideal
+      setup - mid-sized gap (best historical hit-rate bucket) with intact uptrend and no
+      over-extension.
+    </p>
+    <span class="summary-tag">Water Infra</span><span class="summary-tag">Clean Breakout</span>
+  </div>
+
+  <div class="card grade-B-border">
+    <h3>TMHC <span class="grade-B">B</span></h3>
+    <div class="name">Taylor Morrison Home Corp.</div>
+    <div class="price-line"><div class="price">$65.00</div><div class="gap-up pos">Gap: +4.39%</div></div>
+    <div>Score: <strong>76</strong> &middot; 20D Trend <span class="pos">+10.32%</span> &middot; Vol 111.6%</div>
+    <div style="margin-top:6px">MA50 +5.57% &middot; MA200 +3.37%</div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">4</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Homebuilder. Solid beat + backlog commentary on rate-cut tailwind. Volume ratio 111.6% is
+      the highest usable reading in the B-tier (sub-120% abnormal threshold). Best textbook
+      setup: mid-gap + rising volume + uptrend still intact + not over-extended.
+    </p>
+    <span class="summary-tag">Homebuilder</span><span class="summary-tag">Rate-Cut Beneficiary</span>
+  </div>
+
+  <div class="card grade-B-border">
+    <h3>HAFC <span class="grade-B">B</span></h3>
+    <div class="name">Hanmi Financial</div>
+    <div class="price-line"><div class="price">$29.57</div><div class="gap-up pos">Gap: +2.32%</div></div>
+    <div>Score: <strong>72</strong> &middot; 20D Trend <span class="pos">+13.21%</span> &middot; Vol 80.3%</div>
+    <div style="margin-top:6px">MA50 +10.90% &middot; MA200 +12.82%</div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">2</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">5</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Asian-American community bank. Modest gap on EPS beat / NIM expansion. Trend strong (MA50
+      +10.9%, MA200 +12.8%). Main blemish is 20-day volume ratio at 80.3% (i.e., recent interest
+      has cooled vs. 60-day baseline). Fine as a smaller-size B-grade swing.
+    </p>
+    <span class="summary-tag">Regional Bank</span><span class="summary-tag">NIM Story</span>
+  </div>
+
+  <div class="card grade-B-border">
+    <h3>HCSG <span class="grade-B">B</span></h3>
+    <div class="name">Healthcare Services Group</div>
+    <div class="price-line"><div class="price">$22.89</div><div class="gap-up pos">Gap: +24.03%</div></div>
+    <div>Score: <strong>71</strong> &middot; 20D Trend <span class="pos">+18.11%</span> &middot; Vol 97.8%</div>
+    <div style="margin-top:6px">MA50 +14.46% &middot; MA200 +29.46%</div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">2</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">5</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">5</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Nursing-home support services. Huge 24% gap on earnings beat + margin improvement, but
+      gap closed the intraday high, leaving a long upper shadow. Gap &gt;10% bucket has only
+      28% follow-through historically - treat as a partial-size trade and require next-day
+      confirmation above today's close.
+    </p>
+    <span class="summary-tag">Margin Recovery</span><span class="summary-tag">Watch Fade</span>
+  </div>
+
+  <div class="card grade-B-border">
+    <h3>BA <span class="grade-B">B</span></h3>
+    <div class="name">Boeing Company</div>
+    <div class="price-line"><div class="price">$231.28</div><div class="gap-up pos">Gap: +3.60%</div></div>
+    <div>Score: <strong>71</strong> &middot; 20D Trend <span class="pos">+17.75%</span> &middot; Vol 90.3%</div>
+    <div style="margin-top:6px">MA50 +5.69% &middot; MA200 +5.35%</div>
+    <div class="scores">
+      <div class="score-cell"><div class="lbl">Gap</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">Trend</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">Vol</div><div class="val">3</div></div>
+      <div class="score-cell"><div class="lbl">MA200</div><div class="val">4</div></div>
+      <div class="score-cell"><div class="lbl">MA50</div><div class="val">4</div></div>
+    </div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 4px;">
+      Commercial aerospace. Narrower-than-expected loss with 737 MAX production rate stabilizing.
+      Clean 3.6% gap recovers the post-March supply-chain pullback. Above both MA50 and MA200
+      after a multi-week decline - classic post-correction earnings pattern.
+    </p>
+    <span class="summary-tag">Recovery Story</span><span class="summary-tag">Institutional</span>
+  </div>
+
+</div>
+
+<h2>C-Grade Stocks (40-54% success rate)</h2>
+<div class="cards">
+
+  <div class="card grade-C-border">
+    <h3>EWBC <span class="grade-C">C</span></h3>
+    <div class="name">East West Bancorp</div>
+    <div class="price-line"><div class="price">$122.09</div><div class="gap-up pos">Gap: +1.51%</div></div>
+    <div>Score: <strong>69</strong> &middot; Trend +15.41% &middot; Vol 90.7% &middot; MA200 +12.45%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Largest Asian-American bank; clean beat on credit quality and NIM. Small gap limits upside
+      but trend is strong.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>TDY <span class="grade-C">C</span></h3>
+    <div class="name">Teledyne Technologies</div>
+    <div class="price-line"><div class="price">$656.69</div><div class="gap-up pos">Gap: +3.46%</div></div>
+    <div>Score: <strong>66</strong> &middot; Trend +4.89% &middot; Vol 90.2% &middot; MA200 +14.81%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Defense electronics. Gap reversed off intraday high ($687 to $656.69). Long upper
+      shadow tempers the entry.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>ELV <span class="grade-C">C</span></h3>
+    <div class="name">Elevance Health</div>
+    <div class="price-line"><div class="price">$328.20</div><div class="gap-up pos">Gap: +2.98%</div></div>
+    <div>Score: <strong>64</strong> &middot; Trend +13.04% &middot; Vol 78.3% &middot; MA200 +1.21%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Managed-care rebound after February drawdown. Price held MA200 + now pushing to recent
+      highs. Volume cooling is a caution.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>ONB <span class="grade-C">C</span></h3>
+    <div class="name">Old National Bancorp</div>
+    <div class="price-line"><div class="price">$24.02</div><div class="gap-up pos">Gap: +0.42%</div></div>
+    <div>Score: <strong>64</strong> &middot; Trend +10.59% &middot; Vol 95.7% &middot; MA200 +7.26%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Midwest regional bank. Modest beat. Gap is almost flat despite solid trend - low edge.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>WAB <span class="grade-C">C</span></h3>
+    <div class="name">Wabtec Corporation</div>
+    <div class="price-line"><div class="price">$261.52</div><div class="gap-up neg">Gap: -1.61%</div></div>
+    <div>Score: <strong>60</strong> &middot; Trend +6.47% &middot; Vol 102.7% &middot; MA200 +19.96%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Rail equipment. Gapped DOWN but reversed intraday to green close - technically a "failed
+      breakdown" reclaim. Speculative C with rebound bias.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>FMNB <span class="grade-C">C</span></h3>
+    <div class="name">Farmers &amp; Merchants Bank of Long Beach</div>
+    <div class="price-line"><div class="price">$13.92</div><div class="gap-up pos">Gap: +3.21%</div></div>
+    <div>Score: <strong>58</strong> &middot; Trend +8.50% &middot; Vol 70.4% &middot; MA200 +1.51%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Small-cap community bank - very low liquidity (20-day vol only 70% of 60-day average),
+      limits size.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>ISRG <span class="grade-C">C</span></h3>
+    <div class="name">Intuitive Surgical</div>
+    <div class="price-line"><div class="price">$483.62</div><div class="gap-up pos">Gap: +2.23%</div></div>
+    <div>Score: <strong>57</strong> &middot; Trend +2.48% &middot; Vol 97.2% &middot; MA200 -3.66%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Robotic surgery leader. Beat on system placements but price still below MA200. Medium-term
+      bearish bias keeps this at C.
+    </p>
+  </div>
+
+  <div class="card grade-C-border">
+    <h3>MHO <span class="grade-C">C</span></h3>
+    <div class="name">M/I Homes</div>
+    <div class="price-line"><div class="price">$133.64</div><div class="gap-up pos">Gap: +2.62%</div></div>
+    <div>Score: <strong>57</strong> &middot; Trend +8.74% &middot; Vol 92.1% &middot; MA200 -0.01%</div>
+    <p style="font-size:12px; color:var(--muted); margin:10px 0 0;">
+      Homebuilder. Price literally sitting on MA200 after today's gap - a decisive close above
+      with volume would upgrade the setup.
+    </p>
+  </div>
+
+</div>
+
+<h2>D-Grade Stocks (below 40% success rate - lower priority)</h2>
+<table>
+  <thead><tr><th>Ticker</th><th>Company</th><th>Score</th><th>Price</th><th>Gap %</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>MCO</strong></td><td>Moody's</td><td>55</td><td>$466.72</td><td class="pos">+3.19%</td><td>Below MA200; volume cooling (73%).</td></tr>
+    <tr><td><strong>WFRD</strong></td><td>Weatherford</td><td>52</td><td>$100.99</td><td class="neg">-2.92%</td><td>Gapped down but recovered intraday; oilfield services still soft.</td></tr>
+    <tr><td><strong>WRB</strong></td><td>W. R. Berkley</td><td>51</td><td>$67.50</td><td class="pos">+2.87%</td><td>Insurance; below both MA50 and MA200.</td></tr>
+    <tr><td><strong>PM</strong></td><td>Philip Morris</td><td>51</td><td>$163.95</td><td class="pos">+3.00%</td><td>Defensive; below MA50/MA200, trend basically flat.</td></tr>
+    <tr><td><strong>NLY</strong></td><td>Annaly Capital</td><td>51</td><td>$22.63</td><td class="pos">+1.55%</td><td>Mortgage REIT; small gap, average trend.</td></tr>
+    <tr><td><strong>WAL</strong></td><td>Western Alliance</td><td>49</td><td>$78.37</td><td class="neg">-0.91%</td><td>Regional bank; still below MA200 after February shock.</td></tr>
+    <tr><td><strong>MANH</strong></td><td>Manhattan Associates</td><td>45</td><td>$142.88</td><td class="pos">+10.46%</td><td>Big gap but deep below MA200 (-19.6%) - pure bounce play, not a trend trade.</td></tr>
+  </tbody>
+</table>
+
+<h2>Top Tactical Picks (Scoring + Technical Composite)</h2>
+<ol style="font-size:14px; line-height:1.8;">
+  <li><strong>ZWS (B, 78)</strong> - cleanest setup: mid-gap, rising volume (101.6%), all MAs bullish, not over-extended. Entry: pullback into $51; stop: $49.50; target: $55-56.</li>
+  <li><strong>TMHC (B, 76)</strong> - highest valid volume ratio (111.6%), textbook gap, rate-cut tailwind. Entry: $64 retest; stop: $62.50; target: $68-69.</li>
+  <li><strong>MAS (B, 78)</strong> - strong trend but gap is in the +10-11% bucket where historical conversion drops. Prefer a tight inside-day continuation pattern before adding size.</li>
+</ol>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report is provided for educational and research purposes only and is not investment advice.
+Earnings-based trades carry elevated overnight-gap, liquidity, and regulatory risk. Always apply a pre-defined stop,
+size positions for a fixed dollar risk, and avoid adding to losers. Past backtest statistics (shown only as relative
+historical success-rate proxies) do not guarantee future performance. Verify all data with primary sources before executing trades.
+</div>
+
+<div class="footer">
+Generated: 2026-04-22 15:45 PT &middot; Data: Finviz + Alpaca bars &middot; 5-Factor Backtest Scoring v1.0
+</div>
+
+</div>
+</body>
+</html>
