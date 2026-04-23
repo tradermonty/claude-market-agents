@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Stock Market Analysis – 2026-04-23</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1e3c72 50%, #2a5298 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .header h1 {
+            font-size: 2.4em;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #a8c8ff;
+            margin-top: 8px;
+        }
+        .header .market-status {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 6px 18px;
+            background: linear-gradient(90deg, #e53935, #ff7043);
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .header .geopolitical-banner {
+            display: inline-block;
+            margin-top: 10px;
+            margin-left: 10px;
+            padding: 6px 18px;
+            background: linear-gradient(90deg, #f57f17, #ff8f00);
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        /* Section Headers */
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            letter-spacing: 0.5px;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 20px;
+            padding: 28px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+        }
+
+        /* Two-column layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        /* ETF Grid - 3x2 */
+        .etf-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .etf-card {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        .etf-card:hover { transform: translateY(-2px); }
+        .etf-symbol {
+            font-size: 1.3em;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .etf-price {
+            font-size: 1.1em;
+            margin: 6px 0 2px;
+            color: #e0e0e0;
+        }
+        .etf-change {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .etf-vol {
+            font-size: 0.75em;
+            color: #90caf9;
+            margin-top: 4px;
+        }
+
+        /* Colors */
+        .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+        .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+        .neutral  { color: #ffd740; }
+
+        /* Volume Surge Table */
+        .surge-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .surge-table th {
+            background: rgba(255,255,255,0.12);
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+            color: #90caf9;
+        }
+        .surge-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.92em;
+        }
+        .surge-table tr:last-child td { border-bottom: none; }
+        .surge-table tr:hover td { background: rgba(255,255,255,0.05); }
+        .ticker-badge {
+            display: inline-block;
+            background: rgba(100,180,255,0.2);
+            border: 1px solid rgba(100,180,255,0.4);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        /* After-Hours Section */
+        .afterhours-section {
+            background: linear-gradient(135deg, rgba(255,107,107,0.25) 0%, rgba(255,165,0,0.25) 100%);
+            border: 1px solid rgba(255,165,0,0.4);
+            border-left: 5px solid #ffff00;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+        .earnings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .earnings-card {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 14px;
+            padding: 18px;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        .earnings-card:hover { transform: translateY(-2px); }
+        .afterhours-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff4444;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .earnings-symbol {
+            font-size: 1.3em;
+            font-weight: 800;
+        }
+        .earnings-name {
+            font-size: 0.78em;
+            color: #ffd580;
+            margin-top: 2px;
+            margin-bottom: 8px;
+        }
+        .afterhours-change {
+            font-size: 1.5em;
+            font-weight: 800;
+        }
+        .earnings-surprise {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.8em;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 8px;
+        }
+        .surprise-positive { color: #00ff88; font-weight: 700; }
+        .surprise-negative { color: #ff6b6b; font-weight: 700; }
+        .earnings-volume {
+            font-size: 0.75em;
+            color: #90caf9;
+            margin-top: 6px;
+        }
+        .reg-change {
+            font-size: 0.82em;
+            margin-top: 4px;
+        }
+
+        /* Sector Performance */
+        .sector-bar-wrap {
+            margin-bottom: 12px;
+        }
+        .sector-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88em;
+            margin-bottom: 4px;
+        }
+        .sector-bar-bg {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .sector-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+        }
+        .bar-positive { background: linear-gradient(90deg, #00c853, #00e676); }
+        .bar-negative { background: linear-gradient(90deg, #e53935, #ff5252); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 0.75em;
+            color: #90caf9;
+            letter-spacing: 0.3px;
+        }
+
+        /* Key Points */
+        .keypoints-list {
+            list-style: none;
+        }
+        .keypoints-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.92em;
+            line-height: 1.55;
+            padding-left: 22px;
+            position: relative;
+        }
+        .keypoints-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #64b5f6;
+            font-size: 0.9em;
+        }
+        .keypoints-list li:last-child { border-bottom: none; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+            margin-top: 28px;
+            font-size: 0.82em;
+            color: #90caf9;
+            line-height: 1.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .etf-grid { grid-template-columns: repeat(2, 1fr); }
+            .earnings-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .etf-grid { grid-template-columns: 1fr 1fr; }
+            .earnings-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header h1 { font-size: 1.6em; }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .glass-card, .afterhours-section {
+            animation: fadeInUp 0.5s ease both;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>&#127482;&#127480; U.S. Stock Market Analysis</h1>
+        <div class="subtitle">&#128197; 2026-04-23 (Thursday) &ndash; Final After-Market Data</div>
+        <div>
+            <span class="market-status">MARKET CLOSED</span>
+            <span class="geopolitical-banner">&#9888;&#65039; Iran War Geopolitical Risk</span>
+        </div>
+    </div>
+
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="glass-card" style="margin-bottom:28px;">
+        <div class="section-title">&#128203; Executive Summary</div>
+        <p style="line-height:1.75; font-size:0.95em; color:#e0e0e0;">
+            U.S. equities pulled back modestly on Thursday, April 23, as geopolitical anxiety surrounding the ongoing Iran conflict resurfaced and sent crude oil prices surging. The S&P 500 shed <span class="negative">-0.39%</span>, the Nasdaq Composite fell <span class="negative">-0.56%</span>, and the Dow Jones slipped <span class="negative">-0.36%</span>, ending the session in the red after records set earlier this week. The VIX edged higher to <span class="negative">19.31</span> (+0.39 pts) on the day's uncertainty. Beneath the surface, however, <strong>earnings season delivered powerful beats</strong>: Texas Instruments surged +19.43% for its largest single-day gain in 25 years on a blowout Q1 report, while United Rentals (+22.92%) and Molina Healthcare (+14.18%) posted outsized moves on strong results. After the close, Intel reported a transformative quarter with EPS of $0.29 adjusted (vs. $0.01 expected), sending shares +15.78% in after-hours. MaxLinear rocketed +28.44% post-close on a return-to-profitability trajectory. Defensive and rate-sensitive sectors outperformed: Utilities (+2.52%), Industrials (+1.44%), and Consumer Defensive (+1.35%) all closed higher, while Technology (-1.39%), Basic Materials (-1.18%), and Consumer Cyclical (-1.14%) lagged. Gold dropped -0.97% as some safe-haven positioning rotated toward energy. Bond yields rose modestly, with TLT declining -0.22%.
+        </p>
+    </div>
+
+    <!-- MAJOR ETF PERFORMANCE -->
+    <div class="glass-card" style="margin-bottom:28px;">
+        <div class="section-title">&#128200; Major ETF Performance</div>
+        <div class="etf-grid">
+
+            <div class="etf-card">
+                <div class="etf-symbol">$SPY</div>
+                <div class="etf-price">$708.45</div>
+                <div class="etf-change negative">-0.39%</div>
+                <div class="etf-vol">S&P 500 ETF &mdash; Vol: 55.6M</div>
+                <div class="etf-vol">Range: $702.28 &ndash; $712.36</div>
+            </div>
+
+            <div class="etf-card">
+                <div class="etf-symbol">$QQQ</div>
+                <div class="etf-price">$651.42</div>
+                <div class="etf-change negative">-0.56%</div>
+                <div class="etf-vol">Nasdaq-100 ETF &mdash; Vol: 39.1M</div>
+                <div class="etf-vol">Range: $645.52 &ndash; $656.92</div>
+            </div>
+
+            <div class="etf-card">
+                <div class="etf-symbol">$DIA</div>
+                <div class="etf-price">$493.00</div>
+                <div class="etf-change negative">-0.36%</div>
+                <div class="etf-vol">Dow Jones ETF &mdash; Vol: 4.0M</div>
+                <div class="etf-vol">Range: $488.51 &ndash; $495.13</div>
+            </div>
+
+            <div class="etf-card">
+                <div class="etf-symbol">$IWM</div>
+                <div class="etf-price">$275.52</div>
+                <div class="etf-change negative">-0.35%</div>
+                <div class="etf-vol">Russell 2000 ETF &mdash; Vol: 32.5M</div>
+                <div class="etf-vol">Range: $271.95 &ndash; $277.87</div>
+            </div>
+
+            <div class="etf-card">
+                <div class="etf-symbol">$TLT</div>
+                <div class="etf-price">$86.55</div>
+                <div class="etf-change negative">-0.22%</div>
+                <div class="etf-vol">20+ Yr Treasury ETF &mdash; Vol: 21.1M</div>
+                <div class="etf-vol">Range: $86.24 &ndash; $87.04</div>
+            </div>
+
+            <div class="etf-card">
+                <div class="etf-symbol">$GLD</div>
+                <div class="etf-price">$431.04</div>
+                <div class="etf-change negative">-0.97%</div>
+                <div class="etf-vol">Gold ETF &mdash; Vol: 5.0M</div>
+                <div class="etf-vol">Range: $428.22 &ndash; $435.29</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TOP VOLUME SURGE & SECTOR (2-col) -->
+    <div class="grid-2">
+
+        <!-- Volume Surge Top 10 -->
+        <div class="glass-card">
+            <div class="section-title">&#128293; Top Volume-Surge Movers (Earnings-Driven)</div>
+            <table class="surge-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>1-Day Change</th>
+                        <th>Rel. Vol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color:#ffd740;">1</td>
+                        <td><span class="ticker-badge">URI</span></td>
+                        <td>United Rentals</td>
+                        <td class="positive">+22.92%</td>
+                        <td>2.49x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#ffd740;">2</td>
+                        <td><span class="ticker-badge">TXN</span></td>
+                        <td>Texas Instruments</td>
+                        <td class="positive">+19.43%</td>
+                        <td>3.45x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#ffd740;">3</td>
+                        <td><span class="ticker-badge">PENN</span></td>
+                        <td>PENN Entertainment</td>
+                        <td class="positive">+16.86%</td>
+                        <td>2.59x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#ffd740;">4</td>
+                        <td><span class="ticker-badge">MOH</span></td>
+                        <td>Molina Healthcare</td>
+                        <td class="positive">+14.18%</td>
+                        <td>1.89x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#ffd740;">5</td>
+                        <td><span class="ticker-badge">APLD</span></td>
+                        <td>Applied Digital Corp</td>
+                        <td class="positive">+12.09%</td>
+                        <td>2.39x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#90caf9;">6</td>
+                        <td><span class="ticker-badge">HRI</span></td>
+                        <td>Herc Holdings</td>
+                        <td class="positive">+12.61%</td>
+                        <td>2.26x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#90caf9;">7</td>
+                        <td><span class="ticker-badge">WST</span></td>
+                        <td>West Pharma Services</td>
+                        <td class="positive">+12.86%</td>
+                        <td>2.84x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#90caf9;">8</td>
+                        <td><span class="ticker-badge">MCHP</span></td>
+                        <td>Microchip Technology</td>
+                        <td class="positive">+9.89%</td>
+                        <td>1.97x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#90caf9;">9</td>
+                        <td><span class="ticker-badge">ON</span></td>
+                        <td>ON Semiconductor</td>
+                        <td class="positive">+9.88%</td>
+                        <td>2.37x</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#90caf9;">10</td>
+                        <td><span class="ticker-badge">INTC</span></td>
+                        <td>Intel Corp</td>
+                        <td class="positive">+2.31%</td>
+                        <td>1.28x</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size:0.78em; color:#90caf9; margin-top:12px;">87 total volume-surge stocks detected. Avg relative volume 2.4x, avg price move +6.6%.</p>
+        </div>
+
+        <!-- Sector Performance -->
+        <div class="glass-card">
+            <div class="section-title">&#127970; Sector Performance</div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Utilities</span>
+                    <span class="positive">+2.52%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-positive" style="width:100%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Industrials</span>
+                    <span class="positive">+1.44%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-positive" style="width:57%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Consumer Defensive</span>
+                    <span class="positive">+1.35%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-positive" style="width:53%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Real Estate</span>
+                    <span class="positive">+0.94%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-positive" style="width:37%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Energy</span>
+                    <span class="positive">+0.74%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-positive" style="width:29%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Healthcare</span>
+                    <span class="negative">-0.55%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-negative" style="width:22%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Communication Services</span>
+                    <span class="negative">-0.54%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-negative" style="width:21%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Financial</span>
+                    <span class="negative">-0.83%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-negative" style="width:33%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Consumer Cyclical</span>
+                    <span class="negative">-1.14%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-negative" style="width:45%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Basic Materials</span>
+                    <span class="negative">-1.18%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-negative" style="width:47%;"></div></div>
+            </div>
+
+            <div class="sector-bar-wrap">
+                <div class="sector-label">
+                    <span>Technology</span>
+                    <span class="negative">-1.39%</span>
+                </div>
+                <div class="sector-bar-bg"><div class="sector-bar-fill bar-negative" style="width:55%;"></div></div>
+            </div>
+
+            <p style="font-size:0.78em; color:#90caf9; margin-top:16px;">
+                5 of 11 sectors positive. Defensives and Utilities led on geopolitical caution. Tech lagged as SAP -6.19% weighed on software names.
+            </p>
+        </div>
+    </div>
+
+    <!-- AFTER-HOURS EARNINGS SECTION -->
+    <div class="afterhours-section">
+        <div class="section-title" style="border-bottom-color: rgba(255,200,0,0.4);">
+            &#9200; Post-Close Earnings &amp; After-Hours Movers &ndash; Apr 23
+        </div>
+        <p style="font-size:0.88em; color:#ffd580; margin-bottom:16px;">
+            12 stocks moved +2%+ in after-hours on earnings. Avg EPS surprise: +14.5%. Intel and MaxLinear headlined a powerful semiconductor reporting night.
+        </p>
+
+        <div class="earnings-grid">
+
+            <!-- MXL -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +28.44%</div>
+                <div class="earnings-symbol">$MXL</div>
+                <div class="earnings-name">MaxLinear Inc (Technology)</div>
+                <div class="afterhours-change positive">+28.44%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $34.25 (+1.06%) &rarr; AH: ~$43.99</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+5.97%</span></span>
+                    <span>Rev: <span class="surprise-positive">+1.20%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 4.5M | 1W Perf: +46.68%</div>
+                <div class="earnings-volume">Return-to-profitability trajectory; 1M: +94.16%</div>
+            </div>
+
+            <!-- WKC -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +17.67%</div>
+                <div class="earnings-symbol">$WKC</div>
+                <div class="earnings-name">World Kinect Corp (Energy)</div>
+                <div class="afterhours-change positive">+17.67%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $23.54 (+1.55%) &rarr; AH: ~$27.70</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-negative">-36.17%</span></span>
+                    <span>Rev: <span class="surprise-negative">-4.01%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 748K | Thin-volume AH squeeze likely</div>
+            </div>
+
+            <!-- INTC -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +15.78%</div>
+                <div class="earnings-symbol">$INTC</div>
+                <div class="earnings-name">Intel Corp (Technology)</div>
+                <div class="afterhours-change positive">+15.78%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $66.78 (+2.31%) &rarr; AH: ~$77.32</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+84.28%</span></span>
+                    <span>Rev: <span class="surprise-positive">+1.79%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 130.2M | Data Center +22% YoY to $5.1B</div>
+                <div class="earnings-volume">Q2 rev guide: $13.8B&ndash;$14.8B (vs $13.07B est.) MASSIVE beat</div>
+            </div>
+
+            <!-- SAP -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +7.19%</div>
+                <div class="earnings-symbol">$SAP</div>
+                <div class="earnings-name">SAP SE ADR (Technology)</div>
+                <div class="afterhours-change positive">+7.19%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $163.25 (-6.19%) &rarr; AH: ~$175.00</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+9.49%</span></span>
+                    <span>Rev: <span class="surprise-positive">+1.41%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 6.7M | Sold off during day; AH recovery on results</div>
+            </div>
+
+            <!-- CSL -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +5.58%</div>
+                <div class="earnings-symbol">$CSL</div>
+                <div class="earnings-name">Carlisle Companies (Industrials)</div>
+                <div class="afterhours-change positive">+5.58%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $363.70 (+2.89%) &rarr; AH: ~$384.00</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+8.88%</span></span>
+                    <span>Rev: <span class="surprise-positive">+1.65%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 570K | Construction materials; margin expansion story</div>
+            </div>
+
+            <!-- APPF -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +5.06%</div>
+                <div class="earnings-symbol">$APPF</div>
+                <div class="earnings-name">Appfolio Inc (Technology)</div>
+                <div class="afterhours-change positive">+5.06%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $152.30 (-3.86%) &rarr; AH: ~$160.00</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+10.85%</span></span>
+                    <span>Rev: <span class="surprise-positive">+0.66%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 571K | Property mgmt SaaS; sold off during day</div>
+            </div>
+
+            <!-- FIX -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +3.73%</div>
+                <div class="earnings-symbol">$FIX</div>
+                <div class="earnings-name">Comfort Systems USA (Industrials)</div>
+                <div class="afterhours-change positive">+3.73%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $1,773.91 (+2.87%) &rarr; AH: ~$1,840</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-positive">+38.71%</span></span>
+                    <span>Rev: <span class="surprise-positive">+13.22%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 597K | +129% EPS QoQ; YTD now +90.07%!</div>
+            </div>
+
+            <!-- EW -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +3.17%</div>
+                <div class="earnings-symbol">$EW</div>
+                <div class="earnings-name">Edwards Lifesciences (Healthcare)</div>
+                <div class="afterhours-change positive">+3.17%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $79.72 (-2.22%) &rarr; AH: ~$82.25</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-negative">-6.13%</span></span>
+                    <span>Rev: <span class="surprise-positive">+1.47%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 6.2M | Heart valve leader; modest AH recovery</div>
+            </div>
+
+            <!-- DLR -->
+            <div class="earnings-card">
+                <div class="afterhours-badge">AH +2.51%</div>
+                <div class="earnings-symbol">$DLR</div>
+                <div class="earnings-name">Digital Realty Trust (Real Estate)</div>
+                <div class="afterhours-change positive">+2.51%</div>
+                <div class="reg-change" style="color:#e0e0e0;">Regular close: $200.00 (-0.43%) &rarr; AH: ~$205.02</div>
+                <div class="earnings-surprise">
+                    <span>EPS: <span class="surprise-negative">-16.46%</span></span>
+                    <span>Rev: <span class="surprise-positive">+3.65%</span></span>
+                </div>
+                <div class="earnings-volume">Vol: 2.7M | Data center REIT; revenue above consensus</div>
+            </div>
+
+        </div>
+
+        <!-- INTC Spotlight -->
+        <div style="margin-top:20px; background: rgba(0,200,130,0.12); border:1px solid rgba(0,255,136,0.3); border-radius:12px; padding:16px;">
+            <strong style="color:#00ff88;">&#127381; Intel (INTC) Earnings Spotlight &mdash; Largest After-Hours Move Among Large-Caps</strong>
+            <p style="font-size:0.88em; color:#e0e0e0; margin-top:8px; line-height:1.65;">
+                Intel reported Q1 2026 EPS of $0.29 adjusted (vs. $0.01 expected), a massive 84% EPS surprise, and revenue of $13.58B (vs. $12.42B expected).
+                Data Center &amp; AI revenue surged +22% YoY to $5.1B. Q2 guidance: $13.8B&ndash;$14.8B revenue and $0.20 EPS (vs. $13.07B / $0.09 expected).
+                INTC is up ~81% YTD and the stock &mdash; at ~$77 in AH &mdash; is approaching its all-time high set in 2000.
+                The results mark a potential inflection in Intel's foundry and AI Xeon narrative under CEO Lip-Bu Tan.
+            </p>
+        </div>
+    </div>
+
+    <!-- MARKET STATISTICS -->
+    <div class="glass-card" style="margin-bottom:28px;">
+        <div class="section-title">&#128202; Market Statistics</div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" style="color:#ffd740;">87</div>
+                <div class="stat-label">Volume-Surge Stocks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#00ff88;">922</div>
+                <div class="stat-label">Uptrend Stocks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#64b5f6;">2.4x</div>
+                <div class="stat-label">Avg Relative Volume</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#00e676;">+6.6%</div>
+                <div class="stat-label">Avg Price Move (surge)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#ff7043;">365</div>
+                <div class="stat-label">This-Week Earnings</div>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:14px;">
+            <div class="stat-card">
+                <div class="stat-number" style="color:#ff6b6b;">19.31</div>
+                <div class="stat-label">VIX (prev: 18.92 / +0.39)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#ffd740;">12</div>
+                <div class="stat-label">AH Earnings Movers (+2%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color:#00ff88;">81%</div>
+                <div class="stat-label">S&P 500 EPS Beat Rate (season)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KEY POINTS & TECHNICAL -->
+    <div class="grid-2">
+
+        <div class="glass-card">
+            <div class="section-title">&#128269; Today's Key Points</div>
+            <ul class="keypoints-list">
+                <li><strong>Broad-market pullback on geopolitical risk:</strong> Iran conflict concerns re-accelerated oil prices (Brent above $100/bbl), prompting rotation out of growth names and into defensives. All four major index ETFs closed in the red.</li>
+                <li><strong>Texas Instruments: 25-year record gain:</strong> TXN surged +19.43% on a blowout Q1 report, marking its best single-session performance since 2001. Revenue guidance came in significantly above consensus. Strong analog/embedded demand recovery signal.</li>
+                <li><strong>United Rentals posted +22.92%:</strong> URI's Q1 beat (EPS surprise +8.51%) and revenue beat (+2.84%) drove the construction/rental equipment name to near 52-week highs. Signal of ongoing infrastructure spend durability.</li>
+                <li><strong>Semiconductor sweep:</strong> TXN, MCHP, ON, and INTC all beat earnings. MCHP (+9.89%) and ON (+9.88%) joined the party. Volume surge screener captured all four. Semiconductor upcycle thesis strengthening.</li>
+                <li><strong>SAP sold off -6.19% during the session</strong> despite beating EPS by 9.49% — market appeared to react to guidance language or European macro concerns ahead of results; stock recovered +7.19% post-close.</li>
+                <li><strong>Utilities and Industrials as defensives:</strong> Utilities +2.52%, Industrials +1.44% reflected a flight to stability. Comfort Systems USA (FIX) gained +2.87% intraday and another +3.73% AH on a 39% EPS surprise.</li>
+                <li><strong>Gold fell -0.97%:</strong> Unusual given geopolitical backdrop — oil absorbed the flight-to-safety bid while gold corrected from recent record highs near $4,750+ (spot). GLD range: $428.22&ndash;$435.29.</li>
+                <li><strong>VIX elevated at 19.31:</strong> Day range extended to $21.56 intraday (briefly spiking). Elevated but not panic-level. Options market pricing in continued uncertainty heading into Friday.</li>
+                <li><strong>Intel post-close catalyst:</strong> INTC's +15.78% AH move on massive EPS beat adds to YTD gain of ~81%. Q2 revenue guide of $13.8B&ndash;$14.8B vs $13.07B expected is the key bullish data point. Foundry ramp and AI Xeon growth cited.</li>
+                <li><strong>365 earnings releases this week:</strong> Peak earnings season continues. 81% of S&P 500 reporters have beaten EPS estimates, 76% beat revenue — well above historical averages, supporting the underlying bull case.</li>
+            </ul>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title">&#128208; Technical Analysis &amp; Levels to Watch</div>
+            <ul class="keypoints-list">
+                <li><strong>SPY ($708.45):</strong> Pulled back from Wednesday's record. Support at $702 (day low). Resistance at $712 (recent high). RSI on daily around 60 — not overbought, pullback is constructive.</li>
+                <li><strong>QQQ ($651.42):</strong> Broke below $655 pivot intraday but recovered. Watch $645 (day low support) and $657 (prior breakout zone). Tech earnings after-hours (INTC, MXL) could support gap-up open Friday.</li>
+                <li><strong>IWM ($275.52):</strong> Small-caps underperformed. Key support $272 (intraday low tested). Russell 2000 sensitive to rate moves and risk-off days. Monitor if Iran concerns escalate.</li>
+                <li><strong>TLT ($86.55):</strong> Long bonds declined modestly. Day range: $86.24&ndash;$87.04. Rising oil = inflation risk = bonds pressure. Watch $86 support. Not a flight-to-safety day for Treasuries.</li>
+                <li><strong>VIX 19.31:</strong> Day spiked to 21.56 intraday — brief fear spike absorbed. Closing below 20 is constructive. Elevated from 18.92 yesterday but not escalating into panic territory yet.</li>
+                <li><strong>TXN ($282.23, +19.43%):</strong> At 52-week high territory (+18.19% from 52W high per YTD data). RSI 88.61 — overbought short-term, but momentum is powerful. Watch for follow-through or mean-reversion dip Friday.</li>
+                <li><strong>INTC AH (~$77.32):</strong> Approaching the symbolic 2000 all-time high zone. If INTC gaps up near $77+ at the open Friday, it would represent a historic technical breakout for the stock.</li>
+                <li><strong>MXL AH (~$43.99):</strong> RSI already 91.75 before the +28% AH move. Extremely extended technically but driven by a genuine earnings catalyst. Look for high-volume gap confirmation or fade Friday.</li>
+                <li><strong>GLD ($431.04):</strong> Correcting after recent parabolic move. Intraday low $428.22. Watch $425 as next meaningful support if dollar strengthens on safe-haven demand.</li>
+                <li><strong>Key catalyst for Friday:</strong> INTC gap-up open, any Iran/geopolitical headlines, and whether defensive sector rotation sustains. Jobless claims were in focus this week; watch any Fed speakers for rate path commentary.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- TODAY'S NOTABLE NEWS -->
+    <div class="glass-card" style="margin-bottom:28px;">
+        <div class="section-title">&#128240; Notable News &amp; Catalysts</div>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+            <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px; border-left:4px solid #64b5f6;">
+                <strong style="color:#64b5f6;">Intel Q1 2026 Earnings Beat</strong>
+                <p style="font-size:0.85em; color:#e0e0e0; margin-top:6px; line-height:1.6;">INTC reported Q1 EPS of $0.29 adjusted (vs. $0.01 expected) and revenue of $13.58B (vs. $12.42B est.). Data center &amp; AI segment up +22% YoY to $5.1B. Q2 guidance well above consensus. Shares +15.78% AH. MarketWatch: "Intel's stock could finally finish above its 2000 high."</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px; border-left:4px solid #00e676;">
+                <strong style="color:#00e676;">Texas Instruments: 25-Year Record Gain</strong>
+                <p style="font-size:0.85em; color:#e0e0e0; margin-top:6px; line-height:1.6;">TXN surged +19.43%, the largest single-day gain in 25 years. EPS surprise of +23.19% and revenue beat of +6.60%. 7th record close of 2026 and 5th straight week of gains. Analog/embedded chip cycle recovery accelerating.</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px; border-left:4px solid #ffa726;">
+                <strong style="color:#ffa726;">Iran War &amp; Oil Market Turbulence</strong>
+                <p style="font-size:0.85em; color:#e0e0e0; margin-top:6px; line-height:1.6;">Ongoing Iran conflict renewed fears of Strait of Hormuz disruption. Brent crude rose back above $100/bbl. The IEA characterized the disruption as the "largest supply disruption in oil market history." Stocks retreated modestly; energy sector gained +0.74%. Inflation risk rising.</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px; border-left:4px solid #ef5350;">
+                <strong style="color:#ef5350;">SAP Sells Off -6.19% Despite Q1 Beat</strong>
+                <p style="font-size:0.85em; color:#e0e0e0; margin-top:6px; line-height:1.6;">SAP SE ADR fell -6.19% during the session despite beating EPS by 9.49%. SAP is down -32.79% YTD. European software concerns and guidance tone may have triggered the sell-on-news reaction. Partially recovered +7.19% in AH trading post-release.</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px; border-left:4px solid #ab47bc;">
+                <strong style="color:#ab47bc;">Earnings Season Strength: 81% Beat Rate</strong>
+                <p style="font-size:0.85em; color:#e0e0e0; margin-top:6px; line-height:1.6;">Of the 87 S&P 500 companies reporting so far this season, 81% have beaten EPS estimates and 76% topped revenue expectations — well above historical averages. Peak earnings season continues with 365 companies scheduled this week.</p>
+            </div>
+            <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:16px; border-left:4px solid #26c6da;">
+                <strong style="color:#26c6da;">Comfort Systems USA (FIX): YTD +90%</strong>
+                <p style="font-size:0.85em; color:#e0e0e0; margin-top:6px; line-height:1.6;">FIX reported Q1 EPS of $28.89 (EPS surprise +38.71%, revenue surprise +13.22%). The HVAC/mechanical contracting firm is now up +90.07% YTD and hit a 52-week high. Data center construction and industrial HVAC demand cited as tailwinds.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORWARD LOOKING -->
+    <div class="glass-card" style="margin-bottom:28px;">
+        <div class="section-title">&#128313; Forward Look &amp; Risk Factors</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+            <div>
+                <strong style="color:#00ff88; font-size:0.95em;">Bullish Catalysts to Watch</strong>
+                <ul class="keypoints-list" style="margin-top:12px;">
+                    <li>INTC gap-up Friday open near $77 could represent a historic technical breakout above the 2000 dotcom peak. Sets tone for tech.</li>
+                    <li>Semiconductor sector earnings sweep (TXN, MCHP, ON, INTC all beat) signals a genuine demand recovery cycle — supports broader tech re-rating.</li>
+                    <li>Earnings beat rate of 81% well above the historical ~70% norm — earnings resilience keeps the bull market thesis intact despite geopolitical headwinds.</li>
+                    <li>Utility and defensive sector outperformance suggests market is not panicking — orderly rotation rather than risk-off capitulation.</li>
+                    <li>FIX and URI results confirm infrastructure and construction spend remains robust despite rising rates and oil prices.</li>
+                </ul>
+            </div>
+            <div>
+                <strong style="color:#ff6b6b; font-size:0.95em;">Risk Factors &amp; Headwinds</strong>
+                <ul class="keypoints-list" style="margin-top:12px;">
+                    <li>Iran war escalation risk: if Strait of Hormuz supply disruptions worsen, oil above $105/bbl could reignite inflation and pressure Fed rate-cut expectations.</li>
+                    <li>VIX intraday spike to 21.56 — market complacency is low but not absent. A geopolitical shock could push VIX rapidly above 25.</li>
+                    <li>TXN, MXL, and INTC are technically overbought (RSI 88-91). Short-term momentum exhaustion or profit-taking risk heading into next week.</li>
+                    <li>SAP's sell-off on results despite a beat signals the bar for European tech is higher. Watch for similar reactions in other mega-cap software names.</li>
+                    <li>Gold declining despite geopolitical risk is unusual — signals possible dollar strength or crowded long positioning. Dollar strength is a headwind for earnings (multinationals).</li>
+                    <li>American Airlines cut 2026 earnings outlook citing higher oil costs — early sign that airline and consumer-facing sectors may face margin compression.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p><strong>Data Sources:</strong> Finviz Elite | Alpaca Markets | Financial Modeling Prep | MarketWatch | CNBC | TheStreet | Reuters</p>
+        <p style="margin-top:6px;"><strong>Last Refreshed:</strong> 2026-04-23 13:32 PDT (16:32 ET) &mdash; Final after-market data + after-hours info</p>
+        <p style="margin-top:6px; color:#7986cb;">This report is for informational purposes only and does not constitute financial advice. After-hours figures are preliminary and subject to change. Earnings data may be preliminary.</p>
+        <p style="margin-top:4px; color:#546e7a;">Generated by Claude Market Agent &mdash; After-Market Reporter</p>
+    </div>
+
+</div>
+</body>
+</html>
