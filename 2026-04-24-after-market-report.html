@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Stock Market Analysis – 2026-04-24</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d1b3e 0%, #1e3c72 50%, #2a5298 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 30px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.4em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #a8c8ff;
+            margin-bottom: 8px;
+        }
+
+        .header .market-status {
+            display: inline-block;
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+            color: #000;
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-top: 8px;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #00c853;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .executive-summary h2 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #69f0ae;
+        }
+
+        .executive-summary p {
+            line-height: 1.8;
+            color: #d0e8ff;
+            font-size: 0.97em;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .grid-6 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* ETF cards */
+        .card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 22px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(0,0,0,0.4);
+        }
+
+        .card .symbol {
+            font-size: 1.4em;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .card .name {
+            font-size: 0.78em;
+            color: #a8c8ff;
+            margin: 4px 0 12px;
+        }
+
+        .card .price {
+            font-size: 1.7em;
+            font-weight: 700;
+        }
+
+        .card .change {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .card .volume {
+            font-size: 0.78em;
+            color: #a8c8ff;
+            margin-top: 8px;
+        }
+
+        .card .range {
+            font-size: 0.76em;
+            color: #8ab4d0;
+            margin-top: 4px;
+        }
+
+        .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+        .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+        .flat { color: #ffd700; }
+
+        /* Index section */
+        .index-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .index-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .index-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .index-card .idx-name { font-size: 0.82em; color: #a8c8ff; }
+        .index-card .idx-val { font-size: 1.5em; font-weight: 800; margin: 6px 0; }
+        .index-card .idx-chg { font-size: 1.05em; font-weight: 700; }
+        .index-card .idx-pts { font-size: 0.8em; color: #8ab4d0; margin-top: 4px; }
+
+        /* Volume surge section */
+        .volume-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .ticker-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ticker-table th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 0.82em;
+            color: #a8c8ff;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ticker-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.9em;
+        }
+
+        .ticker-table tr:hover td {
+            background: rgba(255,255,255,0.06);
+        }
+
+        .ticker-table .sym-cell {
+            font-weight: 800;
+            font-size: 1.05em;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-tech {
+            background: rgba(100,150,255,0.25);
+            color: #a8c8ff;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.75em;
+        }
+
+        .badge-semi {
+            background: rgba(255,180,100,0.25);
+            color: #ffd48a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.75em;
+        }
+
+        .badge-health {
+            background: rgba(100,220,150,0.25);
+            color: #80ffbb;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.75em;
+        }
+
+        .vol-bar-container {
+            width: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            height: 6px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .vol-bar {
+            height: 6px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+        }
+
+        /* Sector section */
+        .sector-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .sector-bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 12px;
+        }
+
+        .sector-name-cell {
+            width: 200px;
+            font-size: 0.88em;
+            color: #d0e8ff;
+            flex-shrink: 0;
+        }
+
+        .sector-bar-wrap {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            height: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sector-bar-fill {
+            height: 18px;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .sector-bar-fill.positive {
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+        }
+
+        .sector-bar-fill.negative {
+            background: linear-gradient(90deg, #ff6b6b, #ff4444);
+            margin-left: auto;
+        }
+
+        .sector-pct {
+            width: 70px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        .sector-count {
+            width: 80px;
+            text-align: right;
+            font-size: 0.78em;
+            color: #8ab4d0;
+            flex-shrink: 0;
+        }
+
+        /* Next week earnings */
+        .earnings-section {
+            background: linear-gradient(135deg, #1a2a5e 0%, #2d4080 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .earnings-section h2 {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .earnings-section .friday-note {
+            font-size: 0.85em;
+            color: #a8c8ff;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .earnings-week-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .earnings-day-col {
+            background: rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .earnings-day-header {
+            font-size: 0.82em;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-align: center;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .earnings-ticker-item {
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 8px;
+        }
+
+        .earnings-ticker-item .e-sym {
+            font-weight: 800;
+            font-size: 0.92em;
+        }
+
+        .earnings-ticker-item .e-name {
+            font-size: 0.72em;
+            color: #8ab4d0;
+            line-height: 1.3;
+        }
+
+        .earnings-ticker-item .e-time {
+            font-size: 0.7em;
+            color: #a8c8ff;
+        }
+
+        /* Market stats */
+        .stats-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75em;
+            color: #a8c8ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8em;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .stat-card .stat-sub {
+            font-size: 0.75em;
+            color: #8ab4d0;
+            margin-top: 4px;
+        }
+
+        /* Key points section */
+        .keypoints-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .keypoints-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .kp-block {
+            background: rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .kp-block h3 {
+            font-size: 0.95em;
+            color: #69f0ae;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kp-block ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .kp-block ul li {
+            padding: 6px 0;
+            padding-left: 16px;
+            position: relative;
+            font-size: 0.88em;
+            color: #d0e8ff;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .kp-block ul li:last-child {
+            border-bottom: none;
+        }
+
+        .kp-block ul li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #00c853;
+            font-size: 0.7em;
+            top: 8px;
+        }
+
+        /* Forex & Bonds */
+        .macro-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .macro-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .macro-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .macro-card .m-label { font-size: 0.78em; color: #a8c8ff; margin-bottom: 6px; }
+        .macro-card .m-value { font-size: 1.4em; font-weight: 800; }
+        .macro-card .m-chg { font-size: 0.88em; font-weight: 700; margin-top: 4px; }
+
+        /* Weekly context */
+        .weekly-section {
+            background: linear-gradient(135deg, #2d1a5e 0%, #4a2d80 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #c084fc;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .weekly-section h2 { color: #c084fc; margin-bottom: 10px; }
+
+        .weekly-section p {
+            color: #d0c8ff;
+            font-size: 0.92em;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .weekly-stats-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .w-stat {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px 18px;
+            text-align: center;
+        }
+
+        .w-stat .w-label { font-size: 0.75em; color: #c084fc; text-transform: uppercase; }
+        .w-stat .w-val { font-size: 1.2em; font-weight: 800; margin-top: 4px; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            font-size: 0.82em;
+            color: #7a9ab8;
+            margin-top: 10px;
+        }
+
+        .footer a { color: #a8c8ff; text-decoration: none; }
+
+        /* Risk section */
+        .risk-section {
+            background: rgba(255,80,80,0.08);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ff6b6b;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .risk-section h2 { color: #ff8888; margin-bottom: 14px; }
+
+        .risk-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .risk-item {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.88em;
+            color: #ffc0c0;
+            line-height: 1.6;
+        }
+
+        .risk-item strong { color: #ff8888; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-6 { grid-template-columns: 1fr 1fr; }
+            .index-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .earnings-week-grid { grid-template-columns: 1fr 1fr; }
+            .macro-grid { grid-template-columns: 1fr 1fr; }
+            .keypoints-grid { grid-template-columns: 1fr; }
+            .risk-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .grid-2, .grid-3, .grid-6 { grid-template-columns: 1fr; }
+            .index-grid { grid-template-columns: 1fr 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .header h1 { font-size: 1.6em; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card, .index-card, .stat-card, .macro-card {
+            animation: fadeIn 0.4s ease both;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>&#127482;&#127480; U.S. Stock Market Analysis</h1>
+        <div class="subtitle">&#128197; 2026-04-24 (Friday) &ndash; Final After-Market Data</div>
+        <div class="subtitle">Semiconductor Earnings Catalyst Drives Broad Tech Rally; INTC Surges 23.6%</div>
+        <span class="market-status">MARKET CLOSED &mdash; WEEK END</span>
+    </div>
+
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="executive-summary">
+        <h2>&#128200; Executive Summary</h2>
+        <p>
+            U.S. equities closed higher on Friday, April 24, 2026, with the technology sector delivering a standout performance
+            driven by a powerful semiconductor earnings wave. The S&amp;P 500 rose <strong class="up">+0.79%</strong> to 7,164.29,
+            the NASDAQ Composite surged <strong class="up">+1.63%</strong> to 24,836.60, and the Dow Jones Industrial Average
+            slipped fractionally <strong class="down">-0.16%</strong> to 49,230.70 — marking clear bifurcation between tech-heavy
+            and industrials/defensives-heavy indices. The session&apos;s dominant story was Intel (<strong>INTC</strong>)
+            reporting a blowout earnings beat after Thursday&apos;s close, sending shares up <strong class="up">+23.6%</strong>
+            on volume exceeding 279 million shares &mdash; more than 1.5x its average. The move ignited a sector-wide rally in
+            semiconductors and chip-adjacent names, with AMD (+13.9%), ARM (+14.8%), QCOM (+11.1%), and TSM (+5.2%) all posting
+            double-digit or near-double-digit gains. MaxLinear (MXL) was the session&apos;s top percentage mover, surging
+            <strong class="up">+76.1%</strong> on its own earnings beat. The VIX fell to 18.62 (down -3.57% from yesterday&apos;s
+            19.31), reflecting improving sentiment. Gold held firm at $4,722/oz (GLD +0.51%), while long Treasuries (TLT)
+            edged slightly higher (+0.18%), suggesting risk appetite coexisting with ongoing macro caution. On the week,
+            Technology was by far the top-performing sector at <strong class="up">+2.63%</strong>, while Healthcare lagged
+            at <strong class="down">-1.06%</strong>.
+        </p>
+    </div>
+
+    <!-- MAJOR INDICES -->
+    <div class="index-section">
+        <div class="section-title">&#127381; Major Indices</div>
+        <div class="index-grid">
+            <div class="index-card">
+                <div class="idx-name">S&amp;P 500</div>
+                <div class="idx-val up">7,164.29</div>
+                <div class="idx-chg up">+0.79%</div>
+                <div class="idx-pts up">+55.89 pts</div>
+            </div>
+            <div class="index-card">
+                <div class="idx-name">NASDAQ Composite</div>
+                <div class="idx-val up">24,836.60</div>
+                <div class="idx-chg up">+1.63%</div>
+                <div class="idx-pts up">+398.10 pts</div>
+            </div>
+            <div class="index-card">
+                <div class="idx-name">Dow Jones (DJIA)</div>
+                <div class="idx-val down">49,230.70</div>
+                <div class="idx-chg down">-0.16%</div>
+                <div class="idx-pts down">-79.63 pts</div>
+            </div>
+            <div class="index-card">
+                <div class="idx-name">VIX (Fear Index)</div>
+                <div class="idx-val up" style="color:#ffd700;">18.62</div>
+                <div class="idx-chg up">-3.57% (Risk-On)</div>
+                <div class="idx-pts" style="color:#8ab4d0;">Prev: 19.31</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAJOR ETF PERFORMANCE -->
+    <div style="background:rgba(255,255,255,0.08);border-radius:20px;padding:30px;margin-bottom:30px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <div class="section-title">&#128202; Major ETF Performance</div>
+        <div class="grid-6">
+            <div class="card">
+                <div class="symbol">$SPY</div>
+                <div class="name">SPDR S&amp;P 500 ETF</div>
+                <div class="price">$713.94</div>
+                <div class="change up">+0.77%</div>
+                <div class="volume">Vol: 44.0M | Range: $709.01–$714.47</div>
+            </div>
+            <div class="card">
+                <div class="symbol">$QQQ</div>
+                <div class="name">Invesco QQQ Trust</div>
+                <div class="price">$663.88</div>
+                <div class="change up">+1.91%</div>
+                <div class="volume">Vol: 44.7M | Range: $656.53–$664.51</div>
+            </div>
+            <div class="card">
+                <div class="symbol">$DIA</div>
+                <div class="name">SPDR Dow Jones ETF</div>
+                <div class="price">$492.21</div>
+                <div class="change down">-0.16%</div>
+                <div class="volume">Vol: 3.3M | Range: $490.77–$493.49</div>
+            </div>
+            <div class="card">
+                <div class="symbol">$IWM</div>
+                <div class="name">iShares Russell 2000 ETF</div>
+                <div class="price">$276.65</div>
+                <div class="change up">+0.41%</div>
+                <div class="volume">Vol: 21.4M | Range: $274.23–$278.13</div>
+            </div>
+            <div class="card">
+                <div class="symbol">$TLT</div>
+                <div class="name">iShares 20+ Yr Treasury</div>
+                <div class="price">$86.71</div>
+                <div class="change up">+0.18%</div>
+                <div class="volume">Vol: 22.0M | Range: $86.25–$86.82</div>
+            </div>
+            <div class="card">
+                <div class="symbol">$GLD</div>
+                <div class="name">SPDR Gold Shares ETF</div>
+                <div class="price">$433.25</div>
+                <div class="change up">+0.51%</div>
+                <div class="volume">Vol: 5.9M | Range: $430.65–$435.28</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP VOLUME SURGE / TOP MOVERS -->
+    <div class="volume-section">
+        <div class="section-title">&#128293; Top Volume-Surge Movers (Today&apos;s Session)</div>
+        <p style="font-size:0.82em;color:#a8c8ff;margin-bottom:18px;">67 volume-surge tickers detected today (avg rel-vol 2.8x, avg move +9.2%). Top movers shown below, filtered by % change and significance.</p>
+        <table class="ticker-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Company</th>
+                    <th>Sector</th>
+                    <th>Close Price</th>
+                    <th>% Change</th>
+                    <th>Volume</th>
+                    <th>Catalyst</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="sym-cell up">$MXL</td>
+                    <td>MaxLinear, Inc.</td>
+                    <td><span class="badge-semi">Semiconductors</span></td>
+                    <td>$60.32</td>
+                    <td class="up" style="font-weight:800;">+76.12%</td>
+                    <td>28.8M <span style="font-size:0.75em;color:#69f0ae;">(5.6x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Earnings Beat</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$OGN</td>
+                    <td>Organon &amp; Co.</td>
+                    <td><span class="badge-health">Healthcare</span></td>
+                    <td>$11.26</td>
+                    <td class="up" style="font-weight:800;">+30.93%</td>
+                    <td>31.6M <span style="font-size:0.75em;color:#69f0ae;">(7.4x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Earnings Beat</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$ARM</td>
+                    <td>Arm Holdings plc</td>
+                    <td><span class="badge-semi">Semiconductors</span></td>
+                    <td>$234.81</td>
+                    <td class="up" style="font-weight:800;">+14.76%</td>
+                    <td>20.4M <span style="font-size:0.75em;color:#69f0ae;">(1.2x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Semi Sector Rally</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$AMD</td>
+                    <td>Advanced Micro Devices</td>
+                    <td><span class="badge-semi">Semiconductors</span></td>
+                    <td>$347.81</td>
+                    <td class="up" style="font-weight:800;">+13.91%</td>
+                    <td>81.1M <span style="font-size:0.75em;color:#69f0ae;">(1.8x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">INTC Sympathy / AI Demand</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$INTC</td>
+                    <td>Intel Corporation</td>
+                    <td><span class="badge-semi">Semiconductors</span></td>
+                    <td>$82.54</td>
+                    <td class="up" style="font-weight:800;">+23.60%</td>
+                    <td>279.3M <span style="font-size:0.75em;color:#69f0ae;">(1.8x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Earnings Blowout (Thu AH)</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$QCOM</td>
+                    <td>QUALCOMM Incorporated</td>
+                    <td><span class="badge-semi">Semiconductors</span></td>
+                    <td>$148.85</td>
+                    <td class="up" style="font-weight:800;">+11.12%</td>
+                    <td>29.3M <span style="font-size:0.75em;color:#69f0ae;">(2.9x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Semi Sector Rally</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$SAP</td>
+                    <td>SAP SE</td>
+                    <td><span class="badge-tech">Enterprise Tech</span></td>
+                    <td>$175.26</td>
+                    <td class="up" style="font-weight:800;">+7.36%</td>
+                    <td>6.8M <span style="font-size:0.75em;color:#69f0ae;">(0.9x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Earnings Beat</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$NOW</td>
+                    <td>ServiceNow, Inc.</td>
+                    <td><span class="badge-tech">Enterprise SaaS</span></td>
+                    <td>$90.17</td>
+                    <td class="up" style="font-weight:800;">+6.36%</td>
+                    <td>38.7M <span style="font-size:0.75em;color:#69f0ae;">(0.46x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Earnings Beat</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$TSM</td>
+                    <td>Taiwan Semiconductor ADR</td>
+                    <td><span class="badge-semi">Semiconductors</span></td>
+                    <td>$402.46</td>
+                    <td class="up" style="font-weight:800;">+5.17%</td>
+                    <td>21.5M <span style="font-size:0.75em;color:#69f0ae;">(1.75x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">Semi Sector Tailwind</td>
+                </tr>
+                <tr>
+                    <td class="sym-cell up">$NVDA</td>
+                    <td>NVIDIA Corporation</td>
+                    <td><span class="badge-semi">Semiconductors/AI</span></td>
+                    <td>$208.27</td>
+                    <td class="up" style="font-weight:800;">+4.32%</td>
+                    <td>213.7M <span style="font-size:0.75em;color:#69f0ae;">(1.87x avg)</span></td>
+                    <td style="font-size:0.82em;color:#ffd48a;">AI Demand / Semi Rally</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MARKET STATISTICS -->
+    <div class="stats-section">
+        <div class="section-title">&#128207; Market Statistics</div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Volume-Surge Tickers</div>
+                <div class="stat-value up">67</div>
+                <div class="stat-sub">Stocks (200 DMA Above)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Uptrend Tickers</div>
+                <div class="stat-value up">887</div>
+                <div class="stat-sub">Across All Sectors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Relative Volume</div>
+                <div class="stat-value" style="color:#ffd700;">2.8x</div>
+                <div class="stat-sub">Volume-Surge Universe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Price Move</div>
+                <div class="stat-value up">+9.2%</div>
+                <div class="stat-sub">Volume-Surge Universe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Earnings This Week</div>
+                <div class="stat-value" style="color:#c084fc;">393</div>
+                <div class="stat-sub">Reported This Week</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTOR PERFORMANCE -->
+    <div class="sector-section">
+        <div class="section-title">&#127981; Sector Performance (Today)</div>
+        <div style="margin-bottom:8px;font-size:0.82em;color:#a8c8ff;">Sorted by performance. All 11 GICS sectors shown.</div>
+
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Technology</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill positive" style="width:88%;"></div>
+            </div>
+            <div class="sector-pct up">+2.63%</div>
+            <div class="sector-count">776 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Consumer Cyclical</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill positive" style="width:37%;"></div>
+            </div>
+            <div class="sector-pct up">+1.11%</div>
+            <div class="sector-count">549 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Communication Svcs</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill positive" style="width:23%;"></div>
+            </div>
+            <div class="sector-pct up">+0.68%</div>
+            <div class="sector-count">265 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Basic Materials</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill positive" style="width:22%;"></div>
+            </div>
+            <div class="sector-pct up">+0.67%</div>
+            <div class="sector-count">281 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Utilities</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill positive" style="width:6%;"></div>
+            </div>
+            <div class="sector-pct up">+0.18%</div>
+            <div class="sector-count">110 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Real Estate</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill negative" style="width:5%;float:left;"></div>
+            </div>
+            <div class="sector-pct down">-0.16%</div>
+            <div class="sector-count">255 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Consumer Defensive</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill negative" style="width:13%;"></div>
+            </div>
+            <div class="sector-pct down">-0.39%</div>
+            <div class="sector-count">243 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Energy</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill negative" style="width:12%;"></div>
+            </div>
+            <div class="sector-pct down">-0.35%</div>
+            <div class="sector-count">253 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Financial</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill negative" style="width:13%;"></div>
+            </div>
+            <div class="sector-pct down">-0.38%</div>
+            <div class="sector-count">1,073 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Industrials</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill negative" style="width:29%;"></div>
+            </div>
+            <div class="sector-pct down">-0.87%</div>
+            <div class="sector-count">689 stocks</div>
+        </div>
+        <div class="sector-bar-row">
+            <div class="sector-name-cell">Healthcare</div>
+            <div class="sector-bar-wrap">
+                <div class="sector-bar-fill negative" style="width:35%;"></div>
+            </div>
+            <div class="sector-pct down">-1.06%</div>
+            <div class="sector-count">1,076 stocks</div>
+        </div>
+    </div>
+
+    <!-- MACRO / BONDS / FOREX / GOLD -->
+    <div class="macro-section">
+        <div class="section-title">&#127758; Macro Indicators – Bonds, Forex &amp; Commodities</div>
+        <div class="macro-grid">
+            <div class="macro-card">
+                <div class="m-label">TLT (20+ Yr Treasury)</div>
+                <div class="m-value up">$86.71</div>
+                <div class="m-chg up">+0.18%</div>
+            </div>
+            <div class="macro-card">
+                <div class="m-label">GLD / Gold ($/oz spot)</div>
+                <div class="m-value up">$4,722</div>
+                <div class="m-chg" style="color:#8ab4d0;">GLD: +0.51%</div>
+            </div>
+            <div class="macro-card">
+                <div class="m-label">EUR/USD</div>
+                <div class="m-value up">1.1720</div>
+                <div class="m-chg up">+0.32%</div>
+            </div>
+            <div class="macro-card">
+                <div class="m-label">USD/JPY</div>
+                <div class="m-value down">159.40</div>
+                <div class="m-chg down">-0.17%</div>
+            </div>
+        </div>
+        <div style="margin-top:16px;font-size:0.83em;color:#8ab4d0;line-height:1.7;">
+            Bonds and gold moved in the same direction as equities today, reflecting broad positioning improvement rather than typical risk-off/risk-on divergence.
+            EUR strength (+0.32% to 1.1720) suggests continued USD softness on tariff uncertainty.
+            Gold futures near record highs ($4,722/oz) reflect persistent macro hedge demand.
+            USD/JPY at 159.40 remains elevated; BOJ policy watch continues.
+        </div>
+    </div>
+
+    <!-- NEXT WEEK EARNINGS CALENDAR (Friday Rule Applied) -->
+    <div class="earnings-section">
+        <h2>&#128197; Next Week&apos;s Major Earnings Calendar (Apr 27 – May 1, 2026)</h2>
+        <div class="friday-note">Friday Rule applied: No after-hours earnings section today. After-market earnings screener skipped per protocol. Showing next week&apos;s calendar instead.</div>
+        <div class="earnings-week-grid">
+            <div class="earnings-day-col">
+                <div class="earnings-day-header">MON Apr 27</div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$VZ</div>
+                    <div class="e-name">Verizon Communications</div>
+                    <div class="e-time">BMO &bull; Comm Svcs</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$UHS</div>
+                    <div class="e-name">Universal Health Services</div>
+                    <div class="e-time">AMC &bull; Healthcare</div>
+                </div>
+            </div>
+            <div class="earnings-day-col">
+                <div class="earnings-day-header">TUE Apr 28</div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$UPS</div>
+                    <div class="e-name">United Parcel Service</div>
+                    <div class="e-time">BMO &bull; Industrials</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$ZBH</div>
+                    <div class="e-name">Zimmer Biomet Holdings</div>
+                    <div class="e-time">BMO &bull; Healthcare</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$XYL</div>
+                    <div class="e-name">Xylem Inc.</div>
+                    <div class="e-time">BMO &bull; Industrials</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$WM</div>
+                    <div class="e-name">Waste Management</div>
+                    <div class="e-time">AMC &bull; Industrials</div>
+                </div>
+            </div>
+            <div class="earnings-day-col">
+                <div class="earnings-day-header">WED Apr 29</div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$YUM</div>
+                    <div class="e-name">Yum! Brands</div>
+                    <div class="e-time">BMO &bull; Consumer Cycl</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$YUMC</div>
+                    <div class="e-name">Yum China Holdings</div>
+                    <div class="e-time">BMO &bull; Consumer Cycl</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$VMC</div>
+                    <div class="e-name">Vulcan Materials</div>
+                    <div class="e-time">BMO &bull; Basic Materials</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$TYL</div>
+                    <div class="e-name">Tyler Technologies</div>
+                    <div class="e-time">AMC &bull; Technology</div>
+                </div>
+            </div>
+            <div class="earnings-day-col">
+                <div class="earnings-day-header">THU Apr 30</div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$XPO</div>
+                    <div class="e-name">XPO Inc.</div>
+                    <div class="e-time">BMO &bull; Industrials</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$TT</div>
+                    <div class="e-name">Trane Technologies</div>
+                    <div class="e-time">BMO &bull; Industrials</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$WDC</div>
+                    <div class="e-name">Western Digital</div>
+                    <div class="e-time">AMC &bull; Technology</div>
+                </div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$TWLO</div>
+                    <div class="e-name">Twilio Inc.</div>
+                    <div class="e-time">AMC &bull; Technology</div>
+                </div>
+            </div>
+            <div class="earnings-day-col">
+                <div class="earnings-day-header">FRI May 1</div>
+                <div class="earnings-ticker-item">
+                    <div class="e-sym up">$TPG</div>
+                    <div class="e-name">TPG Inc.</div>
+                    <div class="e-time">BMO &bull; Financial</div>
+                </div>
+                <div class="earnings-ticker-item" style="background:rgba(255,215,0,0.06);">
+                    <div class="e-sym" style="color:#ffd700;">Note</div>
+                    <div class="e-name">UPS, WM, XPO in focus for macro read on logistics &amp; industrial demand</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEKLY CONTEXT -->
+    <div class="weekly-section">
+        <h2>&#128198; Weekly Context &amp; Performance (Week of Apr 20–24, 2026)</h2>
+        <p>
+            This was a strong week for U.S. equities with a clear bifurcation between growth/tech and value/defensives.
+            The Technology sector led all 11 GICS sectors with a weekly gain of <strong>+2.63%</strong>, driven almost entirely
+            by the semiconductor earnings season — Intel's blowout Thursday after-hours report set the tone for Friday.
+            The S&amp;P 500 closed out the week near its 52-week high range (intraday high 7,168.59 vs. 52-week high 7,168.59).
+            Healthcare was the week&apos;s clear laggard at <strong>-1.06%</strong>, pressured by drug pricing headlines and
+            mixed biotech results. Industrials also underperformed at <strong>-0.87%</strong> as logistics and freight names
+            saw cautious pre-earnings positioning ahead of UPS and XPO next week.
+        </p>
+        <p>
+            Breadth improved materially on Friday — 887 uptrend tickers and 67 volume-surge stocks above their 200 DMA
+            signal improving underlying market health. VIX compression from 19.31 to 18.62 on a Friday close is constructive;
+            the index has now fallen materially from its April peak near 35, suggesting the acute tariff-driven fear phase is
+            behind us, though headline risk around trade policy remains a live variable.
+        </p>
+        <div class="weekly-stats-row">
+            <div class="w-stat">
+                <div class="w-label">SPY Week</div>
+                <div class="w-val up">+0.77%</div>
+            </div>
+            <div class="w-stat">
+                <div class="w-label">QQQ Week</div>
+                <div class="w-val up">+1.91%</div>
+            </div>
+            <div class="w-stat">
+                <div class="w-label">VIX (End)</div>
+                <div class="w-val" style="color:#ffd700;">18.62</div>
+            </div>
+            <div class="w-stat">
+                <div class="w-label">Top Sector</div>
+                <div class="w-val up">Tech +2.63%</div>
+            </div>
+            <div class="w-stat">
+                <div class="w-label">Weak Sector</div>
+                <div class="w-val down">Health -1.06%</div>
+            </div>
+            <div class="w-stat">
+                <div class="w-label">Earnings This Wk</div>
+                <div class="w-val" style="color:#c084fc;">393</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KEY POINTS -->
+    <div class="keypoints-section">
+        <div class="section-title">&#128161; Today&apos;s Key Points &amp; Market Themes</div>
+        <div class="keypoints-grid">
+            <div class="kp-block">
+                <h3>Semiconductor Earnings Catalyst</h3>
+                <ul>
+                    <li>INTC surged +23.6% on a blowout Q1 beat reported Thursday after-hours — its largest single-day gain in years. Volume hit 279M shares (1.8x average).</li>
+                    <li>The move triggered a broad semiconductor sympathy rally: AMD +13.9%, ARM +14.8%, QCOM +11.1%, NVDA +4.3%, TSM +5.2%.</li>
+                    <li>MXL (MaxLinear) posted the session&apos;s largest gain at +76.1% on its own separate earnings beat, signaling broad chip demand recovery.</li>
+                    <li>SOXS (Semiconductor Bear 3x ETF) fell -13.9%, confirming the sector-wide directional move was decisive.</li>
+                </ul>
+            </div>
+            <div class="kp-block">
+                <h3>Broad Market Structure</h3>
+                <ul>
+                    <li>S&amp;P 500 tested and held its 52-week intraday high of 7,168.59 — a key technical level to watch for continuation vs. distribution next week.</li>
+                    <li>NASDAQ and QQQ outperformed significantly vs. DIA, consistent with a growth rotation. Small caps (IWM +0.41%) lagged large caps.</li>
+                    <li>VIX at 18.62 is below 20 for the first time in weeks — a structurally constructive signal. Year-range 13.38–35.30 context: current level is near middle.</li>
+                    <li>887 uptrend tickers across all sectors suggests improving breadth, not just narrow tech leadership.</li>
+                </ul>
+            </div>
+            <div class="kp-block">
+                <h3>Bonds &amp; Gold Commentary</h3>
+                <ul>
+                    <li>TLT gained modestly +0.18% — long bonds not selling off despite equity strength, suggesting rates market sees contained growth rather than inflation risk from today&apos;s move.</li>
+                    <li>Gold futures near $4,722/oz — near multi-month highs. GLD +0.51% on the day. Structural gold bid persists on USD weakness and macro uncertainty.</li>
+                    <li>EUR/USD at 1.1720 (+0.32%) reflects continuing USD softness — 52-week high is 1.2083; dollar index compression may be a tailwind for multinational tech earnings.</li>
+                    <li>USD/JPY at 159.40 — near 52-week high of 160.23. BOJ divergence from Fed a persistent macro theme.</li>
+                </ul>
+            </div>
+            <div class="kp-block">
+                <h3>Risks &amp; Levels to Watch</h3>
+                <ul>
+                    <li>S&amp;P 500 at 52-week high 7,168 — breakout or rejection at this level next week is the primary technical focal point.</li>
+                    <li>UPS, XPO, WM, TT earnings next week will provide a macro read on industrial activity and freight demand under tariff environment.</li>
+                    <li>Healthcare underperformance (-1.06%) continues — drug pricing policy risk remains elevated. Watch for Medicaid/Medicare budget developments.</li>
+                    <li>Consumer Defensive sector was negative (-0.39%) — caution on consumer spending durability. Watch WMT guidance next week.</li>
+                    <li>Trade policy headline risk: Any negative tariff news over the weekend could gap equities lower Monday, particularly for chip stocks with heavy China exposure (QCOM, INTC).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- RISK FACTORS -->
+    <div class="risk-section">
+        <h2>&#9888;&#65039; Risk Factors &amp; Sentiment Indicators</h2>
+        <div class="risk-grid">
+            <div class="risk-item">
+                <strong>Trade Policy Concentration Risk:</strong> Today&apos;s biggest winners — INTC, AMD, QCOM, ARM — all have significant revenue exposure to China. A tariff escalation weekend headline could reverse a meaningful portion of today&apos;s gains rapidly. Single-event concentration risk is elevated.
+            </div>
+            <div class="risk-item">
+                <strong>NASDAQ at Extended Levels:</strong> NASDAQ Composite at 24,836 is near its 52-week high of 24,843 (effectively a new high). Valuation multiples in the tech sector (Technology sector P/E 37.45x) leave limited margin for error in upcoming earnings.
+            </div>
+            <div class="risk-item">
+                <strong>Sector Divergence &ndash; Healthcare &amp; Industrials Lagging:</strong> With Healthcare at -1.06% and Industrials -0.87%, the rally lacks full-sector participation. This concentration in Tech and Consumer Cyclical raises questions about sustainability if earnings season disappoints outside the semiconductor vertical.
+            </div>
+            <div class="risk-item">
+                <strong>Gold Near All-Time Highs &ndash; Persistent Macro Hedge:</strong> Gold futures at $4,722 signal that institutional hedging demand remains intact despite equity gains. This dual move (stocks AND gold rising) is unusual and may signal near-term positioning unwind risk in either asset class.
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div style="margin-bottom:8px;font-weight:700;color:#a8c8ff;">Data Sources &amp; Attribution</div>
+        <div>Market data: <a href="https://elite.finviz.com/" target="_blank">Finviz Elite</a> &bull; Price/snapshot data: <a href="https://alpaca.markets/" target="_blank">Alpaca Markets</a> &bull; Index &amp; Forex data: <a href="https://financialmodelingprep.com/" target="_blank">Financial Modeling Prep (FMP)</a></div>
+        <div style="margin-top:6px;">Report generated: Friday, April 24, 2026 at 13:21 PT (16:21 ET) &bull; Final after-market data + after-hours info</div>
+        <div style="margin-top:6px;color:#5a7a98;">This report is for informational purposes only and does not constitute financial advice. Earnings figures may be preliminary. Past performance is not indicative of future results.</div>
+    </div>
+
+</div>
+</body>
+</html>
