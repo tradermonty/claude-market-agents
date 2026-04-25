@@ -55,12 +55,17 @@ echo "=======================================" >> "${LOG_FILE}"
 
 # Run Claude Code with timeout and retry
 # timeout: 600s (10 min), retries: 2 (3 total attempts), backoff: 30s
+EXPECTED_HTML="${PROJECT_DIR}/reports/${TODAY}-after-market-report.html"
+EXPECTED_XPOST="${PROJECT_DIR}/reports/${TODAY}-after-market-x-post.md"
+
 run_claude_with_retry \
     --timeout 600 --retries 2 --backoff 30 \
     --log-file "${LOG_FILE}" \
+    --require-output-file "${EXPECTED_HTML}" \
+    --require-output-file "${EXPECTED_XPOST}" \
     -- \
-    claude -p "Generate today's after-market report using the after-market-reporter agent. Follow the instructions in prompts/after-market-report.md and generate the HTML report and X post message in the reports folder." \
-        --dangerously-skip-permissions
+    claude -p "Generate today's after-market report using the after-market-reporter agent. Follow the instructions in prompts/after-market-report.md and generate the HTML report and X post message in the reports folder. The HTML must be saved to ${EXPECTED_HTML} and the X post must be saved to ${EXPECTED_XPOST} (these exact paths)." \
+        --allowedTools "Bash Read Write Edit Glob Grep Skill Agent WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*"
 
 # Capture exit status
 EXIT_STATUS=$?

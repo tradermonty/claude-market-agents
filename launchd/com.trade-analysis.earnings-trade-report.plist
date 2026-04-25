@@ -73,5 +73,19 @@
     <!-- ユーザーがログインしている時のみ実行 -->
     <key>RunAtLoad</key>
     <false/>
+
+    <!--
+        launchd は plist 内の `$HOME` などの変数を自動展開しない。
+        インストール時に setup スクリプト (または手動) で `$HOME` を
+        `/Users/<username>` に置換すること。EnvironmentVariables の
+        HOME / PATH は子プロセスから参照されるので必須。
+    -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>$HOME</string>
+        <key>PATH</key>
+        <string>$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
 </dict>
 </plist>

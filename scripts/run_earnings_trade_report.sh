@@ -55,12 +55,19 @@ echo "=======================================" >> "${LOG_FILE}"
 
 # Run Claude Code with timeout and retry
 # timeout: 900s (15 min), retries: 2 (3 total attempts), backoff: 30s
+EXPECTED_HTML="${PROJECT_DIR}/reports/earnings_trade_analysis_${TODAY}.html"
+EXPECTED_JSON="${PROJECT_DIR}/reports/earnings_trade_candidates_${TODAY}.json"
+EXPECTED_XPOST="${PROJECT_DIR}/reports/earnings_trade_X_message_${TODAY}.md"
+
 run_claude_with_retry \
     --timeout 900 --retries 2 --backoff 30 \
     --log-file "${LOG_FILE}" \
+    --require-output-file "${EXPECTED_HTML}" \
+    --require-output-file "${EXPECTED_JSON}" \
+    --require-output-file "${EXPECTED_XPOST}" \
     -- \
-    claude -p "Run the earnings trade analysis using the earnings-trade-analyst agent. Follow the instructions in prompts/earnings-trade.md. IMPORTANT: Save all output files directly in the reports/ folder (NOT in date subfolders). Use filenames like earnings_trade_analysis_YYYY-MM-DD.html and earnings_trade_X_message_YYYY-MM-DD.md." \
-        --dangerously-skip-permissions
+    claude -p "Run the earnings trade analysis using the earnings-trade-analyst agent. Follow the instructions in prompts/earnings-trade.md. IMPORTANT: Save all output files directly in the reports/ folder (NOT in date subfolders). Required output paths (write to these exact paths): ${EXPECTED_HTML}, ${EXPECTED_JSON}, ${EXPECTED_XPOST}." \
+        --allowedTools "Bash Read Write Edit Glob Grep Skill Agent WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*"
 
 # Capture exit status
 EXIT_STATUS=$?
