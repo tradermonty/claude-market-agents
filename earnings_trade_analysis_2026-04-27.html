@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis | 2026-04-27</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-elev: #131c30;
+    --bg-card: #18233b;
+    --text: #e6ecf5;
+    --muted: #92a0b8;
+    --accent: #4cc9f0;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --grade-a: #16a34a;
+    --grade-b: #3b82f6;
+    --grade-c: #f59e0b;
+    --grade-d: #ef4444;
+    --border: #243250;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0; background: var(--bg); color: var(--text); line-height: 1.55;
+  }
+  header {
+    background: linear-gradient(135deg, #1a2546 0%, #0d1428 100%);
+    padding: 24px 24px 18px; border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 26px; letter-spacing: 0.3px; }
+  header .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  header .alert {
+    background: rgba(245, 158, 11, 0.12);
+    border-left: 4px solid var(--amber);
+    padding: 10px 14px; margin-top: 14px; border-radius: 4px;
+    font-size: 13px; color: #fde68a;
+  }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .stat {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .stat .value { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  .grade-pill {
+    display: inline-block; min-width: 32px; padding: 3px 10px;
+    border-radius: 999px; font-weight: 700; text-align: center; font-size: 14px;
+  }
+  .grade-A { background: var(--grade-a); color: white; }
+  .grade-B { background: var(--grade-b); color: white; }
+  .grade-C { background: var(--grade-c); color: #1a1300; }
+  .grade-D { background: var(--grade-d); color: white; }
+
+  table.candidates {
+    width: 100%; border-collapse: collapse; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    margin-bottom: 32px; font-size: 14px;
+  }
+  table.candidates th, table.candidates td {
+    padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  table.candidates th {
+    background: var(--bg-elev); color: var(--muted);
+    text-transform: uppercase; font-size: 11px; letter-spacing: 0.8px;
+  }
+  table.candidates tr:last-child td { border-bottom: none; }
+  table.candidates td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px; margin-bottom: 22px;
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+  }
+  .card-title { margin: 0; font-size: 22px; }
+  .card-title small { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .card-prices { text-align: right; }
+  .card-prices .price { font-size: 26px; font-weight: 700; }
+  .card-prices .change-up { color: var(--green); font-weight: 600; }
+  .card-prices .change-down { color: var(--red); font-weight: 600; }
+
+  .factor-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px; margin: 16px 0 12px;
+  }
+  .factor {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .factor .name { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .factor .val { font-size: 16px; font-weight: 600; margin-top: 4px; }
+  .factor .pts { font-size: 12px; color: var(--accent); margin-top: 2px; }
+
+  .levels {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px; margin: 14px 0;
+  }
+  .level {
+    background: rgba(76, 201, 240, 0.06);
+    border: 1px solid rgba(76, 201, 240, 0.2);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .level .name { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+  .level .val { font-size: 16px; font-weight: 600; margin-top: 3px; }
+  .level.entry { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.07); }
+  .level.stop  { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.07); }
+  .level.target{ border-color: rgba(76,201,240,0.4); background: rgba(76,201,240,0.08); }
+
+  .news, .technicals { font-size: 13.5px; color: #d3dbeb; }
+  .news h4, .technicals h4 { margin: 14px 0 6px; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; }
+  ul.bullets { margin: 4px 0 0 18px; padding: 0; }
+  ul.bullets li { margin-bottom: 4px; }
+
+  .progress { height: 8px; background: var(--bg-elev); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  .progress > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #7b61ff); }
+
+  footer {
+    color: var(--muted); font-size: 12px; padding: 22px 24px;
+    border-top: 1px solid var(--border); text-align: center;
+  }
+  footer .disclaimer { max-width: 800px; margin: 0 auto; }
+  @media (max-width: 600px) {
+    header h1 { font-size: 20px; }
+    .card-prices { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="meta">Report Date: <strong>2026-04-27 (Mon)</strong> &middot; Generated 07:48 PT &middot; Universe: yesterday after-close (2026-04-24/2026-04-26) &amp; today pre-market earners</div>
+  <div class="alert">
+    <strong>Note:</strong> Generated as catch-up for missed scheduled run (CLI Execution-error regression still present in production launchd path).
+    Pre-market data window — prices may shift at the open.
+  </div>
+</header>
+
+<main>
+
+  <section class="summary">
+    <div class="stat"><div class="label">Candidates Analyzed</div><div class="value">3</div></div>
+    <div class="stat"><div class="label">A-Grade</div><div class="value">0</div></div>
+    <div class="stat"><div class="label">B-Grade</div><div class="value">0</div></div>
+    <div class="stat"><div class="label">C-Grade</div><div class="value">2</div></div>
+    <div class="stat"><div class="label">D-Grade</div><div class="value">1</div></div>
+    <div class="stat"><div class="label">Top Score</div><div class="value">60.0 (NE)</div></div>
+  </section>
+
+  <h2 style="margin: 0 0 12px;">Ranked Candidates</h2>
+  <table class="candidates">
+    <thead>
+      <tr>
+        <th>Ticker</th><th>Company</th><th>Sector</th>
+        <th class="num">Price</th><th class="num">Gap %</th>
+        <th class="num">Score</th><th>Grade</th>
+        <th>Earnings Window</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>NE</strong></td><td>Noble Corporation Plc</td><td>Energy / Oil &amp; Gas Drilling</td>
+        <td class="num">$53.26</td><td class="num" style="color:var(--green)">+7.51%</td>
+        <td class="num">60.0</td><td><span class="grade-pill grade-C">C</span></td>
+        <td>Fri 2026-04-26 16:30 ET (after-close)</td>
+      </tr>
+      <tr>
+        <td><strong>LKFN</strong></td><td>Lakeland Financial Corp</td><td>Financial / Banks-Regional</td>
+        <td class="num">$61.61</td><td class="num" style="color:var(--green)">+3.22%</td>
+        <td class="num">58.0</td><td><span class="grade-pill grade-C">C</span></td>
+        <td>Mon 2026-04-27 08:30 ET (pre-market)</td>
+      </tr>
+      <tr>
+        <td><strong>VZ</strong></td><td>Verizon Communications Inc</td><td>Comm. Services / Telecom</td>
+        <td class="num">$47.84</td><td class="num" style="color:var(--green)">+3.15%</td>
+        <td class="num">51.0</td><td><span class="grade-pill grade-D">D</span></td>
+        <td>Mon 2026-04-27 08:30 ET (pre-market)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ========== NE ========== -->
+  <article class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">NE — Noble Corporation Plc <small>Energy &middot; Oil &amp; Gas Drilling &middot; Mkt Cap $8.49B</small></h2>
+        <div style="margin-top:6px;"><span class="grade-pill grade-C">Grade C</span> &middot; Score <strong>60.0 / 100</strong> &middot; Est. Success ~50%</div>
+        <div class="progress"><span style="width:60%"></span></div>
+      </div>
+      <div class="card-prices">
+        <div class="price">$53.26</div>
+        <div class="change-up">+7.51% gap (vs $49.54 close)</div>
+        <div style="color:var(--muted); font-size:12px;">Reported Fri 2026-04-26 4:30 PM ET</div>
+      </div>
+    </div>
+
+    <div class="factor-grid">
+      <div class="factor"><div class="name">Gap Size</div><div class="val">+7.51%</div><div class="pts">3 pts (×0.25)</div></div>
+      <div class="factor"><div class="name">Pre-Earnings 20D Trend</div><div class="val">-0.54%</div><div class="pts">2 pts (×0.30)</div></div>
+      <div class="factor"><div class="name">Volume Trend (20/60)</div><div class="val">60.0%</div><div class="pts">2 pts (×0.20)</div></div>
+      <div class="factor"><div class="name">MA200 Position</div><div class="val">+55.0%</div><div class="pts">5 pts (×0.15)</div></div>
+      <div class="factor"><div class="name">MA50 Position</div><div class="val">+12.5%</div><div class="pts">5 pts (×0.10)</div></div>
+    </div>
+
+    <div class="levels">
+      <div class="level entry"><div class="name">Suggested Entry</div><div class="val">$52.50 – $53.50</div></div>
+      <div class="level stop"><div class="name">Stop Loss</div><div class="val">$49.50 (-6.6%)</div></div>
+      <div class="level target"><div class="name">Target 1 (3-7d)</div><div class="val">$56.50 (+6.0%)</div></div>
+      <div class="level target"><div class="name">Target 2 (swing)</div><div class="val">$59.00 (+10.7%)</div></div>
+    </div>
+
+    <div class="news">
+      <h4>Earnings Result Summary</h4>
+      <ul class="bullets">
+        <li>Q1 2026 EPS surprise <strong>+22.1%</strong>; revenue surprise <strong>+7.6%</strong>; net income $121M, diluted EPS $0.75 (adj $0.26).</li>
+        <li>Adj EBITDA $277M; FCF $169M; balance sheet remains solid ($663M cash vs $1.9B debt; $55M of 8.5% notes redeemed).</li>
+        <li>Backlog accretion: <strong>Noble Courage extended by Petrobras</strong> for 1,115 days through Dec 2030 (+$339M backlog at $309.5K dayrate post-2027).</li>
+        <li>FY26 guidance reiterated (Rev $2.8-3.0B, EBITDA $940M-1.02B); CapEx raised to $615-665M for Noble Deliverer reactivation; <strong>$0.50/sh Q2 dividend</strong> declared.</li>
+      </ul>
+      <h4>Probability Of Continuation Higher (next 2-10d)</h4>
+      <p>~<strong>52-58%</strong>. Genuine fundamental beat + backlog catalyst on top of an already powerful uptrend (+88% YTD, +153% 1Y, RSI 69). Reward potential exists but stretched MA200 (+55%) and elevated RSI elevate fade risk; gap into resistance demands a tight stop.</p>
+    </div>
+
+    <div class="technicals">
+      <h4>Technical Factors</h4>
+      <ul class="bullets">
+        <li>Stage-2 uptrend confirmed: price above rising 20/50/200 SMAs; MA stack bullish.</li>
+        <li>Pre-earn 20D trend slightly negative (-0.5%) — base built around $47-50 for past month, now breaking out.</li>
+        <li>Volume ratio (recent20/prior40) 60% — quiet absorption phase; <strong>watch for &gt;1.5× avg volume confirmation</strong> in cash session.</li>
+        <li>RSI 69 — borderline overbought; ATR ~2.5%, position sizing should reflect 8-9% effective stop distance.</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ========== LKFN ========== -->
+  <article class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">LKFN — Lakeland Financial Corp <small>Financial &middot; Banks-Regional &middot; Mkt Cap $1.61B</small></h2>
+        <div style="margin-top:6px;"><span class="grade-pill grade-C">Grade C</span> &middot; Score <strong>58.0 / 100</strong> &middot; Est. Success ~46%</div>
+        <div class="progress"><span style="width:58%"></span></div>
+      </div>
+      <div class="card-prices">
+        <div class="price">$61.61</div>
+        <div class="change-up">+3.22% gap (vs $59.69 close)</div>
+        <div style="color:var(--muted); font-size:12px;">Reported Mon 2026-04-27 8:30 AM ET</div>
+      </div>
+    </div>
+
+    <div class="factor-grid">
+      <div class="factor"><div class="name">Gap Size</div><div class="val">+3.22%</div><div class="pts">3 pts (×0.25)</div></div>
+      <div class="factor"><div class="name">Pre-Earnings 20D Trend</div><div class="val">+4.79%</div><div class="pts">3 pts (×0.30)</div></div>
+      <div class="factor"><div class="name">Volume Trend (20/40)</div><div class="val">56.5%</div><div class="pts">2 pts (×0.20)</div></div>
+      <div class="factor"><div class="name">MA200 Position</div><div class="val">+1.3%</div><div class="pts">3 pts (×0.15)</div></div>
+      <div class="factor"><div class="name">MA50 Position</div><div class="val">+5.1%</div><div class="pts">4 pts (×0.10)</div></div>
+    </div>
+
+    <div class="levels">
+      <div class="level entry"><div class="name">Suggested Entry</div><div class="val">$61.20 – $62.00</div></div>
+      <div class="level stop"><div class="name">Stop Loss</div><div class="val">$58.50 (-5.0%)</div></div>
+      <div class="level target"><div class="name">Target 1 (3-7d)</div><div class="val">$64.00 (+3.9%)</div></div>
+      <div class="level target"><div class="name">Target 2 (swing)</div><div class="val">$66.50 (+8.0%)</div></div>
+    </div>
+
+    <div class="news">
+      <h4>Earnings Result Summary</h4>
+      <ul class="bullets">
+        <li>GAAP EPS <strong>$1.04 vs $1.01 est (+2.7% beat)</strong>; revenue $69.71M (+7.4% YoY) but missed by ~2%; NIM 3.5% in line.</li>
+        <li>Net Interest Income $56.77M missed est $57.94M; efficiency ratio 50.4% (slightly worse than 49.5% est).</li>
+        <li>Quarterly dividend hiked <strong>+4% YoY</strong> (vs $0.50 prior); management cites strong capital position.</li>
+        <li>Indiana-focused community bank; loan growth and credit metrics intact heading into Q2.</li>
+      </ul>
+      <h4>Probability Of Continuation Higher (next 2-10d)</h4>
+      <p>~<strong>45-50%</strong>. Modest EPS beat is offset by NII miss and revenue light. Low-float thinly-traded bank — gap can fade quickly if early buyers hit lift. Better as a quick scalp than a multi-day hold without volume confirmation.</p>
+    </div>
+
+    <div class="technicals">
+      <h4>Technical Factors</h4>
+      <ul class="bullets">
+        <li>Price reclaimed 200-day SMA in early April; now riding above 20/50/200 — neutral-to-bullish stack.</li>
+        <li>3-month perf only +0.5% — sideways consolidation; gap clears mid-April $61-62 ceiling.</li>
+        <li>Volume ratio 56% — very quiet pre-market (only 36K shares so far); <strong>illiquidity risk is the dominant concern</strong>.</li>
+        <li>RSI 62, beta 0.73 — defensive characteristics; ATR ~2.7%.</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ========== VZ ========== -->
+  <article class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">VZ — Verizon Communications Inc <small>Communication Services &middot; Telecom &middot; Mkt Cap $201.7B</small></h2>
+        <div style="margin-top:6px;"><span class="grade-pill grade-D">Grade D</span> &middot; Score <strong>51.0 / 100</strong> &middot; Est. Success ~38%</div>
+        <div class="progress"><span style="width:51%"></span></div>
+      </div>
+      <div class="card-prices">
+        <div class="price">$47.84</div>
+        <div class="change-up">+3.15% gap (vs $46.38 close)</div>
+        <div style="color:var(--muted); font-size:12px;">Reported Mon 2026-04-27 8:30 AM ET</div>
+      </div>
+    </div>
+
+    <div class="factor-grid">
+      <div class="factor"><div class="name">Gap Size</div><div class="val">+3.15%</div><div class="pts">3 pts (×0.25)</div></div>
+      <div class="factor"><div class="name">Pre-Earnings 20D Trend</div><div class="val">-8.59%</div><div class="pts">2 pts (×0.30)</div></div>
+      <div class="factor"><div class="name">Volume Trend (20/40)</div><div class="val">75.0%</div><div class="pts">2 pts (×0.20)</div></div>
+      <div class="factor"><div class="name">MA200 Position</div><div class="val">+9.4%</div><div class="pts">4 pts (×0.15)</div></div>
+      <div class="factor"><div class="name">MA50 Position</div><div class="val">-2.5%</div><div class="pts">2 pts (×0.10)</div></div>
+    </div>
+
+    <div class="levels">
+      <div class="level entry"><div class="name">Suggested Entry</div><div class="val">$47.50 – $48.00 (only on volume break)</div></div>
+      <div class="level stop"><div class="name">Stop Loss</div><div class="val">$46.30 (-3.2%)</div></div>
+      <div class="level target"><div class="name">Target 1 (3-7d)</div><div class="val">$49.00 (+2.4%)</div></div>
+      <div class="level target"><div class="name">Target 2 (swing)</div><div class="val">$50.50 (+5.6%)</div></div>
+    </div>
+
+    <div class="news">
+      <h4>Earnings Result Summary</h4>
+      <ul class="bullets">
+        <li>Q1 2026 EPS <strong>$1.28 vs $1.21 est (+5.8% beat)</strong>; revenue $34.44B (+2.9% YoY) but missed $35.88B estimate by ~$1.4B.</li>
+        <li><strong>+55K postpaid phone net adds</strong> — first positive Q1 since 2013; YoY swing of +340K.</li>
+        <li>Adjusted EBITDA $13.4B (+6.7% YoY); diluted EPS $1.20 (+4.3% YoY); net income $5.1B (+3.3%).</li>
+        <li><strong>FY26 Adj EPS guide raised</strong> to +5-6% YoY; postpaid net adds expected at upper half of 750K-1M range.</li>
+      </ul>
+      <h4>Probability Of Continuation Higher (next 2-10d)</h4>
+      <p>~<strong>35-42%</strong>. Quality beat narrative (subs + raised guide) is offset by revenue miss and a -8.6% 20-day downtrend going into print. Stock remains below 50-day MA. Macro-cap telcos historically fade gap-ups within 2-3 sessions absent volume; treat as defensive yield play, not momentum trade.</p>
+    </div>
+
+    <div class="technicals">
+      <h4>Technical Factors</h4>
+      <ul class="bullets">
+        <li>Price below 50-day SMA ($49.03) but above 200-day ($43.69) — mixed; gap targets 50-day reclaim.</li>
+        <li>1-month perf -5.8%; pre-earn 20D trend -8.6% — entering print on weakness, lowers post-gap follow-through odds.</li>
+        <li>Volume ratio 75% — recent volume below trailing baseline; <strong>13.7M pre-mkt shares strong but cash session must confirm</strong>.</li>
+        <li>RSI 51, beta 0.20 (very low) — limited momentum profile; 5.88% dividend yield is the structural support.</li>
+      </ul>
+    </div>
+  </article>
+
+  <section class="card" style="background: rgba(76, 201, 240, 0.04);">
+    <h3 style="margin-top:0;">Risk &amp; Position Sizing Framework</h3>
+    <ul class="bullets" style="font-size: 13.5px;">
+      <li><strong>No A or B grade signals today</strong> — backtest expected success rate is below 55% across the slate. Use smaller-than-standard size; consider sitting out.</li>
+      <li>Suggested per-trade risk: <strong>0.25-0.5% of equity</strong> for C-grade, <strong>≤0.25%</strong> for D-grade (vs 1% baseline for A-grade).</li>
+      <li>Volume confirmation is the single most important filter today — all three names show below-average 20-day volume, lifting fade risk on pre-market gaps.</li>
+      <li>For NE: use 9% stop reflecting elevated ATR and stretched MA200 distance; for VZ: tighten stop given downtrend; for LKFN: beware low-liquidity slippage.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> This report is generated from automated screening and historical backtest scoring (5-factor model: Gap, Pre-Earnings Trend, Volume, MA200, MA50). It is for informational purposes only and is not investment advice. Earnings-driven gaps carry elevated volatility; past statistical patterns do not guarantee future performance. Always size positions to risk tolerance and use stop-loss discipline. Verify all numbers against live market data before trading.
+  </div>
+  <div style="margin-top:10px;">Generated 2026-04-27 07:48 PT &middot; claude-market-agents earnings pipeline</div>
+</footer>
+</body>
+</html>
