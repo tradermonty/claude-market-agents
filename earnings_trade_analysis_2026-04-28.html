@@ -3,646 +3,1225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Earnings Trade Analysis - 2026-04-28</title>
+<title>Post-Earnings Gap-Up Stock Analysis - 2026-04-28</title>
 <style>
-  :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --panel2: #334155;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-    --accent: #38bdf8;
-    --green: #22c55e;
-    --red: #ef4444;
-    --amber: #f59e0b;
-    --grade-a: #10b981;
-    --grade-b: #3b82f6;
-    --grade-c: #f59e0b;
-    --grade-d: #ef4444;
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: var(--text);
-    margin: 0;
-    padding: 20px;
-    line-height: 1.6;
-  }
-  .container { max-width: 1200px; margin: 0 auto; }
-  header {
-    text-align: center;
-    padding: 30px 20px;
-    background: var(--panel);
-    border-radius: 12px;
-    margin-bottom: 24px;
-    border: 1px solid var(--panel2);
-  }
-  header h1 {
-    margin: 0 0 8px;
-    font-size: 2.2em;
-    background: linear-gradient(90deg, #38bdf8, #818cf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  header .subtitle { color: var(--muted); font-size: 1.05em; }
-  .catchup-note {
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid var(--amber);
-    color: #fde68a;
-    padding: 12px 18px;
-    border-radius: 8px;
-    margin: 20px auto 0;
-    font-size: 0.9em;
-    max-width: 900px;
-  }
-  .dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 18px;
-    text-align: center;
-    border: 1px solid var(--panel2);
-  }
-  .stat-card .value { font-size: 2em; font-weight: 700; color: var(--accent); }
-  .stat-card .label { color: var(--muted); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
-  .grade-distribution { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 20px 0 30px; }
-  .grade-pill {
-    padding: 10px 20px;
-    border-radius: 24px;
-    font-weight: 700;
-    font-size: 0.95em;
-    color: #fff;
-  }
-  .grade-pill.A { background: var(--grade-a); }
-  .grade-pill.B { background: var(--grade-b); }
-  .grade-pill.C { background: var(--grade-c); }
-  .grade-pill.D { background: var(--grade-d); }
-  h2 {
-    border-left: 4px solid var(--accent);
-    padding-left: 12px;
-    margin: 36px 0 18px;
-    font-size: 1.5em;
-  }
-  .stocks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 18px;
-  }
-  .stock-card {
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid var(--panel2);
-    transition: transform 0.2s, border-color 0.2s;
-  }
-  .stock-card:hover { transform: translateY(-3px); border-color: var(--accent); }
-  .stock-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-  .ticker { font-size: 1.6em; font-weight: 700; color: var(--accent); }
-  .company-name { color: var(--muted); font-size: 0.9em; }
-  .grade-badge {
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-weight: 700;
-    color: #fff;
-    font-size: 0.9em;
-  }
-  .grade-badge.A { background: var(--grade-a); }
-  .grade-badge.B { background: var(--grade-b); }
-  .grade-badge.C { background: var(--grade-c); }
-  .grade-badge.D { background: var(--grade-d); }
-  .price-row { display: flex; gap: 16px; margin: 10px 0 14px; align-items: baseline; }
-  .price { font-size: 1.4em; font-weight: 700; }
-  .change { font-size: 1em; padding: 2px 10px; border-radius: 12px; }
-  .change.up { background: rgba(34, 197, 94, 0.2); color: var(--green); }
-  .change.down { background: rgba(239, 68, 68, 0.2); color: var(--red); }
-  .score-bar {
-    height: 24px;
-    background: var(--panel2);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    margin: 12px 0;
-  }
-  .score-fill { height: 100%; transition: width 0.4s; }
-  .score-fill.A { background: linear-gradient(90deg, #10b981, #34d399); }
-  .score-fill.B { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-  .score-fill.C { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-  .score-fill.D { background: linear-gradient(90deg, #ef4444, #f87171); }
-  .score-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-    font-size: 0.85em;
-  }
-  .factor-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    margin: 10px 0;
-  }
-  .factor {
-    background: var(--panel2);
-    border-radius: 6px;
-    padding: 8px 4px;
-    text-align: center;
-    font-size: 0.78em;
-  }
-  .factor .label { color: var(--muted); display: block; font-size: 0.8em; margin-bottom: 2px; }
-  .factor .val { font-weight: 700; }
-  .factor .val.s5 { color: #34d399; }
-  .factor .val.s4 { color: #60a5fa; }
-  .factor .val.s3 { color: #fbbf24; }
-  .factor .val.s2 { color: #fb923c; }
-  .factor .val.s1 { color: #f87171; }
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin: 10px 0;
-    font-size: 0.85em;
-  }
-  .metric { display: flex; justify-content: space-between; padding: 5px 8px; background: var(--panel2); border-radius: 6px; }
-  .metric .k { color: var(--muted); }
-  .metric .v { font-weight: 600; }
-  .summary { font-size: 0.88em; color: var(--text); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--panel2); }
-  .summary strong { color: var(--accent); }
-  .disclaimer {
-    background: rgba(239, 68, 68, 0.1);
-    border-left: 4px solid var(--red);
-    padding: 14px 18px;
-    border-radius: 6px;
-    margin: 30px 0 10px;
-    font-size: 0.85em;
-    color: #fca5a5;
-  }
-  footer { text-align: center; color: var(--muted); margin-top: 30px; padding: 20px; font-size: 0.85em; }
-  @media (max-width: 600px) {
-    .stocks-grid { grid-template-columns: 1fr; }
-    header h1 { font-size: 1.6em; }
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; line-height: 1.6; }
+.container { max-width: 1400px; margin: 0 auto; }
+header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15)); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+header .subtitle { font-size: 1.1rem; color: #94a3b8; }
+header .meta { font-size: 0.85rem; color: #64748b; margin-top: 10px; }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+.stat-card { background: rgba(30,41,59,0.6); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); text-align: center; }
+.stat-card .num { font-size: 2.4rem; font-weight: 800; color: #60a5fa; }
+.stat-card .label { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-card.A .num { color: #34d399; }
+.stat-card.B .num { color: #60a5fa; }
+.stat-card.C .num { color: #fbbf24; }
+.stat-card.D .num { color: #f87171; }
+
+.grade-section { margin-bottom: 40px; }
+.grade-header { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 1.3rem; font-weight: 700; }
+.grade-header.A { background: linear-gradient(90deg, rgba(52,211,153,0.2), transparent); border-left: 4px solid #34d399; color: #6ee7b7; }
+.grade-header.B { background: linear-gradient(90deg, rgba(96,165,250,0.2), transparent); border-left: 4px solid #60a5fa; color: #93c5fd; }
+.grade-header.C { background: linear-gradient(90deg, rgba(251,191,36,0.2), transparent); border-left: 4px solid #fbbf24; color: #fde68a; }
+.grade-header.D { background: linear-gradient(90deg, rgba(248,113,113,0.2), transparent); border-left: 4px solid #f87171; color: #fca5a5; }
+.grade-stars { font-size: 1rem; color: #fcd34d; }
+
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+.stock-card { background: rgba(30,41,59,0.7); border-radius: 14px; padding: 22px; border: 1px solid rgba(255,255,255,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+.stock-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-color: rgba(96,165,250,0.4); }
+.stock-card.grade-A { border-top: 4px solid #34d399; }
+.stock-card.grade-B { border-top: 4px solid #60a5fa; }
+.stock-card.grade-C { border-top: 4px solid #fbbf24; }
+.stock-card.grade-D { border-top: 4px solid #f87171; }
+
+.stock-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.ticker-block .ticker { font-size: 1.6rem; font-weight: 800; color: #f1f5f9; letter-spacing: 0.02em; }
+.ticker-block .name { font-size: 0.85rem; color: #94a3b8; }
+.grade-badge { padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; }
+.grade-badge.A { background: rgba(52,211,153,0.2); color: #6ee7b7; border: 1px solid #34d399; }
+.grade-badge.B { background: rgba(96,165,250,0.2); color: #93c5fd; border: 1px solid #60a5fa; }
+.grade-badge.C { background: rgba(251,191,36,0.2); color: #fde68a; border: 1px solid #fbbf24; }
+.grade-badge.D { background: rgba(248,113,113,0.2); color: #fca5a5; border: 1px solid #f87171; }
+
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.metric { background: rgba(15,23,42,0.5); padding: 10px; border-radius: 8px; }
+.metric .l { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+.metric .v { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin-top: 2px; }
+.metric .v.pos { color: #34d399; }
+.metric .v.neg { color: #f87171; }
+.metric .v.neutral { color: #94a3b8; }
+
+.score-bar-wrap { margin-bottom: 14px; }
+.score-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; margin-bottom: 4px; color: #cbd5e1; }
+.score-row .label { width: 92px; color: #94a3b8; flex-shrink: 0; }
+.score-row .bar { flex: 1; height: 8px; background: rgba(15,23,42,0.7); border-radius: 4px; overflow: hidden; }
+.score-row .fill { height: 100%; background: linear-gradient(90deg, #60a5fa, #a78bfa); border-radius: 4px; }
+.score-row .pts { width: 22px; text-align: right; font-weight: 600; color: #f1f5f9; flex-shrink: 0; }
+.total-score { display: flex; justify-content: space-between; padding: 12px; background: rgba(96,165,250,0.1); border-radius: 8px; margin-bottom: 14px; }
+.total-score .l { color: #cbd5e1; font-weight: 600; }
+.total-score .v { font-size: 1.4rem; font-weight: 800; color: #60a5fa; }
+
+.news-section { background: rgba(15,23,42,0.5); padding: 12px; border-radius: 8px; font-size: 0.86rem; color: #cbd5e1; line-height: 1.55; }
+.news-section .news-title { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+
+.disclaimer { margin-top: 40px; padding: 20px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; font-size: 0.85rem; color: #fca5a5; }
+.disclaimer strong { color: #fecaca; }
+
+footer { text-align: center; margin-top: 30px; padding: 20px; color: #64748b; font-size: 0.85rem; }
 </style>
 </head>
 <body>
 <div class="container">
 
 <header>
-  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
-  <div class="subtitle">Tuesday, April 28, 2026 | Pre-Market Window | 5-Factor Backtest Scoring</div>
-  <div class="catchup-note">
-    <strong>Note:</strong> Generated as catch-up for missed scheduled run (CLI Execution-error regression still present in production launchd path). Pre-market data captured at 06:24 PT (market open: 06:30 PT).
-  </div>
+<h1>Post-Earnings Gap-Up Stock Analysis</h1>
+<div class="subtitle">5-Element Backtest Scoring System &middot; April 28, 2026</div>
+<div class="meta">Generated: 2026-04-28 12:32:31 ET &middot; Source: Finviz / Alpaca / FMP MCP</div>
 </header>
 
-<div class="dashboard">
-  <div class="stat-card"><div class="value">16</div><div class="label">Stocks Analyzed</div></div>
-  <div class="stat-card"><div class="value">4</div><div class="label">B-Grade Picks</div></div>
-  <div class="stat-card"><div class="value">78</div><div class="label">Top Score (CNC)</div></div>
-  <div class="stat-card"><div class="value">21.6%</div><div class="label">Largest Gap (OMCL)</div></div>
+<div class="summary">
+<div class="stat-card"><div class="num">32</div><div class="label">Stocks Analyzed</div></div>
+<div class="stat-card A"><div class="num">0</div><div class="label">A-Grade (85+)</div></div>
+<div class="stat-card B"><div class="num">10</div><div class="label">B-Grade (70-84)</div></div>
+<div class="stat-card C"><div class="num">14</div><div class="label">C-Grade (55-69)</div></div>
+<div class="stat-card D"><div class="num">8</div><div class="label">D-Grade (&le;54)</div></div>
+</div>
+<section class="grade-section"><div class="grade-header B"><span>B-Grade Stocks (55-69% Success Rate)</span><span class="grade-stars">&starf;&starf;&starf;&starf;</span><span style="margin-left:auto;color:#64748b;font-size:0.9rem;">10 stocks</span></div><div class="cards-grid">
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">CTOS</div>
+<div class="name">Custom Truck One Source Inc.</div>
+</div>
+<div class="grade-badge B">B</div>
 </div>
 
-<div class="grade-distribution">
-  <div class="grade-pill A">A-Grade: 0</div>
-  <div class="grade-pill B">B-Grade: 4</div>
-  <div class="grade-pill C">C-Grade: 8</div>
-  <div class="grade-pill D">D-Grade: 4</div>
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$9.15</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+5.35%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+39.14%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">99.5%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+44.60%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+30.03%</div></div>
 </div>
 
-<h2>B-Grade Candidates (55-69% Success Rate)</h2>
-<div class="stocks-grid">
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
 
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="ticker">CNC</div>
-        <div class="company-name">Centene Corp · Healthcare</div>
-      </div>
-      <div class="grade-badge B">B · 78</div>
-    </div>
-    <div class="price-row">
-      <div class="price">$44.92</div>
-      <div class="change up">+3.26%</div>
-    </div>
-    <div class="score-bar"><div class="score-fill B" style="width:78%"></div><div class="score-text">78 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+23.51%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+16.56%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">+51.26%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+14.77%</span></div>
-    </div>
-    <div class="summary">
-      <strong>Earnings Result:</strong> Strong managed-care turnaround story; EPS beat by +51%. <br>
-      <strong>Technicals:</strong> Above all key MAs, clean uptrend, volume confirmation. <strong>Probability of follow-through: ~65%.</strong>
-    </div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="ticker">OPRA</div>
-        <div class="company-name">Opera Ltd ADR · Communications</div>
-      </div>
-      <div class="grade-badge B">B · 74</div>
-    </div>
-    <div class="price-row">
-      <div class="price">$17.34</div>
-      <div class="change up">+2.54%</div>
-    </div>
-    <div class="score-bar"><div class="score-fill B" style="width:74%"></div><div class="score-text">74 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+12.58%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+16.24%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">+156.84%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">-1.08%</span></div>
-    </div>
-    <div class="summary">
-      <strong>Earnings Result:</strong> Massive EPS surprise (+157%); revenue +7.7%. <br>
-      <strong>Technicals:</strong> Above 50/200 MAs, modest pre-market gap suggests room for continuation. <strong>Probability: ~62%.</strong>
-    </div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="ticker">NUE</div>
-        <div class="company-name">Nucor Corp · Materials</div>
-      </div>
-      <div class="grade-badge B">B · 73</div>
-    </div>
-    <div class="price-row">
-      <div class="price">$216.02</div>
-      <div class="change up">+1.20%</div>
-    </div>
-    <div class="score-bar"><div class="score-fill B" style="width:73%"></div><div class="score-text">73 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+35.53%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+20.47%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+4.50%</span></div>
-      <div class="metric"><span class="k">Beta</span><span class="v">~1.5</span></div>
-    </div>
-    <div class="summary">
-      <strong>Earnings Result:</strong> Steel pricing tailwinds + infrastructure tailwind; constructive guidance. <br>
-      <strong>Technicals:</strong> Strong Stage-2 uptrend, 35% above 200-MA. Small gap = clean entry. <strong>Probability: ~60%.</strong>
-    </div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="ticker">CECO</div>
-        <div class="company-name">Ceco Environmental · Industrials</div>
-      </div>
-      <div class="grade-badge B">B · 72</div>
-    </div>
-    <div class="price-row">
-      <div class="price">$67.20</div>
-      <div class="change up">+3.51%</div>
-    </div>
-    <div class="score-bar"><div class="score-fill B" style="width:72%"></div><div class="score-text">72 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s4">4</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+21.84%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+8.22%</span></div>
-      <div class="metric"><span class="k">Rev Surprise</span><span class="v">+4.53%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+9.32%</span></div>
-    </div>
-    <div class="summary">
-      <strong>Earnings Result:</strong> Revenue beat; environmental controls demand resilient. <br>
-      <strong>Technicals:</strong> Above all key MAs; gap aligns with broader strength. <strong>Probability: ~58%.</strong>
-    </div>
-  </div>
-
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">82/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
 </div>
 
-<h2>C-Grade Candidates (40-54% Success Rate)</h2>
-<div class="stocks-grid">
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Custom Truck One Source reported Q1 2026 results and raised FY26 Adjusted EBITDA guidance, citing strong utility/infrastructure demand. Stock has been on a strong uptrend (+44.6% above MA200), with broad analyst optimism on cyclical recovery.
+</div>
+</article>
 
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">KO</div><div class="company-name">Coca-Cola Co · Cons Defensive</div></div>
-      <div class="grade-badge C">C · 67</div>
-    </div>
-    <div class="price-row"><div class="price">$78.63</div><div class="change up">+4.48%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:67%"></div><div class="score-text">67 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s3">3</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+9.49%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+1.85%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">+2.73%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+5.52%</span></div>
-    </div>
-    <div class="summary"><strong>Defensive name:</strong> Solid earnings beat; lower vol, slower momentum. Stable trade for risk-off allocation.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">CVLT</div><div class="company-name">Commvault Systems · Tech</div></div>
-      <div class="grade-badge C">C · 66</div>
-    </div>
-    <div class="price-row"><div class="price">$95.90</div><div class="change up">+8.47%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:66%"></div><div class="score-text">66 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s1">1</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">-27.99%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+12.35%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">+19.19%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+2.42%</span></div>
-    </div>
-    <div class="summary"><strong>Bounce candidate:</strong> Strong EPS + revenue beat but well below 200-MA — recovery play, not trend continuation.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">KNSA</div><div class="company-name">Kiniksa Pharma · Healthcare</div></div>
-      <div class="grade-badge C">C · 65</div>
-    </div>
-    <div class="price-row"><div class="price">$48.74</div><div class="change up">+11.76%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:65%"></div><div class="score-text">65 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s4">4</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+21.87%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+6.09%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+14.82%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">-50.70%</span></div>
-    </div>
-    <div class="summary"><strong>High vol biotech:</strong> Revenue OK, EPS miss. Big gap = chase risk. Watch for retest of $46 support.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">GM</div><div class="company-name">General Motors · Cons Cyc</div></div>
-      <div class="grade-badge C">C · 65</div>
-    </div>
-    <div class="price-row"><div class="price">$78.25</div><div class="change up">+1.50%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:65%"></div><div class="score-text">65 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s3">3</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+11.97%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+1.72%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+3.00%</span></div>
-      <div class="metric"><span class="k">Sector</span><span class="v">Auto</span></div>
-    </div>
-    <div class="summary"><strong>Mega-cap auto:</strong> In-line earnings, modest gap. Trend intact above 200-MA but consolidating near 50-MA.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">PJT</div><div class="company-name">PJT Partners · Financial</div></div>
-      <div class="grade-badge C">C · 63</div>
-    </div>
-    <div class="price-row"><div class="price">$160.10</div><div class="change up">+2.75%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:63%"></div><div class="score-text">63 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s4">4</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">-4.72%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+9.84%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">+6.39%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+1.74%</span></div>
-    </div>
-    <div class="summary"><strong>Boutique IB:</strong> Earnings beat. Below 200-MA but above 50-MA — recovery play with M&A tailwind.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">AXGN</div><div class="company-name">Axogen Inc · Healthcare</div></div>
-      <div class="grade-badge C">C · 62</div>
-    </div>
-    <div class="price-row"><div class="price">$42.08</div><div class="change up">+6.83%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:62%"></div><div class="score-text">62 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s1">1</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+65.94%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+26.12%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+17.25%</span></div>
-      <div class="metric"><span class="k">EPS Surprise</span><span class="v">-21.17%</span></div>
-    </div>
-    <div class="summary"><strong>Extended bio:</strong> 66% above 200-MA = parabolic. Volume signal flagged abnormal. Wait for pullback.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">LGIH</div><div class="company-name">LGI Homes · Cons Cyc</div></div>
-      <div class="grade-badge C">C · 59</div>
-    </div>
-    <div class="price-row"><div class="price">$48.98</div><div class="change up">+8.08%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:59%"></div><div class="score-text">59 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">-2.67%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+12.02%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+8.39%</span></div>
-      <div class="metric"><span class="k">Sector</span><span class="v">Homebldr</span></div>
-    </div>
-    <div class="summary"><strong>Recovery play:</strong> Just below 200-MA, big gap reclaiming 50-MA. Watch for follow-through above $50.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">CR</div><div class="company-name">Crane Co · Industrials</div></div>
-      <div class="grade-badge C">C · 59</div>
-    </div>
-    <div class="price-row"><div class="price">$192.26</div><div class="change up">+1.00%</div></div>
-    <div class="score-bar"><div class="score-fill C" style="width:59%"></div><div class="score-text">59 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s3">3</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s3">3</span></div>
-    </div>
-    <div class="metrics-grid">
-      <div class="metric"><span class="k">MA200</span><span class="v">+2.17%</span></div>
-      <div class="metric"><span class="k">MA50</span><span class="v">+3.44%</span></div>
-      <div class="metric"><span class="k">1W Perf</span><span class="v">+2.50%</span></div>
-      <div class="metric"><span class="k">Sector</span><span class="v">Indust</span></div>
-    </div>
-    <div class="summary"><strong>Steady industrial:</strong> Modest gap, modest move. Good for low-volatility allocation.</div>
-  </div>
-
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">TFII</div>
+<div class="name">TFI International Inc.</div>
+</div>
+<div class="grade-badge B">B</div>
 </div>
 
-<h2>D-Grade Candidates (Below 40% Success Rate)</h2>
-<div class="stocks-grid">
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">SHW</div><div class="company-name">Sherwin-Williams · Materials</div></div>
-      <div class="grade-badge D">D · 50</div>
-    </div>
-    <div class="price-row"><div class="price">$341.00</div><div class="change up">+0.80%</div></div>
-    <div class="score-bar"><div class="score-fill D" style="width:50%"></div><div class="score-text">50 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s3">3</span></div>
-    </div>
-    <div class="summary">Right at 200-MA, weak follow-through. Pass.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">XYL</div><div class="company-name">Xylem Inc · Industrials</div></div>
-      <div class="grade-badge D">D · 50</div>
-    </div>
-    <div class="price-row"><div class="price">$124.81</div><div class="change up">+0.30%</div></div>
-    <div class="score-bar"><div class="score-fill D" style="width:50%"></div><div class="score-text">50 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s3">3</span></div>
-    </div>
-    <div class="summary">Below 200-MA, minimal gap, no momentum. Avoid.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">OMCL</div><div class="company-name">Omnicell Inc · Healthcare</div></div>
-      <div class="grade-badge D">D · 45</div>
-    </div>
-    <div class="price-row"><div class="price">$45.75</div><div class="change up">+21.58%</div></div>
-    <div class="score-bar"><div class="score-fill D" style="width:45%"></div><div class="score-text">45 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s1">1</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s1">1</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s5">5</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s5">5</span></div>
-    </div>
-    <div class="summary"><strong>Caution:</strong> Huge +21.6% gap from depressed base — historical chase pattern fails. EPS missed (-19%). Wait for pullback to $42.</div>
-  </div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div><div class="ticker">KMB</div><div class="company-name">Kimberly-Clark · Cons Def</div></div>
-      <div class="grade-badge D">D · 45</div>
-    </div>
-    <div class="price-row"><div class="price">$99.43</div><div class="change up">+0.50%</div></div>
-    <div class="score-bar"><div class="score-fill D" style="width:45%"></div><div class="score-text">45 / 100</div></div>
-    <div class="factor-grid">
-      <div class="factor"><span class="label">Gap</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">PreEarn</span><span class="val s2">2</span></div>
-      <div class="factor"><span class="label">Volume</span><span class="val s4">4</span></div>
-      <div class="factor"><span class="label">MA200</span><span class="val s1">1</span></div>
-      <div class="factor"><span class="label">MA50</span><span class="val s2">2</span></div>
-    </div>
-    <div class="summary">10.9% below 200-MA, weak relative strength. Pass.</div>
-  </div>
-
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$146.14</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+3.34%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+31.77%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">92.9%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+43.91%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+25.13%</div></div>
 </div>
 
-<h2>Position Sizing & Risk Framework</h2>
-<div class="stock-card" style="grid-column: 1/-1;">
-  <table style="width:100%; border-collapse: collapse; font-size: 0.9em;">
-    <thead>
-      <tr style="background: var(--panel2);">
-        <th style="padding: 10px; text-align: left;">Ticker</th>
-        <th style="padding: 10px;">Entry Zone</th>
-        <th style="padding: 10px;">Stop Loss</th>
-        <th style="padding: 10px;">Target 1</th>
-        <th style="padding: 10px;">Target 2</th>
-        <th style="padding: 10px;">R:R</th>
-        <th style="padding: 10px;">Suggested Size</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td style="padding: 8px;"><strong>CNC</strong></td><td style="padding: 8px;">$44.50-45.00</td><td style="padding: 8px;">$42.50</td><td style="padding: 8px;">$48.00</td><td style="padding: 8px;">$51.00</td><td style="padding: 8px;">1:2.6</td><td style="padding: 8px;">1.5% of portfolio</td></tr>
-      <tr><td style="padding: 8px;"><strong>OPRA</strong></td><td style="padding: 8px;">$17.10-17.40</td><td style="padding: 8px;">$16.30</td><td style="padding: 8px;">$18.50</td><td style="padding: 8px;">$19.50</td><td style="padding: 8px;">1:2.3</td><td style="padding: 8px;">1.0% of portfolio</td></tr>
-      <tr><td style="padding: 8px;"><strong>NUE</strong></td><td style="padding: 8px;">$214-216</td><td style="padding: 8px;">$205</td><td style="padding: 8px;">$228</td><td style="padding: 8px;">$240</td><td style="padding: 8px;">1:2.2</td><td style="padding: 8px;">1.5% of portfolio</td></tr>
-      <tr><td style="padding: 8px;"><strong>CECO</strong></td><td style="padding: 8px;">$66.50-67.50</td><td style="padding: 8px;">$63.50</td><td style="padding: 8px;">$72.00</td><td style="padding: 8px;">$76.00</td><td style="padding: 8px;">1:2.4</td><td style="padding: 8px;">1.0% of portfolio</td></tr>
-    </tbody>
-  </table>
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">82/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
 </div>
 
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+TFI International beat Q1 expectations as TL Flatbed ops boosted results; LTL shipments saw a notable boost in recent months. CEO Bedard remains optimistic about U.S. LTL recovery despite some persistent issues. Stock breaks out from prior pullback.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">OPRA</div>
+<div class="name">Opera Limited</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$18.09</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+6.39%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+24.34%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">76.6%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+17.42%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+21.15%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">78/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Opera reported Q1 2026 with both revenue and Adj EBITDA exceeding the high end of guidance. Strong momentum in browser/AI monetization. Stock at fresh highs above all key MAs.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">CNC</div>
+<div class="name">Centene Corp.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$49.22</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+2.99%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+36.79%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">82.4%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+35.26%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+27.43%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">78/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Centene posted a buoyant Q1 and hiked its 2026 profit guidance. WSJ flags that 'investors are ready to believe the managed-care story again.' Recovery rally in motion off March lows.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">SANM</div>
+<div class="name">Sanmina Corp.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$216.36</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+8.99%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+51.64%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">87.9%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+55.39%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+48.54%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">78/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Sanmina (FY Q2) reported strong revenue growth amid supply chain dynamics; AI/data-center exposure driving momentum. Featured as 'Data Center Stock Up 40% This Month' before earnings.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">NUE</div>
+<div class="name">Nucor Corp.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$225.46</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+2.40%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+30.50%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">86.4%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+41.42%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+25.61%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">78/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Nucor Q1 beat estimates on higher pricing and steel demand; Cramer flagged it positively on CNBC. Steel mills business led profit growth as tariffs and infrastructure spending support pricing.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">BEN</div>
+<div class="name">Franklin Resources Inc.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$29.26</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+0.98%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+20.34%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">86.9%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+19.02%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+14.14%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">73/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Franklin Resources Fiscal Q2 results triggered IBD 'Stock of the Day' bullish-signal coverage. Stock breaking out above 200-day MA on improved AUM momentum.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">ARCB</div>
+<div class="name">ArcBest Corp.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$127.23</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+0.20%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+35.62%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">82.2%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+53.00%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+24.28%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">73/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+ArcBest Q1 highlights positive trends amid market inflection in trucking; LTL pricing firmer. Stock continues a powerful trend (+53% above MA200).
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">CECO</div>
+<div class="name">CECO Environmental Corp.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$74.24</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+4.34%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+13.85%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">69.0%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+34.52%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+19.29%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">72/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+CECO Environmental reported Q1 with continued momentum from environmental/industrial backlog. Stock gaps decisively above MA50 after a multi-week consolidation.
+</div>
+</article>
+
+<article class="stock-card grade-B">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">HOPE</div>
+<div class="name">Hope Bancorp Inc.</div>
+</div>
+<div class="grade-badge B">B</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$12.99</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v neg">-0.32%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+15.21%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">103.2%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+16.61%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+11.60%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">70/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">55-69%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Hope Bancorp posted Q1 results and declared a $0.14 quarterly cash dividend. Steady regional-banking recovery story; stock trading near 52-wk highs.
+</div>
+</article>
+</div></section><section class="grade-section"><div class="grade-header C"><span>C-Grade Stocks (40-54% Success Rate)</span><span class="grade-stars">&starf;&starf;&starf;</span><span style="margin-left:auto;color:#64748b;font-size:0.9rem;">14 stocks</span></div><div class="cards-grid">
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">KNSA</div>
+<div class="name">Kiniksa Pharmaceuticals</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$53.83</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+8.23%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v neg">-4.57%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">102.1%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+34.52%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+16.93%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">68/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Kiniksa Pharmaceuticals reported Q1 with a major upside surprise; gap up of +8% on heavy volume reflects strong ARCALYST product traction. Reversal from a prior pullback.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">SSD</div>
+<div class="name">Simpson Manufacturing Co.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$189.44</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+1.86%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+11.57%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">102.0%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+6.50%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+4.44%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">68/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Simpson Manufacturing reported Q1 with solid operating execution despite housing-sensitivity concerns. Volume confirms breakout interest.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">LGIH</div>
+<div class="name">LGI Homes Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$47.05</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+6.66%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+20.05%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">88.4%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-6.49%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+7.69%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">67/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+LGI Homes reported in line; stock gapped up materially on resilient absorption commentary; still below MA200, creating room for further mean-reversion.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">HRI</div>
+<div class="name">Herc Holdings Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$133.79</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+0.28%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+28.64%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">89.0%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+0.51%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+14.61%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">67/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Herc Holdings reported Q1 with strong rental demand and gapped up sharply (+8% intraday) on the print. Volume surge reinforces the breakout.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">OMCL</div>
+<div class="name">Omnicell Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$45.27</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+19.93%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+16.32%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">59.8%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+23.67%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+22.08%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">67/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Omnicell delivered a major Q1 earnings beat (gap +20%) after a long base; medication-management demand inflecting. Strong relative strength resumes.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">AIT</div>
+<div class="name">Applied Industrial Technologies Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$299.95</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+0.51%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+15.54%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">81.3%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+12.70%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+8.70%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">65/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Applied Industrial Technologies reported Q1; modest gap-up but extending an already strong trend. Industrial distribution holding steady through the cycle.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">GLXY</div>
+<div class="name">Galaxy Digital Holdings</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$26.37</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v neg">-1.56%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+46.06%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">97.3%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-2.87%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+20.42%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">63/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Galaxy Digital posted Q1 results; crypto-related leverage to BTC/ETH price action. Strong intraday reversal but still below MA200.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">CVLT</div>
+<div class="name">Commvault Systems Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$97.02</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+10.85%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+17.60%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">108.4%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-27.15%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+13.64%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">63/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Commvault gapped up on solid Q1 SaaS metrics; stock still well below MA200 making this a bounce / mean reversion candidate.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">NWBI</div>
+<div class="name">Northwest Bancshares Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$14.14</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+1.41%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+7.23%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">69.3%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+13.23%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+10.18%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">61/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Northwest Bancshares Q1 results steady; small bank with consistent dividend.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">KFRC</div>
+<div class="name">Kforce Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$44.78</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+24.96%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+8.51%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">88.5%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+43.25%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+55.57%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">61/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Kforce reported a major Q1 earnings beat (gap +25%) on staffing strength; squeeze-driven move on heavy volume.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">AVB</div>
+<div class="name">AvalonBay Communities Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$182.15</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+2.05%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+7.87%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">79.2%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+0.17%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+6.20%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">58/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+AvalonBay Q1 reaffirmed apartment demand; modest gap up.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">GM</div>
+<div class="name">General Motors Co.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$79.14</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+0.08%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+7.15%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">80.8%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+13.23%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+2.85%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">57/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+General Motors Q1 beat with continued ICE/EV strength; flat gap reflects pre-positioning, but earnings narrative supportive.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">PII</div>
+<div class="name">Polaris Inc.</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$64.81</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v neg">-3.55%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+14.30%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">133.2%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+6.36%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+13.69%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:100.0%"></div></div><span class="pts">5/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">55/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Polaris reported soft Q1 but powersports recovery hopes drove a recovery rally; abnormal volume suggests squeeze risk.
+</div>
+</article>
+
+<article class="stock-card grade-C">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">NXRT</div>
+<div class="name">NexPoint Residential Trust</div>
+</div>
+<div class="grade-badge C">C</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$28.12</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+2.20%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+5.99%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">68.6%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-6.91%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+5.70%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">55/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;">40-54%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+NexPoint Residential Q1 results; small REIT with modest gap up.
+</div>
+</article>
+</div></section><section class="grade-section"><div class="grade-header D"><span>D-Grade Stocks (Below 40% Success Rate)</span><span class="grade-stars">&starf;&starf;</span><span style="margin-left:auto;color:#64748b;font-size:0.9rem;">8 stocks</span></div><div class="cards-grid">
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">KO</div>
+<div class="name">Coca-Cola Co.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$78.43</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+5.41%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v neg">-1.09%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">79.8%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+9.21%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+1.59%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">53/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Coca-Cola Q1 modest beat with FX-neutral revenue growth; defensive name with stable trend.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">PERF</div>
+<div class="name">Perfect Corp.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$1.67</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+1.81%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+0.00%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">39.8%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-7.21%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+6.87%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:80.0%"></div></div><span class="pts">4/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">50/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Perfect Corp Q1 results; small float SaaS name; flat to mildly positive reaction.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">AMT</div>
+<div class="name">American Tower Corp.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$176.80</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+0.68%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+2.90%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">97.5%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-5.83%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v neg">-2.12%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">50/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+American Tower Q1 in line; defensive REIT trading near MA20.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">WVE</div>
+<div class="name">Wave Life Sciences Ltd.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$7.24</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+4.03%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+4.83%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">89.1%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-29.07%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v neg">-30.19%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">46/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Wave Life Sciences Q1 update; well below MA200 (-29%) limits trend score.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">INCY</div>
+<div class="name">Incyte Corp.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$96.82</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v neg">-1.01%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+5.97%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">75.8%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v pos">+4.03%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+0.85%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">46/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Incyte Q1 reported; reaction muted with stock straddling MA20.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">SPGI</div>
+<div class="name">S&P Global Inc.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$441.07</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+1.13%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+4.70%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">58.9%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-10.24%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v pos">+2.68%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">45/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+S&P Global Q1; large index/data franchise. Stock still well below 200-day MA after January gap down.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">AVY</div>
+<div class="name">Avery Dennison Corp.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$167.81</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v pos">+1.76%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v neg">-1.89%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">94.3%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-4.28%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v neg">-4.61%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">44/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Avery Dennison Q1; muted reaction. Stock below all key MAs.
+</div>
+</article>
+
+<article class="stock-card grade-D">
+<div class="stock-header">
+<div class="ticker-block">
+<div class="ticker">ITRI</div>
+<div class="name">Itron Inc.</div>
+</div>
+<div class="grade-badge D">D</div>
+</div>
+
+<div class="metrics">
+<div class="metric"><div class="l">Price</div><div class="v">$87.18</div></div>
+<div class="metric"><div class="l">Gap Size</div><div class="v neg">-0.77%</div></div>
+<div class="metric"><div class="l">Pre-Earnings 20D</div><div class="v pos">+3.62%</div></div>
+<div class="metric"><div class="l">Volume Ratio</div><div class="v neutral">79.3%</div></div>
+<div class="metric"><div class="l">MA200</div><div class="v neg">-19.47%</div></div>
+<div class="metric"><div class="l">MA50</div><div class="v neg">-6.17%</div></div>
+</div>
+
+<div class="score-bar-wrap"><div class="score-row"><span class="label">Gap Size</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">Pre-Earnings</span><div class="bar"><div class="fill" style="width:60.0%"></div></div><span class="pts">3/5</span></div><div class="score-row"><span class="label">Volume</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div><div class="score-row"><span class="label">MA200</span><div class="bar"><div class="fill" style="width:20.0%"></div></div><span class="pts">1/5</span></div><div class="score-row"><span class="label">MA50</span><div class="bar"><div class="fill" style="width:40.0%"></div></div><span class="pts">2/5</span></div></div>
+
+<div class="total-score">
+<span class="l">Backtest Score</span>
+<span class="v">38/100</span>
+</div>
+<div class="total-score" style="background: rgba(167,139,250,0.1);">
+<span class="l">Success Probability</span>
+<span class="v" style="color:#a78bfa;font-size:1.05rem;"><40%</span>
+</div>
+
+<div class="news-section">
+<div class="news-title">News &amp; Catalyst</div>
+Itron Q1 reaction soft; deep below MA200 (-19%) keeps grade low.
+</div>
+</article>
+</div></section>
 <div class="disclaimer">
-  <strong>Disclaimer:</strong> This analysis is for educational/informational purposes only and is not investment advice. Earnings trades carry elevated risk due to volatility expansion and gap risk. Always size positions according to your own risk tolerance and use defined stop-losses. Pre-market data may differ from regular session prices. Backtest scoring reflects historical patterns and does not guarantee future performance.
+<strong>RISK DISCLAIMER:</strong> This analysis is for educational purposes only and is not investment advice. 
+Earnings-based momentum trades carry significant risk including gap reversal, fade, and overnight gap-down risk. 
+Always perform your own due diligence and use proper position sizing and stop-loss discipline. 
+Past performance does not guarantee future results. The 5-element backtest score is a probabilistic guide derived 
+from historical data and does not predict individual outcomes.
 </div>
 
 <footer>
-  Generated 2026-04-28 06:24 PT (catch-up run) · Data: Finviz screener + MA position MCP · Methodology: 5-factor weighted backtest (Gap 25% / PreEarn 30% / Vol 20% / MA200 15% / MA50 10%)
+&copy; 2026 Earnings Trade Analytics &middot; Backtest Score Methodology: Gap (25%) + Pre-Earnings Trend (30%) + Volume (20%) + MA200 (15%) + MA50 (10%)
 </footer>
-
 </div>
 </body>
 </html>
