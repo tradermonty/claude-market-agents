@@ -114,9 +114,27 @@ if [ "$EXIT_STATUS" -eq 0 ]; then
     PUBLISH_STATUS=$?
     if [ "$PUBLISH_STATUS" -eq 0 ]; then
         touch "$SUCCESS_MARKER"
+        # Email the HTML report on success.
+        /opt/homebrew/bin/python3.11 "${SCRIPT_DIR}/send_report.py" \
+            --report-html "$EXPECTED_HTML" \
+            --subject "Market Agents - Earnings Trade Report - ${TODAY}" \
+            >> "$LOG_FILE" 2>&1 || true
     else
         EXIT_STATUS=$PUBLISH_STATUS
     fi
+fi
+
+# On any failure (claude failed, publish failed), send a plain-text alert.
+if [ "$EXIT_STATUS" -ne 0 ]; then
+    RECENT_LOG=$(tail -25 "$LOG_FILE" 2>/dev/null || echo "(log unavailable)")
+    /opt/homebrew/bin/python3.11 "${SCRIPT_DIR}/send_report.py" \
+        --alert-text "Earnings Trade job failed on ${TODAY} (exit=${EXIT_STATUS}). Recent log tail:
+
+${RECENT_LOG}
+
+Full log: ${LOG_FILE}" \
+        --subject "Market Agents - Earnings Trade ALERT - ${TODAY}" \
+        >> "$LOG_FILE" 2>&1 || true
 fi
 
 echo "Completed: $(date), exit=$EXIT_STATUS" >> "$LOG_FILE"

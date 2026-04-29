@@ -44,6 +44,58 @@ class StrategyMismatchError(Exception):
     """Raised when signals contain a non-permitted strategy."""
 
 
+def _send_kill_switch_alert(
+    ticker: str,
+    err: Exception,
+    filled_qty: int,
+    target_qty: Optional[int],
+    fill_price: float,
+) -> None:
+    """Email an alert when the executor self-activates the kill switch.
+
+    Best-effort: failures here are logged but do not propagate; the kill
+    switch state in state_db is the authoritative protection. The 2026-03-17
+    incident showed that without an alert the project went unmonitored for
+    ~1.5 months, so this function exists primarily to surface that event
+    promptly to a human operator.
+    """
+    import subprocess
+    from pathlib import Path
+
+    alert_text = (
+        f"KILL SWITCH activated automatically by executor.py at "
+        f"{datetime.now().isoformat()}.\n\n"
+        f"Reason: failed to place GTC stop order for ticker '{ticker}'.\n"
+        f"Underlying error: {type(err).__name__}: {err}\n\n"
+        f"Filled qty: {filled_qty} of {target_qty} @ {fill_price} "
+        f"(UNPROTECTED — manual stop placement required).\n\n"
+        f"Until kill_switch is set back to false in live/state.db, all "
+        f"daily entry generation will halt. Re-enable with:\n"
+        f'  sqlite3 live/state.db "UPDATE system_config '
+        f"SET value='false', updated_at=datetime('now') "
+        f"WHERE key='kill_switch';\""
+    )
+    send_script = Path(__file__).resolve().parent.parent / "scripts" / "send_report.py"
+    if not send_script.exists():
+        logger.error("Kill-switch alert email skipped: %s missing", send_script)
+        return
+    try:
+        subprocess.run(
+            [
+                "/opt/homebrew/bin/python3.11",
+                str(send_script),
+                "--alert-text",
+                alert_text,
+                "--subject",
+                f"Market Agents - KILL SWITCH ACTIVATED ({ticker})",
+            ],
+            timeout=30,
+            check=False,
+        )
+    except Exception as notify_err:
+        logger.error("Failed to send kill-switch alert email: %s", notify_err)
+
+
 def _is_duplicate_order_error(e: Exception) -> bool:
     """Check if error is a duplicate client_order_id rejection.
 
@@ -797,6 +849,16 @@ def execute_signals(
                             )
                             state_db.set_kill_switch(True)
                             actual_stop_order_id = None
+                            # Fire an alert email so a human notices within
+                            # minutes rather than weeks (2026-03-17 incident
+                            # had this exact path go silent for ~1.5 months).
+                            _send_kill_switch_alert(
+                                ticker=ticker,
+                                err=e,
+                                filled_qty=filled_qty,
+                                target_qty=item.get("qty"),
+                                fill_price=fill_price,
+                            )
 
                     # Record position
                     position_id = state_db.add_position(
