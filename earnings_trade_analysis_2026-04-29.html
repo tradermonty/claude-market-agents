@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis - April 29, 2026</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --card-bg: #1a2332;
+    --card-border: #2c3e50;
+    --text: #e8eef5;
+    --text-secondary: #97a8b9;
+    --grade-a: #10b981;
+    --grade-b: #3b82f6;
+    --grade-c: #f59e0b;
+    --grade-d: #ef4444;
+    --bull: #22c55e;
+    --bear: #ef4444;
+    --neutral: #94a3b8;
+    --accent: #06b6d4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #0f1419 0%, #15202b 100%);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #0891b2 100%);
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+  }
+  header h1 {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  header .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.92;
+    margin-bottom: 6px;
+  }
+  header .timestamp {
+    font-size: 0.9rem;
+    opacity: 0.78;
+    margin-top: 8px;
+  }
+  .summary-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--card-bg);
+    padding: 22px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    text-align: center;
+  }
+  .stat-label { color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-value { font-size: 2rem; font-weight: 700; }
+  .stat-value.a { color: var(--grade-a); }
+  .stat-value.b { color: var(--grade-b); }
+  .stat-value.c { color: var(--grade-c); }
+  .stat-value.d { color: var(--grade-d); }
+  section { margin-bottom: 36px; }
+  h2 {
+    font-size: 1.6rem;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .grade-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+  }
+  .grade-badge.a { background: var(--grade-a); }
+  .grade-badge.b { background: var(--grade-b); }
+  .grade-badge.c { background: var(--grade-c); }
+  .grade-badge.d { background: var(--grade-d); }
+  .stocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 22px;
+  }
+  .stock-card {
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 24px;
+    border: 1px solid var(--card-border);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .stock-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(6, 182, 212, 0.18);
+  }
+  .stock-card.a-grade { border-left: 4px solid var(--grade-a); }
+  .stock-card.b-grade { border-left: 4px solid var(--grade-b); }
+  .stock-card.c-grade { border-left: 4px solid var(--grade-c); }
+  .stock-card.d-grade { border-left: 4px solid var(--grade-d); }
+  .stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .ticker-name { font-size: 1.5rem; font-weight: 700; }
+  .ticker-name .name { font-size: 0.85rem; font-weight: 400; color: var(--text-secondary); display: block; margin-top: 2px; }
+  .stock-score {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: right;
+  }
+  .stock-score .label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; display: block; }
+  .price-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .metric {
+    background: rgba(15, 20, 25, 0.5);
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+  .metric .label { color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; }
+  .metric .value { font-size: 1.1rem; font-weight: 600; }
+  .pos { color: var(--bull); }
+  .neg { color: var(--bear); }
+  .neu { color: var(--neutral); }
+  .scores-section {
+    margin: 12px 0;
+    padding: 14px;
+    background: rgba(15, 20, 25, 0.5);
+    border-radius: 8px;
+  }
+  .scores-section h4 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; }
+  .score-bar {
+    display: grid;
+    grid-template-columns: 110px 1fr 28px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+  }
+  .bar-track {
+    background: #0f1419;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--grade-b));
+    border-radius: 4px;
+  }
+  .news-summary {
+    background: rgba(15, 20, 25, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .news-summary h4 { font-size: 0.85rem; color: var(--accent); margin-bottom: 6px; text-transform: uppercase; }
+  .prob-display {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.18), rgba(6, 182, 212, 0.18));
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: 600;
+  }
+  table.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .summary-table th, .summary-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 0.92rem;
+  }
+  .summary-table th {
+    background: rgba(6, 182, 212, 0.1);
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+  }
+  .summary-table tr:hover { background: rgba(6, 182, 212, 0.05); }
+  .disclaimer {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #fcd34d;
+    margin-top: 30px;
+  }
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 20px;
+  }
+  @media (max-width: 768px) {
+    .stocks-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.6rem; }
+    .stat-value { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="subtitle">Backtest-Driven Scoring System | April 29, 2026 (Wednesday)</div>
+  <div class="subtitle">Yesterday After-Close + Today Pre-Market Earnings Movers</div>
+  <div class="timestamp">Generated: 2026-04-29 09:30 ET | Data: Finviz, Alpaca, FMP</div>
+</header>
+
+<section>
+  <div class="summary-dashboard">
+    <div class="stat-card"><div class="stat-label">Total Analyzed</div><div class="stat-value">25</div></div>
+    <div class="stat-card"><div class="stat-label">A-Grade (85+)</div><div class="stat-value a">1</div></div>
+    <div class="stat-card"><div class="stat-label">B-Grade (70-84)</div><div class="stat-value b">9</div></div>
+    <div class="stat-card"><div class="stat-label">C-Grade (55-69)</div><div class="stat-value c">13</div></div>
+    <div class="stat-card"><div class="stat-label">D-Grade (≤54)</div><div class="stat-value d">2</div></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="grade-badge a">A-Grade</span> Highest-Probability Setups (70%+ Backtest Win Rate)</h2>
+  <div class="stocks-grid">
+
+    <div class="stock-card a-grade">
+      <div class="stock-header">
+        <div class="ticker-name">VIRT<span class="name">Virtu Financial, Inc.</span></div>
+        <div class="stock-score" style="color: var(--grade-a);">86.0<span class="label">Score / Grade A</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$51.50</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+8.10%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+20.21%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value pos">105.9%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+32.44%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+16.33%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Q1 2026 results released pre-market. Market-making volumes likely benefited from Q1 retail trading surge and elevated cross-asset volatility. Strong pre-earnings uptrend (+20%) indicates confident accumulation; volume rising in line with price.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 70-75%</div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2><span class="grade-badge b">B-Grade</span> Solid Setups (55-69% Backtest Win Rate)</h2>
+  <div class="stocks-grid">
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">CSTM<span class="name">Constellium SE</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">82.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$31.95</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+2.44%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+38.55%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neu">94.8%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+64.02%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+18.91%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Reported strong Q1 2026 results including record quarterly segment Adjusted EBITDA. Raised full-year 2026 guidance — a key bullish catalyst. Aluminum maker benefiting from aerospace + auto demand recovery; strong long-term uptrend intact.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 62-67%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">ETSY<span class="name">Etsy, Inc.</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">78.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$68.00</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+4.44%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+43.16%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neg">73.6%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+15.79%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+23.65%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Q1 2026 beat revenue estimates as marketplace growth returned. After a long basing period below $50, ETSY broke out powerfully (+43% in 20 days). Watch volume confirmation; the lower volume ratio is a minor caveat.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 60-65%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">GNRC<span class="name">Generac Holdings Inc.</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">78.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$237.00</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+7.58%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+27.76%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neg">63.6%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+31.30%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+12.13%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Shares surged ~14% pre-market after Q1 earnings beat and upgraded full-year outlook. Generators benefiting from data-center backup power demand and grid resilience theme. Trend strong but volume light vs 60-day average — entries on pullbacks preferred.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 60-65%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">BE<span class="name">Bloom Energy Corporation</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">77.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$274.24</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+16.86%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+129.47%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neu">94.2%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+145.53%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+61.24%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Record Q1 results, raised FY26 guidance, and a 2.45 GW Oracle AI data-center power deal. Caveat: gap >10% historically reduces gap-fill probability (28% win rate band) and the stock has tripled in 30 days — significant FOMO/momentum risk; size positions smaller.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 55-62% (high volatility)</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">STX<span class="name">Seagate Technology Holdings plc</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">77.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$666.49</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+11.85%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+83.89%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neu">90.5%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+121.78%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+48.34%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Fiscal Q3 record revenue, beat estimates, and raised guidance on AI/cloud-driven HDD demand. Storage stocks broadly rallied in sympathy. Like BE, the >10% gap is a slight headwind on gap-fill probabilities — disciplined stops are essential.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 55-62%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">TEVA<span class="name">Teva Pharmaceutical Industries Ltd</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">73.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$34.52</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+10.43%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+21.76%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neg">63.3%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+34.40%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+10.62%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Strong Q1 2026 driven by innovative drug portfolio (UZEDY +62% YoY); also announced acquisition of Emalex Biosciences for NDA-ready first-in-class neuroscience therapy. "Pivot to growth" execution narrative continues to gain traction with investors.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 58-63%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">WERN<span class="name">Werner Enterprises, Inc.</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">71.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$34.55</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+1.20%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+20.64%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neg">76.9%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+16.77%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+9.82%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Swung toward profitability in Q1 2026, with dedicated freight segment driving strength. Modest gap (+1.2%) means risk/reward is favorable for a continuation trade if trucking sentiment stays bid.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 58-63%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">FFIV<span class="name">F5, Inc.</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">71.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$309.80</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+4.06%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+10.75%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neu">90.4%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+7.65%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+6.30%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Q2 2026 product revenue +11% with record cash flow. Set May 28 Analyst & Investor Meeting (potential further catalyst). Solid setup with moderate gap and balanced indicators.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 56-62%</div>
+    </div>
+
+    <div class="stock-card b-grade">
+      <div class="stock-header">
+        <div class="ticker-name">SBUX<span class="name">Starbucks Corporation</span></div>
+        <div class="stock-score" style="color: var(--grade-b);">70.0<span class="label">Score / Grade B</span></div>
+      </div>
+      <div class="price-row">
+        <div class="metric"><div class="label">Price</div><div class="value">$101.76</div></div>
+        <div class="metric"><div class="label">Gap Size</div><div class="value pos">+3.95%</div></div>
+        <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos">+17.34%</div></div>
+        <div class="metric"><div class="label">Volume Ratio</div><div class="value neg">81.9%</div></div>
+        <div class="metric"><div class="label">vs MA200</div><div class="value pos">+13.11%</div></div>
+        <div class="metric"><div class="label">vs MA50</div><div class="value pos">+5.59%</div></div>
+      </div>
+      <div class="scores-section">
+        <h4>5-Element Scoring Detail</h4>
+        <div class="score-bar"><span>Gap Size (25%)</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="score-bar"><span>Pre-Earn (30%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+        <div class="score-bar"><span>Volume (20%)</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="score-bar"><span>MA200 (15%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="score-bar"><span>MA50 (10%)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span>4/5</span></div>
+      </div>
+      <div class="news-summary">
+        <h4>Earnings & News</h4>
+        Q2 2026 earnings/sales topped estimates, North American comps +7.1%; first profit growth in 2+ years. Raised FY26 adjusted EPS target — turnaround under new CEO gaining traction. Solid B-grade with mainstream institutional appeal.
+      </div>
+      <div class="prob-display">Estimated Success Probability: 56-62%</div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2><span class="grade-badge c">C-Grade</span> Marginal Setups (40-54% Backtest Win Rate)</h2>
+  <table class="summary-table">
+    <thead>
+      <tr><th>Ticker</th><th>Company</th><th>Score</th><th>Price</th><th>Gap</th><th>20d Trend</th><th>Vol Ratio</th><th>MA200</th><th>MA50</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>EME</strong></td><td>EMCOR Group</td><td>68.0</td><td>$874.99</td><td class="neg">-1.18%</td><td class="pos">+24.80%</td><td>88.4%</td><td class="pos">+28.59%</td><td class="pos">+13.09%</td></tr>
+      <tr><td><strong>SWK</strong></td><td>Stanley Black & Decker</td><td>67.0</td><td>$78.75</td><td class="neg">-1.39%</td><td class="pos">+16.81%</td><td>110.5%</td><td class="pos">+5.60%</td><td class="pos">+4.39%</td></tr>
+      <tr><td><strong>AKR</strong></td><td>Acadia Realty Trust</td><td>64.0</td><td>$21.25</td><td class="neu">+0.05%</td><td class="pos">+12.49%</td><td>99.1%</td><td class="pos">+6.23%</td><td class="pos">+4.13%</td></tr>
+      <tr><td><strong>ORN</strong></td><td>Orion Group Holdings</td><td>63.0</td><td>$12.26</td><td class="neu">+0.57%</td><td class="pos">+15.12%</td><td>59.0%</td><td class="pos">+21.95%</td><td class="pos">+3.58%</td></tr>
+      <tr><td><strong>HIW</strong></td><td>Highwoods Properties</td><td>63.0</td><td>$25.03</td><td class="pos">+3.95%</td><td class="pos">+19.76%</td><td>81.7%</td><td class="neg">-7.47%</td><td class="pos">+11.44%</td></tr>
+      <tr><td><strong>BG</strong></td><td>Bunge Global SA</td><td>62.0</td><td>$128.75</td><td class="pos">+3.80%</td><td class="pos">+1.96%</td><td>84.3%</td><td class="pos">+29.29%</td><td class="pos">+4.53%</td></tr>
+      <tr><td><strong>KRG</strong></td><td>Kite Realty Group</td><td>61.0</td><td>$26.17</td><td class="neu">+0.23%</td><td class="pos">+7.03%</td><td>93.9%</td><td class="pos">+11.95%</td><td class="pos">+2.66%</td></tr>
+      <tr><td><strong>VRNS</strong></td><td>Varonis Systems</td><td>61.0</td><td>$28.89</td><td class="pos">+15.33%</td><td class="pos">+36.47%</td><td>69.3%</td><td class="neg">-26.91%</td><td class="pos">+23.20%</td></tr>
+      <tr><td><strong>LAD</strong></td><td>Lithia Motors</td><td>61.0</td><td>$286.00</td><td class="pos">+3.30%</td><td class="pos">+16.31%</td><td>89.2%</td><td class="neg">-6.83%</td><td class="pos">+6.61%</td></tr>
+      <tr><td><strong>STAG</strong></td><td>STAG Industrial</td><td>60.0</td><td>$39.91</td><td class="neu">+1.09%</td><td class="pos">+10.58%</td><td>80.7%</td><td class="pos">+6.90%</td><td class="pos">+4.46%</td></tr>
+      <tr><td><strong>BXP</strong></td><td>BXP, Inc.</td><td>58.0</td><td>$59.45</td><td class="pos">+2.45%</td><td class="pos">+14.72%</td><td>74.6%</td><td class="neg">-10.09%</td><td class="pos">+7.57%</td></tr>
+      <tr><td><strong>FICO</strong></td><td>Fair Isaac</td><td>56.0</td><td>$1080.03</td><td class="pos">+6.53%</td><td class="pos">+3.06%</td><td>106.4%</td><td class="neg">-26.89%</td><td class="neg">-6.73%</td></tr>
+      <tr><td><strong>CHEF</strong></td><td>Chefs' Warehouse</td><td>56.0</td><td>$65.08</td><td class="neg">-2.65%</td><td class="pos">+10.55%</td><td>96.3%</td><td class="pos">+3.91%</td><td class="pos">+1.62%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="grade-badge d">D-Grade</span> Avoid - Below 40% Win Rate</h2>
+  <table class="summary-table">
+    <thead>
+      <tr><th>Ticker</th><th>Company</th><th>Score</th><th>Price</th><th>Gap</th><th>20d Trend</th><th>Vol Ratio</th><th>MA200</th><th>MA50</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>V</strong></td><td>Visa Inc.</td><td>55.0</td><td>$328.96</td><td class="pos">+6.24%</td><td class="pos">+9.82%</td><td>84.6%</td><td class="neg">-1.18%</td><td class="pos">+6.06%</td></tr>
+      <tr><td><strong>VLTO</strong></td><td>Veralto Corporation</td><td>51.0</td><td>$90.00</td><td class="pos">+3.27%</td><td class="pos">+4.64%</td><td>83.5%</td><td class="neg">-9.50%</td><td class="neg">-0.88%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Trading Plan & Risk Management Notes</h2>
+  <table class="summary-table">
+    <thead>
+      <tr><th>Ticker</th><th>Suggested Entry</th><th>Stop-Loss</th><th>Target (1)</th><th>Target (2)</th><th>Position Size</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>VIRT</strong></td><td>$50.50 - $51.50</td><td>$48.00</td><td>$54.00</td><td>$57.00</td><td>Standard</td></tr>
+      <tr><td><strong>CSTM</strong></td><td>$31.00 - $32.00</td><td>$29.50</td><td>$33.50</td><td>$35.00</td><td>Standard</td></tr>
+      <tr><td><strong>ETSY</strong></td><td>$66.50 - $68.00</td><td>$63.00</td><td>$72.00</td><td>$76.00</td><td>3/4 size</td></tr>
+      <tr><td><strong>GNRC</strong></td><td>$232 - $237</td><td>$222</td><td>$248</td><td>$258</td><td>3/4 size</td></tr>
+      <tr><td><strong>BE</strong></td><td>Wait pullback to $260</td><td>$245</td><td>$285</td><td>$300</td><td>1/2 size (high vol)</td></tr>
+      <tr><td><strong>STX</strong></td><td>Wait pullback to $640</td><td>$615</td><td>$685</td><td>$710</td><td>1/2 size (extended)</td></tr>
+      <tr><td><strong>TEVA</strong></td><td>$33.50 - $34.50</td><td>$32.50</td><td>$36.00</td><td>$37.50</td><td>Standard</td></tr>
+      <tr><td><strong>WERN</strong></td><td>$34.00 - $34.55</td><td>$32.80</td><td>$36.00</td><td>$37.50</td><td>Standard</td></tr>
+      <tr><td><strong>FFIV</strong></td><td>$307 - $310</td><td>$298</td><td>$320</td><td>$330</td><td>Standard</td></tr>
+      <tr><td><strong>SBUX</strong></td><td>$100.50 - $101.76</td><td>$97.50</td><td>$106</td><td>$110</td><td>Standard</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="disclaimer">
+  <strong>Risk Disclaimer:</strong> This analysis is for informational and educational purposes only and does not constitute investment advice. Past backtest performance does not guarantee future results. Earnings-based trading carries substantial risk of loss including total loss of principal. Always size positions based on personal risk tolerance, use stops, and verify data independently before trading. Not a registered investment advisor.
+</div>
+
+<footer>
+  Generated by Claude Earnings Trade Analyst | Data sources: Finviz, Alpaca Markets, Financial Modeling Prep | © 2026
+</footer>
+
+</div>
+</body>
+</html>
