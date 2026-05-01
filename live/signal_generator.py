@@ -97,6 +97,102 @@ def _filter_candidates(candidates: List[TradeCandidate], min_grade: str) -> List
     return filtered
 
 
+def _parse_iso_date(value: Any) -> Optional[str]:
+    """Parse Alpaca ISO timestamp to YYYY-MM-DD; return None on failure.
+
+    Accepts variants with/without timezone (e.g., '2026-04-29T15:45:46Z',
+    '2026-02-16T15:30:00-05:00'). Both Python's fromisoformat (3.11+) and a
+    naive prefix slice are tried.
+    """
+    if not value:
+        return None
+    s = str(value)
+    try:
+        # Python 3.11+ accepts trailing Z; older versions need replacement
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+    except (TypeError, ValueError):
+        if len(s) >= 10:
+            return s[:10]
+        return None
+
+
+def _close_from_fill(
+    pos: Dict[str, Any],
+    fill_price: float,
+    filled_qty_raw: Any,
+    filled_at: Any,
+    state_db: StateDB,
+    trade_date: str,
+    exit_reason: str,
+) -> None:
+    """Persist a position close using fill data; encapsulates the math."""
+    exit_date = _parse_iso_date(filled_at) or trade_date
+
+    try:
+        qty = int(float(filled_qty_raw)) if filled_qty_raw is not None else 0
+    except (TypeError, ValueError):
+        qty = 0
+    if qty <= 0:
+        qty = pos.get("actual_shares", 0)
+
+    entry_price = pos.get("entry_price", 0)
+    pnl = round((fill_price - entry_price) * qty, 2)
+    return_pct = round(((fill_price / entry_price) - 1) * 100, 2) if entry_price else 0.0
+
+    state_db.close_position(
+        pos["position_id"],
+        exit_date,
+        fill_price,
+        exit_reason,
+        pnl,
+        return_pct,
+    )
+    logger.info(
+        "Sync closed %s [%s]: fill_price=%.2f, pnl=%.2f, return_pct=%.2f%%",
+        pos["ticker"],
+        exit_reason,
+        fill_price,
+        pnl,
+        return_pct,
+    )
+
+
+def _find_post_entry_sell_fill(
+    alpaca_client: AlpacaClient,
+    ticker: str,
+    entry_date: str,
+) -> Optional[Dict[str, Any]]:
+    """Return the most recent filled sell order for ticker after entry_date.
+
+    Used as a fallback when the recorded stop order didn't fill (canceled,
+    expired, or never placed) but Alpaca shows the position as gone — meaning
+    a different sell (manual close, close_all_positions, broker-side action)
+    cleared it. Orders with no filled_avg_price or filled on/before
+    entry_date are ignored.
+    """
+    try:
+        orders = alpaca_client.list_orders(
+            status="closed", symbols=ticker, limit=100, direction="desc"
+        )
+    except Exception as e:
+        logger.warning("Sync fallback skip %s: list_orders failed: %s", ticker, e)
+        return None
+
+    for order in orders or []:
+        if order.get("side") != "sell":
+            continue
+        if order.get("status") != "filled":
+            continue
+        filled_at = order.get("filled_at")
+        fill_date = _parse_iso_date(filled_at)
+        if not fill_date or fill_date <= entry_date:
+            continue
+        if order.get("filled_avg_price") is None:
+            continue
+        return order
+    return None
+
+
 def _sync_positions_from_alpaca(
     db_positions: List[Dict[str, Any]],
     alpaca_positions: List[Dict[str, Any]],
@@ -104,7 +200,13 @@ def _sync_positions_from_alpaca(
     state_db: StateDB,
     trade_date: str,
 ) -> int:
-    """Sync DB with Alpaca: close positions whose stop orders have filled.
+    """Sync DB with Alpaca for positions that no longer exist on Alpaca.
+
+    Resolution priority:
+      1. Recorded stop_order_id is filled -> close with reason=stop_filled_sync.
+      2. Stop is canceled/expired or absent, but a sell-side fill is found
+         in Alpaca history after entry_date -> close with reason=manual_sell_sync.
+      3. Otherwise skip; _reconcile_positions will surface the mismatch.
 
     Returns count of positions auto-closed.
     """
@@ -116,71 +218,84 @@ def _sync_positions_from_alpaca(
         if ticker in alpaca_tickers:
             continue
 
+        # --- Path 1: recorded stop fill ----------------------------------
         stop_order_id = pos.get("stop_order_id")
-        if not stop_order_id:
-            logger.warning("Sync skip %s: no stop_order_id", ticker)
-            continue
+        stop_order: Optional[Dict[str, Any]] = None
+        if stop_order_id:
+            try:
+                stop_order = alpaca_client.get_order(stop_order_id)
+            except Exception:
+                logger.warning(
+                    "Sync stop lookup failed %s for %s; trying fallback",
+                    stop_order_id,
+                    ticker,
+                )
+                stop_order = None
 
-        try:
-            order = alpaca_client.get_order(stop_order_id)
-        except Exception:
-            logger.warning("Sync skip %s: get_order failed for %s", ticker, stop_order_id)
-            continue
+        if stop_order and stop_order.get("status") == "filled":
+            filled_avg_price = stop_order.get("filled_avg_price")
+            try:
+                fill_price = float(filled_avg_price) if filled_avg_price is not None else None
+            except (TypeError, ValueError):
+                logger.warning(
+                    "Sync skip %s: invalid filled_avg_price=%s", ticker, filled_avg_price
+                )
+                continue
+            if fill_price is None:
+                logger.warning("Sync skip %s: no filled_avg_price on stop fill", ticker)
+                continue
 
-        if order.get("status") != "filled":
-            logger.warning("Sync skip %s: stop order status=%s", ticker, order.get("status"))
-            continue
-
-        filled_avg_price = order.get("filled_avg_price")
-        if filled_avg_price is None:
-            logger.warning("Sync skip %s: no filled_avg_price", ticker)
-            continue
-
-        try:
-            fill_price = float(filled_avg_price)
-        except (TypeError, ValueError):
-            logger.warning("Sync skip %s: invalid filled_avg_price=%s", ticker, filled_avg_price)
-            continue
-
-        # Determine exit date from filled_at
-        filled_at = order.get("filled_at")
-        try:
-            exit_date = (
-                datetime.fromisoformat(str(filled_at)).strftime("%Y-%m-%d")
-                if filled_at
-                else trade_date
+            _close_from_fill(
+                pos,
+                fill_price,
+                stop_order.get("filled_qty", 0),
+                stop_order.get("filled_at"),
+                state_db,
+                trade_date,
+                "stop_filled_sync",
             )
-        except (TypeError, ValueError):
-            exit_date = trade_date
+            synced_count += 1
+            continue
 
-        # Determine quantity
+        # --- Path 2: fallback to most recent post-entry sell fill --------
+        if stop_order is not None:
+            logger.info(
+                "Sync fallback %s: stop status=%s, searching sell history",
+                ticker,
+                stop_order.get("status"),
+            )
+        elif not stop_order_id:
+            logger.info("Sync fallback %s: no stop_order_id, searching sell history", ticker)
+
+        fallback = _find_post_entry_sell_fill(alpaca_client, ticker, pos.get("entry_date", ""))
+        if not fallback:
+            logger.warning(
+                "Sync skip %s: no post-entry sell fill found (entry_date=%s)",
+                ticker,
+                pos.get("entry_date"),
+            )
+            continue
+
         try:
-            qty = int(order.get("filled_qty", 0))
-        except (TypeError, ValueError):
-            qty = 0
-        if qty <= 0:
-            qty = pos.get("actual_shares", 0)
+            fb_price = float(fallback["filled_avg_price"])
+        except (TypeError, ValueError, KeyError):
+            logger.warning(
+                "Sync skip %s: fallback fill has invalid price %s",
+                ticker,
+                fallback.get("filled_avg_price"),
+            )
+            continue
 
-        entry_price = pos.get("entry_price", 0)
-        pnl = round((fill_price - entry_price) * qty, 2)
-        return_pct = round(((fill_price / entry_price) - 1) * 100, 2) if entry_price else 0.0
-
-        state_db.close_position(
-            pos["position_id"],
-            exit_date,
-            fill_price,
-            "stop_filled_sync",
-            pnl,
-            return_pct,
+        _close_from_fill(
+            pos,
+            fb_price,
+            fallback.get("filled_qty", 0),
+            fallback.get("filled_at"),
+            state_db,
+            trade_date,
+            "manual_sell_sync",
         )
         synced_count += 1
-        logger.info(
-            "Sync closed %s: fill_price=%.2f, pnl=%.2f, return_pct=%.2f%%",
-            ticker,
-            fill_price,
-            pnl,
-            return_pct,
-        )
 
     return synced_count
 

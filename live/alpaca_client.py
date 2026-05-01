@@ -113,6 +113,30 @@ class AlpacaClient:
         """Get order by Alpaca order ID."""
         return cast(dict, self._request("GET", f"/v2/orders/{order_id}"))
 
+    def list_orders(
+        self,
+        status: str = "closed",
+        symbols: Optional[str] = None,
+        side: Optional[str] = None,
+        limit: int = 100,
+        direction: str = "desc",
+    ) -> List[dict]:
+        """List orders, optionally filtered by status/symbol/side.
+
+        Used for sync fallback when bracket stops were canceled but a
+        manual or external sell filled separately.
+        """
+        params: Dict[str, Any] = {
+            "status": status,
+            "limit": limit,
+            "direction": direction,
+        }
+        if symbols:
+            params["symbols"] = symbols
+        if side:
+            params["side"] = side
+        return cast(List[dict], self._request("GET", "/v2/orders", params=params))
+
     def get_order_by_client_id(self, client_order_id: str) -> Optional[dict]:
         """Get order by client_order_id. Returns None if not found."""
         try:

@@ -81,6 +81,7 @@ _ALPACA_SPEC_SET = [
     "get_clock",
     "get_order",
     "get_order_by_client_id",
+    "list_orders",
     "place_order",
     "place_bracket_order",
     "cancel_order",
@@ -1363,6 +1364,261 @@ class TestPositionSync:
         open_tickers = [p["ticker"] for p in open_positions]
         assert "AAPL" not in open_tickers
         assert "MSFT" in open_tickers
+
+
+class TestPositionSyncFallback:
+    """Tests for the recent-sell-fill fallback in _sync_positions_from_alpaca.
+
+    Covers the production incident where Alpaca's bracket stop orders were
+    canceled (e.g., by close_all_positions), leaving DB positions stranded
+    until a market sell filled separately. The sync logic must consult
+    recent sell-side fills for the ticker and reconcile from them.
+    """
+
+    @staticmethod
+    def _sell_fill(
+        filled_avg_price="160.00",
+        filled_qty="66",
+        filled_at="2026-02-16T15:45:46Z",
+        order_id="manual-sell-1",
+        order_type="market",
+    ):
+        return {
+            "id": order_id,
+            "symbol": "AAPL",
+            "side": "sell",
+            "status": "filled",
+            "order_type": order_type,
+            "filled_avg_price": filled_avg_price,
+            "filled_qty": filled_qty,
+            "filled_at": filled_at,
+        }
+
+    def test_sync_falls_back_to_recent_sell_when_stop_canceled(self, db):
+        """Stop order canceled but a sell-side fill exists -> close from that fill."""
+        pos_id = _add_db_position(db, "AAPL", entry_price=150.0, shares=66)
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {"status": "canceled"}
+        mock_client.list_orders.return_value = [
+            self._sell_fill(filled_avg_price="160.00", filled_qty="66"),
+        ]
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],  # AAPL not in Alpaca (already closed)
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 1
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT exit_reason, exit_price, exit_date, pnl, return_pct "
+                "FROM positions WHERE position_id = ?",
+                (pos_id,),
+            ).fetchone()
+        assert row["exit_reason"] == "manual_sell_sync"
+        assert row["exit_price"] == 160.0
+        # pnl = (160 - 150) * 66 = 660
+        assert row["pnl"] == 660.0
+        assert row["return_pct"] == 6.67
+        assert row["exit_date"] == "2026-02-16"
+
+    def test_sync_falls_back_when_no_stop_order_id(self, db):
+        """No stop_order_id at all but a sell fill exists -> close from that fill."""
+        # Insert position without stop_order_id
+        with db._connect() as conn:
+            conn.execute(
+                """INSERT INTO positions
+                   (ticker, entry_date, entry_price, target_shares, actual_shares,
+                    invested, stop_price, stop_order_id, score, grade, grade_source,
+                    report_date, company_name, gap_size)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    "AAPL",
+                    "2026-02-10",
+                    150.0,
+                    66,
+                    66,
+                    9900.0,
+                    135.0,
+                    None,
+                    70.0,
+                    "B",
+                    "html",
+                    "2026-02-07",
+                    "AAPL Inc.",
+                    3.0,
+                ),
+            )
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.list_orders.return_value = [
+            self._sell_fill(filled_avg_price="155.00", filled_qty="66"),
+        ]
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 1
+        # get_order should not be called (no stop_order_id)
+        mock_client.get_order.assert_not_called()
+        # list_orders should be queried
+        mock_client.list_orders.assert_called_once()
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT exit_reason, exit_price FROM positions WHERE ticker = 'AAPL'"
+            ).fetchone()
+        assert row["exit_reason"] == "manual_sell_sync"
+        assert row["exit_price"] == 155.0
+
+    def test_sync_skips_when_stop_canceled_and_no_recent_sell(self, db):
+        """Stop canceled and no sell fill found -> skip (no error, position remains open)."""
+        _add_db_position(db, "AAPL", entry_price=150.0, shares=66)
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {"status": "canceled"}
+        mock_client.list_orders.return_value = []  # No sell fills
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        assert len(db.get_open_positions()) == 1
+
+    def test_sync_ignores_sells_at_or_before_entry_date(self, db):
+        """Old sell fills (before the position was opened) must be ignored."""
+        # Position opened on 2026-02-10
+        _add_db_position(db, "AAPL", entry_price=150.0, shares=66, entry_date="2026-02-10")
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {"status": "canceled"}
+        # Sell fill from 2025 (before entry) — must NOT be used
+        mock_client.list_orders.return_value = [
+            self._sell_fill(
+                filled_avg_price="200.00",
+                filled_qty="50",
+                filled_at="2025-09-15T15:30:00Z",
+                order_id="stale-1",
+            ),
+        ]
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        assert len(db.get_open_positions()) == 1
+
+    def test_sync_picks_most_recent_sell_when_multiple(self, db):
+        """If multiple post-entry sell fills exist, the newest is used."""
+        _add_db_position(db, "AAPL", entry_price=150.0, shares=66, entry_date="2026-02-10")
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {"status": "canceled"}
+        # list_orders returns desc by default; most-recent first
+        mock_client.list_orders.return_value = [
+            self._sell_fill(
+                filled_avg_price="170.00",
+                filled_qty="66",
+                filled_at="2026-02-16T15:45:46Z",
+                order_id="newest",
+            ),
+            self._sell_fill(
+                filled_avg_price="155.00",
+                filled_qty="33",
+                filled_at="2026-02-12T10:00:00Z",
+                order_id="older",
+            ),
+        ]
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 1
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT exit_price, exit_date FROM positions WHERE ticker = 'AAPL'"
+            ).fetchone()
+        assert row["exit_price"] == 170.0
+        assert row["exit_date"] == "2026-02-16"
+
+    def test_stop_filled_takes_precedence_over_fallback(self, db):
+        """If stop is filled, use it directly; do NOT consult list_orders."""
+        _add_db_position(db, "AAPL", entry_price=150.0, shares=66)
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {
+            "status": "filled",
+            "filled_avg_price": "135.00",
+            "filled_qty": "66",
+            "filled_at": "2026-02-16T15:30:00-05:00",
+        }
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 1
+        # Fallback path must not be invoked
+        mock_client.list_orders.assert_not_called()
+        with db._connect() as conn:
+            row = conn.execute(
+                "SELECT exit_reason, exit_price FROM positions WHERE ticker = 'AAPL'"
+            ).fetchone()
+        assert row["exit_reason"] == "stop_filled_sync"
+        assert row["exit_price"] == 135.0
+
+    def test_sync_skips_when_list_orders_fails(self, db):
+        """API error on list_orders should not crash the sync run."""
+        _add_db_position(db, "AAPL", entry_price=150.0, shares=66)
+        db_positions = db.get_open_positions()
+
+        mock_client = MagicMock(spec_set=_ALPACA_SPEC_SET)
+        mock_client.get_order.return_value = {"status": "canceled"}
+        mock_client.list_orders.side_effect = Exception("rate limited")
+
+        synced = _sync_positions_from_alpaca(
+            db_positions,
+            [],
+            mock_client,
+            db,
+            "2026-02-17",
+        )
+
+        assert synced == 0
+        assert len(db.get_open_positions()) == 1
 
 
 class TestE2EPipeline:
