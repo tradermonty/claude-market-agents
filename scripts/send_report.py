@@ -73,6 +73,18 @@ def _resolve_credentials(
 
 
 def _send(msg: MIMEMultipart, sender_email: str, sender_password: str, recipient: str) -> None:
+    # Defense in depth against the 2026-04-30 incident: even if a test
+    # path somehow invokes this script (subprocess calls slip past
+    # standard mocks), refuse to actually transmit when pytest is the
+    # caller. The autouse fixture in live/tests/conftest.py is the
+    # primary guard; this is a backstop.
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        print(
+            f"[send_report.py] Suppressed email under pytest: "
+            f"subject='{msg['Subject']}' to={recipient}",
+            file=sys.stderr,
+        )
+        return
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
         server.starttls()
         server.login(sender_email, sender_password)
