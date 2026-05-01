@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis - 2026-05-01</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 2.2rem; margin-bottom: 8px; color: #fff; }
+  header .subtitle { font-size: 1.05rem; color: #cbd5e1; }
+  header .timestamp { font-size: 0.85rem; margin-top: 10px; color: #94a3b8; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  .summary-card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .summary-card .label { font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; }
+  .summary-card .value { font-size: 1.8rem; font-weight: 700; color: #fff; }
+  .summary-card.b .value { color: #60a5fa; }
+  .summary-card.c .value { color: #fbbf24; }
+  .summary-card.d .value { color: #f87171; }
+
+  .grade-section { margin-bottom: 40px; }
+  .grade-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .grade-A { background: linear-gradient(90deg, #16a34a, #059669); color: #fff; }
+  .grade-B { background: linear-gradient(90deg, #2563eb, #1d4ed8); color: #fff; }
+  .grade-C { background: linear-gradient(90deg, #d97706, #b45309); color: #fff; }
+  .grade-D { background: linear-gradient(90deg, #dc2626, #991b1b); color: #fff; }
+
+  .stock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .stock-card {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 14px;
+    padding: 22px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .stock-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+  }
+  .stock-card.A { border-color: #16a34a; }
+  .stock-card.B { border-color: #3b82f6; }
+  .stock-card.C { border-color: #f59e0b; }
+  .stock-card.D { border-color: #ef4444; }
+
+  .stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  }
+  .stock-ticker {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+  }
+  .stock-name {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+  .grade-badge {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .badge-A { background: #16a34a; color: #fff; }
+  .badge-B { background: #3b82f6; color: #fff; }
+  .badge-C { background: #f59e0b; color: #fff; }
+  .badge-D { background: #ef4444; color: #fff; }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric {
+    background: rgba(15, 23, 42, 0.5);
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .metric .label { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; }
+  .metric .value { font-size: 1.15rem; font-weight: 700; color: #fff; margin-top: 2px; }
+  .metric .value.positive { color: #4ade80; }
+  .metric .value.negative { color: #f87171; }
+
+  .score-breakdown {
+    background: rgba(15, 23, 42, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .score-breakdown h4 {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+  }
+  .score-row .factor { color: #94a3b8; }
+  .score-row .stars { color: #fbbf24; }
+  .score-total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(148,163,184,0.2);
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .news-summary {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .news-summary strong { color: #60a5fa; }
+
+  .technical-factors {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    background: rgba(15, 23, 42, 0.4);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+  }
+  .probability {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid #3b82f6;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #60a5fa;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 24px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+  footer .disclaimer { color: #f87171; font-weight: 600; margin-bottom: 8px; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.6rem; }
+    .stock-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+    <div class="subtitle">Backtest-Driven Scoring System | 5-Element Evaluation</div>
+    <div class="timestamp">Report Date: 2026-05-01 (Friday) | Generated: 06:05 PT</div>
+  </header>
+
+  <div class="summary-grid">
+    <div class="summary-card"><div class="label">Total Analyzed</div><div class="value">21</div></div>
+    <div class="summary-card"><div class="label">A-Grade (85+)</div><div class="value">0</div></div>
+    <div class="summary-card b"><div class="label">B-Grade (70-84)</div><div class="value">4</div></div>
+    <div class="summary-card c"><div class="label">C-Grade (55-69)</div><div class="value">5</div></div>
+    <div class="summary-card d"><div class="label">D-Grade (<55)</div><div class="value">12</div></div>
+  </div>
+
+  <!-- B-GRADE SECTION -->
+  <div class="grade-section">
+    <div class="grade-header grade-B">B-Grade Stocks (55-69% Success Rate) - Top Picks</div>
+    <div class="stock-grid">
+
+      <!-- TWLO -->
+      <div class="stock-card B">
+        <div class="stock-header">
+          <div>
+            <div class="stock-ticker">TWLO</div>
+            <div class="stock-name">Twilio Inc.</div>
+          </div>
+          <div class="grade-badge badge-B">B</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$148.06</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+5.07%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+8.01%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">104.1%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap Size (25%)</span><span class="stars">★★★</span></div>
+          <div class="score-row"><span class="factor">Pre-Earnings (30%)</span><span class="stars">★★★</span></div>
+          <div class="score-row"><span class="factor">Volume (20%)</span><span class="stars">★★★★</span></div>
+          <div class="score-row"><span class="factor">MA200 (15%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-row"><span class="factor">MA50 (10%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-total"><span>Total Score</span><span>74.0</span></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q1 EPS &amp; revenue beat with strong AI/communications platform demand; raised FY guidance reflecting accelerating cross-sell momentum and improving margins.
+        </div>
+        <div class="technical-factors">
+          <strong>Technical:</strong> Trading +47.8% above MA200 and +38.9% above MA50 - powerful uptrend confirmed; rising volume on the breakout signals institutional accumulation.
+        </div>
+        <span class="probability">Success Probability: 60-65%</span>
+      </div>
+
+      <!-- ZETA -->
+      <div class="stock-card B">
+        <div class="stock-header">
+          <div>
+            <div class="stock-ticker">ZETA</div>
+            <div class="stock-name">Zeta Global Holdings Corp.</div>
+          </div>
+          <div class="grade-badge badge-B">B</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$18.43</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+3.43%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+13.22%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">90.4%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap Size (25%)</span><span class="stars">★★★</span></div>
+          <div class="score-row"><span class="factor">Pre-Earnings (30%)</span><span class="stars">★★★★</span></div>
+          <div class="score-row"><span class="factor">Volume (20%)</span><span class="stars">★★★</span></div>
+          <div class="score-row"><span class="factor">MA200 (15%)</span><span class="stars">★★★★</span></div>
+          <div class="score-row"><span class="factor">MA50 (10%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-total"><span>Total Score</span><span>73.0</span></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Beat on Q1 revenue with continued AI marketing platform expansion; strong customer adoption metrics and improving ARPU drive guidance lift.
+        </div>
+        <div class="technical-factors">
+          <strong>Technical:</strong> Reclaimed MA200 with +7.4% margin; trading +15.4% above MA50 with strong recent momentum (+13% over 20 days). Volume slightly below 90-100% range.
+        </div>
+        <span class="probability">Success Probability: 58-63%</span>
+      </div>
+
+      <!-- ROKU -->
+      <div class="stock-card B">
+        <div class="stock-header">
+          <div>
+            <div class="stock-ticker">ROKU</div>
+            <div class="stock-name">Roku, Inc.</div>
+          </div>
+          <div class="grade-badge badge-B">B</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$116.56</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+3.50%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+18.67%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">77.2%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap Size (25%)</span><span class="stars">★★★</span></div>
+          <div class="score-row"><span class="factor">Pre-Earnings (30%)</span><span class="stars">★★★★</span></div>
+          <div class="score-row"><span class="factor">Volume (20%)</span><span class="stars">★★</span></div>
+          <div class="score-row"><span class="factor">MA200 (15%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-row"><span class="factor">MA50 (10%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-total"><span>Total Score</span><span>72.0</span></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Q1 surprise on platform revenue and ad-monetization improvements; growing connected-TV active accounts and engagement; positive FY outlook.
+        </div>
+        <div class="technical-factors">
+          <strong>Technical:</strong> Trading +28.3% above MA200 - confirmed Stage 2 uptrend; strong pre-earnings 20-day rally of +18.7%. Volume below average is the only caveat.
+        </div>
+        <span class="probability">Success Probability: 58-62%</span>
+      </div>
+
+      <!-- MTZ -->
+      <div class="stock-card B">
+        <div class="stock-header">
+          <div>
+            <div class="stock-ticker">MTZ</div>
+            <div class="stock-name">MasTec, Inc.</div>
+          </div>
+          <div class="grade-badge badge-B">B</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$394.05</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+6.34%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+11.01%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">78.9%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap Size (25%)</span><span class="stars">★★★</span></div>
+          <div class="score-row"><span class="factor">Pre-Earnings (30%)</span><span class="stars">★★★★</span></div>
+          <div class="score-row"><span class="factor">Volume (20%)</span><span class="stars">★★</span></div>
+          <div class="score-row"><span class="factor">MA200 (15%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-row"><span class="factor">MA50 (10%)</span><span class="stars">★★★★★</span></div>
+          <div class="score-total"><span>Total Score</span><span>72.0</span></div>
+        </div>
+        <div class="news-summary">
+          <strong>Earnings:</strong> Strong Q1 beat on infrastructure/utility backlog growth; AI/data-center buildout demand driving record bookings; raised FY guide.
+        </div>
+        <div class="technical-factors">
+          <strong>Technical:</strong> Spectacular +78% above MA200 and +29% above MA50 - leadership stage; +11% pre-earnings momentum. Volume below recent 60-day average.
+        </div>
+        <span class="probability">Success Probability: 58-62%</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- C-GRADE SECTION -->
+  <div class="grade-section">
+    <div class="grade-header grade-C">C-Grade Stocks (40-54% Success Rate)</div>
+    <div class="stock-grid">
+
+      <!-- LEA -->
+      <div class="stock-card C">
+        <div class="stock-header">
+          <div><div class="stock-ticker">LEA</div><div class="stock-name">Lear Corporation</div></div>
+          <div class="grade-badge badge-C">C</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$127.13</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+2.66%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+1.46%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">89.2%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap (3) | Pre (3) | Vol (2) | MA200 (5) | MA50 (3)</span></div>
+          <div class="score-total"><span>Total Score</span><span>62.0</span></div>
+        </div>
+        <div class="news-summary"><strong>Earnings:</strong> Auto seating supplier beat estimates; resilient margins in soft auto demand; cost-out program tracking ahead of plan.</div>
+        <div class="technical-factors"><strong>Technical:</strong> +12.5% above MA200 confirms longer-term trend; pre-earnings drift was modest.</div>
+      </div>
+
+      <!-- AAPL -->
+      <div class="stock-card C">
+        <div class="stock-header">
+          <div><div class="stock-ticker">AAPL</div><div class="stock-name">Apple Inc.</div></div>
+          <div class="grade-badge badge-C">C</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$271.35</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+0.42%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+5.71%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">97.9%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap (2) | Pre (3) | Vol (3) | MA200 (4) | MA50 (4)</span></div>
+          <div class="score-total"><span>Total Score</span><span>60.0</span></div>
+        </div>
+        <div class="news-summary"><strong>Earnings:</strong> Q2 results beat with strong Services growth and steady iPhone units; Mac/iPad mixed; gross margin guidance constructive.</div>
+        <div class="technical-factors"><strong>Technical:</strong> +9.7% above MA200 and +7.2% above MA50; modest gap reflects priced-in expectations.</div>
+      </div>
+
+      <!-- CBOE -->
+      <div class="stock-card C">
+        <div class="stock-header">
+          <div><div class="stock-ticker">CBOE</div><div class="stock-name">Cboe Global Markets, Inc.</div></div>
+          <div class="grade-badge badge-C">C</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$300.09</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value negative">-1.80%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+9.03%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">90.0%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap (1) | Pre (3) | Vol (3) | MA200 (5) | MA50 (4)</span></div>
+          <div class="score-total"><span>Total Score</span><span>58.0</span></div>
+        </div>
+        <div class="news-summary"><strong>Earnings:</strong> Strong volume-driven beat on equity options; retail/institutional engagement at highs; data services momentum.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Trading +21.6% above MA200; modest sell-the-news reaction despite strong fundamentals.</div>
+      </div>
+
+      <!-- FIVN -->
+      <div class="stock-card C">
+        <div class="stock-header">
+          <div><div class="stock-ticker">FIVN</div><div class="stock-name">Five9, Inc.</div></div>
+          <div class="grade-badge badge-C">C</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$17.20</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+0.88%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+13.21%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">87.7%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap (2) | Pre (4) | Vol (2) | MA200 (2) | MA50 (5)</span></div>
+          <div class="score-total"><span>Total Score</span><span>58.0</span></div>
+        </div>
+        <div class="news-summary"><strong>Earnings:</strong> CCaaS provider beat on AI/copilot product traction; large enterprise renewals lift NRR.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Below MA200 (-2.8%) but strongly above MA50 (+24.4%); recovery candidate with +13% pre-earnings momentum.</div>
+      </div>
+
+      <!-- CHD -->
+      <div class="stock-card C">
+        <div class="stock-header">
+          <div><div class="stock-ticker">CHD</div><div class="stock-name">Church &amp; Dwight Co., Inc.</div></div>
+          <div class="grade-badge badge-C">C</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$97.06</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+0.89%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+3.61%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">92.8%</div></div>
+        </div>
+        <div class="score-breakdown">
+          <h4>Score Breakdown</h4>
+          <div class="score-row"><span class="factor">Gap (2) | Pre (3) | Vol (3) | MA200 (4) | MA50 (3)</span></div>
+          <div class="score-total"><span>Total Score</span><span>58.0</span></div>
+        </div>
+        <div class="news-summary"><strong>Earnings:</strong> Steady beat on consumer-staples portfolio; gross margin expansion through productivity savings.</div>
+        <div class="technical-factors"><strong>Technical:</strong> +6.5% above MA200 with neutral MA50 position; defensive momentum profile.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- D-GRADE SECTION -->
+  <div class="grade-section">
+    <div class="grade-header grade-D">D-Grade Stocks (Below 40% Success Rate) - Caution</div>
+    <div class="stock-grid">
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">ILMN</div><div class="stock-name">Illumina, Inc.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$126.74</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+5.29%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value negative">-4.94%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">77.9%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (3) | Pre (2) | Vol (2) | MA200 (4) | MA50 (3)</span></div><div class="score-total"><span>Total Score</span><span>53.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Sequencing-platform Q1 beat; cost discipline visible; Standard BioTools synergy commentary positive.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Bouncing from 4.9% pre-earnings dip; just above MA50/MA200 but volume tepid.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">TEAM</div><div class="stock-name">Atlassian Corporation</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$68.59</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value negative">-2.70%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+1.61%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">107.4%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (1) | Pre (3) | Vol (4) | MA200 (1) | MA50 (5)</span></div><div class="score-total"><span>Total Score</span><span>52.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Cloud revenue mixed; guidance wobble around enterprise rollout pace; AI features still ramping.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Far below MA200 (-39.4%) - long-term broken; gap-down signals weak earnings reaction.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">TPG</div><div class="stock-name">TPG Inc.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$43.62</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+3.66%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+8.04%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">74.6%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (3) | Pre (3) | Vol (2) | MA200 (1) | MA50 (4)</span></div><div class="score-total"><span>Total Score</span><span>52.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Alt-asset manager Q1 fee-related earnings beat; AUM growth steady; capital deployment pipeline strong.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Far below MA200 (-19.7%); short-term recovery setup.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">FSLR</div><div class="stock-name">First Solar, Inc.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$201.89</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+5.92%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value negative">-4.42%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">90.2%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (3) | Pre (2) | Vol (3) | MA200 (2) | MA50 (3)</span></div><div class="score-total"><span>Total Score</span><span>51.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Q1 panel pricing/ASP stable; bookings strong; tariff/policy commentary closely watched.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Below MA200 (-7.6%) but rebounding; pre-earnings drift was negative.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">LIN</div><div class="stock-name">Linde plc</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$501.14</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value negative">-0.71%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+2.20%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">74.4%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (1) | Pre (3) | Vol (2) | MA200 (4) | MA50 (3)</span></div><div class="score-total"><span>Total Score</span><span>49.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Industrial-gas Q1 inline with steady margin expansion; backlog comments constructive.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Above MA200 (+8.9%) but priced-in; low volume.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">EL</div><div class="stock-name">Estee Lauder Cos.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$76.71</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+1.35%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+7.04%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">79.6%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (2) | Pre (3) | Vol (2) | MA200 (2) | MA50 (3)</span></div><div class="score-total"><span>Total Score</span><span>48.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Beauty Q3 results show stabilization; China travel-retail still soft; restructuring on track.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Below MA200 (-9.4%); turnaround attempt with weak gap.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">GDDY</div><div class="stock-name">GoDaddy Inc.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$86.77</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+1.20%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+6.19%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">86.7%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (2) | Pre (3) | Vol (2) | MA200 (1) | MA50 (4)</span></div><div class="score-total"><span>Total Score</span><span>47.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Solid Q1 with bookings beat; Airo AI uptake; FCF guidance reaffirmed.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Far below MA200 (-24%); recovery attempt with light volume.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">EHC</div><div class="stock-name">Encompass Health</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$100.00</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value negative">-2.54%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+5.37%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">90.5%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (1) | Pre (3) | Vol (3) | MA200 (2) | MA50 (2)</span></div><div class="score-total"><span>Total Score</span><span>45.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Inpatient rehab Q1 beat; volume metrics solid; admissions guide raised modestly.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Below MA200 and MA50; sell-the-news despite OK results.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">RDDT</div><div class="stock-name">Reddit, Inc.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$147.40</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value negative">-0.35%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value positive">+8.50%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">74.0%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (1) | Pre (3) | Vol (2) | MA200 (1) | MA50 (5)</span></div><div class="score-total"><span>Total Score</span><span>44.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Ad-revenue growth solid; user engagement metrics improve; AI/data-licensing optionality intact.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Below MA200 (-13.5%) - structural drawdown; gap-down despite OK report.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">AIG</div><div class="stock-name">American International Group</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$74.80</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+1.37%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value negative">-2.34%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">99.7%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (2) | Pre (2) | Vol (3) | MA200 (2) | MA50 (2)</span></div><div class="score-total"><span>Total Score</span><span>44.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> P&amp;C combined ratio improvement; underwriting discipline; capital return on track.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Trading near key MAs; weak pre-earnings drift caps upside.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">CL</div><div class="stock-name">Colgate-Palmolive</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$85.36</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+1.03%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value negative">-1.08%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">84.7%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (2) | Pre (2) | Vol (2) | MA200 (3) | MA50 (2)</span></div><div class="score-total"><span>Total Score</span><span>43.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> Defensive consumer-staples Q1 inline; pricing/volume dynamics mixed; FY guide unchanged.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Sitting on MA50; weak pre-earnings flow.</div>
+      </div>
+
+      <div class="stock-card D">
+        <div class="stock-header"><div><div class="stock-ticker">SPSC</div><div class="stock-name">SPS Commerce, Inc.</div></div><div class="grade-badge badge-D">D</div></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Price</div><div class="value">$56.12</div></div>
+          <div class="metric"><div class="label">Gap %</div><div class="value positive">+1.70%</div></div>
+          <div class="metric"><div class="label">Pre-Trend (20D)</div><div class="value negative">-1.87%</div></div>
+          <div class="metric"><div class="label">Volume Ratio</div><div class="value">67.7%</div></div>
+        </div>
+        <div class="score-breakdown"><div class="score-row"><span class="factor">Gap (2) | Pre (2) | Vol (2) | MA200 (1) | MA50 (2)</span></div><div class="score-total"><span>Total Score</span><span>37.0</span></div></div>
+        <div class="news-summary"><strong>Earnings:</strong> EDI/SaaS Q1 solid; customer counts steady; bookings unchanged.</div>
+        <div class="technical-factors"><strong>Technical:</strong> Far below MA200 (-35%); weakest setup in the cohort.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="disclaimer">DISCLAIMER: For educational purposes only. Not financial advice. Trading earnings carries elevated risk. Always size positions according to your own risk tolerance and use stop-losses.</div>
+    <div>Methodology: Backtest-driven 5-element scoring (Gap Size 25%, Pre-Earnings Trend 30%, Volume Trend 20%, MA200 15%, MA50 10%). Data sources: Finviz, Alpaca, FMP. Snapshot taken 2026-05-01 06:05 PT.</div>
+  </footer>
+</div>
+</body>
+</html>
