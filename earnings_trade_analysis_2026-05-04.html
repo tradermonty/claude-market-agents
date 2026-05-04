@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis | 2026-05-04</title>
+<style>
+:root{
+  --bg:#0e1726; --panel:#152038; --panel2:#1c2a4a; --text:#e6ecf5;
+  --muted:#9aa7c2; --grad-start:#3a78ff; --grad-end:#7a5bff;
+  --good:#22c55e; --warn:#f59e0b; --bad:#ef4444; --info:#38bdf8;
+  --a:#22c55e; --b:#3b82f6; --c:#f59e0b; --d:#ef4444;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:linear-gradient(135deg,#0a1224 0%,#13203b 100%);color:var(--text);min-height:100vh;
+}
+.container{max-width:1280px;margin:0 auto;padding:32px 20px}
+.header{
+  background:linear-gradient(135deg,var(--grad-start),var(--grad-end));
+  border-radius:16px;padding:28px;margin-bottom:24px;box-shadow:0 10px 30px rgba(58,120,255,.25);
+}
+.header h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
+.header .sub{opacity:.9;font-size:14px}
+.dashboard{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;
+}
+.card{
+  background:var(--panel);border:1px solid #243352;border-radius:12px;padding:16px;
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.3)}
+.kpi-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.kpi-value{font-size:24px;font-weight:700;margin-top:4px}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+.section-title{font-size:18px;margin:24px 0 12px;color:#cfd9ee;border-left:4px solid var(--grad-start);padding-left:10px}
+
+.stock-card{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid #2a3a5e;
+  border-radius:14px;padding:20px;margin-bottom:18px;position:relative;overflow:hidden;
+}
+.stock-card::before{
+  content:"";position:absolute;top:0;left:0;width:6px;height:100%;
+}
+.stock-card.grade-A::before{background:var(--a)}
+.stock-card.grade-B::before{background:var(--b)}
+.stock-card.grade-C::before{background:var(--c)}
+.stock-card.grade-D::before{background:var(--d)}
+
+.stock-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.ticker{font-size:24px;font-weight:800}
+.company{font-size:13px;color:var(--muted);margin-top:2px}
+.grade-pill{
+  display:inline-block;padding:6px 12px;border-radius:999px;font-weight:800;font-size:13px;color:#fff;
+}
+.grade-A .grade-pill{background:var(--a)}
+.grade-B .grade-pill{background:var(--b)}
+.grade-C .grade-pill{background:var(--c)}
+.grade-D .grade-pill{background:var(--d)}
+
+.metrics-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:10px 0 16px;
+}
+.metric{background:#0f1a30;border:1px solid #233455;border-radius:10px;padding:10px}
+.metric .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.metric .val{font-size:17px;font-weight:700;margin-top:2px}
+.up{color:var(--good)} .down{color:var(--bad)} .neutral{color:var(--info)}
+
+.score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.score-item{
+  background:#0f1a30;border:1px solid #233455;border-radius:10px;padding:10px;text-align:center;
+}
+.score-item .name{font-size:11px;color:var(--muted);text-transform:uppercase}
+.score-item .pts{font-size:18px;font-weight:800;margin-top:4px}
+.bar{height:6px;background:#1d2c4d;border-radius:6px;margin-top:6px;overflow:hidden}
+.bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--grad-start),var(--grad-end))}
+
+.summary{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;
+}
+@media (max-width: 760px){ .summary{grid-template-columns:1fr} .score-grid{grid-template-columns:repeat(5,1fr)} }
+.box{background:#0f1a30;border:1px solid #233455;border-radius:10px;padding:12px}
+.box h4{margin:0 0 8px;font-size:13px;color:#cfd9ee;text-transform:uppercase;letter-spacing:.5px}
+.box p{margin:0;color:#d3dcf0;font-size:13px;line-height:1.5}
+.prob{
+  display:flex;align-items:center;gap:10px;margin-top:6px;
+}
+.prob-bar{flex:1;height:8px;border-radius:8px;background:#1d2c4d;overflow:hidden}
+.prob-bar > span{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#3b82f6)}
+.prob-val{font-weight:800}
+
+.disclaimer{
+  margin-top:24px;padding:14px;background:#101a30;border:1px dashed #2c3e63;border-radius:10px;
+  color:var(--muted);font-size:12px;line-height:1.5;
+}
+.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report Date: 2026-05-04 (Monday) &middot; 5-Element Backtest Scoring (Gap 25% / Pre-Earnings 30% / Volume 20% / MA200 15% / MA50 10%)</div>
+</div>
+
+<div class="dashboard">
+  <div class="card">
+    <div class="kpi-label">Stocks Screened</div>
+    <div class="kpi-value">7</div>
+    <div class="kpi-sub">Earnings yesterday after-close / today pre-market</div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">A-Grade</div>
+    <div class="kpi-value" style="color:var(--a)">1</div>
+    <div class="kpi-sub">70%+ historical success</div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">B-Grade</div>
+    <div class="kpi-value" style="color:var(--b)">1</div>
+    <div class="kpi-sub">55-69% historical success</div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">C-Grade</div>
+    <div class="kpi-value" style="color:var(--c)">4</div>
+    <div class="kpi-sub">40-54% historical success</div>
+  </div>
+  <div class="card">
+    <div class="kpi-label">D-Grade</div>
+    <div class="kpi-value" style="color:var(--d)">1</div>
+    <div class="kpi-sub">Below 40% historical success</div>
+  </div>
+</div>
+
+<div class="section-title">A-Grade Candidates (85+ pts)</div>
+
+<!-- AXSM -->
+<div class="stock-card grade-A">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">AXSM</div>
+      <div class="company">Axsome Therapeutics, Inc. &middot; Biotech / CNS</div>
+    </div>
+    <div class="grade-pill">A &middot; 85.0 pts &middot; ★★★★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$208.00</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+0.71%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val up">+22.57%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val up">119.5%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+40.5% / +20.8%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Q1 2026 earnings beat reported pre-market 5/4. Powerful tailwind from the 4/30 FDA approval of AUVELITY for agitation associated with Alzheimer's dementia, expanding label and TAM. Strong AUVELITY/SUNOSI commercial trajectory driving raised forward outlook.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>Aggressive Stage 2 uptrend: price +22.6% over the prior 20 sessions, holding well above the 20/50/200-day MAs. 20-day relative volume +19.5% vs 60-day average confirms institutional accumulation. 5/4 small gap-up after a +22% pre-earnings run is a healthy continuation setup, not exhaustion.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:72%"></span></div><div class="prob-val">72%</div></div>
+    <p style="margin-top:6px">Buy stop above $209 / hard stop $196 (below 10-day MA). Initial target $222, runner $232. Reduce size given the +22% run-up; trim half on 5-7% gain.</p>
+  </div>
+</div>
+
+<div class="section-title">B-Grade Candidates (70-84 pts)</div>
+
+<!-- RLJ -->
+<div class="stock-card grade-B">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">RLJ</div>
+      <div class="company">RLJ Lodging Trust &middot; Hotel REIT</div>
+    </div>
+    <div class="grade-pill">B &middot; 82.0 pts &middot; ★★★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$8.54</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+2.89%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val up">+12.93%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val up">112.1%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+12.8% / +8.7%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">4/5</div><div class="bar"><span style="width:80%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">4/5</div><div class="bar"><span style="width:80%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Q1 2026 results released 5/4 pre-market with an EPS beat. Lodging demand tailwind continues from leisure/group travel mix. Hotel REIT capex cycle moderating, supporting FCF and dividend coverage. Stock price action over the past month suggests rate-cut sensitivity is working in favor.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>+12.9% over the trailing 20 sessions with rising 20/50/200-day MA stack. 20-day rel-vol 112% vs 60-day baseline indicates expanding interest. 5/4 +2.9% gap is in the optimal 2-5% sweet-spot historically tied to follow-through. Year-high $8.63 is the immediate breakout pivot.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:62%"></span></div><div class="prob-val">62%</div></div>
+    <p style="margin-top:6px">Entry on break of $8.63 (52-wk high). Stop $8.20 (below 20-day MA). Targets $8.95 / $9.30. Trim half on +4%.</p>
+  </div>
+</div>
+
+<div class="section-title">C-Grade Candidates (55-69 pts)</div>
+
+<!-- NSSC -->
+<div class="stock-card grade-C">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">NSSC</div>
+      <div class="company">Napco Security Technologies, Inc. &middot; Security Hardware</div>
+    </div>
+    <div class="grade-pill">C &middot; 65.0 pts &middot; ★★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$47.13</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+0.88%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val up">+17.18%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val down">49.0%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+16.0% / +8.6%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">4/5</div><div class="bar"><span style="width:80%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">4/5</div><div class="bar"><span style="width:80%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Fiscal Q3 2026 results released 5/4 pre-market. Recurring SaaS-type revenue (StarLink radio service) continues to expand high-margin recurring base. Hardware revenue facing a tougher YoY comp.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>Strong trailing 20-day price action (+17.2%) but recent volume has been notably lighter than the spike-heavy March base. Light volume on the gap-up reduces conviction. Watch for a volume thrust above $48 to validate.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:55%"></span></div><div class="prob-val">55%</div></div>
+    <p style="margin-top:6px">Tactical only on a high-volume break of $48.12 (52-wk high). Stop $44.80. Target $50. Reduce size due to soft relative volume.</p>
+  </div>
+</div>
+
+<!-- GBTG -->
+<div class="stock-card grade-C">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">GBTG</div>
+      <div class="company">Global Business Travel Group, Inc. &middot; Corporate Travel</div>
+    </div>
+    <div class="grade-pill">C &middot; 61.0 pts &middot; ★★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$9.31</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+57.00%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val up">+6.65%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val down">79.4%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+32.1% / +63.4%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Q1 2026 results released alongside a transformational announcement: Long Lake (with General Catalyst, Alpha Wave) agreed to take GBTG private at $6.3B. The +57% gap is a deal-driven re-rating to the implied takeout price, not pure earnings. Strong Q1 figures are secondary to the M&amp;A action.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>Massive +57% gap from $5.93 → ~$9.31 puts the price far above all moving averages. Gap-fill risk is structurally limited if the deal terms are firm. However, post-merger arbitrage spreads typically cap further upside, so risk/reward for swing traders is asymmetric to the downside on any deal-break headlines.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:35%"></span></div><div class="prob-val">35%</div></div>
+    <p style="margin-top:6px">Avoid as a momentum trade — this is a merger-arb situation. If trading, only via narrow-spread arbitrage with explicit deal-break stop. Most retail swing traders should sit out.</p>
+  </div>
+</div>
+
+<!-- ADCT -->
+<div class="stock-card grade-C">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">ADCT</div>
+      <div class="company">ADC Therapeutics S.A. &middot; Oncology Biotech</div>
+    </div>
+    <div class="grade-pill">C &middot; 57.0 pts &middot; ★★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$3.84</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+0.26%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val up">+1.32%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val up">103.7%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+1.6% / -4.8%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">4/5</div><div class="bar"><span style="width:80%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Q1 2026 results released 5/4 pre-market with operational updates. ZYNLONTA commercial trends and pipeline update in focus. Cash runway and burn rate remain key fundamental issues for this small-cap biotech.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>Sub-1% gap with the price marginally above MA200 but still below the MA50. Stock has not yet reclaimed prior April peak ($4.82). Volume profile is improving but pre-earnings trend nearly flat — lacks momentum.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:42%"></span></div><div class="prob-val">42%</div></div>
+    <p style="margin-top:6px">Skip unless price reclaims $4.10 with conviction volume. High single-stock biotech risk. Stop tight at $3.55.</p>
+  </div>
+</div>
+
+<!-- KRYS -->
+<div class="stock-card grade-C">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">KRYS</div>
+      <div class="company">Krystal Biotech, Inc. &middot; Gene Therapy</div>
+    </div>
+    <div class="grade-pill">C &middot; 57.0 pts &middot; ★★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$268.00</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+0.74%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val up">+1.95%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val down">86.2%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+22.8% / +2.3%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">5/5</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Q1 2026 results released 5/4 pre-market. VYJUVEK (DEB) commercial ramp and pipeline progression are key. Multiple upcoming scientific conferences provide medium-term catalysts.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>Price is hovering near 20-day MA (+0.1%), with weak volume confirmation. Long-term still strongly above MA200 (+22.8%) but short-term momentum is waning. Pre-earnings consolidation rather than thrust limits the gap's quality.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:48%"></span></div><div class="prob-val">48%</div></div>
+    <p style="margin-top:6px">Wait for a clean break above $282 with volume. Stop $258. Target $295. Position size half-normal due to soft volume.</p>
+  </div>
+</div>
+
+<div class="section-title">D-Grade Candidates (54 pts or below)</div>
+
+<!-- HESM -->
+<div class="stock-card grade-D">
+  <div class="stock-head">
+    <div>
+      <div class="ticker">HESM</div>
+      <div class="company">Hess Midstream LP &middot; Energy MLP / Pipelines</div>
+    </div>
+    <div class="grade-pill">D &middot; 44.0 pts &middot; ★★</div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric"><div class="lbl">Current Price</div><div class="val">$38.88</div></div>
+    <div class="metric"><div class="lbl">Gap Size</div><div class="val up">+1.99%</div></div>
+    <div class="metric"><div class="lbl">Pre-Earnings 20d Trend</div><div class="val down">-1.78%</div></div>
+    <div class="metric"><div class="lbl">Volume Ratio (20/60d)</div><div class="val warn" style="color:var(--warn)">130.7%</div></div>
+    <div class="metric"><div class="lbl">MA200 / MA50</div><div class="val up">+5.5% / +0.3%</div></div>
+  </div>
+  <div class="score-grid">
+    <div class="score-item"><div class="name">Gap (25%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Trend (30%)</div><div class="pts">2/5</div><div class="bar"><span style="width:40%"></span></div></div>
+    <div class="score-item"><div class="name">Volume (20%)</div><div class="pts">1/5</div><div class="bar"><span style="width:20%"></span></div></div>
+    <div class="score-item"><div class="name">MA200 (15%)</div><div class="pts">4/5</div><div class="bar"><span style="width:80%"></span></div></div>
+    <div class="score-item"><div class="name">MA50 (10%)</div><div class="pts">3/5</div><div class="bar"><span style="width:60%"></span></div></div>
+  </div>
+  <div class="summary">
+    <div class="box">
+      <h4>Earnings Result &amp; Catalysts</h4>
+      <p>Q1 2026 estimated results released 5/4. Bakken throughput volumes and distribution coverage are the focus. MLP yield play with relatively defensive cash flows but limited near-term upside.</p>
+    </div>
+    <div class="box">
+      <h4>Technical Factors</h4>
+      <p>Pre-earnings 20-day trend is negative (-1.8%) with abnormal high volume (+30.7% above 60-day baseline) — historically associated with instability. Price is barely above the 50-day MA, suggesting a struggle to regain trend.</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <h4>Probability of 2-10 Day Upside</h4>
+    <div class="prob"><div class="prob-bar"><span style="width:35%"></span></div><div class="prob-val">35%</div></div>
+    <p style="margin-top:6px">Avoid for swing trading. If owned, a close below $37.00 invalidates the thesis. Better suited as an income/distribution hold than a momentum trade.</p>
+  </div>
+</div>
+
+<div class="disclaimer">
+<strong>Disclaimer:</strong> This report is for educational and informational purposes only and is not investment advice. Earnings-driven swing trades involve significant risk of loss including from gap-down reversals, slippage, and adverse news. Always size positions per your own risk budget, use hard stops, and do not allocate more capital than you can afford to lose. Data sourced via Finviz, Alpaca, and FMP MCP servers as of 2026-05-04 pre-market.
+</div>
+
+<div class="footer">Generated 2026-05-04 by earnings-trade-analyst agent &middot; 5-element backtest scoring v2</div>
+
+</div>
+</body>
+</html>
