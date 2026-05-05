@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis - 2026-05-05</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg, #0a1929 0%, #1e3c5f 100%);
+    color: #e8eef5;
+    line-height: 1.6;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+  header {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 26px;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 2rem; margin-bottom: 8px;
+    background: linear-gradient(90deg, #4fc3f7, #29b6f6, #1976d2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header .meta { color: #b0bec5; font-size: 0.95rem; }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 2rem; font-weight: bold; }
+  .stat-card .label { color: #b0bec5; font-size: 0.85rem; margin-top: 4px; }
+  .grade-A { color: #66bb6a; }
+  .grade-B { color: #29b6f6; }
+  .grade-C { color: #ffb74d; }
+  .grade-D { color: #ef5350; }
+  h2.section {
+    font-size: 1.4rem;
+    margin: 30px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+  }
+  .stocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .ticker-block .ticker {
+    font-size: 1.6rem; font-weight: bold; color: #fff;
+  }
+  .ticker-block .name {
+    color: #b0bec5; font-size: 0.85rem; max-width: 240px;
+  }
+  .grade-badge {
+    font-size: 1.5rem; font-weight: bold;
+    padding: 6px 16px; border-radius: 8px;
+    border: 2px solid currentColor;
+  }
+  .price-row {
+    display: flex; gap: 12px; margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .metric {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .metric .v { font-size: 1.1rem; font-weight: bold; color: #fff; }
+  .metric .l { font-size: 0.72rem; color: #90a4ae; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+  .pos { color: #66bb6a; }
+  .neg { color: #ef5350; }
+  .neu { color: #b0bec5; }
+  .score-box {
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .score-row {
+    display: flex; justify-content: space-between;
+    margin-bottom: 4px; font-size: 0.85rem;
+  }
+  .score-row .label { color: #b0bec5; }
+  .score-bar {
+    height: 6px; background: rgba(255,255,255,0.1);
+    border-radius: 3px; overflow: hidden; margin-top: 2px;
+  }
+  .score-bar > div {
+    height: 100%; background: linear-gradient(90deg, #29b6f6, #66bb6a);
+    transition: width 0.5s;
+  }
+  .total-score {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .news-block {
+    font-size: 0.82rem;
+    color: #cfd8dc;
+    background: rgba(255,255,255,0.03);
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+    border-left: 3px solid #4fc3f7;
+  }
+  .disclaimer {
+    margin-top: 40px;
+    padding: 18px;
+    background: rgba(239, 83, 80, 0.1);
+    border: 1px solid rgba(239, 83, 80, 0.3);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #ffcdd2;
+  }
+  table.compact {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.85rem;
+  }
+  table.compact th, table.compact td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  table.compact th {
+    background: rgba(255,255,255,0.06);
+    font-weight: 600;
+    color: #b0bec5;
+  }
+  table.compact tr:hover td { background: rgba(255,255,255,0.03); }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="meta">Tuesday, May 5, 2026 | Generated 06:05 PT | Earnings Window: 5/4 After-Close & 5/5 Pre-Market</div>
+</header>
+
+<div class="summary">
+  <div class="stat-card"><div class="num">15</div><div class="label">Stocks Analyzed</div></div>
+  <div class="stat-card"><div class="num grade-A">0</div><div class="label">A-Grade (85+)</div></div>
+  <div class="stat-card"><div class="num grade-B">2</div><div class="label">B-Grade (70-84)</div></div>
+  <div class="stat-card"><div class="num grade-C">6</div><div class="label">C-Grade (55-69)</div></div>
+  <div class="stat-card"><div class="num grade-D">7</div><div class="label">D-Grade (≤54)</div></div>
+  <div class="stat-card"><div class="num">60</div><div class="label">Universe Size</div></div>
+</div>
+
+<h2 class="section">Top Ranking Summary</h2>
+<table class="compact">
+  <tr><th>Rank</th><th>Ticker</th><th>Company</th><th>Grade</th><th>Score</th><th>Price</th><th>Gap %</th><th>20D Trend</th><th>Vol Ratio</th><th>vs MA50/200</th></tr>
+  <tr><td>1</td><td><strong>PLOW</strong></td><td>Douglas Dynamics</td><td class="grade-B"><strong>B</strong></td><td>74</td><td>$44.58</td><td class="neg">-3.34%</td><td class="pos">+10.05%</td><td>110%</td><td>+10.9% / +36.4%</td></tr>
+  <tr><td>2</td><td><strong>FTRE</strong></td><td>Fortrea Holdings</td><td class="grade-B"><strong>B</strong></td><td>73</td><td>$12.25</td><td class="pos">+0.57%</td><td class="pos">+28.89%</td><td>74%</td><td>+44.1% / +28.5%</td></tr>
+  <tr><td>3</td><td><strong>STRL</strong></td><td>Sterling Infrastructure</td><td class="grade-C"><strong>C</strong></td><td>68</td><td>$529.49</td><td class="neg">-0.60%</td><td class="pos">+27.94%</td><td>87%</td><td>+54.3% / +90.1%</td></tr>
+  <tr><td>4</td><td><strong>BRCC</strong></td><td>BRC Inc.</td><td class="grade-C"><strong>C</strong></td><td>67</td><td>$1.09</td><td class="neu">0.00%</td><td class="pos">+25.00%</td><td>67%</td><td>+41.7% / +3.6%</td></tr>
+  <tr><td>5</td><td><strong>EOLS</strong></td><td>Evolus</td><td class="grade-C"><strong>C</strong></td><td>63</td><td>$5.58</td><td class="pos">+4.69%</td><td class="pos">+15.50%</td><td>80%</td><td>+19.8% / -6.7%</td></tr>
+  <tr><td>6</td><td><strong>SPHR</strong></td><td>Sphere Entertainment</td><td class="grade-C"><strong>C</strong></td><td>62</td><td>$136.46</td><td class="neg">-5.71%</td><td class="pos">+13.76%</td><td>87%</td><td>+18.1% / +70.6%</td></tr>
+  <tr><td>7</td><td><strong>ECVT</strong></td><td>Ecovyst</td><td class="grade-C"><strong>C</strong></td><td>62</td><td>$14.12</td><td class="neg">-1.67%</td><td class="pos">+10.12%</td><td>70%</td><td>+11.6% / +40.3%</td></tr>
+  <tr><td>8</td><td><strong>CRGY</strong></td><td>Crescent Energy</td><td class="grade-C"><strong>C</strong></td><td>59</td><td>$13.71</td><td class="pos">+1.86%</td><td class="pos">+0.15%</td><td>77%</td><td>+9.8% / +38.8%</td></tr>
+  <tr><td>9</td><td>CCJ</td><td>Cameco Corp.</td><td class="grade-D">D</td><td>54</td><td>$118.26</td><td class="neg">-1.94%</td><td class="pos">+7.13%</td><td>85%</td><td>+5.7% / +24.4%</td></tr>
+  <tr><td>10</td><td>FWRG</td><td>First Watch Restaurant</td><td class="grade-D">D</td><td>52</td><td>$12.21</td><td class="neg">-6.72%</td><td class="pos">+21.65%</td><td>70%</td><td>+1.0% / -22.2%</td></tr>
+  <tr><td>11</td><td>PSKY</td><td>Paramount Skydance</td><td class="grade-D">D</td><td>51</td><td>$11.13</td><td class="pos">+0.36%</td><td class="pos">+1.70%</td><td>92%</td><td>+6.8% / -16.3%</td></tr>
+  <tr><td>12</td><td>EVGO</td><td>EVgo</td><td class="grade-D">D</td><td>49</td><td>$2.17</td><td class="neu">0.00%</td><td class="pos">+3.40%</td><td>90%</td><td>+2.5% / -32.7%</td></tr>
+  <tr><td>13</td><td>OFIX</td><td>Orthofix Medical</td><td class="grade-D">D</td><td>48</td><td>$12.01</td><td class="pos">+0.84%</td><td class="pos">+4.00%</td><td>75%</td><td>+4.7% / -7.7%</td></tr>
+  <tr><td>14</td><td>GPK</td><td>Graphic Packaging</td><td class="grade-D">D</td><td>44</td><td>$9.56</td><td class="neg">-1.44%</td><td class="pos">+7.50%</td><td>93%</td><td>+3.7% / -34.1%</td></tr>
+  <tr><td>15</td><td>PTLO</td><td>Portillo's</td><td class="grade-D">D</td><td>41</td><td>$5.72</td><td class="neg">-11.86%</td><td class="neg">-5.00%</td><td>91%</td><td>+2.0% / -4.5%</td></tr>
+</table>
+
+<h2 class="section">B-Grade Picks (55-69% Historical Success)</h2>
+<div class="stocks-grid">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block">
+        <div class="ticker">PLOW</div>
+        <div class="name">Douglas Dynamics, Inc. — Industrial Machinery</div>
+      </div>
+      <div class="grade-badge grade-B">B</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$44.58</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v neg">-3.34%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+10.05%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">110%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box">
+      <div class="score-row"><span class="label">Gap Size (25%)</span><span>1/5</span></div>
+      <div class="score-bar"><div style="width:20%"></div></div>
+      <div class="score-row"><span class="label">Pre-Earnings Trend (30%)</span><span>4/5</span></div>
+      <div class="score-bar"><div style="width:80%"></div></div>
+      <div class="score-row"><span class="label">Volume (20%)</span><span>5/5</span></div>
+      <div class="score-bar"><div style="width:100%"></div></div>
+      <div class="score-row"><span class="label">MA200 (15%)</span><span>5/5</span></div>
+      <div class="score-bar"><div style="width:100%"></div></div>
+      <div class="score-row"><span class="label">MA50 (10%)</span><span>5/5</span></div>
+      <div class="score-bar"><div style="width:100%"></div></div>
+      <div class="total-score grade-B">Total: 74 / 100</div>
+    </div>
+    <div class="news-block">
+      <strong>Earnings Result:</strong> Record Q1 2026 results reported. EPS surprise positive; snowfall-driven seasonality strength supplemented by Solutions segment.<br>
+      <strong>Probability of further upside:</strong> ~58% over 5-10 days. Strong volume and trend, but post-print pullback creates entry opportunity near $44.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block">
+        <div class="ticker">FTRE</div>
+        <div class="name">Fortrea Holdings Inc. — Clinical Research / CRO</div>
+      </div>
+      <div class="grade-badge grade-B">B</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$12.25</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v pos">+0.57%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+28.89%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">74%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box">
+      <div class="score-row"><span class="label">Gap Size (25%)</span><span>2/5</span></div>
+      <div class="score-bar"><div style="width:40%"></div></div>
+      <div class="score-row"><span class="label">Pre-Earnings Trend (30%)</span><span>5/5</span></div>
+      <div class="score-bar"><div style="width:100%"></div></div>
+      <div class="score-row"><span class="label">Volume (20%)</span><span>2/5</span></div>
+      <div class="score-bar"><div style="width:40%"></div></div>
+      <div class="score-row"><span class="label">MA200 (15%)</span><span>5/5</span></div>
+      <div class="score-bar"><div style="width:100%"></div></div>
+      <div class="score-row"><span class="label">MA50 (10%)</span><span>5/5</span></div>
+      <div class="score-bar"><div style="width:100%"></div></div>
+      <div class="total-score grade-B">Total: 73 / 100</div>
+    </div>
+    <div class="news-block">
+      <strong>Earnings Result:</strong> Q1 2026 results released pre-market. Stock has been in major recovery uptrend (+29% over 20 days).<br>
+      <strong>Probability of further upside:</strong> ~55%. Trend & price-vs-MA structure attractive; volume pullback hints rally may need fresh catalyst.
+    </div>
+  </div>
+
+</div>
+
+<h2 class="section">C-Grade Picks (40-54% Historical Success)</h2>
+<div class="stocks-grid">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block"><div class="ticker">STRL</div><div class="name">Sterling Infrastructure — E&C Services</div></div>
+      <div class="grade-badge grade-C">C</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$529.49</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v neg">-0.60%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+27.94%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">87%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box">
+      <div class="total-score grade-C">Total: 68 / 100</div>
+    </div>
+    <div class="news-block">Record Q1 results, raised full-year 2026 guidance. Extremely extended (+90% above MA200, +54% above MA50) — late-stage rally. Probability of upside ~50% but mean-reversion risk elevated.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block"><div class="ticker">BRCC</div><div class="name">BRC Inc. (Black Rifle Coffee) — Beverages</div></div>
+      <div class="grade-badge grade-C">C</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$1.09</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v neu">0.00%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+25.00%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">67%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box"><div class="total-score grade-C">Total: 67 / 100</div></div>
+    <div class="news-block">Q1 2026 financials released. Sub-$2 micro-cap; strong recent momentum but execution risk elevated. Probability of upside ~48%.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block"><div class="ticker">EOLS</div><div class="name">Evolus — Aesthetic Medicines (Jeuveau)</div></div>
+      <div class="grade-badge grade-C">C</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$5.58</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v pos">+4.69%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+15.50%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">80%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box"><div class="total-score grade-C">Total: 63 / 100</div></div>
+    <div class="news-block">2nd consecutive positive adj. EBITDA quarter, full-year outlook reaffirmed. Below MA200 but recovering. Probability of upside ~50%.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block"><div class="ticker">SPHR</div><div class="name">Sphere Entertainment — Live Entertainment</div></div>
+      <div class="grade-badge grade-C">C</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$136.46</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v neg">-5.71%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+13.76%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">87%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box"><div class="total-score grade-C">Total: 62 / 100</div></div>
+    <div class="news-block">"Showstopping Q1 performance" per IBD; stock pulled back from highs after the print. Heavy +70% above MA200 = late-stage. Probability of recovery ~50%.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block"><div class="ticker">ECVT</div><div class="name">Ecovyst — Specialty Chemicals/Catalysts</div></div>
+      <div class="grade-badge grade-C">C</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$14.12</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v neg">-1.67%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+10.12%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">70%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box"><div class="total-score grade-C">Total: 62 / 100</div></div>
+    <div class="news-block">Q1 results plus revised 2026 outlook. Strong MA200 (+40%); near 52-week high. Probability ~48%.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="ticker-block"><div class="ticker">CRGY</div><div class="name">Crescent Energy — Oil & Gas E&P</div></div>
+      <div class="grade-badge grade-C">C</div>
+    </div>
+    <div class="price-row">
+      <div class="metric"><div class="v">$13.71</div><div class="l">Price</div></div>
+      <div class="metric"><div class="v pos">+1.86%</div><div class="l">Gap</div></div>
+      <div class="metric"><div class="v pos">+0.15%</div><div class="l">20D Trend</div></div>
+      <div class="metric"><div class="v">77%</div><div class="l">Vol Ratio</div></div>
+    </div>
+    <div class="score-box"><div class="total-score grade-C">Total: 59 / 100</div></div>
+    <div class="news-block">Q1 2026 results released after-hours. Sideways consolidation with positive gap; benefits from MA structure. Probability ~45%.</div>
+  </div>
+
+</div>
+
+<h2 class="section">D-Grade (Caution / Avoid Long Entries)</h2>
+<div class="stocks-grid">
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">CCJ</div><div class="name">Cameco — Uranium Mining</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$118.26</div><div class="l">Price</div></div><div class="metric"><div class="v neg">-1.94%</div><div class="l">Gap</div></div><div class="metric"><div class="v">54</div><div class="l">Score</div></div></div>
+    <div class="news-block">Pulled back after print; weak gap and tepid trend. Probability ~38%.</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">FWRG</div><div class="name">First Watch Restaurant Group</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$12.21</div><div class="l">Price</div></div><div class="metric"><div class="v neg">-6.72%</div><div class="l">Gap</div></div><div class="metric"><div class="v">52</div><div class="l">Score</div></div></div>
+    <div class="news-block">Strong recovery (+22%) but heavily below MA200 (-22%). Negative gap suggests profit-taking. Probability ~38%.</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">PSKY</div><div class="name">Paramount Skydance</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$11.13</div><div class="l">Price</div></div><div class="metric"><div class="v pos">+0.36%</div><div class="l">Gap</div></div><div class="metric"><div class="v">51</div><div class="l">Score</div></div></div>
+    <div class="news-block">Below MA200 (-16%); weak trend. Probability ~37%.</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">EVGO</div><div class="name">EVgo — EV Charging</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$2.17</div><div class="l">Price</div></div><div class="metric"><div class="v neu">0.00%</div><div class="l">Gap</div></div><div class="metric"><div class="v">49</div><div class="l">Score</div></div></div>
+    <div class="news-block">Severe long-term downtrend (-33% vs MA200). Probability ~35%.</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">OFIX</div><div class="name">Orthofix Medical</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$12.01</div><div class="l">Price</div></div><div class="metric"><div class="v pos">+0.84%</div><div class="l">Gap</div></div><div class="metric"><div class="v">48</div><div class="l">Score</div></div></div>
+    <div class="news-block">Below MA200, weak volume and trend. Probability ~35%.</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">GPK</div><div class="name">Graphic Packaging</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$9.56</div><div class="l">Price</div></div><div class="metric"><div class="v neg">-1.44%</div><div class="l">Gap</div></div><div class="metric"><div class="v">44</div><div class="l">Score</div></div></div>
+    <div class="news-block">Severe downtrend (-34% vs MA200), structurally bearish. Probability ~32%.</div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="ticker-block"><div class="ticker">PTLO</div><div class="name">Portillo's</div></div><div class="grade-badge grade-D">D</div></div>
+    <div class="price-row"><div class="metric"><div class="v">$5.72</div><div class="l">Price</div></div><div class="metric"><div class="v neg">-11.86%</div><div class="l">Gap</div></div><div class="metric"><div class="v">41</div><div class="l">Score</div></div></div>
+    <div class="news-block">Severe gap-down post earnings; below all key MAs. Avoid. Probability ~28%.</div>
+  </div>
+</div>
+
+<h2 class="section">Trade Plan Sample (Top Pick: PLOW)</h2>
+<table class="compact">
+  <tr><th>Parameter</th><th>Value</th></tr>
+  <tr><td>Entry Trigger</td><td>$44.50 - $45.50 on volume confirmation; or break above $46.20</td></tr>
+  <tr><td>Stop Loss</td><td>$43.00 (≈ -3.5%, below recent 50-day MA support)</td></tr>
+  <tr><td>Profit Target 1</td><td>$48.50 (+8%, recent high resistance)</td></tr>
+  <tr><td>Profit Target 2</td><td>$51.00 (+14%, extension target)</td></tr>
+  <tr><td>Risk/Reward</td><td>1 : 2.3</td></tr>
+  <tr><td>Position Size</td><td>0.75% account risk; 1-2% portfolio max</td></tr>
+  <tr><td>Holding Period</td><td>2-10 trading days (swing)</td></tr>
+</table>
+
+<div class="disclaimer">
+  <strong>Disclaimer:</strong> This analysis is for educational purposes only and is not investment advice. Earnings trading involves substantial risk of loss. Past performance is not indicative of future results. Always conduct your own due diligence and use proper position sizing and risk management. Backtest scoring uses historical statistical patterns that may not predict any individual trade outcome. Universe of 60 stocks was screened; 15 were prioritized for in-depth scoring. No A-grade setups identified today — overall market presents a challenging earnings tape with frequent post-print pullbacks.
+</div>
+</div>
+</body>
+</html>
