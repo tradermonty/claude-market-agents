@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis | 2026-05-06</title>
+<style>
+  :root {
+    --bg-primary: #0b1220;
+    --bg-card: #15203a;
+    --bg-card-hover: #1a2849;
+    --border: #243156;
+    --text-primary: #e6edf7;
+    --text-secondary: #9aa7c2;
+    --accent: #3b82f6;
+    --accent-light: #60a5fa;
+    --grade-a: #10b981;
+    --grade-b: #3b82f6;
+    --grade-c: #f59e0b;
+    --grade-d: #ef4444;
+    --positive: #10b981;
+    --negative: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%);
+    color: var(--text-primary);
+    line-height: 1.55;
+    padding: 24px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1240px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 32px 16px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  header h1 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  header .subtitle { color: var(--text-secondary); font-size: 1rem; }
+  header .timestamp { color: var(--text-secondary); font-size: 0.85rem; margin-top: 6px; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .summary-card .num { font-size: 2.2rem; font-weight: 700; }
+  .summary-card .label { color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px; }
+  .summary-card.a .num { color: var(--grade-a); }
+  .summary-card.b .num { color: var(--grade-b); }
+  .summary-card.c .num { color: var(--grade-c); }
+  .summary-card.d .num { color: var(--grade-d); }
+
+  h2 {
+    font-size: 1.35rem;
+    margin: 32px 0 16px;
+    padding-left: 12px;
+    border-left: 4px solid var(--accent);
+  }
+
+  table.dashboard {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    font-size: 0.9rem;
+  }
+  table.dashboard th, table.dashboard td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  table.dashboard th {
+    background: rgba(59, 130, 246, 0.12);
+    font-weight: 600;
+    color: var(--accent-light);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  table.dashboard tr:hover { background: var(--bg-card-hover); }
+  .grade-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+  .grade-pill.a { background: rgba(16,185,129,0.15); color: var(--grade-a); }
+  .grade-pill.b { background: rgba(59,130,246,0.15); color: var(--grade-b); }
+  .grade-pill.c { background: rgba(245,158,11,0.15); color: var(--grade-c); }
+  .grade-pill.d { background: rgba(239,68,68,0.15); color: var(--grade-d); }
+  .pos { color: var(--positive); }
+  .neg { color: var(--negative); }
+  .num-mono { font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace; }
+
+  .stocks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 18px;
+  }
+  .stock-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.2s ease;
+  }
+  .stock-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .stock-card.grade-a { border-left: 4px solid var(--grade-a); }
+  .stock-card.grade-b { border-left: 4px solid var(--grade-b); }
+  .stock-card.grade-c { border-left: 4px solid var(--grade-c); }
+  .stock-card.grade-d { border-left: 4px solid var(--grade-d); }
+  .stock-card .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .stock-card .ticker { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+  .stock-card .company { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; }
+  .stock-card .score-block { text-align: right; }
+  .stock-card .score { font-size: 1.6rem; font-weight: 700; }
+  .stock-card .stars { font-size: 0.8rem; }
+
+  .price-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .price-row .label { color: var(--text-secondary); font-size: 0.85rem; }
+  .price-row .val { font-weight: 600; }
+
+  .components { margin: 14px 0; }
+  .component {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 0.85rem;
+  }
+  .component .label-c { color: var(--text-secondary); }
+  .bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    margin: 0 10px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 3px; }
+  .bar-fill.high { background: linear-gradient(90deg, #10b981, #34d399); }
+  .bar-fill.mid { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .bar-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+  .summary-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .disclaimer {
+    margin-top: 40px;
+    padding: 16px 20px;
+    background: rgba(245, 158, 11, 0.08);
+    border-left: 3px solid var(--grade-c);
+    border-radius: 6px;
+    font-size: 0.83rem;
+    color: var(--text-secondary);
+  }
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+    <div class="subtitle">Yesterday after-hours and today pre-market earnings | Backtest-Scored</div>
+    <div class="timestamp">Report date: 2026-05-06 (Wednesday) | Generated 09:00 ET</div>
+  </header>
+
+  <div class="summary-grid">
+    <div class="summary-card a">
+      <div class="num">1</div>
+      <div class="label">A-Grade (85+)</div>
+    </div>
+    <div class="summary-card b">
+      <div class="num">7</div>
+      <div class="label">B-Grade (70-84)</div>
+    </div>
+    <div class="summary-card c">
+      <div class="num">11</div>
+      <div class="label">C-Grade (55-69)</div>
+    </div>
+    <div class="summary-card d">
+      <div class="num">1</div>
+      <div class="label">D-Grade (≤54)</div>
+    </div>
+  </div>
+
+  <h2>Summary Dashboard - Top 20 Earnings Movers</h2>
+  <table class="dashboard">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Ticker</th>
+        <th>Company</th>
+        <th>Price</th>
+        <th>Gap %</th>
+        <th>20D Trend</th>
+        <th>Vol Ratio</th>
+        <th>MA50</th>
+        <th>MA200</th>
+        <th>Score</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>SSSS</strong></td><td>SuRo Capital</td><td class="num-mono">$13.35</td><td class="num-mono pos">+0.30%</td><td class="num-mono pos">+20.2%</td><td class="num-mono pos">110.6%</td><td class="num-mono pos">+18.2%</td><td class="num-mono pos">+37.4%</td><td><strong>85.0</strong></td><td><span class="grade-pill a">A</span></td></tr>
+      <tr><td>2</td><td><strong>PRM</strong></td><td>Perimeter Solutions</td><td class="num-mono">$32.00</td><td class="num-mono pos">+6.03%</td><td class="num-mono pos">+21.3%</td><td class="num-mono">93.7%</td><td class="num-mono pos">+25.1%</td><td class="num-mono pos">+31.4%</td><td><strong>82.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>3</td><td><strong>FLYW</strong></td><td>Flywire Corp.</td><td class="num-mono">$16.58</td><td class="num-mono pos">+14.11%</td><td class="num-mono pos">+22.1%</td><td class="num-mono">98.5%</td><td class="num-mono pos">+29.6%</td><td class="num-mono pos">+27.6%</td><td><strong>77.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>4</td><td><strong>JAZZ</strong></td><td>Jazz Pharma</td><td class="num-mono">$224.16</td><td class="num-mono pos">+5.61%</td><td class="num-mono pos">+13.6%</td><td class="num-mono">96.6%</td><td class="num-mono pos">+16.5%</td><td class="num-mono pos">+42.0%</td><td><strong>76.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>5</td><td><strong>CVS</strong></td><td>CVS Health</td><td class="num-mono">$85.32</td><td class="num-mono pos">+5.74%</td><td class="num-mono pos">+10.1%</td><td class="num-mono">90.9%</td><td class="num-mono pos">+10.9%</td><td class="num-mono pos">+12.4%</td><td><strong>76.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>6</td><td><strong>OSS</strong></td><td>One Stop Systems</td><td class="num-mono">$11.19</td><td class="num-mono pos">+14.53%</td><td class="num-mono pos">+26.6%</td><td class="num-mono">80.7%</td><td class="num-mono pos">+22.8%</td><td class="num-mono pos">+53.4%</td><td><strong>73.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>7</td><td><strong>OSCR</strong></td><td>Oscar Health</td><td class="num-mono">$19.82</td><td class="num-mono pos">+10.48%</td><td class="num-mono pos">+40.6%</td><td class="num-mono">84.2%</td><td class="num-mono pos">+36.6%</td><td class="num-mono pos">+23.8%</td><td><strong>73.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>8</td><td><strong>APO</strong></td><td>Apollo Global</td><td class="num-mono">$134.65</td><td class="num-mono pos">+3.34%</td><td class="num-mono pos">+22.8%</td><td class="num-mono">78.4%</td><td class="num-mono pos">+17.8%</td><td class="num-mono pos">+3.4%</td><td><strong>72.0</strong></td><td><span class="grade-pill b">B</span></td></tr>
+      <tr><td>9</td><td><strong>TBLA</strong></td><td>Taboola.com</td><td class="num-mono">$4.39</td><td class="num-mono pos">+15.22%</td><td class="num-mono pos">+16.2%</td><td class="num-mono">74.7%</td><td class="num-mono pos">+29.8%</td><td class="num-mono pos">+22.3%</td><td><strong>67.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>10</td><td><strong>YOU</strong></td><td>Clear Secure</td><td class="num-mono">$59.00</td><td class="num-mono pos">+0.39%</td><td class="num-mono pos">+13.5%</td><td class="num-mono">78.4%</td><td class="num-mono pos">+16.4%</td><td class="num-mono pos">+54.7%</td><td><strong>67.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>11</td><td><strong>MRCY</strong></td><td>Mercury Systems</td><td class="num-mono">$84.93</td><td class="num-mono pos">+2.37%</td><td class="num-mono pos">+9.5%</td><td class="num-mono">90.6%</td><td class="num-mono pos">+4.8%</td><td class="num-mono pos">+10.8%</td><td><strong>66.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>12</td><td><strong>ITT</strong></td><td>ITT Inc.</td><td class="num-mono">$221.61</td><td class="num-mono pos">+4.19%</td><td class="num-mono pos">+9.6%</td><td class="num-mono">83.8%</td><td class="num-mono pos">+9.9%</td><td class="num-mono pos">+20.1%</td><td><strong>64.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>13</td><td><strong>EXEL</strong></td><td>Exelixis</td><td class="num-mono">$45.49</td><td class="num-mono pos">+2.41%</td><td class="num-mono pos">+1.0%</td><td class="num-mono">91.5%</td><td class="num-mono pos">+5.0%</td><td class="num-mono pos">+9.1%</td><td><strong>63.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>14</td><td><strong>NBIX</strong></td><td>Neurocrine Bio</td><td class="num-mono">$141.24</td><td class="num-mono pos">+4.58%</td><td class="num-mono pos">+2.0%</td><td class="num-mono">94.5%</td><td class="num-mono pos">+8.1%</td><td class="num-mono pos">+2.8%</td><td><strong>62.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>15</td><td><strong>ATRC</strong></td><td>AtriCure</td><td class="num-mono">$30.50</td><td class="num-mono pos">+3.78%</td><td class="num-mono pos">+0.7%</td><td class="num-mono pos">110.9%</td><td class="num-mono pos">+4.1%</td><td class="num-mono neg">-11.8%</td><td><strong>62.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>16</td><td><strong>SMCI</strong></td><td>Super Micro</td><td class="num-mono">$31.19</td><td class="num-mono pos">+12.07%</td><td class="num-mono pos">+26.2%</td><td class="num-mono">87.6%</td><td class="num-mono pos">+13.0%</td><td class="num-mono neg">-16.7%</td><td><strong>61.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>17</td><td><strong>RPRX</strong></td><td>Royalty Pharma</td><td class="num-mono">$51.00</td><td class="num-mono pos">+1.11%</td><td class="num-mono pos">+6.6%</td><td class="num-mono">89.6%</td><td class="num-mono pos">+7.1%</td><td class="num-mono pos">+25.1%</td><td><strong>59.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>18</td><td><strong>PTGX</strong></td><td>Protagonist Tx</td><td class="num-mono">$106.60</td><td class="num-mono pos">+7.45%</td><td class="num-mono neg">-3.6%</td><td class="num-mono">88.3%</td><td class="num-mono pos">+7.3%</td><td class="num-mono pos">+32.5%</td><td><strong>58.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>19</td><td><strong>VCYT</strong></td><td>Veracyte</td><td class="num-mono">$37.77</td><td class="num-mono pos">+14.56%</td><td class="num-mono pos">+2.0%</td><td class="num-mono">82.8%</td><td class="num-mono pos">+13.3%</td><td class="num-mono pos">+5.8%</td><td><strong>58.0</strong></td><td><span class="grade-pill c">C</span></td></tr>
+      <tr><td>20</td><td><strong>FRPT</strong></td><td>Freshpet</td><td class="num-mono">$63.29</td><td class="num-mono pos">+5.19%</td><td class="num-mono pos">+2.0%</td><td class="num-mono">73.5%</td><td class="num-mono neg">-8.1%</td><td class="num-mono pos">+1.1%</td><td><strong>54.0</strong></td><td><span class="grade-pill d">D</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>A-Grade Picks (Highest Probability Setups)</h2>
+  <div class="stocks-grid">
+    <!-- SSSS -->
+    <div class="stock-card grade-a">
+      <div class="head">
+        <div>
+          <div class="ticker">SSSS</div>
+          <div class="company">SuRo Capital Corp.</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-a);">85.0</div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+          <span class="grade-pill a">A-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$13.35</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+0.30%</span></div>
+      <div class="price-row"><span class="label">Pre-Earnings 20D Trend</span><span class="val num-mono pos">+20.23%</span></div>
+      <div class="price-row"><span class="label">Volume Ratio (20D/60D)</span><span class="val num-mono pos">110.6%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+18.2% / +37.4%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap (25%)</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">Trend (30%)</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">Volume (20%)</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA200 (15%)</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50 (10%)</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> SuRo Capital reported Q1 2026 financials yesterday after close.
+        BDC with strong asset trajectory; very small gap but underlying technicals are pristine across all five factors.<br>
+        <strong>Probability of upside:</strong> ~70% over next 2-10 days.<br>
+        <strong>Tactical:</strong> Long bias on pullback to $13.10 prior breakout shelf; stop $12.85; target $14.40. Light position size given low liquidity.
+      </div>
+    </div>
+  </div>
+
+  <h2>B-Grade Picks (High-Quality Setups)</h2>
+  <div class="stocks-grid">
+    <!-- PRM -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">PRM</div>
+          <div class="company">Perimeter Solutions Inc.</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">82.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$32.00</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+6.03%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+21.25%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">93.7%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+25.1% / +31.4%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> Perimeter Solutions reported Q1 pre-market today (5/6).
+        Specialty chemicals/firefighting plays into wildfire season. 20-day trend is the best in the cohort (+21%).<br>
+        <strong>Probability of upside:</strong> ~62%.<br>
+        <strong>Tactical:</strong> Buy pullbacks to $30.50; stop $29.20 (below 5-day low); first target $34.00.
+      </div>
+    </div>
+
+    <!-- FLYW -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">FLYW</div>
+          <div class="company">Flywire Corporation</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">77.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$16.58</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+14.11%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+22.10%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">98.5%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+29.6% / +27.6%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> Flywire Q1 2026 earnings beat (AP wire snapshot).
+        Stock has been trending up steadily ahead of earnings; 14% gap is the borderline "too hot" zone but stronger trend supports follow-through.<br>
+        <strong>Probability of upside:</strong> ~60%.<br>
+        <strong>Tactical:</strong> Avoid chasing the open; wait for 5-min consolidation. Buy $15.80 retest; stop $15.20; target $17.80.
+      </div>
+    </div>
+
+    <!-- JAZZ -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">JAZZ</div>
+          <div class="company">Jazz Pharmaceuticals plc</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">76.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$224.16</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+5.61%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+13.60%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">96.6%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+16.5% / +42.0%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:80%"></div></div><span>4/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> Jazz Q1 2026 (AP snapshot). Strong leukemia/oncology franchise; well above MA200 with steady accumulation since February gap-up.<br>
+        <strong>Probability of upside:</strong> ~60%.<br>
+        <strong>Tactical:</strong> Buy retest of $218; stop $214; first target $232. Larger market-cap so cleaner execution.
+      </div>
+    </div>
+
+    <!-- CVS -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">CVS</div>
+          <div class="company">CVS Health Corporation</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">76.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$85.32</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+5.74%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+10.11%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">90.9%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+10.9% / +12.4%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:80%"></div></div><span>4/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> Pre-market today: Q1 EPS beat, FY26 guidance raised, biosimilar formulary expansion. Multiple wires confirm strong quarter and positive industry read-through.<br>
+        <strong>Probability of upside:</strong> ~62%.<br>
+        <strong>Tactical:</strong> Highest-conviction liquid name on the list. Buy $84.30 pullback; stop $82.40; first target $89, runner $92.
+      </div>
+    </div>
+
+    <!-- OSS -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">OSS</div>
+          <div class="company">One Stop Systems Inc.</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">73.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$11.19</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+14.53%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+26.55%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">80.7%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+22.8% / +53.4%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> Edge AI compute / defense compute play. Aggressive 20D trend, but volume drying up suggests breakout fatigue.<br>
+        <strong>Probability of upside:</strong> ~55%.<br>
+        <strong>Tactical:</strong> Smaller size. Buy only on high-volume confirmation above $11.40; stop $10.40; target $12.50.
+      </div>
+    </div>
+
+    <!-- OSCR -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">OSCR</div>
+          <div class="company">Oscar Health Inc.</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">73.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$19.82</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+10.48%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+40.60%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">84.2%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+36.6% / +23.8%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> CVS read-through favorable for managed-care/Medicare Advantage names. OSCR up ~40% in 20 days already - extended.<br>
+        <strong>Probability of upside:</strong> ~55%.<br>
+        <strong>Tactical:</strong> Late-stage entry risk. Trim into $20.50; only add on $19.40 retest with stop $18.60.
+      </div>
+    </div>
+
+    <!-- APO -->
+    <div class="stock-card grade-b">
+      <div class="head">
+        <div>
+          <div class="ticker">APO</div>
+          <div class="company">Apollo Global Management</div>
+        </div>
+        <div class="score-block">
+          <div class="score" style="color: var(--grade-b);">72.0</div>
+          <div class="stars">⭐⭐⭐⭐</div>
+          <span class="grade-pill b">B-Grade</span>
+        </div>
+      </div>
+      <div class="price-row"><span class="label">Price</span><span class="val num-mono">$134.65</span></div>
+      <div class="price-row"><span class="label">Gap</span><span class="val num-mono pos">+3.34%</span></div>
+      <div class="price-row"><span class="label">20D Trend</span><span class="val num-mono pos">+22.80%</span></div>
+      <div class="price-row"><span class="label">Vol Ratio</span><span class="val num-mono">78.4%</span></div>
+      <div class="price-row"><span class="label">MA50 / MA200</span><span class="val num-mono pos">+17.8% / +3.4%</span></div>
+      <div class="components">
+        <div class="component"><span class="label-c">Gap</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">Trend</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+        <div class="component"><span class="label-c">Volume</span><div class="bar"><div class="bar-fill mid" style="width:40%"></div></div><span>2/5</span></div>
+        <div class="component"><span class="label-c">MA200</span><div class="bar"><div class="bar-fill mid" style="width:60%"></div></div><span>3/5</span></div>
+        <div class="component"><span class="label-c">MA50</span><div class="bar"><div class="bar-fill high" style="width:100%"></div></div><span>5/5</span></div>
+      </div>
+      <div class="summary-text">
+        <strong>Earnings Result:</strong> Apollo Global Q1 - alternative-asset manager benefiting from credit spread compression and new fund inflows.
+        Has reclaimed MA200 with momentum.<br>
+        <strong>Probability of upside:</strong> ~60%.<br>
+        <strong>Tactical:</strong> Buy $132.50; stop $129; target $142. Liquid and clean for swing.
+      </div>
+    </div>
+  </div>
+
+  <h2>Position Sizing & Risk Framework</h2>
+  <table class="dashboard">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Entry Zone</th>
+        <th>Stop</th>
+        <th>Target 1</th>
+        <th>Risk per Share</th>
+        <th>Suggested Sizing</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>SSSS</strong></td><td>$13.10</td><td>$12.85</td><td>$14.40</td><td class="num-mono">$0.25</td><td>0.5% portfolio risk</td></tr>
+      <tr><td><strong>PRM</strong></td><td>$30.50</td><td>$29.20</td><td>$34.00</td><td class="num-mono">$1.30</td><td>0.5% portfolio risk</td></tr>
+      <tr><td><strong>FLYW</strong></td><td>$15.80</td><td>$15.20</td><td>$17.80</td><td class="num-mono">$0.60</td><td>0.5% portfolio risk</td></tr>
+      <tr><td><strong>JAZZ</strong></td><td>$218.00</td><td>$214.00</td><td>$232.00</td><td class="num-mono">$4.00</td><td>0.75% portfolio risk</td></tr>
+      <tr><td><strong>CVS</strong></td><td>$84.30</td><td>$82.40</td><td>$89.00</td><td class="num-mono">$1.90</td><td>1.0% portfolio risk</td></tr>
+      <tr><td><strong>OSS</strong></td><td>$11.40 confirm</td><td>$10.40</td><td>$12.50</td><td class="num-mono">$1.00</td><td>0.25% portfolio risk</td></tr>
+      <tr><td><strong>OSCR</strong></td><td>$19.40</td><td>$18.60</td><td>$21.20</td><td class="num-mono">$0.80</td><td>0.5% portfolio risk</td></tr>
+      <tr><td><strong>APO</strong></td><td>$132.50</td><td>$129.00</td><td>$142.00</td><td class="num-mono">$3.50</td><td>0.75% portfolio risk</td></tr>
+    </tbody>
+  </table>
+
+  <div class="disclaimer">
+    <strong>Risk Disclaimer:</strong> This report is for educational and informational purposes only and is not investment advice.
+    Earnings-driven gap-up trades are highly volatile and can reverse violently. Always size positions based on portfolio risk
+    (recommended 0.25-1.0% account risk per setup), use hard stops, and never average down on losing trades. Backtest grades
+    represent historical probabilities, not forward guarantees. Past performance does not predict future results.
+  </div>
+  <footer>
+    Powered by Finviz Earnings Trading Screener + Alpaca Bars + FMP. Generated 2026-05-06 09:00 ET.
+  </footer>
+</div>
+</body>
+</html>
