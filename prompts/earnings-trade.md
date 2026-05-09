@@ -33,7 +33,7 @@ finviz:earnings_trading_screener()
 
 **Fixed filter conditions applied by the screener (read-only — do not attempt to override):**
 
-- Market cap: **Mid+ ($2B or higher)** (`cap_midover`)
+- Market cap: **Large+ ($10B or higher)** (`cap_largeover`)
 - Earnings: yesterday after-hours OR today pre-market (`earningsdate_yesterdayafter|todaybefore`)
 - EPS forecast: upward revision (`fa_epsrev_ep`)
 - **Net margin: 3% or higher** (`fa_netmargin_3to`)
@@ -45,7 +45,7 @@ finviz:earnings_trading_screener()
 - Sorted by EPS surprise descending (`o=-epssurprise`)
 - Max results: 60
 
-This filter intentionally excludes small/micro caps, low-priced stocks (< $30), and unprofitable companies. **Do not augment screener results from other sources** — analyze only the tickers returned by `earnings_trading_screener()`.
+This filter intentionally excludes small/mid caps, low-priced stocks (< $30), and unprofitable companies. **Do not augment screener results from other sources** — analyze only the tickers returned by `earnings_trading_screener()`.
 
 If no earnings stocks are found for either after-hours or pre-market periods, report "No stocks available for earnings trading." Returning fewer than 60 stocks (including zero) is normal and expected when the filter conditions are strict.
 
