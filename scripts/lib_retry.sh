@@ -102,9 +102,14 @@ _run_with_timeout() {
 # ---------------------------------------------------------------------------
 _file_mtime() {
     local path="$1"
-    stat -f %m "$path" 2>/dev/null \
-        || stat -c %Y "$path" 2>/dev/null \
-        || echo 0
+    # GNU stat (Linux) accepts -c %Y but interprets -f as filesystem-info
+    # mode and prints a multi-line summary while still exiting 0. So we must
+    # detect the platform up front rather than rely on a fallback chain.
+    if [ "$(uname)" = "Darwin" ]; then
+        stat -f %m "$path" 2>/dev/null || echo 0
+    else
+        stat -c %Y "$path" 2>/dev/null || echo 0
+    fi
 }
 
 # ---------------------------------------------------------------------------
