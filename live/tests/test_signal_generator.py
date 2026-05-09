@@ -24,7 +24,6 @@ from live.signal_generator import (
     _skipped_trades_to_dicts,
     _strict_parse_json,
     _sync_positions_from_alpaca,
-    _validate_against_html,
     generate_signals,
 )
 from live.state_db import StateDB
@@ -99,12 +98,25 @@ def _mock_alpaca_client(positions=None, clock_date="2026-02-17"):
     return client
 
 
-def _write_fake_report(tmp_dir, report_date="2026-02-14", candidates=None):
-    """Write a minimal HTML report that EarningsReportParser can parse.
+def _write_fake_report(
+    tmp_dir,
+    report_date="2026-02-14",
+    candidates=None,
+    *,
+    write_json=True,
+    json_override=None,
+):
+    """Write a minimal HTML report and matching JSON candidates file.
 
     Each candidate is a 4- or 5-tuple:
         (ticker, score, grade, price) -> gap_size defaults to 5.0
         (ticker, score, grade, price, gap_size)
+
+    HTML is retained for backward compatibility with existing tests; the
+    runtime path now reads the JSON exclusively.
+
+    write_json=False: skip JSON generation (simulates JSON-missing scenario).
+    json_override: dict written verbatim as JSON (for schema-violation tests).
     """
     if candidates is None:
         candidates = [("CRDO", 92, "A", 80.0), ("PLTR", 78, "B", 35.0)]
@@ -143,6 +155,38 @@ def _write_fake_report(tmp_dir, report_date="2026-02-14", candidates=None):
     filepath = os.path.join(tmp_dir, filename)
     with open(filepath, "w") as f:
         f.write(html)
+
+    if write_json:
+        json_filename = f"earnings_trade_candidates_{report_date}.json"
+        json_filepath = os.path.join(tmp_dir, json_filename)
+        if json_override is not None:
+            payload = json_override
+        else:
+            json_candidates = []
+            for c in candidates:
+                if len(c) == 5:
+                    ticker, score, grade, price, gap_size = c
+                else:
+                    ticker, score, grade, price = c
+                    gap_size = 5.0
+                json_candidates.append(
+                    {
+                        "ticker": ticker,
+                        "grade": grade,
+                        "score": float(score),
+                        "price": float(price),
+                        "gap_size": float(gap_size),
+                        "company_name": f"{ticker} Inc.",
+                    }
+                )
+            payload = {
+                "report_date": report_date,
+                "generated_at": f"{report_date}T06:00:00-05:00",
+                "candidates": json_candidates,
+            }
+        with open(json_filepath, "w") as f:
+            json.dump(payload, f)
+
     return filepath
 
 
@@ -1664,33 +1708,6 @@ class TestE2EPipeline:
             assert entry["grade"] in ("A", "B", "C", "D")
         assert ema["price_validation_failed"] is False
 
-    def test_html_to_signals_e2e(self, db, config, price_fetcher):
-        """HTML report only (no JSON) -> candidate extraction -> entries with qty > 0."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            report = _write_fake_report(
-                tmp_dir,
-                report_date="2026-02-19",
-                candidates=[
-                    ("CRDO", 92, "A", 80.0),
-                    ("PLTR", 78, "B", 35.0),
-                ],
-            )
-            result = generate_signals(
-                config=config,
-                state_db=db,
-                alpaca_client=None,
-                price_fetcher=price_fetcher,
-                report_file=report,
-                output_dir=os.path.join(tmp_dir, "signals"),
-                trade_date="2026-02-19",
-                run_id="test-e2e-html",
-            )
-
-        ema = result["ema_p10"]
-        assert len(ema["entries"]) >= 1
-        for entry in ema["entries"]:
-            assert entry["qty"] > 0
-
     def test_executor_compatible_output(self, db, config, price_fetcher):
         """Generated signal JSON matches executor expected format."""
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -1741,53 +1758,21 @@ class TestDeriveJsonPath:
         assert result == str(tmp_path / "earnings_trade_candidates_2026-02-17.json")
 
 
-class TestJsonPriorityParsing:
-    """JSON file takes priority over HTML parsing."""
+class TestJsonSchemaValidation:
+    """JSON candidates file is the single source of truth.
 
-    def test_json_preferred_over_html(self, db, config, price_fetcher):
-        """When JSON exists, candidates should come from JSON (grade_source='json')."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            # Write HTML report — price must match JSON (within $0.05)
-            report = _write_fake_report(
-                tmp_dir,
-                report_date="2026-02-19",
-                candidates=[("TS", 80, "B", 52.86)],
-            )
-            # Write JSON candidates (with higher score)
-            json_data = {
-                "report_date": "2026-02-19",
-                "candidates": [{"ticker": "TS", "grade": "A", "score": 90, "price": 52.86}],
-            }
-            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
-            with open(json_path, "w") as f:
-                json.dump(json_data, f)
+    Missing or schema-violating JSON blocks entries (price_validation_failed=True)
+    while exits keep running.
+    """
 
-            result = generate_signals(
-                config=config,
-                state_db=db,
-                alpaca_client=None,
-                price_fetcher=price_fetcher,
-                report_file=report,
-                output_dir=os.path.join(tmp_dir, "signals"),
-                trade_date="2026-02-19",
-                run_id="test-json-prio",
-            )
-
-        ema = result["ema_p10"]
-        # Should use JSON data (score=90, grade=A) not HTML (score=80, grade=B)
-        entries = ema["entries"]
-        assert len(entries) >= 1
-        ts_entry = next(e for e in entries if e["ticker"] == "TS")
-        assert ts_entry["score"] == 90
-        assert ts_entry["grade"] == "A"
-
-    def test_html_fallback_when_no_json(self, db, config, price_fetcher):
-        """When no JSON exists, HTML parsing still works."""
+    def test_json_missing_blocks_entries(self, db, config, price_fetcher):
+        """No JSON file → entries blocked, exits flow still runs."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
                 report_date="2026-02-19",
                 candidates=[("TS", 80, "B", 50.0)],
+                write_json=False,
             )
             result = generate_signals(
                 config=config,
@@ -1797,43 +1782,293 @@ class TestJsonPriorityParsing:
                 report_file=report,
                 output_dir=os.path.join(tmp_dir, "signals"),
                 trade_date="2026-02-19",
-                run_id="test-html-fallback",
-            )
-
-        ema = result["ema_p10"]
-        entries = ema["entries"]
-        assert len(entries) >= 1
-        ts_entry = next(e for e in entries if e["ticker"] == "TS")
-        assert ts_entry["score"] == 80
-
-    def test_json_empty_html_nonempty_blocks_entries(self, db, config, price_fetcher):
-        """JSON empty + HTML non-empty = validation failure, entries blocked."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            report = _write_fake_report(
-                tmp_dir,
-                report_date="2026-02-19",
-                candidates=[("TS", 80, "B", 50.0)],
-            )
-            # Write empty JSON candidates
-            json_data = {"report_date": "2026-02-19", "candidates": []}
-            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
-            with open(json_path, "w") as f:
-                json.dump(json_data, f)
-
-            result = generate_signals(
-                config=config,
-                state_db=db,
-                alpaca_client=None,
-                price_fetcher=price_fetcher,
-                report_file=report,
-                output_dir=os.path.join(tmp_dir, "signals"),
-                trade_date="2026-02-19",
-                run_id="test-empty-json",
+                run_id="test-json-missing",
             )
 
         ema = result["ema_p10"]
         assert ema["price_validation_failed"] is True
-        assert len(ema["entries"]) == 0
+        assert ema["entries"] == []
+
+    def test_json_empty_candidates_ok(self, db, config, price_fetcher):
+        """Empty candidates list (no-stocks day) → no validation failure."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-empty-ok",
+            )
+
+        ema = result["ema_p10"]
+        assert ema["price_validation_failed"] is False
+        assert ema["entries"] == []
+
+    def test_json_invalid_grade_blocks(self, db, config, price_fetcher):
+        """grade='E' (not in {A,B,C,D}) → block entries."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "TS", "grade": "E", "score": 80, "price": 50.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-bad-grade",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["ema_p10"]["entries"] == []
+
+    def test_json_invalid_ticker_blocks(self, db, config, price_fetcher):
+        """ticker='$$$' (regex mismatch) → block."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "$$$", "grade": "B", "score": 80, "price": 50.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-bad-ticker",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_dollar_prefix_ticker_blocks(self, db, config, price_fetcher):
+        """ticker='$AAPL' (loose parser would silently strip) → block in strict mode."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("AAPL", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "$AAPL", "grade": "B", "score": 80, "price": 50.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-dollar-prefix",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_lowercase_grade_blocks(self, db, config, price_fetcher):
+        """grade='a' (loose parser would silently uppercase) → block in strict mode."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "TS", "grade": "a", "score": 80, "price": 50.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-lower-grade",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_negative_price_blocks(self, db, config, price_fetcher):
+        """price=-1.0 → loose parser drops, strict raises."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "TS", "grade": "B", "score": 80, "price": -1.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-neg-price",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_score_out_of_range_blocks(self, db, config, price_fetcher):
+        """score=150 (>100) → block."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "TS", "grade": "B", "score": 150, "price": 50.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-bad-score",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_duplicate_ticker_blocks(self, db, config, price_fetcher):
+        """Same ticker twice → block."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [
+                        {"ticker": "TS", "grade": "B", "score": 80, "price": 50.0},
+                        {"ticker": "TS", "grade": "A", "score": 90, "price": 51.0},
+                    ],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-dup-ticker",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_string_score_blocks(self, db, config, price_fetcher):
+        """score='80' (string, would coerce in loose parser) → block in strict mode."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [{"ticker": "TS", "grade": "B", "score": "80", "price": 50.0}],
+                },
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-str-score",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
+
+    def test_json_nan_price_blocks(self, db, config, price_fetcher):
+        """price=NaN → block (math.isfinite check)."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                report_date="2026-02-19",
+                candidates=[("TS", 80, "B", 50.0)],
+                json_override={
+                    "report_date": "2026-02-19",
+                    "candidates": [
+                        {
+                            "ticker": "TS",
+                            "grade": "B",
+                            "score": 80,
+                            "price": float("nan"),
+                        }
+                    ],
+                },
+            )
+            # json.dump won't write NaN by default; use allow_nan=True via override
+            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
+            with open(json_path, "w") as f:
+                json.dump(
+                    {
+                        "report_date": "2026-02-19",
+                        "candidates": [
+                            {
+                                "ticker": "TS",
+                                "grade": "B",
+                                "score": 80,
+                                "price": float("nan"),
+                            }
+                        ],
+                    },
+                    f,
+                    allow_nan=True,
+                )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-19",
+                run_id="test-nan-price",
+            )
+
+        assert result["ema_p10"]["price_validation_failed"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -2466,101 +2701,6 @@ class TestStrictParseJson:
 
 
 # ---------------------------------------------------------------------------
-# Cross-validation tests
-# ---------------------------------------------------------------------------
-
-
-class TestValidateAgainstHtml:
-    """Tests for _validate_against_html."""
-
-    def test_both_empty_passes(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[])
-        _validate_against_html([], report)  # should not raise
-
-    def test_all_match_passes(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
-        _validate_against_html(json_candidates, report)  # should not raise
-
-    def test_price_mismatch_raises(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=200.0)]
-        with pytest.raises(PriceValidationError, match="AAPL"):
-            _validate_against_html(json_candidates, report)
-
-    def test_html_missing_ticker_raises(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
-        json_candidates = [
-            _make_candidate("AAPL", score=90, grade="A", price=150.0),
-            _make_candidate("GOOG", score=80, grade="B", price=100.0),
-        ]
-        with pytest.raises(PriceValidationError, match="JSON-only"):
-            _validate_against_html(json_candidates, report)
-
-    def test_json_omission_raises(self, tmp_path):
-        report = _write_fake_report(
-            str(tmp_path),
-            candidates=[("AAPL", 90, "A", 150.0), ("GOOG", 80, "B", 100.0)],
-        )
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
-        with pytest.raises(PriceValidationError, match="JSON omission"):
-            _validate_against_html(json_candidates, report)
-
-    def test_html_no_price_raises(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
-        # Patch the HTML candidate to have None price
-        with (
-            patch(
-                "live.signal_generator.EarningsReportParser.parse_single_report",
-                return_value=[_make_candidate("AAPL", price=None)],
-            ),
-            pytest.raises(PriceValidationError, match="HTML price is None"),
-        ):
-            _validate_against_html(json_candidates, report)
-
-    def test_json_nonempty_html_empty_raises(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[])
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
-        with pytest.raises(PriceValidationError, match="HTML empty"):
-            _validate_against_html(json_candidates, report)
-
-    def test_json_empty_html_nonempty_raises(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
-        with pytest.raises(PriceValidationError, match="JSON empty"):
-            _validate_against_html([], report)
-
-    def test_html_io_error_raises(self, tmp_path):
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
-        with (
-            patch(
-                "live.signal_generator.EarningsReportParser.parse_single_report",
-                side_effect=FileNotFoundError("No such file"),
-            ),
-            pytest.raises(PriceValidationError, match="HTML parse failed"),
-        ):
-            _validate_against_html(json_candidates, "/nonexistent/report.html")
-
-    def test_duplicate_ticker_in_json_raises(self, tmp_path):
-        report = _write_fake_report(str(tmp_path), candidates=[("AAPL", 90, "A", 150.0)])
-        json_candidates = [
-            _make_candidate("AAPL", score=90, grade="A", price=150.0),
-            _make_candidate("AAPL", score=85, grade="A", price=150.0),
-        ]
-        with pytest.raises(PriceValidationError, match="Duplicate tickers in JSON"):
-            _validate_against_html(json_candidates, report)
-
-    def test_duplicate_ticker_in_html_raises(self, tmp_path):
-        report = _write_fake_report(
-            str(tmp_path),
-            candidates=[("AAPL", 90, "A", 150.0), ("AAPL", 85, "A", 150.0)],
-        )
-        json_candidates = [_make_candidate("AAPL", score=90, grade="A", price=150.0)]
-        with pytest.raises(PriceValidationError, match="Duplicate tickers in HTML"):
-            _validate_against_html(json_candidates, report)
-
-
-# ---------------------------------------------------------------------------
 # qty guard tests
 # ---------------------------------------------------------------------------
 
@@ -2797,38 +2937,6 @@ class TestFailClosedIntegration:
         assert len(ema["entries"]) == 0
         # Exits structure should still be present (empty since no positions)
         assert isinstance(ema["exits"], list)
-
-    def test_price_mismatch_exits_continue(self, db, config, price_fetcher):
-        """Price mismatch -> entries blocked, exit still works."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            # HTML has price=80, JSON has price=200 -> mismatch
-            report = _write_fake_report(
-                tmp_dir,
-                report_date="2026-02-19",
-                candidates=[("CRDO", 92, "A", 80.0)],
-            )
-            json_data = {
-                "report_date": "2026-02-19",
-                "candidates": [{"ticker": "CRDO", "grade": "A", "score": 92, "price": 200.0}],
-            }
-            json_path = os.path.join(tmp_dir, "earnings_trade_candidates_2026-02-19.json")
-            with open(json_path, "w") as f:
-                json.dump(json_data, f)
-
-            result = generate_signals(
-                config=config,
-                state_db=db,
-                alpaca_client=None,
-                price_fetcher=price_fetcher,
-                report_file=report,
-                output_dir=os.path.join(tmp_dir, "signals"),
-                trade_date="2026-02-19",
-                run_id="test-mismatch",
-            )
-
-        ema = result["ema_p10"]
-        assert ema["price_validation_failed"] is True
-        assert len(ema["entries"]) == 0
 
     def test_validation_failed_flag_in_both_signals(self, db, config, price_fetcher):
         """price_validation_failed=True appears in both ema_p10 and nwl_p4."""

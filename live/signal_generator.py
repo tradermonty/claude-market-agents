@@ -9,6 +9,7 @@ execution path and the nwl_p4 shadow tracking path.
 import argparse
 import json
 import logging
+import math
 import os
 import re
 import sys
@@ -17,8 +18,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from backtest.entry_filter import apply_entry_quality_filter
-from backtest.html_parser import EarningsReportParser, TradeCandidate
-from backtest.json_parser import parse_candidates_json
+from backtest.html_parser import TradeCandidate  # dataclass shared; runtime parser unused
+from backtest.json_parser import TICKER_RE as _TICKER_RE
+from backtest.json_parser import VALID_GRADES, parse_candidates_json
 from backtest.price_fetcher import PriceFetcherProtocol
 from backtest.trade_simulator import SkippedTrade
 from live.alpaca_client import AlpacaClient
@@ -44,7 +46,7 @@ LIVE_SCORE_THRESHOLD = 85
 
 
 class PriceValidationError(Exception):
-    """Raised when JSON/HTML price cross-validation fails."""
+    """Raised when JSON candidates fail strict schema validation."""
 
 
 class KillSwitchError(Exception):
@@ -656,10 +658,12 @@ def _calculate_stop_price(price: float, stop_loss_pct: float) -> float:
 
 
 def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
-    """Load JSON candidates with strict validation.
+    """Load JSON candidates with strict schema validation.
 
-    Raises PriceValidationError on any structural issue instead of
-    silently returning an empty list.
+    Validates raw types and values before delegating to the loose parser,
+    so that silent normalizations (e.g. "$AAPL" -> "AAPL", "a" -> "A",
+    str-coerced numbers) are rejected. Also detects duplicate tickers.
+    Raises PriceValidationError on any violation.
     """
     try:
         with open(json_path, encoding="utf-8") as f:
@@ -676,6 +680,54 @@ def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
     if not isinstance(raw_candidates, list):
         raise PriceValidationError("No 'candidates' list in JSON")
 
+    # Raw type AND raw value pre-validation. Catches anything the loose
+    # parser would silently fix up.
+    for i, entry in enumerate(raw_candidates):
+        if not isinstance(entry, dict):
+            raise PriceValidationError(f"candidate[{i}] is not an object")
+
+        # String fields must be strings
+        for field in ("ticker", "grade", "company_name"):
+            if field in entry and not isinstance(entry[field], str):
+                raise PriceValidationError(
+                    f"candidate[{i}].{field} not string: {type(entry.get(field)).__name__}"
+                )
+
+        # Number fields: reject bool (isinstance(True, int) is True), require finite
+        for field in ("score", "price"):
+            v = entry.get(field)
+            if v is None:
+                continue
+            if isinstance(v, bool) or not isinstance(v, (int, float)):
+                raise PriceValidationError(f"candidate[{i}].{field} not number: {type(v).__name__}")
+            if not math.isfinite(v):
+                raise PriceValidationError(f"candidate[{i}].{field} not finite: {v}")
+
+        # gap_size: optional, but if present must be finite number
+        gs = entry.get("gap_size")
+        if gs is not None:
+            if isinstance(gs, bool) or not isinstance(gs, (int, float)):
+                raise PriceValidationError(f"candidate[{i}].gap_size not number/null")
+            if not math.isfinite(gs):
+                raise PriceValidationError(f"candidate[{i}].gap_size not finite: {gs}")
+
+        # Ticker raw-value: must already be uppercase, no $ prefix, no whitespace
+        t = entry.get("ticker")
+        if isinstance(t, str):
+            if t != t.strip() or t.startswith("$"):
+                raise PriceValidationError(
+                    f"candidate[{i}].ticker has whitespace or $ prefix: {t!r}"
+                )
+            if not _TICKER_RE.match(t):
+                raise PriceValidationError(f"candidate[{i}].ticker does not match regex: {t!r}")
+
+        # Grade raw-value: must already be one of A/B/C/D (no lowercase)
+        g = entry.get("grade")
+        if isinstance(g, str) and g not in VALID_GRADES:
+            raise PriceValidationError(
+                f"candidate[{i}].grade must be exactly one of {sorted(VALID_GRADES)}: {g!r}"
+            )
+
     total_raw = len(raw_candidates)
     candidates = parse_candidates_json(json_path)
 
@@ -683,72 +735,13 @@ def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
         dropped = total_raw - len(candidates)
         raise PriceValidationError(f"Dropped {dropped}/{total_raw} candidates during parse")
 
+    # Duplicate ticker detection (loose parser does not collapse duplicates)
+    tickers = [c.ticker for c in candidates]
+    duplicates = sorted({t for t in tickers if tickers.count(t) > 1})
+    if duplicates:
+        raise PriceValidationError(f"Duplicate tickers in JSON: {duplicates}")
+
     return candidates
-
-
-def _validate_against_html(json_candidates: List[TradeCandidate], html_path: str) -> None:
-    """Cross-validate JSON candidates against HTML report.
-
-    Raises PriceValidationError on any mismatch.
-    """
-    try:
-        html_candidates = EarningsReportParser().parse_single_report(html_path)
-    except Exception as e:
-        raise PriceValidationError(f"HTML parse failed: {e}") from e
-
-    json_tickers = [c.ticker for c in json_candidates]
-    html_tickers = [c.ticker for c in html_candidates]
-
-    # Both empty = no-stocks day → OK
-    if not json_candidates and not html_candidates:
-        return
-
-    errors: List[str] = []
-
-    # Duplicate ticker check
-    json_dupes = [t for t in json_tickers if json_tickers.count(t) > 1]
-    html_dupes = [t for t in html_tickers if html_tickers.count(t) > 1]
-    if json_dupes:
-        errors.append(f"Duplicate tickers in JSON: {set(json_dupes)}")
-    if html_dupes:
-        errors.append(f"Duplicate tickers in HTML: {set(html_dupes)}")
-
-    json_ticker_set = set(json_tickers)
-    html_ticker_set = set(html_tickers)
-
-    # One side empty, other not
-    if not json_candidates and html_candidates:
-        errors.append(f"JSON empty but HTML has {len(html_candidates)} candidates")
-    if json_candidates and not html_candidates:
-        errors.append(f"JSON has {len(json_candidates)} candidates but HTML empty")
-
-    # Ticker set mismatch
-    json_only = json_ticker_set - html_ticker_set
-    html_only = html_ticker_set - json_ticker_set
-    if json_only:
-        errors.append(f"JSON-only tickers (not in HTML): {json_only}")
-    if html_only:
-        errors.append(f"HTML-only tickers (JSON omission): {html_only}")
-
-    # Price comparison (integer cents to avoid float rounding)
-    html_prices = {c.ticker: c.price for c in html_candidates}
-    for jc in json_candidates:
-        if jc.ticker not in html_prices:
-            continue  # already caught by ticker set check
-        hp = html_prices[jc.ticker]
-        if hp is None:
-            errors.append(f"{jc.ticker}: HTML price is None")
-            continue
-        if jc.price is None:
-            errors.append(f"{jc.ticker}: JSON price is None")
-            continue
-        jp_cents = round(jc.price * 100)
-        hp_cents = round(hp * 100)
-        if abs(jp_cents - hp_cents) > 5:  # > $0.05
-            errors.append(f"{jc.ticker}: JSON=${jc.price} vs HTML=${hp}")
-
-    if errors:
-        raise PriceValidationError(f"{len(errors)} validation error(s): " + "; ".join(errors))
 
 
 def generate_signals(
@@ -772,27 +765,24 @@ def generate_signals(
         logger.error("Kill switch is ON. Aborting signal generation.")
         raise KillSwitchError("Kill switch is ON")
 
-    # 2. Parse report -- prefer JSON (strict), fall back to HTML (legacy)
+    # 2. Parse report -- JSON is the single source of truth. No HTML fallback.
     json_path = _derive_json_path(report_file)
     candidates: List[TradeCandidate] = []
     price_validation_failed = False
 
-    if json_path and os.path.exists(json_path):
-        # JSON exists → strict mode, no HTML fallback
+    if not json_path or not os.path.exists(json_path):
+        logger.critical("JSON candidates file missing: %s", json_path)
+        logger.critical("Entry/rotation will be blocked. Exits will continue.")
+        price_validation_failed = True
+    else:
         try:
             candidates = _strict_parse_json(json_path)
-            _validate_against_html(candidates, report_file)
-            logger.info("Validated %d candidates (JSON+HTML cross-check passed)", len(candidates))
+            logger.info("Loaded %d validated candidates from JSON", len(candidates))
         except PriceValidationError as e:
-            logger.critical("PRICE VALIDATION FAILED: %s", e)
+            logger.critical("JSON SCHEMA VALIDATION FAILED: %s", e)
             logger.critical("Entry/rotation will be blocked. Exits will continue.")
             candidates = []  # block all entries
             price_validation_failed = True
-    else:
-        # No JSON → HTML fallback (legacy path)
-        parser = EarningsReportParser()
-        candidates = parser.parse_single_report(report_file)
-        logger.info("Parsed %d candidates from HTML: %s", len(candidates), report_file)
 
     # 3. Filter by min_grade (skip if validation failed — candidates already empty)
     quality_skipped: List[SkippedTrade] = []
@@ -1344,6 +1334,16 @@ def main() -> None:
     parser.add_argument(
         "--dry-run", action="store_true", help="No DB writes (shadow updates still execute)"
     )
+    parser.add_argument(
+        "--trade-date",
+        default=None,
+        help="Override trade date (YYYY-MM-DD). Default: derive from Alpaca clock or today.",
+    )
+    parser.add_argument(
+        "--no-alpaca",
+        action="store_true",
+        help="Skip Alpaca client construction (offline test mode; bypasses reconciliation).",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging")
     args = parser.parse_args()
 
@@ -1366,7 +1366,9 @@ def main() -> None:
 
     # Create clients
     alpaca_client = None
-    if alpaca_key and alpaca_secret:
+    if args.no_alpaca:
+        logger.info("Alpaca disabled via --no-alpaca")
+    elif alpaca_key and alpaca_secret:
         alpaca_client = AlpacaClient(alpaca_key, alpaca_secret, config.alpaca_base_url)
     else:
         logger.warning("Alpaca keys not found; skipping reconciliation")
@@ -1377,8 +1379,11 @@ def main() -> None:
 
     state_db = StateDB(args.state_db)
 
-    # Get trade date from Alpaca clock or use today
-    if alpaca_client:
+    # Resolve trade date: CLI override > Alpaca clock > today
+    if args.trade_date:
+        trade_date = args.trade_date
+        logger.info("Trade date overridden via --trade-date: %s", trade_date)
+    elif alpaca_client:
         clock = alpaca_client.get_clock()
         # Alpaca clock timestamp is in ISO format
         trade_date = clock.get("timestamp", "")[:10]
