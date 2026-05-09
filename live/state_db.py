@@ -174,15 +174,18 @@ class StateDB:
                 conn.commit()
                 logger.info("Migrated orders table: added planned_stop_price column")
 
-            # Add unique index for open positions
+            # Add unique index for open positions. Best-effort: SQLite versions
+            # without partial-index support (or where the index already exists)
+            # would otherwise abort initialization, so the bandit B110 warning
+            # for try/except/pass is intentional here.
             try:
                 conn.execute(
                     "CREATE UNIQUE INDEX IF NOT EXISTS idx_positions_open_ticker_date "
                     "ON positions(ticker, entry_date) WHERE exit_date IS NULL"
                 )
                 conn.commit()
-            except Exception:
-                pass  # Index may already exist or partial index not supported
+            except Exception:  # nosec B110 - best-effort index, see comment above
+                pass
 
     @contextmanager
     def _connect(self):

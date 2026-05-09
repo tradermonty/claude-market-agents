@@ -108,7 +108,27 @@ jobs:
         run: bandit -c pyproject.toml -r backtest/ live/
 
       - name: pip-audit dependency scan
-        run: pip-audit --desc on
+        # Known-accepted vulnerabilities — track each via a follow-up upgrade
+        # ticket and remove from this list once addressed.
+        # pillow:    used only by mplfinance/matplotlib for chart rendering
+        # pygments:  used in docs only
+        # pytest:    dev tool, /tmp permission DoS only
+        # pip:       dev/CI bootstrap tool
+        # python-dotenv: only set_key()/unset_key() are vulnerable; we don't call them
+        # requests:  only extract_zipped_paths() is vulnerable; we don't call it
+        run: |
+          pip-audit --desc on \
+            --ignore-vuln CVE-2026-40192 \
+            --ignore-vuln CVE-2026-42308 \
+            --ignore-vuln CVE-2026-42309 \
+            --ignore-vuln CVE-2026-42310 \
+            --ignore-vuln CVE-2026-42311 \
+            --ignore-vuln CVE-2026-3219 \
+            --ignore-vuln CVE-2026-6357 \
+            --ignore-vuln CVE-2026-4539 \
+            --ignore-vuln CVE-2025-71176 \
+            --ignore-vuln CVE-2026-28684 \
+            --ignore-vuln CVE-2026-25645
 
   code-quality:
     name: Code Quality

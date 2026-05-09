@@ -141,7 +141,7 @@ def run_single(
 
     # Simulate trades
     if getattr(args, "max_positions", None) is not None:
-        sim = PortfolioSimulator(
+        portfolio_sim = PortfolioSimulator(
             max_positions=args.max_positions,
             position_size=args.position_size,
             stop_loss_pct=args.stop_loss,
@@ -156,9 +156,9 @@ def run_single(
             data_end_date=getattr(args, "data_end_date", None),
             enable_rotation=not getattr(args, "no_rotation", False),
         )
-        trades, skipped = sim.simulate_portfolio(filtered_candidates, price_data)
+        trades, skipped = portfolio_sim.simulate_portfolio(filtered_candidates, price_data)
     else:
-        sim = TradeSimulator(
+        trade_sim = TradeSimulator(
             position_size=args.position_size,
             stop_loss_pct=args.stop_loss,
             slippage_pct=args.slippage,
@@ -172,7 +172,7 @@ def run_single(
             trailing_transition_weeks=getattr(args, "trailing_transition_weeks", 3),
             data_end_date=getattr(args, "data_end_date", None),
         )
-        trades, skipped = sim.simulate_all(filtered_candidates, price_data)
+        trades, skipped = trade_sim.simulate_all(filtered_candidates, price_data)
 
     # Merge VIX-skipped into skipped list for metrics
     all_skipped = vix_skipped + skipped

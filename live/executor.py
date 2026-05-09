@@ -59,9 +59,17 @@ def _send_kill_switch_alert(
     ~1.5 months, so this function exists primarily to surface that event
     promptly to a human operator.
     """
-    import subprocess
+    import subprocess  # nosec B404 - used to invoke our own send_report.py
     from pathlib import Path
 
+    # The remediation example below contains UPDATE/WHERE keywords for the
+    # operator to copy/paste into sqlite3; it is not executed by this code.
+    # The bandit B608 warning on this string concatenation is a false positive.
+    sql_remediation_example = (  # nosec B608 - operator instruction, not executed
+        '  sqlite3 live/state.db "UPDATE system_config '
+        "SET value='false', updated_at=datetime('now') "
+        "WHERE key='kill_switch';\""
+    )
     alert_text = (
         f"KILL SWITCH activated automatically by executor.py at "
         f"{datetime.now().isoformat()}.\n\n"
@@ -71,16 +79,16 @@ def _send_kill_switch_alert(
         f"(UNPROTECTED — manual stop placement required).\n\n"
         f"Until kill_switch is set back to false in live/state.db, all "
         f"daily entry generation will halt. Re-enable with:\n"
-        f'  sqlite3 live/state.db "UPDATE system_config '
-        f"SET value='false', updated_at=datetime('now') "
-        f"WHERE key='kill_switch';\""
+        f"{sql_remediation_example}"
     )
     send_script = Path(__file__).resolve().parent.parent / "scripts" / "send_report.py"
     if not send_script.exists():
         logger.error("Kill-switch alert email skipped: %s missing", send_script)
         return
     try:
-        subprocess.run(
+        # All argv elements are constants or sourced from this module's own
+        # state, never untrusted user input.
+        subprocess.run(  # nosec B603 - hardcoded argv, no shell, trusted inputs
             [
                 "/opt/homebrew/bin/python3.11",
                 str(send_script),
@@ -110,7 +118,7 @@ def _is_duplicate_order_error(e: Exception) -> bool:
         # Alpaca error codes: 40910000 = "order already exists"
         code = body.get("code")
         if code is not None:
-            return code == 40910000
+            return bool(code == 40910000)
         # code absent -> fall back to message
         msg = body.get("message", "").lower()
         return "already exists" in msg or "duplicate" in msg
@@ -130,7 +138,7 @@ def _is_order_not_cancelable(e: requests.HTTPError) -> bool:
         # Alpaca error codes: 42210000 = "order is not cancelable"
         code = body.get("code")
         if code is not None:
-            return code == 42210000
+            return bool(code == 42210000)
         # code absent -> fall back to message
         msg = body.get("message", "").lower()
         return "not cancelable" in msg or "already filled" in msg
