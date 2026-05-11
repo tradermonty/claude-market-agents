@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis — 2026-05-11</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-2: #273449;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --good: #22c55e;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+    --neutral: #64748b;
+    --a-grade: #22c55e;
+    --b-grade: #38bdf8;
+    --c-grade: #f59e0b;
+    --d-grade: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  header {
+    padding: 32px 24px 16px;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 2rem;
+    color: var(--accent);
+    letter-spacing: 0.3px;
+  }
+  header .sub {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px;
+    border-left: 4px solid var(--accent);
+  }
+  .stat-card .label { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 6px; }
+  .legend {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+  }
+  .legend strong { color: var(--accent); }
+  .grade-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 6px;
+  }
+  .grade-A { background: rgba(34,197,94,0.15); color: var(--a-grade); border: 1px solid var(--a-grade); }
+  .grade-B { background: rgba(56,189,248,0.15); color: var(--b-grade); border: 1px solid var(--b-grade); }
+  .grade-C { background: rgba(245,158,11,0.15); color: var(--c-grade); border: 1px solid var(--c-grade); }
+  .grade-D { background: rgba(239,68,68,0.15); color: var(--d-grade); border: 1px solid var(--d-grade); }
+
+  .stock-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border-left: 6px solid var(--neutral);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  .stock-card.A-grade { border-left-color: var(--a-grade); }
+  .stock-card.B-grade { border-left-color: var(--b-grade); }
+  .stock-card.C-grade { border-left-color: var(--c-grade); }
+  .stock-card.D-grade { border-left-color: var(--d-grade); }
+
+  .stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stock-title h2 { margin: 0; font-size: 1.5rem; }
+  .stock-title .name { color: var(--muted); font-size: 0.95rem; }
+  .stock-meta { text-align: right; }
+  .stock-meta .price { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .stock-meta .gap { font-size: 0.9rem; color: var(--good); }
+  .stock-meta .gap.down { color: var(--bad); }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .metric {
+    background: var(--card-2);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .metric .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .metric .value { font-size: 1.1rem; font-weight: 600; margin-top: 4px; }
+
+  .score-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin: 14px 0;
+  }
+  @media (max-width: 700px) {
+    .score-row { grid-template-columns: 1fr; }
+  }
+  .score-breakdown {
+    background: var(--card-2);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .score-breakdown h4 { margin: 0 0 10px; color: var(--accent); font-size: 0.95rem; }
+  .score-bar { margin: 8px 0; }
+  .score-bar .top { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+  .bar { background: #0f172a; border-radius: 4px; height: 8px; overflow: hidden; }
+  .bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--good)); }
+  .total-score {
+    background: var(--card-2);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .total-score .num { font-size: 2.6rem; font-weight: 700; line-height: 1; }
+  .total-score .stars { letter-spacing: 2px; margin-top: 6px; }
+
+  .analysis-section {
+    background: var(--card-2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 14px;
+  }
+  .analysis-section h4 { margin: 0 0 8px; color: var(--accent); font-size: 0.95rem; }
+  .analysis-section p { margin: 4px 0; color: var(--text); font-size: 0.92rem; }
+  .analysis-section ul { margin: 6px 0; padding-left: 20px; }
+  .analysis-section li { font-size: 0.92rem; }
+
+  .risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    font-size: 0.9rem;
+  }
+  .risk-table th, .risk-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #334155;
+  }
+  .risk-table th { color: var(--muted); font-weight: 600; }
+
+  footer {
+    text-align: center;
+    padding: 28px 24px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid #334155;
+    margin-top: 32px;
+  }
+  .disclaimer {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .pos-good { color: var(--good); }
+  .pos-warn { color: var(--warn); }
+  .pos-bad  { color: var(--bad); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report Date: 2026-05-11 (Monday) &middot; Generated 06:05 ET &middot; US Earnings Trading Setup</div>
+</header>
+
+<div class="container">
+
+  <div class="dashboard">
+    <div class="stat-card"><div class="label">Stocks Screened</div><div class="value">4</div></div>
+    <div class="stat-card" style="border-left-color: var(--a-grade);"><div class="label">A-Grade</div><div class="value">0</div></div>
+    <div class="stat-card" style="border-left-color: var(--b-grade);"><div class="label">B-Grade</div><div class="value">0</div></div>
+    <div class="stat-card" style="border-left-color: var(--c-grade);"><div class="label">C-Grade</div><div class="value">3</div></div>
+    <div class="stat-card" style="border-left-color: var(--d-grade);"><div class="label">D-Grade</div><div class="value">1</div></div>
+  </div>
+
+  <div class="legend">
+    <strong>Scoring rubric:</strong> 5-element weighted score &mdash; Gap Size (25%), Pre-Earnings Trend (30%), Volume (20%), MA200 (15%), MA50 (10%).
+    Grades: <span class="grade-badge grade-A">A 85+</span> <span class="grade-badge grade-B">B 70-84</span> <span class="grade-badge grade-C">C 55-69</span> <span class="grade-badge grade-D">D &lt;55</span>
+    &nbsp;|&nbsp; <strong>Universe:</strong> Finviz earnings_trading_screener (Large-cap $10B+, Net Margin 3%+, Price $30+, EPS revised up).
+  </div>
+
+  <!-- FOX (C-grade, top score) -->
+  <div class="stock-card C-grade">
+    <div class="stock-header">
+      <div class="stock-title">
+        <h2>FOX <span class="grade-badge grade-C">C-Grade</span></h2>
+        <div class="name">Fox Corporation (Class B) &middot; Media / Broadcasting</div>
+      </div>
+      <div class="stock-meta">
+        <div class="price">$59.55</div>
+        <div class="gap">Gap-Up: +5.21%</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric"><div class="label">Gap Size</div><div class="value pos-good">+5.21%</div></div>
+      <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos-good">+3.06%</div></div>
+      <div class="metric"><div class="label">Volume Ratio (20/60)</div><div class="value pos-bad">55.9%</div></div>
+      <div class="metric"><div class="label">vs MA20</div><div class="value pos-good">+4.15%</div></div>
+      <div class="metric"><div class="label">vs MA50</div><div class="value pos-good">+8.73%</div></div>
+      <div class="metric"><div class="label">vs MA200</div><div class="value pos-good">+5.00%</div></div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-breakdown">
+        <h4>5-Element Score Breakdown</h4>
+        <div class="score-bar"><div class="top"><span>Gap Size (25%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Pre-Earnings Trend (30%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Volume Trend (20%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA200 (15%)</span><span>4/5</span></div><div class="bar"><div class="fill" style="width:80%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA50 (10%)</span><span>4/5</span></div><div class="bar"><div class="fill" style="width:80%"></div></div></div>
+      </div>
+      <div class="total-score">
+        <div class="num">61</div>
+        <div class="stars">&#9733;&#9733;&#9733;</div>
+        <div style="color: var(--muted); font-size: 0.8rem; margin-top: 6px;">Est. 40-54% win rate</div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <h4>News Analysis (Earnings Summary)</h4>
+      <ul>
+        <li>Q3 FY26 revenue $3.99B; net income $175M; adjusted EBITDA $954M.</li>
+        <li>Revenue softer year-over-year due to absence of Super Bowl broadcast in comparable quarter.</li>
+        <li>Cable network advertising and affiliate fees offset linear ad softness.</li>
+        <li>Management reiterated focus on Tubi (FAST) growth and live-sports rights strategy.</li>
+      </ul>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Technical Factors &amp; Position Plan</h4>
+      <p>Above all three MAs with bullish stacking (MA20 &lt; MA50 still being repaired but MA200 supportive). Volume is the weakest element — 20-day average is only ~56% of the 60-day baseline, signaling muted institutional participation into the print.</p>
+      <table class="risk-table">
+        <tr><th>Entry</th><td>$59.20 - $59.80 (post-open base or low-of-day reclaim)</td></tr>
+        <tr><th>Stop-Loss</th><td>$57.10 (-4.1%, below MA20 and prior-day high)</td></tr>
+        <tr><th>Target 1</th><td>$62.50 (+5.0%, prior April swing high zone)</td></tr>
+        <tr><th>Target 2</th><td>$64.50 (+8.3%, FOXA-aligned resistance)</td></tr>
+        <tr><th>Position Size</th><td>0.5R (small) - C-grade with weak volume</td></tr>
+      </table>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Probability Estimate</h4>
+      <p><strong>Success probability: ~48%</strong> &mdash; Best gap of the screen with solid technical alignment, but earnings miss on revenue (absence of Super Bowl), and below-average pre-earnings volume cap conviction. Reaction-driven trade, not a structural setup.</p>
+    </div>
+  </div>
+
+  <!-- FOXA -->
+  <div class="stock-card C-grade">
+    <div class="stock-header">
+      <div class="stock-title">
+        <h2>FOXA <span class="grade-badge grade-C">C-Grade</span></h2>
+        <div class="name">Fox Corporation (Class A, voting) &middot; Media / Broadcasting</div>
+      </div>
+      <div class="stock-meta">
+        <div class="price">$65.03</div>
+        <div class="gap">Gap-Up: +3.32%</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric"><div class="label">Gap Size</div><div class="value pos-good">+3.32%</div></div>
+      <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos-good">+3.15%</div></div>
+      <div class="metric"><div class="label">Volume Ratio (20/60)</div><div class="value pos-bad">69.9%</div></div>
+      <div class="metric"><div class="label">vs MA20</div><div class="value pos-good">+2.18%</div></div>
+      <div class="metric"><div class="label">vs MA50</div><div class="value pos-good">+7.12%</div></div>
+      <div class="metric"><div class="label">vs MA200</div><div class="value pos-good">+3.36%</div></div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-breakdown">
+        <h4>5-Element Score Breakdown</h4>
+        <div class="score-bar"><div class="top"><span>Gap Size (25%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Pre-Earnings Trend (30%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Volume Trend (20%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA200 (15%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA50 (10%)</span><span>4/5</span></div><div class="bar"><div class="fill" style="width:80%"></div></div></div>
+      </div>
+      <div class="total-score">
+        <div class="num">58</div>
+        <div class="stars">&#9733;&#9733;&#9733;</div>
+        <div style="color: var(--muted); font-size: 0.8rem; margin-top: 6px;">Est. 40-54% win rate</div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <h4>News Analysis (Earnings Summary)</h4>
+      <ul>
+        <li>Same Q3 FY26 print as FOX (consolidated): $3.99B revenue, $954M adjusted EBITDA.</li>
+        <li>Voting Class A trades at a small premium to FOX; gap is materially smaller (+3.3% vs +5.2%).</li>
+        <li>EPS revision upward (per screener filter); details: see WSJ/AP/PR Newswire (08:00-08:31 ET).</li>
+        <li>Murdoch family share-class dynamics keep institutional flows split between FOXA &amp; FOX.</li>
+      </ul>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Technical Factors &amp; Position Plan</h4>
+      <p>FOXA closed Friday at $62.94 with an upward 20-day drift (+3.15%) and all MAs trending. The +3.3% gap is shallow vs FOX (+5.2%), implying the move may be partially arbitraged at the open. MA50 deviation (+7.1%) is the highest among MAs, hinting at slight extension.</p>
+      <table class="risk-table">
+        <tr><th>Entry</th><td>$64.80 - $65.30 (gap-fill bounce or VWAP reclaim)</td></tr>
+        <tr><th>Stop-Loss</th><td>$62.80 (-3.4%, below Friday close / MA20)</td></tr>
+        <tr><th>Target 1</th><td>$67.50 (+3.8%, April $65.81 high extension)</td></tr>
+        <tr><th>Target 2</th><td>$69.00 (+6.1%, gap-close to YTD highs)</td></tr>
+        <tr><th>Position Size</th><td>0.5R (small) - C-grade, prefer FOX class shares for cleaner gap</td></tr>
+      </table>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Probability Estimate</h4>
+      <p><strong>Success probability: ~45%</strong> &mdash; Solid technical backdrop but smaller gap reduces the post-earnings drift edge. Volume base ~70% of historical 60-day signals waning institutional engagement; prefer FOX for sharper momentum capture.</p>
+    </div>
+  </div>
+
+  <!-- B (Barrick) -->
+  <div class="stock-card C-grade">
+    <div class="stock-header">
+      <div class="stock-title">
+        <h2>B <span class="grade-badge grade-C">C-Grade</span></h2>
+        <div class="name">Barrick Mining Corporation &middot; Basic Materials / Gold</div>
+      </div>
+      <div class="stock-meta">
+        <div class="price">$44.42</div>
+        <div class="gap">Gap-Up: +2.99%</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric"><div class="label">Gap Size</div><div class="value pos-good">+2.99%</div></div>
+      <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos-warn">-0.96%</div></div>
+      <div class="metric"><div class="label">Volume Ratio (20/60)</div><div class="value pos-bad">84.4%</div></div>
+      <div class="metric"><div class="label">vs MA20</div><div class="value pos-good">+8.00%</div></div>
+      <div class="metric"><div class="label">vs MA50</div><div class="value pos-good">+6.22%</div></div>
+      <div class="metric"><div class="label">vs MA200</div><div class="value pos-good">+16.26%</div></div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-breakdown">
+        <h4>5-Element Score Breakdown</h4>
+        <div class="score-bar"><div class="top"><span>Gap Size (25%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Pre-Earnings Trend (30%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Volume Trend (20%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA200 (15%)</span><span>5/5</span></div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA50 (10%)</span><span>4/5</span></div><div class="bar"><div class="fill" style="width:80%"></div></div></div>
+      </div>
+      <div class="total-score">
+        <div class="num">58</div>
+        <div class="stars">&#9733;&#9733;&#9733;</div>
+        <div style="color: var(--muted); font-size: 0.8rem; margin-top: 6px;">Est. 40-54% win rate</div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <h4>News Analysis (Earnings Summary)</h4>
+      <ul>
+        <li>Q1 2026 earnings beat estimates on strong gold output.</li>
+        <li><strong>$3.0B share repurchase authorization announced</strong> &mdash; major capital-return catalyst.</li>
+        <li>Q1 dividend declared (quarterly cadence).</li>
+        <li>GreenLight Metals JV announcement at Kalium Canyon project (Nevada) adds exploration optionality.</li>
+      </ul>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Technical Factors &amp; Position Plan</h4>
+      <p>Strong recovery off mid-March lows ($37 area) with last week showing a multi-day push from $38.34 to $43.13 (+12.5%) on accelerating volume. MA200 deviation +16.26% is the strongest of the cohort but flags potential overextension. Pre-earnings trend slightly negative due to mid-period correction; momentum is now resuming.</p>
+      <table class="risk-table">
+        <tr><th>Entry</th><td>$44.10 - $44.60 (post-open consolidation, reclaim VWAP)</td></tr>
+        <tr><th>Stop-Loss</th><td>$42.20 (-5.0%, below MA20 and Friday low)</td></tr>
+        <tr><th>Target 1</th><td>$46.50 (+4.7%, prior swing zone)</td></tr>
+        <tr><th>Target 2</th><td>$48.50 (+9.2%, late-Feb breakdown level retest)</td></tr>
+        <tr><th>Position Size</th><td>0.75R - C-grade but with buyback catalyst</td></tr>
+      </table>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Probability Estimate</h4>
+      <p><strong>Success probability: ~55%</strong> &mdash; The $3B buyback is a multi-week tailwind that can blunt downside. Gold-sector momentum supports the macro backdrop. MA200 extension (+16%) is the main risk; expect mean-reversion attempts. Best risk/reward of the four despite C-grade score.</p>
+    </div>
+  </div>
+
+  <!-- CEG -->
+  <div class="stock-card D-grade">
+    <div class="stock-header">
+      <div class="stock-title">
+        <h2>CEG <span class="grade-badge grade-D">D-Grade</span></h2>
+        <div class="name">Constellation Energy Corporation &middot; Utilities / Nuclear</div>
+      </div>
+      <div class="stock-meta">
+        <div class="price">$308.60</div>
+        <div class="gap">Gap-Up: +1.64%</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric"><div class="label">Gap Size</div><div class="value pos-warn">+1.64%</div></div>
+      <div class="metric"><div class="label">Pre-Earn 20d Trend</div><div class="value pos-good">+5.98%</div></div>
+      <div class="metric"><div class="label">Volume Ratio (20/60)</div><div class="value pos-bad">85.9%</div></div>
+      <div class="metric"><div class="label">vs MA20</div><div class="value pos-good">+1.65%</div></div>
+      <div class="metric"><div class="label">vs MA50</div><div class="value pos-good">+2.35%</div></div>
+      <div class="metric"><div class="label">vs MA200</div><div class="value pos-bad">-5.62%</div></div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-breakdown">
+        <h4>5-Element Score Breakdown</h4>
+        <div class="score-bar"><div class="top"><span>Gap Size (25%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Pre-Earnings Trend (30%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>Volume Trend (20%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA200 (15%)</span><span>2/5</span></div><div class="bar"><div class="fill" style="width:40%"></div></div></div>
+        <div class="score-bar"><div class="top"><span>MA50 (10%)</span><span>3/5</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+      </div>
+      <div class="total-score">
+        <div class="num">48</div>
+        <div class="stars">&#9733;&#9733;</div>
+        <div style="color: var(--muted); font-size: 0.8rem; margin-top: 6px;">Est. &lt;40% win rate</div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <h4>News Analysis (Earnings Summary)</h4>
+      <ul>
+        <li>Q1 2026 profit and revenue topped estimates (Investing.com 07:37 ET).</li>
+        <li><strong>Outlook capped the rally</strong> &mdash; Barron's headline notes guidance is reining in upside (08:03 ET).</li>
+        <li>Friday saw a sharp -2.5% sell-off ($321 → $303), suggesting prior leak / hedging.</li>
+        <li>Below 200-day MA (-5.6%) flags a broken intermediate trend.</li>
+      </ul>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Technical Factors &amp; Position Plan</h4>
+      <p>The beat-and-cautious-guide structure typically produces a sell-the-news pattern. Pre-earnings 20-day trend (+5.98%) was healthy but Friday's -2.5% candle into earnings already showed distribution. Trading below MA200 is the single biggest red flag for a gap-up trade. <strong>Avoid until/unless price reclaims MA200 (~$327).</strong></p>
+      <table class="risk-table">
+        <tr><th>Recommendation</th><td><strong>Skip / wait for confirmation</strong></td></tr>
+        <tr><th>If trading: Entry</th><td>$310 reclaim of pre-market high with rising volume</td></tr>
+        <tr><th>Stop-Loss</th><td>$298 (-3.8%, below Friday low)</td></tr>
+        <tr><th>Target</th><td>$320 (+3.7%, gap-fill from 5/7 candle)</td></tr>
+        <tr><th>Position Size</th><td>0.25R only if forced; default = NO trade</td></tr>
+      </table>
+    </div>
+
+    <div class="analysis-section">
+      <h4>Probability Estimate</h4>
+      <p><strong>Success probability: ~32%</strong> &mdash; Classic "beat but guidance disappoints" pattern with confirming Friday weakness. Below MA200. Premarket strength likely to fade. Most attractive on the short side if price loses $300.</p>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> This analysis is for educational and informational purposes only and does not constitute investment, financial, or trading advice. Earnings trades carry elevated risk including gap reversals, illiquidity, and overnight exposure. Always do your own research and size positions according to your personal risk budget. Past performance and backtest scores do not guarantee future results. Stops are non-negotiable.
+  </div>
+
+</div>
+
+<footer>
+  Earnings Trade Analyzer &middot; Generated 2026-05-11 06:05 ET &middot; Data sources: Finviz, Alpaca, FMP
+</footer>
+
+</body>
+</html>
