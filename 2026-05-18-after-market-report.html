@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-05-18</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0d1b2a 0%, #1e3c72 50%, #2a5298 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 20px;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 40px 30px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 2.2em; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+  .header .date-line { margin-top: 10px; font-size: 1.1em; color: #a8c4e0; }
+  .header .market-status {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: rgba(0,255,136,0.15);
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    font-weight: 600;
+    font-size: 0.9em;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 1.25em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ── Grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-6 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-6 { grid-template-columns: 1fr; }
+  }
+
+  /* ── Glass card ── */
+  .card {
+    background: rgba(255,255,255,0.10);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(0,0,0,0.35); }
+
+  /* ── ETF cards ── */
+  .etf-card { text-align: center; }
+  .etf-symbol { font-size: 1.4em; font-weight: 800; letter-spacing: 1px; }
+  .etf-name   { font-size: 0.72em; color: #a8c4e0; margin: 4px 0 10px; }
+  .etf-price  { font-size: 1.6em; font-weight: 700; }
+  .etf-change { font-size: 1.15em; font-weight: 700; margin-top: 6px; padding: 4px 12px; border-radius: 10px; display: inline-block; }
+  .etf-vol    { font-size: 0.75em; color: #a8c4e0; margin-top: 8px; }
+
+  .up   { color: #00ff88; }
+  .down { color: #ff6b6b; }
+  .up-bg   { background: rgba(0,255,136,0.15); }
+  .down-bg { background: rgba(255,107,107,0.15); }
+
+  /* ── Volume Surge Table ── */
+  .surge-table { width: 100%; border-collapse: collapse; }
+  .surge-table th {
+    background: rgba(255,255,255,0.12);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a8c4e0;
+  }
+  .surge-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.95em; }
+  .surge-table tr:last-child td { border-bottom: none; }
+  .surge-table tr:hover td { background: rgba(255,255,255,0.05); }
+  .ticker-badge {
+    background: rgba(255,255,255,0.12);
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9em;
+  }
+  .rank-badge {
+    background: linear-gradient(135deg,#f7971e,#ffd200);
+    color: #000;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.8em;
+  }
+
+  /* ── After-Hours Section ── */
+  .afterhours-section {
+    background: linear-gradient(135deg, #1a0a00 0%, #2d1500 40%, #1a0a00 100%);
+    border-left: 5px solid #ffff00;
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255,165,0,0.35);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .afterhours-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b6b, #ffa500, #ffff00);
+  }
+  .afterhours-section .section-title { border-bottom-color: rgba(255,165,0,0.4); color: #ffb347; }
+
+  .bmo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 18px; margin-bottom: 24px; }
+
+  .earnings-card {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+    padding: 18px;
+    position: relative;
+  }
+  .earnings-card:hover { background: rgba(255,255,255,0.15); }
+
+  .afterhours-badge {
+    position: absolute;
+    top: -10px; right: -10px;
+    background: #ff4444;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .bmo-badge {
+    position: absolute;
+    top: -10px; right: -10px;
+    background: #2a9d8f;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    font-weight: 700;
+  }
+
+  .earnings-symbol { font-size: 1.3em; font-weight: 800; color: #ffd700; }
+  .earnings-company { font-size: 0.8em; color: #ccc; margin: 3px 0 10px; }
+  .earnings-move { font-size: 1.1em; font-weight: 700; margin-bottom: 8px; }
+
+  .earnings-surprise {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 0.85em;
+  }
+  .surprise-positive { color: #00ff88; font-weight: 600; }
+  .surprise-negative { color: #ff6b6b; font-weight: 600; }
+  .surprise-neutral  { color: #a8c4e0; }
+
+  .earnings-note { font-size: 0.78em; color: #ccc; margin-top: 10px; line-height: 1.5; }
+
+  /* ── Earnings Calendar Table ── */
+  .calendar-section {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 20px;
+  }
+  .calendar-section h4 { font-size: 1em; color: #ffb347; margin-bottom: 14px; font-weight: 700; }
+  .cal-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+  .cal-table th { padding: 8px 12px; text-align: left; color: #a8c4e0; font-size: 0.8em; text-transform: uppercase; }
+  .cal-table td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .cal-table tr:last-child td { border-bottom: none; }
+  .cal-table tr:hover td { background: rgba(255,255,255,0.04); }
+  .cal-day-header { background: rgba(255,165,0,0.12); color: #ffa500; font-weight: 700; font-size: 0.8em; padding: 6px 12px; }
+  .timing-badge {
+    font-size: 0.72em;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .bmo-time  { background: rgba(100,200,255,0.2); color: #64c8ff; }
+  .amc-time  { background: rgba(255,165,0,0.2); color: #ffa500; }
+
+  /* ── Market Stats ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 30px; }
+  @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .stat-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-icon  { font-size: 1.6em; margin-bottom: 6px; }
+  .stat-value { font-size: 1.5em; font-weight: 800; }
+  .stat-label { font-size: 0.72em; color: #a8c4e0; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── Sector Performance ── */
+  .sector-bar-wrap { margin-bottom: 10px; }
+  .sector-bar-label { display: flex; justify-content: space-between; font-size: 0.88em; margin-bottom: 4px; }
+  .sector-bar-track { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .sector-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .bar-up   { background: linear-gradient(90deg, #00ff88, #00cc6e); }
+  .bar-down { background: linear-gradient(90deg, #ff6b6b, #cc3333); }
+
+  /* ── Key Points ── */
+  .key-points { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+  @media (max-width: 700px) { .key-points { grid-template-columns: 1fr; } }
+
+  .key-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .key-card h4 { font-size: 0.95em; font-weight: 700; margin-bottom: 12px; color: #ffd700; }
+  .key-card ul { list-style: none; }
+  .key-card ul li {
+    padding: 5px 0;
+    font-size: 0.88em;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: #d0e0f0;
+    line-height: 1.5;
+  }
+  .key-card ul li:last-child { border-bottom: none; }
+  .key-card ul li::before { content: '▸ '; color: #4fc3f7; }
+
+  /* ── Executive Summary ── */
+  .exec-summary {
+    background: rgba(255,255,255,0.06);
+    border-left: 4px solid #4fc3f7;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+    line-height: 1.7;
+    color: #d0e8f8;
+  }
+  .exec-summary strong { color: #fff; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 28px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 16px;
+    margin-top: 30px;
+    font-size: 0.8em;
+    color: #6a90b8;
+    line-height: 1.8;
+  }
+  .footer strong { color: #a8c4e0; }
+
+  /* ── Full-width wrapper ── */
+  .full-width { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ══════════════════ HEADER ══════════════════ -->
+  <div class="header">
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date-line">📅 2026-05-18 &nbsp;—&nbsp; Final After-Market Data</div>
+    <div class="market-status">Market Closed &nbsp;|&nbsp; Monday, May 18, 2026</div>
+  </div>
+
+  <!-- ══════════════════ EXECUTIVE SUMMARY ══════════════════ -->
+  <div class="exec-summary">
+    Monday, May 18, 2026 delivered a <strong>mixed session</strong> as a chip-stock selloff weighed on the NASDAQ and broad technology sector, while defensive and cyclical value plays outperformed. The <strong>Dow Jones (DIA +0.33%)</strong> eked out a gain led by Energy and Financial names, while the <strong>S&amp;P 500 (SPY -0.07%)</strong> barely slipped and the <strong>NASDAQ (QQQ -0.45%)</strong> underperformed. Small caps felt the most pressure with <strong>IWM -0.59%</strong>. Standouts today included <strong>LiveRamp (RAMP) +27.3%</strong> on blockbuster earnings, Dominion Energy <strong>(D) +9.4%</strong> on a major nuclear project green-light, and <strong>Zeta Global (ZETA) +11.6%</strong> on AI-advertising revenue upgrades. Before the open, <strong>Baidu (BIDU)</strong> topped estimates on surging AI cloud revenue and <strong>Ryanair (RYAAY)</strong> reported record FY26 profits. Gold (GLD +0.27%) held firm as a partial haven amid tech weakness. This week's earnings calendar is heavy, with key reports from <strong>NVDA, HD, TJX, TGT, LOW, WMT</strong> and more.
+  </div>
+
+  <!-- ══════════════════ MAJOR ETF PERFORMANCE ══════════════════ -->
+  <div class="full-width">
+    <div class="card">
+      <div class="section-title">📊 Major ETF Performance</div>
+      <div class="grid-6">
+
+        <div class="etf-card card">
+          <div class="etf-symbol">SPY</div>
+          <div class="etf-name">SPDR S&amp;P 500 ETF</div>
+          <div class="etf-price">$738.65</div>
+          <div class="etf-change down down-bg">-0.07%</div>
+          <div class="etf-vol">Vol: 42.7M &nbsp;|&nbsp; Prev: $739.17</div>
+        </div>
+
+        <div class="etf-card card">
+          <div class="etf-symbol">QQQ</div>
+          <div class="etf-name">Invesco QQQ Trust</div>
+          <div class="etf-price">$705.72</div>
+          <div class="etf-change down down-bg">-0.45%</div>
+          <div class="etf-vol">Vol: 48.9M &nbsp;|&nbsp; Prev: $708.93</div>
+        </div>
+
+        <div class="etf-card card">
+          <div class="etf-symbol">DIA</div>
+          <div class="etf-name">SPDR Dow Jones ETF</div>
+          <div class="etf-price">$497.01</div>
+          <div class="etf-change up up-bg">+0.33%</div>
+          <div class="etf-vol">Vol: 5.4M &nbsp;|&nbsp; Prev: $495.37</div>
+        </div>
+
+        <div class="etf-card card">
+          <div class="etf-symbol">IWM</div>
+          <div class="etf-name">iShares Russell 2000</div>
+          <div class="etf-price">$275.97</div>
+          <div class="etf-change down down-bg">-0.59%</div>
+          <div class="etf-vol">Vol: 26.6M &nbsp;|&nbsp; Prev: $277.60</div>
+        </div>
+
+        <div class="etf-card card">
+          <div class="etf-symbol">TLT</div>
+          <div class="etf-name">iShares 20+ Yr Treasury</div>
+          <div class="etf-price">$83.58</div>
+          <div class="etf-change down down-bg">-0.10%</div>
+          <div class="etf-vol">Vol: 26.0M &nbsp;|&nbsp; Prev: $83.66</div>
+        </div>
+
+        <div class="etf-card card">
+          <div class="etf-symbol">GLD</div>
+          <div class="etf-name">SPDR Gold Shares</div>
+          <div class="etf-price">$418.43</div>
+          <div class="etf-change up up-bg">+0.27%</div>
+          <div class="etf-vol">Vol: 5.6M &nbsp;|&nbsp; Prev: $417.29</div>
+        </div>
+
+      </div><!-- /grid-6 -->
+    </div>
+  </div>
+
+  <!-- ══════════════════ VOLUME SURGE TICKERS ══════════════════ -->
+  <div class="full-width">
+    <div class="card">
+      <div class="section-title">🔥 Top Volume-Surge Tickers (Top 5 by % Change)</div>
+      <table class="surge-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Symbol</th>
+            <th>Company</th>
+            <th>Close</th>
+            <th>% Change</th>
+            <th>Volume</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rank-badge">1</span></td>
+            <td><span class="ticker-badge">RAMP</span></td>
+            <td>LiveRamp Holdings</td>
+            <td>$37.77</td>
+            <td><span class="up">+27.34%</span></td>
+            <td>13,086,186</td>
+          </tr>
+          <tr>
+            <td><span class="rank-badge">2</span></td>
+            <td><span class="ticker-badge">CD</span></td>
+            <td>Chindata Group</td>
+            <td>$10.49</td>
+            <td><span class="up">+26.54%</span></td>
+            <td>366,651</td>
+          </tr>
+          <tr>
+            <td><span class="rank-badge">3</span></td>
+            <td><span class="ticker-badge">BRC</span></td>
+            <td>Brady Corp</td>
+            <td>$84.43</td>
+            <td><span class="up">+18.98%</span></td>
+            <td>1,020,537</td>
+          </tr>
+          <tr>
+            <td><span class="rank-badge">4</span></td>
+            <td><span class="ticker-badge">TOYO</span></td>
+            <td>Toyo Tire</td>
+            <td>$14.80</td>
+            <td><span class="up">+16.81%</span></td>
+            <td>827,957</td>
+          </tr>
+          <tr>
+            <td><span class="rank-badge">5</span></td>
+            <td><span class="ticker-badge">ZETA</span></td>
+            <td>Zeta Global Holdings</td>
+            <td>$19.19</td>
+            <td><span class="up">+11.63%</span></td>
+            <td>17,116,638</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.78em;color:#a8c4e0;margin-top:14px;">
+        Also notable: $VOYG +11.44% | $DXYZ +11.30% | $BKSY +10.97% | $D +9.44% | $CMPR +9.21% &nbsp;&nbsp;(40 total volume-surge tickers detected today)
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════ POST-CLOSE EARNINGS & AFTER-HOURS (FALLBACK) ══════════════════ -->
+  <div class="afterhours-section full-width">
+    <div class="section-title">⏰ Post-Close Earnings &amp; After-Hours</div>
+
+    <p style="font-size:0.85em;color:#ffcc80;margin-bottom:18px;line-height:1.6;">
+      <strong>Note:</strong> The after-hours earnings screener returned no results matching large-cap criteria (no major company reported AMC with a qualifying move tonight). Applying Mon-Thu fallback: today's BMO earnings are highlighted below, followed by this week's full earnings calendar.
+    </p>
+
+    <!-- BMO Reporters -->
+    <h4 style="color:#ffb347;font-size:0.95em;font-weight:700;margin-bottom:14px;">📢 Today's BMO Reporters — Market Session Impact</h4>
+    <div class="bmo-grid">
+
+      <div class="earnings-card">
+        <div class="bmo-badge">BMO</div>
+        <div class="earnings-symbol">$BIDU</div>
+        <div class="earnings-company">Baidu Inc ADR &nbsp;·&nbsp; Communication Services</div>
+        <div class="earnings-move up">Session: +Positive Reaction</div>
+        <div class="earnings-surprise">
+          <span>AI Cloud Revenue: <span class="surprise-positive">+49% YoY</span></span>
+          <span>Q1 EPS Beat: <span class="surprise-positive">Beat</span></span>
+        </div>
+        <div class="earnings-surprise">
+          <span>Total Revenue: <span class="surprise-negative">-1% (ad decline)</span></span>
+          <span>Net Income: <span class="surprise-negative">Decline</span></span>
+        </div>
+        <div class="earnings-note">
+          Baidu topped Q1 consensus as core AI-driven revenue surged 49%. Despite a 1% total revenue slide driven by advertising weakness, the AI cloud story dominated sentiment. Shares climbed in the session. Stock closed near $137 area.
+        </div>
+      </div>
+
+      <div class="earnings-card">
+        <div class="bmo-badge">BMO</div>
+        <div class="earnings-symbol">$RYAAY</div>
+        <div class="earnings-company">Ryanair Holdings ADR &nbsp;·&nbsp; Industrials</div>
+        <div class="earnings-move up">FY26 Record Profit</div>
+        <div class="earnings-surprise">
+          <span>FY26 Profit Growth: <span class="surprise-positive">+40%</span></span>
+          <span>Record Annual Profit: <span class="surprise-positive">Yes</span></span>
+        </div>
+        <div class="earnings-surprise">
+          <span>Summer Fare Guidance: <span class="surprise-negative">Cautious</span></span>
+          <span>Boeing Delays: <span class="surprise-negative">Ongoing</span></span>
+        </div>
+        <div class="earnings-note">
+          Ryanair posted a record FY26 net profit with a 40% surge despite ongoing Boeing aircraft delivery delays and a jet-fuel supply crunch. Management flagged summer fare weakness as a risk. Fuel shortage fears receded slightly in the session.
+        </div>
+      </div>
+
+      <div class="earnings-card">
+        <div class="afterhours-badge">AMC Tonight</div>
+        <div class="earnings-symbol">$XP</div>
+        <div class="earnings-company">XP Inc &nbsp;·&nbsp; Financial Services</div>
+        <div class="earnings-move" style="color:#ffcc80;">AMC 4:30 PM ET — Pending</div>
+        <div class="earnings-surprise">
+          <span>Expected: <span class="surprise-neutral">Q1 FY26 results</span></span>
+          <span>Sector: <span class="surprise-neutral">Brazilian Fintech</span></span>
+        </div>
+        <div class="earnings-note">
+          XP Inc reported after the close at 4:30 PM ET. Results were not yet captured in the after-hours screener at report time (figures to be confirmed in tomorrow's update). Price target range: $17.34 — $25.35 per analyst estimates.
+        </div>
+      </div>
+
+    </div><!-- /bmo-grid -->
+
+    <!-- This Week's Earnings Calendar -->
+    <div class="calendar-section">
+      <h4>📅 This Week's Remaining Earnings Calendar (May 18 – 22, 2026)</h4>
+      <table class="cal-table">
+        <thead>
+          <tr>
+            <th>Timing</th>
+            <th>Ticker</th>
+            <th>Company</th>
+            <th>Sector</th>
+            <th>Est. Price Target</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr><td colspan="5" class="cal-day-header">Tuesday, May 19</td></tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$HD</strong></td>
+            <td>Home Depot Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$399.40 (PE 21.1)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$MMYT</strong></td>
+            <td>MakeMyTrip Ltd</td>
+            <td>Consumer Cyclical</td>
+            <td>$84.40</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$AS</strong></td>
+            <td>Amer Sports Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$49.87</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$TOL</strong></td>
+            <td>Toll Brothers Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$169.80 (PE 9.1)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$CAVA</strong></td>
+            <td>Cava Group Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$90.27 (PE 148)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$KEYS</strong></td>
+            <td>Keysight Technologies</td>
+            <td>Technology</td>
+            <td>$341.17 (PE 61.5)</td>
+          </tr>
+
+          <tr><td colspan="5" class="cal-day-header">Wednesday, May 20 — CRITICAL: NVDA, TJX, TGT, LOW</td></tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$TJX</strong></td>
+            <td>TJX Companies Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$176.00 (PE 30.8)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$TGT</strong></td>
+            <td>Target Corp</td>
+            <td>Consumer Defensive</td>
+            <td>$127.43 (PE 15.2)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$LOW</strong></td>
+            <td>Lowe's Companies Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$283.05 (PE 18.4)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$ADI</strong></td>
+            <td>Analog Devices Inc</td>
+            <td>Technology</td>
+            <td>$418.19 (PE 76.5)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$NVDA</strong></td>
+            <td>NVIDIA Corp</td>
+            <td>Technology</td>
+            <td>$275.59 (PE 45.4)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$INTU</strong></td>
+            <td>Intuit Inc</td>
+            <td>Technology</td>
+            <td>$588.66 (PE 26.2)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$ELF</strong></td>
+            <td>e.l.f. Beauty Inc</td>
+            <td>Consumer Defensive</td>
+            <td>$90.00 (PE 31)</td>
+          </tr>
+
+          <tr><td colspan="5" class="cal-day-header">Thursday, May 21 — WMT, DE, WDAY, ROST</td></tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$WMT</strong></td>
+            <td>Walmart Inc</td>
+            <td>Consumer Defensive</td>
+            <td>$140.54 (PE 48.9)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$DE</strong></td>
+            <td>Deere &amp; Co</td>
+            <td>Industrials</td>
+            <td>$668.05 (PE 31.8)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$RL</strong></td>
+            <td>Ralph Lauren Corp</td>
+            <td>Consumer Cyclical</td>
+            <td>$429.64 (PE 22.2)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$WDAY</strong></td>
+            <td>Workday Inc</td>
+            <td>Technology</td>
+            <td>$181.33 (PE 49.9)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$ROST</strong></td>
+            <td>Ross Stores Inc</td>
+            <td>Consumer Cyclical</td>
+            <td>$246.44 (PE 31.9)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge amc-time">AMC</span></td>
+            <td><strong>$DECK</strong></td>
+            <td>Deckers Outdoor</td>
+            <td>Consumer Cyclical</td>
+            <td>$127.00 (PE 13.4)</td>
+          </tr>
+
+          <tr><td colspan="5" class="cal-day-header">Friday, May 22</td></tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$BJ</strong></td>
+            <td>BJ's Wholesale Club</td>
+            <td>Consumer Defensive</td>
+            <td>$107.42 (PE 22.2)</td>
+          </tr>
+          <tr>
+            <td><span class="timing-badge bmo-time">BMO</span></td>
+            <td><strong>$BAH</strong></td>
+            <td>Booz Allen Hamilton</td>
+            <td>Industrials</td>
+            <td>$96.83 (PE 11.1)</td>
+          </tr>
+
+        </tbody>
+      </table>
+      <p style="font-size:0.76em;color:#a8c4e0;margin-top:10px;">135 total earnings releases scheduled this week. Wednesday's NVDA report after close is the pivotal event for market direction. Source: Finviz Earnings Calendar.</p>
+    </div>
+
+  </div><!-- /afterhours-section -->
+
+  <!-- ══════════════════ MARKET STATISTICS ══════════════════ -->
+  <div class="full-width">
+    <div class="card">
+      <div class="section-title">📈 Market Statistics</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value up">40</div>
+          <div class="stat-label">Volume-Surge Tickers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-value up">553</div>
+          <div class="stat-label">Uptrend Tickers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-value" style="color:#ffd700;">2.7x</div>
+          <div class="stat-label">Avg Relative Volume</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💹</div>
+          <div class="stat-value up">+7.3%</div>
+          <div class="stat-label">Avg Price Move (Surge)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value" style="color:#ffb347;">135</div>
+          <div class="stat-label">Earnings This Week</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SECTOR PERFORMANCE ══════════════════ -->
+  <div class="full-width">
+    <div class="card">
+      <div class="section-title">🏢 Sector Performance</div>
+      <div class="grid-2">
+
+        <div>
+          <!-- Top 6 sectors by bar chart -->
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>⚡ Energy</span><span class="up">+1.83%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:91%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>🛒 Consumer Defensive</span><span class="up">+1.35%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:67%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>🏠 Real Estate</span><span class="up">+1.12%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:56%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>🏦 Financial</span><span class="up">+0.99%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:49%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>📡 Communication Services</span><span class="up">+0.35%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:17%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>💡 Utilities</span><span class="up">+0.28%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:14%;"></div></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>💊 Healthcare</span><span class="up">+0.15%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-up" style="width:7%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>🛍 Consumer Cyclical</span><span class="down">-0.30%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-down" style="width:15%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>🏭 Industrials</span><span class="down">-0.38%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-down" style="width:19%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>⛏ Basic Materials</span><span class="down">-0.46%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-down" style="width:23%;"></div></div>
+          </div>
+          <div class="sector-bar-wrap">
+            <div class="sector-bar-label"><span>💻 Technology</span><span class="down">-1.02%</span></div>
+            <div class="sector-bar-track"><div class="sector-bar-fill bar-down" style="width:51%;"></div></div>
+          </div>
+
+          <!-- Sector detail table -->
+          <table style="width:100%;font-size:0.78em;color:#a8c4e0;margin-top:16px;border-collapse:collapse;">
+            <tr>
+              <th style="text-align:left;padding:4px 8px;color:#7aa8cc;">Sector</th>
+              <th style="text-align:right;padding:4px 8px;color:#7aa8cc;">P/E</th>
+              <th style="text-align:right;padding:4px 8px;color:#7aa8cc;">Div Yield</th>
+              <th style="text-align:right;padding:4px 8px;color:#7aa8cc;">Stocks</th>
+            </tr>
+            <tr><td style="padding:4px 8px;">Technology</td><td style="text-align:right;padding:4px 8px;">39.8</td><td style="text-align:right;padding:4px 8px;">0.53%</td><td style="text-align:right;padding:4px 8px;">778</td></tr>
+            <tr><td style="padding:4px 8px;">Financial</td><td style="text-align:right;padding:4px 8px;">15.9</td><td style="text-align:right;padding:4px 8px;">1.98%</td><td style="text-align:right;padding:4px 8px;">1,082</td></tr>
+            <tr><td style="padding:4px 8px;">Energy</td><td style="text-align:right;padding:4px 8px;">20.2</td><td style="text-align:right;padding:4px 8px;">3.35%</td><td style="text-align:right;padding:4px 8px;">256</td></tr>
+            <tr><td style="padding:4px 8px;">Healthcare</td><td style="text-align:right;padding:4px 8px;">28.2</td><td style="text-align:right;padding:4px 8px;">1.63%</td><td style="text-align:right;padding:4px 8px;">1,073</td></tr>
+            <tr><td style="padding:4px 8px;">Industrials</td><td style="text-align:right;padding:4px 8px;">31.8</td><td style="text-align:right;padding:4px 8px;">1.09%</td><td style="text-align:right;padding:4px 8px;">690</td></tr>
+          </table>
+        </div>
+
+      </div><!-- /grid-2 -->
+    </div>
+  </div>
+
+  <!-- ══════════════════ TODAY'S KEY POINTS ══════════════════ -->
+  <div class="full-width">
+    <div class="card">
+      <div class="section-title">💡 Today's Key Points</div>
+      <div class="key-points">
+
+        <div class="key-card">
+          <h4>🔥 Hot Sectors &amp; Volume Surge</h4>
+          <ul>
+            <li>Energy led all sectors at +1.83%, boosted by Dominion Energy's nuclear project green-light from NRC (D +9.4%, 39.7M vol)</li>
+            <li>Consumer Defensive +1.35% as investors rotated into staples ahead of WMT/TGT/TJX reports mid-week</li>
+            <li>Financial +0.99% supported by strong yields and credit stability; Real Estate +1.12% with rate expectations stable</li>
+            <li>40 volume-surge tickers detected today with avg relative volume of 2.7x and avg move of +7.3%</li>
+            <li>RAMP +27.3% (13.1M vol) and ZETA +11.6% (17.1M vol) dominated on earnings-driven momentum</li>
+          </ul>
+        </div>
+
+        <div class="key-card">
+          <h4>💻 Technology Under Pressure</h4>
+          <ul>
+            <li>Technology sector worst performer at -1.02%; chip stocks led the selloff (Barron's: "Chip stock selloff gathers steam")</li>
+            <li>QQQ underperformed at -0.45%; small caps IWM -0.59% also lagged</li>
+            <li>DXYZ (Destiny Tech100) +11.3% on SpaceX filing hype; BKSY (BlackSky) +10.97% on defense contract momentum</li>
+            <li>All eyes on Wednesday's NVDA earnings after close — key catalyst for tech sentiment reset</li>
+          </ul>
+        </div>
+
+        <div class="key-card">
+          <h4>📢 Earnings Highlights (BMO Today)</h4>
+          <ul>
+            <li>BIDU Q1 beat: AI cloud revenue +49% YoY overrides 1% total revenue slide — shares moved positively</li>
+            <li>RYAAY FY26 record profit, +40% growth vs prior year; fuel crisis risk receding but summer fares cautious</li>
+            <li>XP Inc reported AMC tonight at 4:30 ET; results pending in next session</li>
+            <li>This week: 135 earnings releases. NVDA (Wed AMC) is THE pivotal event for the week</li>
+            <li>Also watch: HD (Tue BMO), WMT (Thu BMO), WDAY (Thu AMC), ROST (Thu AMC)</li>
+          </ul>
+        </div>
+
+        <div class="key-card">
+          <h4>🏛️ Bonds, Gold &amp; Macro</h4>
+          <ul>
+            <li>TLT -0.10% — long Treasuries barely moved; bond market calm despite equity volatility</li>
+            <li>GLD +0.27% — gold held firm near $418/share; partial safe-haven bid as tech sold off</li>
+            <li>Dominion Energy (D) nuclear project got NRC environmental green-light, sparking Utilities/Energy rally</li>
+            <li>Energy sector supported by 116 uptrend stocks; Technology follows with 112 uptrend stocks despite today's drop</li>
+            <li>Market breadth: 553 uptrend stocks; sector rotation toward defensive/value names visible</li>
+          </ul>
+        </div>
+
+      </div><!-- /key-points -->
+    </div>
+  </div>
+
+  <!-- ══════════════════ FOOTER ══════════════════ -->
+  <div class="footer">
+    <p><strong>Data Sources:</strong> Finviz Elite (market overview, sector performance, volume screener, earnings calendar) &nbsp;|&nbsp; Alpaca Markets (ETF &amp; ticker snapshots) &nbsp;|&nbsp; GuruFocus, Barron's, IBD, Reuters, Proactive (news)</p>
+    <p style="margin-top:8px;"><strong>Last Refreshed:</strong> 2026-05-18 16:10 ET (4:10 PM) — Final after-market data + after-hours info</p>
+    <p style="margin-top:8px;">⚠️ For informational purposes only. Not financial advice. All % changes calculated vs. prior close (May 15, 2026). After-hours figures may be preliminary and subject to revision.</p>
+    <p style="margin-top:8px;">Generated by claude-market-agents &nbsp;·&nbsp; Data as of market close May 18, 2026</p>
+  </div>
+
+</div><!-- /container -->
+</body>
+</html>
