@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis - July 6, 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 30px 20px;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-size: 2.4em;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  header .date-label {
+    font-size: 1.2em;
+    color: #cfe0ff;
+    font-weight: 500;
+  }
+  header .sub-label {
+    font-size: 0.95em;
+    color: #ffd700;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .exec-summary {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .exec-summary h2 { margin-bottom: 15px; font-size: 1.5em; }
+  .exec-summary p { line-height: 1.7; color: #e8f0ff; font-size: 1.05em; margin-bottom: 14px; }
+  .exec-summary p:last-child { margin-bottom: 0; }
+  .section {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .section h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  .etf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .etf-card {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+  .etf-card:hover { transform: translateY(-5px); }
+  .etf-card .symbol { font-size: 1.3em; font-weight: 700; margin-bottom: 5px; }
+  .etf-card .name { font-size: 0.8em; color: #cfe0ff; margin-bottom: 10px; }
+  .etf-card .price { font-size: 1.6em; font-weight: 800; margin-bottom: 5px; }
+  .etf-card .change { font-size: 1.1em; font-weight: 700; }
+  .positive { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.4); }
+  .negative { color: #ff6b6b; text-shadow: 0 0 10px rgba(255,107,107,0.4); }
+  .neutral { color: #ffd700; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { background: rgba(255,255,255,0.1); font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; }
+  tr:hover { background: rgba(255,255,255,0.08); }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 700;
+  }
+  .badge-up { background: rgba(0,255,136,0.2); color: #00ff88; }
+  .badge-down { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+  .catalyst { font-size: 0.82em; color: #cfe0ff; }
+  .catalyst.unverified { color: #a9b7d1; font-style: italic; }
+
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .afterhours-section h2 { border-bottom: 2px solid rgba(255,255,255,0.4); padding-bottom: 12px; margin-bottom: 20px; }
+  .fallback-box {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+  .fallback-box h3 { margin-bottom: 10px; font-size: 1.15em; }
+  .fallback-box ul { margin-left: 20px; line-height: 1.8; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px;
+    padding: 18px;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .afterhours-badge {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background: #ff4444;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.72em;
+    font-weight: bold;
+  }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; flex-wrap: wrap; gap: 10px; }
+  .surprise-positive { color: #00ff88; font-weight: 700; }
+  .surprise-negative { color: #ff6b6b; font-weight: 700; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .value { font-size: 2.2em; font-weight: 800; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.4); }
+  .stat-card .label { font-size: 0.85em; color: #cfe0ff; margin-top: 5px; }
+
+  .sector-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .sector-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sector-card .sname { font-weight: 700; }
+  .sector-card .smeta { font-size: 0.8em; color: #cfe0ff; }
+
+  .keypoints-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .keypoint-card {
+    background: rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .keypoint-card h3 { margin-bottom: 10px; color: #ffd700; font-size: 1.05em; }
+  .keypoint-card ul { margin-left: 20px; line-height: 1.8; color: #e8f0ff; }
+
+  footer {
+    text-align: center;
+    padding: 25px;
+    color: #cfe0ff;
+    font-size: 0.85em;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 768px) {
+    .etf-grid, .stats-grid, .sector-grid, .keypoints-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.7em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date-label">📅 2026-07-06 (Monday) – Final After-Market Data</div>
+    <div class="sub-label">First trading session back from the July 4th long weekend — Dow closes above 53,000 for the first time</div>
+  </header>
+
+  <div class="exec-summary">
+    <h2>📋 Executive Summary</h2>
+    <p>
+      U.S. equities rallied broadly on Monday, July 6 — the first session back after Friday's Independence Day market
+      closure — as renewed optimism around AI-related chip demand lifted technology and semiconductor names. The
+      catalyst: Taiwan's Hon Hai (Foxconn), Nvidia's largest contract manufacturer, reported a stronger-than-expected
+      rise in quarterly sales, seen as a signal of sustained AI infrastructure demand after weeks of chip-sector
+      jitters. The Dow (DIA <strong>+0.42%</strong>; cash index +0.29% to a fresh record close of
+      <strong>53,055.91</strong>, the first-ever close above 53,000) led the mega-cap complex higher, while the
+      Nasdaq (QQQ <strong>+1.43%</strong>; Composite +1.12% to 26,121.16) outperformed on the chip-led bid and the
+      S&amp;P 500 (SPY <strong>+0.87%</strong>; cash index +0.74% to 7,538.34) also advanced solidly. Small caps (IWM
+      +0.44%) and gold (GLD <strong>+1.06%</strong>) both firmed, while Treasuries (TLT -0.07%) were essentially flat.
+      The CBOE Volatility Index (VIX) eased to <strong>15.57</strong> from a 15.81 prior close, underscoring a calm,
+      broad-based risk-on tone rather than a narrow melt-up.
+    </p>
+    <p>
+      Single-stock standouts within the mega-cap AI complex were led by <strong>AMD (+6.61%)</strong> and
+      <strong>Tesla (+6.69%)</strong>, with <strong>AVGO (+3.73%)</strong> and <strong>MU (+0.94%)</strong> also
+      firmer; Nvidia itself was more muted at <strong>+0.37%</strong> after a volatile prior week. Attention now
+      turns to Samsung Electronics' Q2 results due Tuesday, where analysts are looking for an approximately 18-fold
+      year-on-year profit jump on memory-chip strength, and to Wednesday's release of the minutes from the Federal
+      Reserve's first policy meeting under new Chair Kevin Warsh. Separately, oil held stable after OPEC+ agreed to
+      raise output targets and the Strait of Hormuz reopened, easing near-term inflation concerns even as gold
+      extended its bid.
+    </p>
+    <p>
+      Beneath the index-level story, breadth stayed constructive with <strong>868 stocks in confirmed uptrends</strong>
+      and <strong>35 volume-surge tickers</strong> (avg +6.1% move on 2.5x relative volume). The volume-surge
+      leaderboard was dominated by small- and mid-cap names extending multi-week momentum runs rather than reacting
+      to fresh same-day news: <strong>Criteo (CRTO +21.44%)</strong>, <strong>Enovis (ENOV +15.11%)</strong>,
+      <strong>ChipMOS Technologies (IMOS +13.45%)</strong>, <strong>Bioventus (BVS +12.40%)</strong> and
+      <strong>Regenxbio (RGNX +11.67%)</strong> topped the list. None of these five had a confirmed same-day catalyst
+      — all last reported earnings back in early May, and no fresh news items were found for CRTO, ENOV or RGNX;
+      BVS's only recent headline was a routine fiduciary-duty inquiry press release. IMOS, a Taiwan-based
+      semiconductor test-and-assembly name, may have benefited from spillover off today's broader chip-optimism
+      narrative, though no company-specific news confirms this. These moves are flagged as technical/momentum
+      continuation (several names show RSI readings above 75) rather than attributed to a guessed catalyst.
+    </p>
+    <p>
+      Sector leadership rotated toward growth and cyclicals: Technology and Communication Services tied for the top
+      spot (+1.58% each), followed by Financial (+1.30%), Consumer Cyclical (+1.14%) and Industrials (+0.71%), while
+      Healthcare (-1.02%) and Consumer Defensive (-0.94%) lagged as money rotated out of defensives. Earnings flow
+      was quiet: Finviz's after-hours, before-market and today-after-close earnings screeners all returned zero
+      large-cap matches, consistent with a light first day back from the holiday. The next earnings cluster runs
+      July 7–10 (PENG, LEVI, HELE, SMPL, PEP, DAL), part of 17 total scheduled reporters this week per Finviz's
+      market overview.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf-card">
+        <div class="symbol">SPY</div>
+        <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+        <div class="price">$751.28</div>
+        <div class="change positive">+0.87%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">QQQ</div>
+        <div class="name">Invesco QQQ Trust (Nasdaq 100)</div>
+        <div class="price">$722.82</div>
+        <div class="change positive">+1.43%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">DIA</div>
+        <div class="name">SPDR Dow Jones Industrial Avg ETF</div>
+        <div class="price">$530.09</div>
+        <div class="change positive">+0.42%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">IWM</div>
+        <div class="name">iShares Russell 2000 ETF</div>
+        <div class="price">$298.90</div>
+        <div class="change positive">+0.44%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">TLT</div>
+        <div class="name">iShares 20+ Year Treasury Bond ETF</div>
+        <div class="price">$85.45</div>
+        <div class="change negative">-0.07%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">GLD</div>
+        <div class="name">SPDR Gold Shares ETF</div>
+        <div class="price">$382.13</div>
+        <div class="change positive">+1.06%</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:12px 14px;background:rgba(255,255,255,0.08);border-radius:12px;font-size:0.85em;color:#cfe0ff;">
+      📊 Cash indexes: S&amp;P 500 7,538.34 (+0.74%) &nbsp;|&nbsp; Nasdaq Composite 26,121.16 (+1.12%) &nbsp;|&nbsp; Dow Jones 53,055.91 (+0.29%, fresh record close, first-ever close above 53,000) &nbsp;|&nbsp; VIX 15.57 (prior close 15.81)
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🔥 Top Volume-Surge Tickers</h2>
+    <table>
+      <thead>
+        <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th><th>Catalyst (verified)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CRTO</strong></td>
+          <td>Criteo S.A ADR</td>
+          <td><span class="badge badge-up">+21.44%</span></td>
+          <td>2,673,450</td>
+          <td class="catalyst unverified">No news found in the past 5 days; last earnings was 5/6/2026 (stale). Extending a 31% 1-week run on 8.83x relative volume — flagged as technical/momentum continuation</td>
+        </tr>
+        <tr>
+          <td><strong>ENOV</strong></td>
+          <td>Enovis Corp</td>
+          <td><span class="badge badge-up">+15.11%</span></td>
+          <td>2,148,520</td>
+          <td class="catalyst unverified">No news found; last earnings was 5/7/2026 (stale). No confirmed same-day catalyst</td>
+        </tr>
+        <tr>
+          <td><strong>IMOS</strong></td>
+          <td>ChipMOS Technologies Inc ADR</td>
+          <td><span class="badge badge-up">+13.45%</span></td>
+          <td>202,000</td>
+          <td class="catalyst unverified">No company-specific news found; Taiwan-based chip test/assembly name may be riding today's broad semiconductor-optimism narrative (Hon Hai's stronger-than-expected sales report), but this link is not confirmed</td>
+        </tr>
+        <tr>
+          <td><strong>BVS</strong></td>
+          <td>Bioventus Inc</td>
+          <td><span class="badge badge-up">+12.40%</span></td>
+          <td>1,535,378</td>
+          <td class="catalyst unverified">Only news item found was a routine fiduciary-duty inquiry press release (7/3); last earnings was 5/6/2026 (stale, EPS beat +117.71%). Not a demonstrated same-day catalyst</td>
+        </tr>
+        <tr>
+          <td><strong>RGNX</strong></td>
+          <td>Regenxbio Inc</td>
+          <td><span class="badge badge-up">+11.67%</span></td>
+          <td>3,100,000</td>
+          <td class="catalyst unverified">No news found; RSI 86.66 (deeply overbought) after a 41.5% 1-week run. No confirmed same-day catalyst</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px; font-size:0.85em; color:#cfe0ff;">
+      Other notable movers outside the top 5 (all part of the same 35-stock volume-surge cohort, none with a
+      confirmed same-day catalyst): <strong>LMND +10.04%</strong> (Lemonade), <strong>AAMI +8.29%</strong>
+      (Acadian Asset Management), <strong>CDNL +7.87%</strong> (Cardinal Infrastructure Group), <strong>PTRN
+      +7.57%</strong> (Pattern Group), <strong>TENB +6.97%</strong> (Tenable Holdings). Outside the volume-surge
+      screener, large-cap AI/chip names posted outsized single-stock gains on today's sector-wide optimism:
+      <strong>AMD +6.61%</strong>, <strong>TSLA +6.69%</strong>, <strong>AVGO +3.73%</strong>.
+    </p>
+  </div>
+
+  <div class="afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <div class="fallback-box">
+      <h3>📭 No Earnings Reactions Today: All Screeners Empty</h3>
+      <p>Finviz's after-hours earnings screener (large-cap, ≥2% AH move), premarket earnings screener (large-cap,
+      ≥2% move on today's BMO reports) and the "reports after today's close" screener all returned zero matches.
+      This is consistent with a light first trading day back from the July 4th long weekend, with most companies
+      avoiding releases immediately around the holiday.</p>
+    </div>
+
+    <div class="fallback-box">
+      <h3>🗓️ This Week's Remaining Earnings Calendar (Jul 7–10)</h3>
+      <p style="margin-bottom:10px;">No confirmed BMO or AH reporters today. Finviz's market overview counts
+      <strong>17 total companies</strong> scheduled to report this week; the verified names on the calendar are:</p>
+      <ul>
+        <li><strong>PENG</strong> (Penguin Solutions) — Tue 7/7, after close</li>
+        <li><strong>LEVI</strong> (Levi Strauss &amp; Co) — Wed 7/8, after close</li>
+        <li><strong>HELE</strong> (Helen of Troy) — Wed 7/8, before open</li>
+        <li><strong>SMPL</strong> (Simply Good Foods) — Thu 7/9, before open</li>
+        <li><strong>PEP</strong> (PepsiCo) — Thu 7/9, before open</li>
+        <li><strong>DAL</strong> (Delta Air Lines) — Fri 7/10, before open</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="value">35</div>
+        <div class="label">Volume-Surge Tickers</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">868</div>
+        <div class="label">Uptrend Tickers</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">2.5x</div>
+        <div class="label">Avg. Relative Volume (surge cohort)</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">+6.1%</div>
+        <div class="label">Avg. Price Move (surge cohort)</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:12px 14px;background:rgba(255,255,255,0.08);border-radius:12px;font-size:0.85em;color:#cfe0ff;">
+      📋 Earnings releases today: <strong style="color:#ffd700;">0</strong> confirmed BMO or AH large-cap reporters
+      &nbsp;|&nbsp; 17 companies on this week's earnings calendar per Finviz market overview &nbsp;|&nbsp;
+      VIX 15.57 (prior close 15.81)
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🏢 Sector Performance</h2>
+    <div class="sector-grid">
+      <div class="sector-card">
+        <div>
+          <div class="sname">Technology</div>
+          <div class="smeta">789 stocks · $31.60T mkt cap</div>
+        </div>
+        <div class="change positive">+1.58%</div>
+      </div>
+      <div class="sector-card">
+        <div>
+          <div class="sname">Communication Services</div>
+          <div class="smeta">261 stocks · $13.05T mkt cap</div>
+        </div>
+        <div class="change positive">+1.58%</div>
+      </div>
+      <div class="sector-card">
+        <div>
+          <div class="sname">Financial</div>
+          <div class="smeta">1,106 stocks · $15.03T mkt cap</div>
+        </div>
+        <div class="change positive">+1.30%</div>
+      </div>
+      <div class="sector-card">
+        <div>
+          <div class="sname">Consumer Cyclical</div>
+          <div class="smeta">537 stocks · $9.17T mkt cap</div>
+        </div>
+        <div class="change positive">+1.14%</div>
+      </div>
+      <div class="sector-card">
+        <div>
+          <div class="sname">Industrials</div>
+          <div class="smeta">706 stocks · $10.34T mkt cap</div>
+        </div>
+        <div class="change positive">+0.71%</div>
+      </div>
+      <div class="sector-card">
+        <div>
+          <div class="sname">Basic Materials</div>
+          <div class="smeta">284 stocks · $2.80T mkt cap</div>
+        </div>
+        <div class="change negative">-0.08%</div>
+      </div>
+    </div>
+    <table style="margin-top:20px;">
+      <thead><tr><th>Sector</th><th>Change</th><th># Stocks</th></tr></thead>
+      <tbody>
+        <tr><td>Energy</td><td class="negative">-0.22%</td><td>254</td></tr>
+        <tr><td>Real Estate</td><td class="negative">-0.73%</td><td>255</td></tr>
+        <tr><td>Utilities</td><td class="negative">-0.73%</td><td>110</td></tr>
+        <tr><td>Consumer Defensive</td><td class="negative">-0.94%</td><td>239</td></tr>
+        <tr><td>Healthcare</td><td class="negative">-1.02%</td><td>1,065</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>💡 Today's Key Points</h2>
+    <div class="keypoints-grid">
+      <div class="keypoint-card">
+        <h3>🔥 Hot Sectors</h3>
+        <ul>
+          <li>Technology and Communication Services tied for the lead (+1.58% each) on renewed AI-chip demand optimism</li>
+          <li>Financial (+1.30%) and Consumer Cyclical (+1.14%) also participated in the broad risk-on rotation</li>
+          <li>Healthcare (-1.02%) and Consumer Defensive (-0.94%) lagged as capital rotated out of defensives</li>
+        </ul>
+      </div>
+      <div class="keypoint-card">
+        <h3>📊 Volume-Surge Characteristics</h3>
+        <ul>
+          <li>35 stocks flagged, avg move +6.1% on 2.5x relative volume — a small/mid-cap biotech and momentum-name-heavy list</li>
+          <li>None of the top 5 movers (CRTO, ENOV, IMOS, BVS, RGNX) had a confirmed same-day catalyst; all last reported earnings in early May and are extending multi-week technical runs</li>
+          <li>IMOS (ChipMOS) may be riding sector-wide chip-optimism spillover, but no company-specific news confirms this</li>
+        </ul>
+      </div>
+      <div class="keypoint-card">
+        <h3>🌙 Earnings &amp; After-Hours Focal Points</h3>
+        <ul>
+          <li>No large-cap BMO or AH earnings reactions today — all three Finviz earnings screeners (premarket, after-hours, today-after-close) returned zero matches</li>
+          <li>This week's confirmed calendar: PENG (Tue AH), LEVI (Wed AH), HELE (Wed BMO), SMPL/PEP (Thu BMO), DAL (Fri BMO) — 17 reporters total per Finviz's market overview</li>
+          <li>Samsung Electronics reports Q2 results Tuesday, with analysts looking for an ~18x YoY profit jump on memory strength — a key read-through for the AI/memory trade</li>
+        </ul>
+      </div>
+      <div class="keypoint-card">
+        <h3>🌍 Broad Market Trend &amp; Bonds/Gold</h3>
+        <ul>
+          <li>Hon Hai's (Foxconn) stronger-than-expected quarterly sales revived AI-chip demand optimism, sending the Dow to its first-ever close above 53,000</li>
+          <li>AMD (+6.61%) and Tesla (+6.69%) were the standout large-cap single-stock movers; Nvidia was comparatively muted (+0.37%)</li>
+          <li>GLD +1.06% extended its bid even as risk appetite improved; TLT was essentially flat (-0.07%)</li>
+          <li>Oil held stable after OPEC+ agreed to raise output targets and the Strait of Hormuz reopened, easing near-term inflation concerns</li>
+          <li>VIX eased to 15.57 (from 15.81), and markets now look ahead to Wednesday's FOMC minutes from the Fed's first meeting under new Chair Kevin Warsh</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p><strong>Data Sources:</strong> Finviz Elite (market overview, sector performance, volume-surge &amp; earnings screeners, stock news, fundamentals), Alpaca Markets (ETF &amp; equity snapshots, daily bars), FMP (cash index levels, VIX), supplemented by verified web search for the Hon Hai/AI-chip-optimism narrative and Dow record close (TheStreet, CNBC, Yahoo Finance)</p>
+    <p><strong>Last Refreshed:</strong> 2026-07-06, ~13:37 PT / 16:37 ET (approx. 37 min post-close)</p>
+    <p>Final after-market data. No large-cap earnings reactions reported today. This report is for informational purposes only and does not constitute financial advice.</p>
+  </footer>
+
+</div>
+</body>
+</html>
