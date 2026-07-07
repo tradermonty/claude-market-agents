@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇺🇸 U.S. Stock Market Analysis — 2026-07-07</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: #fff;
+        min-height: 100vh;
+        padding: 30px 16px;
+        line-height: 1.5;
+    }
+    .container { max-width: 1180px; margin: 0 auto; }
+    header {
+        text-align: center;
+        margin-bottom: 34px;
+    }
+    header h1 { font-size: 2.3em; letter-spacing: 0.5px; text-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+    header .date {
+        margin-top: 10px;
+        font-size: 1.05em;
+        color: #cfe0ff;
+        letter-spacing: 0.4px;
+    }
+    .tagline {
+        margin-top: 14px;
+        display: inline-block;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.22);
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-size: 1em;
+        font-weight: 600;
+        color: #ffe08a;
+    }
+    section { margin-bottom: 34px; }
+    h2 {
+        font-size: 1.45em;
+        margin-bottom: 18px;
+        padding-left: 12px;
+        border-left: 5px solid #66a3ff;
+        text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .grid { display: grid; gap: 22px; }
+    .etf-grid { grid-template-columns: repeat(3, 1fr); }
+    .card {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        backdrop-filter: blur(8px);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.45); }
+    .etf-card .symbol { font-size: 1.4em; font-weight: 700; }
+    .etf-card .name { font-size: 0.8em; color: #c4d4f0; margin: 4px 0 12px; min-height: 32px; }
+    .etf-card .price { font-size: 1.5em; font-weight: 700; }
+    .etf-card .change { font-size: 1.2em; font-weight: 700; margin-top: 6px; }
+    .up { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.35); }
+    .down { color: #ff6b6b; text-shadow: 0 0 10px rgba(255,107,107,0.35); }
+    .vol { font-size: 0.8em; color: #b9c9e8; margin-top: 8px; }
+
+    table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 16px; }
+    thead th {
+        background: rgba(255,255,255,0.16);
+        padding: 14px 12px;
+        text-align: left;
+        font-size: 0.9em;
+        letter-spacing: 0.4px;
+    }
+    tbody td { padding: 13px 12px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.95em; }
+    tbody tr { background: rgba(255,255,255,0.06); transition: background 0.2s ease; }
+    tbody tr:hover { background: rgba(255,255,255,0.14); }
+    .tkr { font-weight: 700; font-size: 1.05em; }
+    .badge {
+        display: inline-block;
+        background: rgba(0,255,136,0.16);
+        border: 1px solid rgba(0,255,136,0.4);
+        color: #b6ffdb;
+        font-size: 0.72em;
+        padding: 2px 9px;
+        border-radius: 12px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    /* Earnings / After-hours fallback section */
+    .afterhours-section {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+        border-left: 6px solid #ffff00;
+        border-radius: 20px;
+        padding: 26px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .afterhours-section h2 { border-left: none; padding-left: 0; color: #fff; }
+    .ah-note {
+        background: rgba(0,0,0,0.18);
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 0.95em;
+        margin-bottom: 18px;
+    }
+    .earnings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .earnings-card {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 14px;
+        padding: 16px;
+    }
+    .earnings-card .symbol { font-size: 1.2em; font-weight: 700; }
+    .earnings-card .co { font-size: 0.78em; color: #fff4e0; margin: 2px 0 10px; }
+    .earnings-surprise { display: flex; justify-content: space-between; font-size: 0.88em; }
+    .surprise-positive { color: #063; font-weight: 700; }
+    .surprise-negative { color: #7a0000; font-weight: 700; }
+    .cal-box {
+        margin-top: 18px;
+        background: rgba(0,0,0,0.18);
+        border-radius: 12px;
+        padding: 16px 18px;
+    }
+    .cal-box h3 { font-size: 1.05em; margin-bottom: 10px; }
+    .cal-box ul { list-style: none; }
+    .cal-box li { padding: 6px 0; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+    .cal-box li:first-child { border-top: none; }
+
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    .stat-card { text-align: center; }
+    .stat-card .num { font-size: 2em; font-weight: 800; color: #ffd54a; }
+    .stat-card .lbl { font-size: 0.82em; color: #c4d4f0; margin-top: 6px; }
+
+    .sector-grid { grid-template-columns: repeat(3, 1fr); }
+    .sector-card { padding: 18px; }
+    .sector-card .sname { font-size: 1.02em; font-weight: 700; }
+    .sector-card .schange { font-size: 1.35em; font-weight: 800; margin: 6px 0; }
+    .sector-card .smeta { font-size: 0.76em; color: #b9c9e8; }
+
+    .keypoints { background: rgba(255,255,255,0.12); border-radius: 20px; padding: 26px; }
+    .keypoints ul { list-style: none; }
+    .keypoints li { padding: 10px 0 10px 30px; position: relative; border-top: 1px solid rgba(255,255,255,0.1); }
+    .keypoints li:first-child { border-top: none; }
+    .keypoints li::before { content: "▸"; position: absolute; left: 6px; color: #66a3ff; font-weight: 700; }
+    .keypoints b { color: #ffd54a; }
+
+    footer {
+        text-align: center;
+        font-size: 0.82em;
+        color: #b9c9e8;
+        margin-top: 30px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    @media (max-width: 760px) {
+        .etf-grid { grid-template-columns: repeat(2, 1fr); }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .sector-grid { grid-template-columns: 1fr; }
+        .earnings-grid { grid-template-columns: 1fr; }
+        header h1 { font-size: 1.7em; }
+        table { font-size: 0.85em; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+        <div class="date">📅 2026-07-07 (Tue) — Final After-Market Data</div>
+        <div class="tagline">Tech Sells Off on Samsung AI Miss · Biotech M&amp;A Rips</div>
+    </header>
+
+    <!-- Major ETFs -->
+    <section>
+        <h2>📊 Major ETF Performance</h2>
+        <div class="grid etf-grid">
+            <div class="card etf-card">
+                <div class="symbol">SPY</div>
+                <div class="name">SPDR S&amp;P 500 ETF</div>
+                <div class="price">$747.62</div>
+                <div class="change down">-0.49%</div>
+                <div class="vol">Vol: 40.6M</div>
+            </div>
+            <div class="card etf-card">
+                <div class="symbol">QQQ</div>
+                <div class="name">Invesco QQQ Trust</div>
+                <div class="price">$709.43</div>
+                <div class="change down">-1.85%</div>
+                <div class="vol">Vol: 40.8M</div>
+            </div>
+            <div class="card etf-card">
+                <div class="symbol">DIA</div>
+                <div class="name">SPDR Dow Jones Industrial Avg</div>
+                <div class="price">$528.45</div>
+                <div class="change down">-0.31%</div>
+                <div class="vol">Vol: 4.2M</div>
+            </div>
+            <div class="card etf-card">
+                <div class="symbol">IWM</div>
+                <div class="name">iShares Russell 2000 ETF</div>
+                <div class="price">$296.20</div>
+                <div class="change down">-0.90%</div>
+                <div class="vol">Vol: 17.4M</div>
+            </div>
+            <div class="card etf-card">
+                <div class="symbol">TLT</div>
+                <div class="name">iShares 20+ Yr Treasury Bond</div>
+                <div class="price">$84.55</div>
+                <div class="change down">-1.05%</div>
+                <div class="vol">Vol: 24.2M · yields up</div>
+            </div>
+            <div class="card etf-card">
+                <div class="symbol">GLD</div>
+                <div class="name">SPDR Gold Shares ETF</div>
+                <div class="price">$377.49</div>
+                <div class="change down">-1.21%</div>
+                <div class="vol">Vol: 4.7M</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Volume-Surge Movers -->
+    <section>
+        <h2>🔥 Top Volume-Surge Movers</h2>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Symbol</th><th>Company</th><th>Change</th><th>Close</th><th>Catalyst</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="tkr">CRNX 🚀</td>
+                    <td>Crinetics Pharmaceuticals</td>
+                    <td class="up">+98.74%</td>
+                    <td>$83.53</td>
+                    <td>Vertex $10B all-cash buyout</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td class="tkr">AGIO</td>
+                    <td>Agios Pharmaceuticals</td>
+                    <td class="up">+17.71%</td>
+                    <td>$44.01</td>
+                    <td>FDA Priority Review (mitapivat, SCD)</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td class="tkr">IMMX</td>
+                    <td>Immix Biopharma</td>
+                    <td class="up">+15.02%</td>
+                    <td>$12.02</td>
+                    <td>Biotech / rare-disease bid</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td class="tkr">NGNE</td>
+                    <td>Neurogene</td>
+                    <td class="up">+13.02%</td>
+                    <td>$36.80</td>
+                    <td>Gene-therapy momentum</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td class="tkr">BAND</td>
+                    <td>Bandwidth</td>
+                    <td class="up">+11.36%</td>
+                    <td>$67.56</td>
+                    <td>Comm-services rebound</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td class="tkr">VKTX</td>
+                    <td>Viking Therapeutics</td>
+                    <td class="up">+8.83%</td>
+                    <td>$42.13</td>
+                    <td>Obesity / metabolic biotech</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td class="tkr">KURA</td>
+                    <td>Kura Oncology</td>
+                    <td class="up">+8.61%</td>
+                    <td>$11.99</td>
+                    <td>Oncology sympathy bid</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td class="tkr">BCRX</td>
+                    <td>BioCryst Pharmaceuticals</td>
+                    <td class="up">+8.06%</td>
+                    <td>$10.99</td>
+                    <td>Rare-disease sympathy</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Post-Close Earnings & After-Hours (fallback: no after-hours reporters) -->
+    <section>
+        <div class="afterhours-section">
+            <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+            <div class="ah-note">
+                No large-cap companies reported after today's close, so the after-hours earnings screener is empty.
+                Below are today's <b>before-market (BMO) reporters</b> and this week's remaining large-cap calendar.
+            </div>
+
+            <h3 style="margin-bottom:12px;">🗞️ Today's BMO Reporters (regular-session reaction)</h3>
+            <div class="earnings-grid">
+                <div class="earnings-card">
+                    <div class="symbol">PENG <span class="down">-7.38%</span></div>
+                    <div class="co">Penguin Solutions · Technology</div>
+                    <div class="earnings-surprise">
+                        <span>EPS: <span class="surprise-positive">+23.08%</span></span>
+                        <span>Rev: <span class="surprise-positive">+1.18%</span></span>
+                    </div>
+                </div>
+                <div class="earnings-card">
+                    <div class="symbol">KRUS <span class="down">-5.72%</span></div>
+                    <div class="co">Kura Sushi USA · Consumer Cyclical</div>
+                    <div class="earnings-surprise">
+                        <span>EPS: <span class="surprise-positive">+18.70%</span></span>
+                        <span>Rev: <span class="surprise-positive">+3.10%</span></span>
+                    </div>
+                </div>
+                <div class="earnings-card">
+                    <div class="symbol">EPAC <span class="down">-2.44%</span></div>
+                    <div class="co">Enerpac Tool Group · Industrials</div>
+                    <div class="earnings-surprise">
+                        <span>EPS: <span class="surprise-positive">+0.05%</span></span>
+                        <span>Rev: <span class="surprise-positive">+3.36%</span></span>
+                    </div>
+                </div>
+                <div class="earnings-card">
+                    <div class="symbol">SAR <span class="down">-2.15%</span></div>
+                    <div class="co">Saratoga Investment · Financial</div>
+                    <div class="earnings-surprise">
+                        <span>EPS: <span class="surprise-negative">-4.93%</span></span>
+                        <span>Rev: <span class="surprise-positive">+0.87%</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="ah-note" style="margin-top:16px;margin-bottom:0;">
+                Note: Beats sold off — EPS beats at PENG/KRUS were met with profit-taking, in line with the
+                broad risk-off, tech-heavy tape.
+            </div>
+
+            <div class="cal-box">
+                <h3>🗓️ This Week's Remaining Large-Cap Earnings</h3>
+                <ul>
+                    <li><b>Thu 7/9</b> — PEP · PepsiCo (Consumer Defensive)</li>
+                    <li><b>Fri 7/10</b> — DAL · Delta Air Lines (Industrials) — unofficial Q2 kickoff</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Statistics -->
+    <section>
+        <h2>📈 Market Statistics</h2>
+        <div class="grid stats-grid">
+            <div class="card stat-card">
+                <div class="num">44</div>
+                <div class="lbl">Volume-Surge Stocks</div>
+            </div>
+            <div class="card stat-card">
+                <div class="num">783</div>
+                <div class="lbl">Uptrend Stocks</div>
+            </div>
+            <div class="card stat-card">
+                <div class="num">3.4x</div>
+                <div class="lbl">Avg Relative Volume</div>
+            </div>
+            <div class="card stat-card">
+                <div class="num">+8.1%</div>
+                <div class="lbl">Avg Price Move</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sector Performance -->
+    <section>
+        <h2>🏢 Sector Performance</h2>
+        <div class="grid sector-grid">
+            <div class="card sector-card">
+                <div class="sname">⚡ Energy</div>
+                <div class="schange up">+2.83%</div>
+                <div class="smeta">254 stocks · P/E 18.2 · Yield 3.75%</div>
+            </div>
+            <div class="card sector-card">
+                <div class="sname">🧬 Healthcare</div>
+                <div class="schange up">+1.37%</div>
+                <div class="smeta">1,066 stocks · P/E 32.1 · Yield 1.44%</div>
+            </div>
+            <div class="card sector-card">
+                <div class="sname">🏠 Real Estate</div>
+                <div class="schange up">+1.02%</div>
+                <div class="smeta">255 stocks · P/E 33.6 · Yield 3.65%</div>
+            </div>
+            <div class="card sector-card">
+                <div class="sname">💻 Technology</div>
+                <div class="schange down">-1.95%</div>
+                <div class="smeta">789 stocks · P/E 36.9 · Yield 0.57%</div>
+            </div>
+            <div class="card sector-card">
+                <div class="sname">⛏️ Basic Materials</div>
+                <div class="schange down">-2.16%</div>
+                <div class="smeta">284 stocks · P/E 21.5 · Yield 2.04%</div>
+            </div>
+            <div class="card sector-card">
+                <div class="sname">🏗️ Industrials</div>
+                <div class="schange down">-2.79%</div>
+                <div class="smeta">706 stocks · P/E 41.2 · Yield 0.82%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Today's Key Points -->
+    <section>
+        <h2>🎯 Today's Key Points</h2>
+        <div class="keypoints">
+            <ul>
+                <li><b>Tech-led selloff:</b> QQQ -1.85% led the tape lower after Samsung missed lofty AI expectations, dragging Technology (-1.95%) and Industrials (-2.79%). SPY -0.49% and DIA -0.31% held up better.</li>
+                <li><b>Defensive rotation:</b> Energy (+2.83%), Healthcare (+1.37%), Real Estate (+1.02%) and Consumer Defensive (+0.85%) advanced as money rotated out of high-multiple growth.</li>
+                <li><b>Biotech M&amp;A shock:</b> Crinetics (CRNX) rocketed +98.74% on Vertex's $10B all-cash buyout, igniting a rare-disease/endocrine biotech bid — 44 volume-surge names, heavily healthcare, avg move +8.1%.</li>
+                <li><b>Regulatory catalyst:</b> Agios (AGIO) +17.71% after the FDA granted Priority Review to mitapivat in sickle cell disease.</li>
+                <li><b>Risk-off breadth:</b> IWM -0.90% and 783 uptrend stocks show breadth holding despite the index-level decline — this was a mega-cap/tech drawdown, not a broad rout.</li>
+                <li><b>Bonds &amp; gold:</b> TLT -1.05% (long yields higher) and GLD -1.21% both fell, an unusual dual pullback in the traditional havens.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        <div>📊 Data sources: Finviz Elite, Alpaca Markets, Financial Modeling Prep</div>
+        <div>⏰ Last refreshed: 2026-07-07 13:11 PT (16:11 ET) · Final after-market data + after-hours info</div>
+        <div>Information only — not financial advice. Earnings figures may be preliminary.</div>
+    </footer>
+</div>
+</body>
+</html>
