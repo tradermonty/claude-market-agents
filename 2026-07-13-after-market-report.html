@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis — 2026-07-13</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f1b35 0%, #1e3c72 50%, #2a5298 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .header {
+    text-align: center;
+    padding: 40px 30px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 2.2em; font-weight: 700; letter-spacing: 1px; }
+  .header .subtitle { font-size: 1.1em; color: #a8c8ff; margin-top: 8px; }
+  .header .date-badge {
+    display: inline-block; margin-top: 12px;
+    padding: 6px 18px; background: rgba(255,255,255,0.15);
+    border-radius: 30px; font-size: 0.95em; color: #e0ecff;
+  }
+  .info-alert {
+    display: inline-block; margin-top: 12px; margin-left: 10px;
+    padding: 6px 18px;
+    background: rgba(255,190,50,0.25); border: 1px solid rgba(255,190,50,0.5);
+    border-radius: 30px; font-size: 0.88em; color: #ffe08a;
+  }
+
+  .section {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px; padding: 30px; margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .section-title {
+    font-size: 1.3em; font-weight: 700; margin-bottom: 20px;
+    padding-bottom: 10px; border-bottom: 2px solid rgba(255,255,255,0.2);
+    color: #a8d8ff; letter-spacing: 0.5px;
+  }
+
+  .etf-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }
+  @media (max-width: 768px) { .etf-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 480px) { .etf-grid { grid-template-columns: 1fr; } }
+
+  .etf-card {
+    background: rgba(255,255,255,0.12); border-radius: 15px;
+    padding: 20px; text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .etf-card:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+  .etf-card .symbol { font-size: 1.4em; font-weight: 800; color: #e0ecff; }
+  .etf-card .name { font-size: 0.72em; color: #8aacd0; margin: 4px 0 10px; }
+  .etf-card .price { font-size: 1.6em; font-weight: 700; }
+  .etf-card .change {
+    font-size: 1.1em; font-weight: 700; margin-top: 6px;
+    padding: 4px 14px; border-radius: 20px; display: inline-block;
+  }
+  .up { color: #00ff88; }
+  .down { color: #ff6b6b; }
+  .flat { color: #ffd700; }
+  .change.up-bg   { background: rgba(0,255,136,0.18); color: #00ff88; }
+  .change.down-bg { background: rgba(255,107,107,0.18); color: #ff6b6b; }
+  .change.flat-bg { background: rgba(255,215,0,0.18); color: #ffd700; }
+
+  .mover-table { width: 100%; border-collapse: collapse; }
+  .mover-table th {
+    text-align: left; padding: 10px 14px;
+    background: rgba(255,255,255,0.1);
+    font-size: 0.85em; color: #a8d8ff;
+    text-transform: uppercase; letter-spacing: 0.5px; border-radius: 6px;
+  }
+  .mover-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.95em;
+  }
+  .mover-table tr:hover td { background: rgba(255,255,255,0.06); }
+  .rank-badge {
+    display: inline-block; width: 26px; height: 26px; line-height: 26px;
+    text-align: center; border-radius: 50%; font-size: 0.8em; font-weight: 700;
+    background: rgba(255,255,255,0.15);
+  }
+  .rank-1 { background: linear-gradient(135deg,#ffd700,#ff8c00); color: #000; }
+
+  .sector-table { width: 100%; border-collapse: collapse; }
+  .sector-table th {
+    text-align: left; padding: 10px 14px;
+    background: rgba(255,255,255,0.1);
+    font-size: 0.82em; color: #a8d8ff;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .sector-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.92em;
+  }
+  .sector-bar-wrap {
+    background: rgba(255,255,255,0.1); border-radius: 6px;
+    height: 8px; min-width: 120px; overflow: hidden;
+  }
+  .sector-bar { height: 100%; border-radius: 6px; }
+  .bar-up   { background: linear-gradient(90deg,#00ff88,#00cc66); }
+  .bar-down { background: linear-gradient(90deg,#ff6b6b,#cc3333); }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 15px; }
+  @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+  .stat-card {
+    background: rgba(255,255,255,0.1); border-radius: 15px;
+    padding: 20px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-value { font-size: 2em; font-weight: 800; color: #00ff88; }
+  .stat-label { font-size: 0.78em; color: #8aacd0; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .earnings-section {
+    background: linear-gradient(135deg, rgba(255,107,107,0.15) 0%, rgba(255,165,0,0.15) 100%);
+    border-left: 5px solid #ffa500;
+    border-radius: 20px; padding: 30px; margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .earnings-title { font-size: 1.3em; font-weight: 700; margin-bottom: 8px; color: #ffcc66; }
+  .earnings-subtitle { font-size: 0.85em; color: #e0b070; margin-bottom: 20px; }
+  .earnings-day { margin-bottom: 18px; }
+  .earnings-day-header {
+    font-size: 0.88em; color: #ffd080; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px; padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255,165,0,0.3);
+  }
+  .earnings-ticker-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .earnings-chip {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,165,0,0.4);
+    border-radius: 10px; padding: 8px 14px; font-size: 0.9em;
+    position: relative;
+  }
+  .earnings-chip .eticker { font-weight: 800; font-size: 1.05em; color: #ffe0a0; }
+  .earnings-chip .ename { font-size: 0.8em; color: #bbb; display: block; margin-top: 2px; }
+  .earnings-chip .esector { font-size: 0.72em; color: #888; }
+  .earnings-chip .esurprise { font-size: 0.78em; margin-top: 4px; display: block; }
+  .surprise-positive { color: #00ff88; }
+  .surprise-negative { color: #ff6b6b; }
+  .afterhours-badge {
+    display: inline-block; background: #ff4444; color: #fff;
+    padding: 3px 9px; border-radius: 12px; font-size: 0.68em; font-weight: 700;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  .key-points-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
+  @media (max-width: 680px) { .key-points-grid { grid-template-columns: 1fr; } }
+  .kp-card {
+    background: rgba(255,255,255,0.08); border-radius: 12px;
+    padding: 18px; border-left: 4px solid #4a90d9;
+  }
+  .kp-title { font-size: 0.88em; font-weight: 700; color: #a8d8ff; text-transform: uppercase; margin-bottom: 8px; }
+  .kp-text { font-size: 0.9em; color: #d0e4ff; line-height: 1.55; }
+
+  .footer {
+    text-align: center; padding: 22px; color: #6a8aaa; font-size: 0.8em;
+    border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div style="font-size:2em; margin-bottom:8px;">&#127482;&#127480;</div>
+    <h1>U.S. Stock Market Analysis</h1>
+    <div class="subtitle">Final After-Market Data &mdash; Mideast Escalation Slams Tech, Oil Spike Lifts Energy</div>
+    <div class="date-badge">&#128197; 2026-07-13 &mdash; Final After-Market Data</div>
+    <div class="info-alert">No After-Hours Earnings Movers Today &mdash; BMO Recap + Week-Ahead Calendar Below</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">&#128200; Major ETF Performance</div>
+    <div class="etf-grid">
+      <div class="etf-card">
+        <div class="symbol">SPY</div>
+        <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+        <div class="price">$749.17</div>
+        <div class="change down-bg">-0.77%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">QQQ</div>
+        <div class="name">Invesco QQQ Trust</div>
+        <div class="price">$711.72</div>
+        <div class="change down-bg">-1.90%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">DIA</div>
+        <div class="name">SPDR Dow Jones ETF</div>
+        <div class="price">$524.47</div>
+        <div class="change down-bg">-0.25%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">IWM</div>
+        <div class="name">iShares Russell 2000 ETF</div>
+        <div class="price">$293.48</div>
+        <div class="change down-bg">-0.85%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">TLT</div>
+        <div class="name">iShares 20+ Year Treasury</div>
+        <div class="price">$83.97</div>
+        <div class="change down-bg">-0.59%</div>
+      </div>
+      <div class="etf-card">
+        <div class="symbol">GLD</div>
+        <div class="name">SPDR Gold Shares ETF</div>
+        <div class="price">$367.13</div>
+        <div class="change down-bg">-2.62%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">&#128293; Top Volume-Surge Tickers (Top 5 by % Change)</div>
+    <table class="mover-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Symbol</th>
+          <th>Price</th>
+          <th>Change</th>
+          <th>Prev Close</th>
+          <th>Volume</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="rank-badge rank-1">1</span></td>
+          <td><strong>QTTB</strong> &mdash; Q32 Bio Inc</td>
+          <td>$21.38</td>
+          <td><span class="up">+90.72%</span></td>
+          <td>$11.21</td>
+          <td>27.5M</td>
+        </tr>
+        <tr>
+          <td><span class="rank-badge">2</span></td>
+          <td><strong>TCBK</strong> &mdash; TriCo Bancshares</td>
+          <td>$60.07</td>
+          <td><span class="up">+11.99%</span></td>
+          <td>$53.64</td>
+          <td>3.2M</td>
+        </tr>
+        <tr>
+          <td><span class="rank-badge">3</span></td>
+          <td><strong>SI</strong> &mdash; Shoulder Innovations Inc</td>
+          <td>$22.38</td>
+          <td><span class="up">+11.01%</span></td>
+          <td>$20.16</td>
+          <td>172.7K</td>
+        </tr>
+        <tr>
+          <td><span class="rank-badge">4</span></td>
+          <td><strong>CNMD</strong> &mdash; CONMED Corp</td>
+          <td>$42.41</td>
+          <td><span class="up">+10.21%</span></td>
+          <td>$38.48</td>
+          <td>2.5M</td>
+        </tr>
+        <tr>
+          <td><span class="rank-badge">5</span></td>
+          <td><strong>PSNL</strong> &mdash; Personalis Inc</td>
+          <td>$15.04</td>
+          <td><span class="up">+6.89%</span></td>
+          <td>$14.07</td>
+          <td>10.7M</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px; font-size:0.82em; color:#7a9ccc;">
+      16 total volume-surge stocks detected (Small-cap+, price &gt;$10, rel-vol &gt;1.5x, above 200-day MA).
+      Avg relative volume: 5.7x | Avg price move: +11.1%
+    </p>
+  </div>
+
+  <div class="earnings-section">
+    <div class="earnings-title">&#9200; Post-Close Earnings &amp; After-Hours</div>
+    <div class="earnings-subtitle">
+      No stocks cleared the after-hours earnings screener today (large-cap $10B+, AH move &gt;2%, reported today
+      after close). Below: today's before-market reporters and the rest of this week's calendar.
+    </div>
+
+    <div class="earnings-day">
+      <div class="earnings-day-header">Today's Before-Market Reporters (Jul 13)</div>
+      <div class="earnings-ticker-row">
+        <div class="earnings-chip">
+          <span class="eticker">FBK</span>
+          <span class="ename">FB Financial Corp &mdash; $56.62 (-0.11%)</span>
+          <span class="esector">Financial</span>
+          <span class="esurprise">EPS: <span class="surprise-positive">+0.99%</span> &nbsp;|&nbsp; Rev: <span class="surprise-negative">-1.69%</span></span>
+        </div>
+        <div class="earnings-chip">
+          <span class="eticker">AERO</span>
+          <span class="ename">Grupo Aeromexico SAB de CV ADR &mdash; $15.34 (-8.31%)</span>
+          <span class="esector">Industrials (Airlines)</span>
+          <span class="esurprise">EPS: <span class="surprise-positive">+0.13%</span> &nbsp;|&nbsp; Rev: <span class="surprise-positive">+0.56%</span></span>
+        </div>
+      </div>
+      <p style="margin-top:10px; font-size:0.78em; color:#cc9933;">
+        AERO beat on both EPS and revenue but still dropped -8.31% &mdash; airlines were broadly pressured today as
+        the Iran-linked oil spike (WTI +4.4%, Brent +4.3%) raises fuel-cost concerns, overwhelming the in-line print.
+      </p>
+    </div>
+
+    <div class="earnings-day">
+      <div class="earnings-day-header">Tuesday, July 14</div>
+      <div class="earnings-ticker-row">
+        <div class="earnings-chip">
+          <span class="eticker">FAST</span>
+          <span class="ename">Fastenal Co (Pre-Market)</span>
+          <span class="esector">Industrials | $54.0B</span>
+        </div>
+        <div class="earnings-chip">
+          <span class="eticker">ERIC</span>
+          <span class="ename">Telefonaktiebolaget LM Ericsson ADR (Pre-Market)</span>
+          <span class="esector">Technology | $36.0B</span>
+        </div>
+        <div class="earnings-chip">
+          <span class="eticker">AEHR</span>
+          <span class="ename">Aehr Test Systems (After Close)</span>
+          <span class="esector">Technology | $2.1B</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="earnings-day">
+      <div class="earnings-day-header">Wednesday, July 15</div>
+      <div class="earnings-ticker-row">
+        <div class="earnings-chip">
+          <span class="eticker">HOMB</span>
+          <span class="ename">Home Bancshares Inc (After Close)</span>
+          <span class="esector">Financial | $5.9B</span>
+        </div>
+        <div class="earnings-chip">
+          <span class="eticker">CAG</span>
+          <span class="ename">Conagra Brands Inc (Pre-Market)</span>
+          <span class="esector">Consumer Defensive | $6.9B</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="earnings-day">
+      <div class="earnings-day-header">Thursday, July 16</div>
+      <div class="earnings-ticker-row">
+        <div class="earnings-chip">
+          <span class="eticker">SFNC</span>
+          <span class="ename">Simmons First National Corp (After Close)</span>
+          <span class="esector">Financial | $3.3B</span>
+        </div>
+        <div class="earnings-chip">
+          <span class="eticker">FNB</span>
+          <span class="ename">F.N.B. Corp (After Close)</span>
+          <span class="esector">Financial | $6.7B</span>
+        </div>
+        <div class="earnings-chip">
+          <span class="eticker">CBSH</span>
+          <span class="ename">Commerce Bancshares Inc (Pre-Market)</span>
+          <span class="esector">Financial | $8.5B</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="earnings-day">
+      <div class="earnings-day-header">Friday, July 17 &mdash; Pre-Market</div>
+      <div class="earnings-ticker-row">
+        <div class="earnings-chip">
+          <span class="eticker">ALV</span>
+          <span class="ename">Autoliv Inc</span>
+          <span class="esector">Consumer Cyclical | $9.1B</span>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:16px; font-size:0.8em; color:#cc9933;">
+      Source: Finviz earnings_screener &amp; upcoming_earnings_screener (mid-cap $2B+ and large-cap $10B+, min avg
+      vol 500K). Regional-bank earnings continue to trickle in mid-week (HOMB, SFNC, FNB, CBSH) ahead of the
+      broader Q2 bank earnings wave starting the week of Jul 20. Verify exact dates and times on Finviz or company
+      IR pages before trading.
+    </p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">&#128202; Market Statistics</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" style="color:#ff9944;">16</div>
+        <div class="stat-label">Volume-Surge Stocks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:#00ff88;">722</div>
+        <div class="stat-label">Uptrend Stocks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:#66ccff;">5.7x</div>
+        <div class="stat-label">Avg Relative Volume</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:#ffd700;">+11.1%</div>
+        <div class="stat-label">Avg Price Move</div>
+      </div>
+    </div>
+    <div style="margin-top:18px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; font-size:0.88em; color:#8aacd0;">
+      <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:12px; text-align:center;">
+        <div style="font-size:1.3em; font-weight:700; color:#a0ccff;">201</div>
+        <div style="margin-top:4px;">Financial Uptrend</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:12px; text-align:center;">
+        <div style="font-size:1.3em; font-weight:700; color:#a0ccff;">185</div>
+        <div style="margin-top:4px;">Healthcare Uptrend</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:12px; text-align:center;">
+        <div style="font-size:1.3em; font-weight:700; color:#a0ccff;">66</div>
+        <div style="margin-top:4px;">Earnings This Week</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">&#127962; Sector Performance</div>
+    <table class="sector-table">
+      <thead>
+        <tr>
+          <th>Sector</th>
+          <th>Change</th>
+          <th>Performance Bar</th>
+          <th>Stocks</th>
+          <th>P/E</th>
+          <th>Div Yield</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Energy</strong></td>
+          <td><span class="up">+2.74%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-up" style="width:100%;"></div></div></td>
+          <td>254</td><td>18.9</td><td>3.61%</td>
+        </tr>
+        <tr>
+          <td><strong>Real Estate</strong></td>
+          <td><span class="up">+0.45%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-up" style="width:16%;"></div></div></td>
+          <td>254</td><td>33.4</td><td>3.67%</td>
+        </tr>
+        <tr>
+          <td><strong>Consumer Defensive</strong></td>
+          <td><span class="up">+0.40%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-up" style="width:15%;"></div></div></td>
+          <td>240</td><td>26.3</td><td>2.41%</td>
+        </tr>
+        <tr>
+          <td><strong>Utilities</strong></td>
+          <td><span class="up">+0.31%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-up" style="width:11%;"></div></div></td>
+          <td>111</td><td>21.0</td><td>2.89%</td>
+        </tr>
+        <tr>
+          <td><strong>Financial</strong></td>
+          <td><span class="up">+0.21%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-up" style="width:8%;"></div></div></td>
+          <td>1,110</td><td>18.7</td><td>1.84%</td>
+        </tr>
+        <tr>
+          <td><strong>Healthcare</strong></td>
+          <td><span class="down">-0.16%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-down" style="width:6%;"></div></div></td>
+          <td>1,062</td><td>30.6</td><td>1.48%</td>
+        </tr>
+        <tr>
+          <td><strong>Consumer Cyclical</strong></td>
+          <td><span class="down">-0.74%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-down" style="width:27%;"></div></div></td>
+          <td>535</td><td>29.2</td><td>0.81%</td>
+        </tr>
+        <tr>
+          <td><strong>Basic Materials</strong></td>
+          <td><span class="down">-1.09%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-down" style="width:40%;"></div></div></td>
+          <td>284</td><td>21.3</td><td>2.07%</td>
+        </tr>
+        <tr>
+          <td><strong>Communication Services</strong></td>
+          <td><span class="down">-1.09%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-down" style="width:40%;"></div></div></td>
+          <td>261</td><td>29.7</td><td>0.57%</td>
+        </tr>
+        <tr>
+          <td><strong>Industrials</strong></td>
+          <td><span class="down">-1.43%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-down" style="width:52%;"></div></div></td>
+          <td>706</td><td>41.2</td><td>0.83%</td>
+        </tr>
+        <tr>
+          <td><strong>Technology</strong></td>
+          <td><span class="down">-2.39%</span></td>
+          <td><div class="sector-bar-wrap"><div class="sector-bar bar-down" style="width:87%;"></div></div></td>
+          <td>791</td><td>36.3</td><td>0.54%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">&#128203; Today's Key Points</div>
+    <div class="key-points-grid">
+      <div class="kp-card">
+        <div class="kp-title">Broad Market Trend</div>
+        <div class="kp-text">
+          Stocks fell broadly to start the week after the U.S. and Iran escalated fighting in the Middle East
+          over the weekend. SPY (-0.77%), QQQ (-1.90%), DIA (-0.25%) and IWM (-0.85%) all closed lower. Breadth
+          held up reasonably well &mdash; 722 stocks remained in confirmed uptrends &mdash; while volume-surge
+          activity stayed thin at just 16 names, consistent with a broad risk-off repricing rather than
+          concentrated panic selling.
+        </div>
+      </div>
+      <div class="kp-card">
+        <div class="kp-title">Hot Sectors</div>
+        <div class="kp-text">
+          Energy (+2.74%) was the standout, cushioned by crude spiking on fears of Strait of Hormuz disruption
+          (WTI +4.4% to ~$74.62, Brent +4.3% to ~$79.31). Real Estate (+0.45%), Consumer Defensive (+0.40%) and
+          Utilities (+0.31%) also outperformed in a defensive rotation. Technology (-2.39%) was the clear laggard
+          as chip and AI names sold off alongside steep declines in SK Hynix and Samsung Electronics overseas,
+          with Industrials (-1.43%) also weak.
+        </div>
+      </div>
+      <div class="kp-card">
+        <div class="kp-title">Notable Mover: Biogen</div>
+        <div class="kp-text">
+          BIIB (+4.96%, $209.03) was a standout among larger names after Truist upgraded the stock to Buy on
+          Alzheimer's pipeline optimism ahead of key data, and the FDA cleared its Alzheimer's treatment for
+          at-home use. Multiple analysts raised price targets following the news.
+        </div>
+      </div>
+      <div class="kp-card">
+        <div class="kp-title">Volume-Surge Characteristics</div>
+        <div class="kp-text">
+          16 stocks triggered volume-surge criteria (rel-vol &gt;1.5x, price +2%+, above 200-day MA), averaging
+          5.7x relative volume and +11.1% price moves &mdash; well above the recent norm. QTTB (+90.72%) exploded
+          higher on Q32 Bio's positive 36-week Phase 2b SIGNAL-AA trial results for alopecia drug bempikibart.
+          TCBK (+11.99%) jumped after First Hawaiian agreed to acquire TriCo Bancshares in a $2B all-stock deal.
+          CNMD (+10.21%) rallied on reports of private-equity takeover interest, reinforced by a bullish JPMorgan
+          note.
+        </div>
+      </div>
+      <div class="kp-card">
+        <div class="kp-title">Bonds &amp; Gold</div>
+        <div class="kp-text">
+          TLT (-0.59%, $83.97) and GLD (-2.62%, $367.13) fell together in an unusual pairing for a geopolitical
+          risk-off day: the oil spike revived inflation and rate-hike concerns, boosting the dollar and Treasury
+          yields even as equities sold off &mdash; overwhelming gold's typical safe-haven bid.
+        </div>
+      </div>
+      <div class="kp-card">
+        <div class="kp-title">Key Levels &amp; Forward Look</div>
+        <div class="kp-text">
+          SPY closed at $749.17, down from Friday's $754.95, and is testing near-term support. Headlines out of
+          the Middle East and any further escalation around the Strait of Hormuz remain the key swing factor for
+          risk sentiment this week. Watch Tuesday's FAST/ERIC/AEHR earnings and a steady drip of regional-bank
+          reports (HOMB, SFNC, FNB, CBSH) ahead of the broader Q2 bank earnings wave beginning July 20.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Data Sources: Finviz Elite (finviz.com) &middot; Alpaca Markets API &middot; Financial Modeling Prep &middot; Yahoo Finance</p>
+    <p style="margin-top:6px;">Last Refreshed: 2026-07-13 13:11 PDT (20:11 UTC) &middot; Final after-market data + after-hours info</p>
+    <p style="margin-top:6px; color:#4a6080;">This report is for informational purposes only and does not constitute financial advice.</p>
+  </div>
+
+</div>
+</body>
+</html>
