@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis - July 15, 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 2.4em; margin-bottom: 10px; }
+  header .subtitle { font-size: 1.1em; opacity: 0.85; }
+  h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  section {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .etf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card .symbol { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
+  .card .name { font-size: 0.8em; opacity: 0.75; margin-bottom: 10px; }
+  .card .price { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
+  .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { background: rgba(255,255,255,0.1); font-weight: 600; }
+  tr:hover { background: rgba(255,255,255,0.05); }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .afterhours-section h2 { border-bottom: 2px solid rgba(255,255,255,0.4); }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 15px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+  }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px;
+    background: #ff4444; color: #fff; padding: 5px 10px;
+    border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .earnings-card .symbol { font-size: 1.4em; font-weight: bold; }
+  .afterhours-change { font-size: 1.6em; font-weight: bold; margin: 8px 0; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #00ff88; font-weight: bold; }
+  .surprise-negative { color: #ff6b6b; font-weight: bold; }
+  .earnings-volume { font-size: 0.85em; opacity: 0.85; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .value { font-size: 2em; font-weight: bold; color: #00ff88; }
+  .stat-box .label { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
+  .key-points ul { list-style: none; }
+  .key-points li {
+    padding: 12px 0 12px 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .key-points li:before {
+    content: "▸"; position: absolute; left: 0; color: #00ff88; font-size: 1.2em;
+  }
+  footer {
+    text-align: center;
+    padding: 25px;
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; background: rgba(255,255,255,0.2); }
+  @media (max-width: 768px) {
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.6em; }
+    table { font-size: 0.85em; }
+  }
+  @media (max-width: 480px) {
+    .etf-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="subtitle">📅 2026-07-15 (Wednesday) – Final After-Market Data</div>
+  <div class="subtitle">Q2 2026 Earnings Season Kicks Off Strong — Banks Beat, ASML Soars, PayPal Surges on Takeover Bid</div>
+</header>
+
+<section>
+  <h2>📈 Major ETF Performance</h2>
+  <div class="etf-grid">
+    <div class="card">
+      <div class="symbol">SPY</div>
+      <div class="name">SPDR S&P 500 ETF Trust</div>
+      <div class="price">$754.81</div>
+      <div class="positive">▲ +0.40%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$717.74</div>
+      <div class="negative">▼ -0.27%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">DIA</div>
+      <div class="name">SPDR Dow Jones Industrial Avg ETF</div>
+      <div class="price">$525.95</div>
+      <div class="positive">▲ +0.24%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$295.77</div>
+      <div class="positive">▲ +0.43%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">TLT</div>
+      <div class="name">iShares 20+ Year Treasury Bond ETF</div>
+      <div class="price">$84.24</div>
+      <div class="positive">▲ +0.19%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$372.35</div>
+      <div class="positive">▲ +0.05%</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>🔥 Top Volume-Surge Tickers (Top 5 of 37)</h2>
+  <table>
+    <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th></tr>
+    <tr><td><strong>ELVA</strong></td><td>Electrovaya Inc.</td><td class="positive">+49.05%</td><td>29,835,518</td></tr>
+    <tr><td><strong>CHRN</strong></td><td>ChronoScale Corporation</td><td class="positive">+28.77%</td><td>851,500</td></tr>
+    <tr><td><strong>AEHR</strong></td><td>Aehr Test Systems</td><td class="positive">+21.91%</td><td>12,921,595</td></tr>
+    <tr><td><strong>PYPL</strong></td><td>PayPal Holdings Inc.</td><td class="positive">+17.18%</td><td>90,034,965</td></tr>
+    <tr><td><strong>FBYD</strong></td><td>Falcon's Beyond Global Inc.</td><td class="positive">+16.88%</td><td>256,535</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">37 volume-surge tickers detected (avg relative volume 4.3x, avg price move +8.2%). Full list includes MANE, ANGO, RH, MESO, BILL, MD, MAGN, SLN, CVEO, ADPT, BLK, IMOS, EVCM, BNY, PSNL, CLSK, LION, DFIN, CTAS, CTBI, RYAAY, ACIW, PESI, MTB, SHIP, BIIB, WFC, CNMD, CBIO, ASML, XYZ, RDN.</p>
+</section>
+
+<div class="afterhours-section">
+  <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+  <p style="margin-bottom:10px;">1 stock detected in tonight's after-hours screener (large-cap, 2%+ AH move, reported today after close).</p>
+  <div class="earnings-grid">
+    <div class="earnings-card">
+      <div class="afterhours-badge">After-Hours</div>
+      <div class="symbol">$JBHT</div>
+      <div style="opacity:0.85; font-size:0.85em;">J.B. Hunt Transport Services Inc — Industrials</div>
+      <div class="afterhours-change positive">+4.24% AH</div>
+      <div style="font-size:0.85em; opacity:0.85;">Regular session: -1.63% (close $276.28) → AH ~$288</div>
+      <div class="earnings-surprise">
+        <span>EPS: <span class="surprise-positive">+3.44%</span></span>
+        <span>Revenue: <span class="surprise-positive">+3.38%</span></span>
+      </div>
+      <div class="earnings-volume">Volume: 1.4M</div>
+    </div>
+  </div>
+  <p style="margin-top:20px; font-size:0.9em;"><strong>Today's BMO (before-market) earnings beats:</strong> Q2 2026 bank earnings season kicked off in force this morning — Wells Fargo ($WFC, profit beat on fee income/credit quality), BlackRock ($BLK, AUM crossed $15.3T on record inflows), M&amp;T Bank ($MTB, record EPS on interest income growth), plus U.S. Bancorp ($USB, EPS surprise +3.21%), State Street ($STT, EPS surprise +7.70%), Citizens Financial ($CFG, EPS surprise +3.57%), Abbott Labs ($ABT, EPS surprise +0.46%) and United Airlines ($UAL, EPS surprise +10.36%) all topped estimates. AngioDynamics ($ANGO) also beat and raised FY27 sales guidance (reported yesterday AH, reacting today +11.31%). Separately, Aehr Test Systems ($AEHR) popped +40% after-hours Tuesday on record bookings and a $100M effective backlog, extending to +21.91% in today's regular session.</p>
+  <p style="margin-top:15px; font-size:0.9em;"><strong>🗓️ Thursday (7/16) Earnings Calendar:</strong> BMO — U.S. Bancorp ($USB), State Street ($STT), Citizens Financial ($CFG), Abbott Laboratories ($ABT), all 8:30 AM ET. AMC — Intuitive Surgical ($ISRG), Alcoa ($AA), Wise Group ($WSE), all ~4:30 PM ET.</p>
+</div>
+
+<section>
+  <h2>📊 Market Statistics</h2>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="value">37</div><div class="label">Volume-Surge Tickers</div></div>
+    <div class="stat-box"><div class="value">698</div><div class="label">Up-Trend Tickers</div></div>
+    <div class="stat-box"><div class="value">4.3x</div><div class="label">Avg Relative Volume</div></div>
+    <div class="stat-box"><div class="value">+8.2%</div><div class="label">Avg Price Move (Surge List)</div></div>
+    <div class="stat-box"><div class="value">75</div><div class="label">Earnings Releases This Week</div></div>
+    <div class="stat-box"><div class="value">15.69</div><div class="label">VIX (-4.91%)</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>🏢 Sector Performance</h2>
+  <table>
+    <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>Stocks</th></tr>
+    <tr><td>Communication Services</td><td class="positive">+2.65%</td><td>13,389,139</td><td>261</td></tr>
+    <tr><td>Consumer Cyclical</td><td class="positive">+1.34%</td><td>9,192,338</td><td>535</td></tr>
+    <tr><td>Financial</td><td class="positive">+0.86%</td><td>15,105,011</td><td>1,112</td></tr>
+    <tr><td>Healthcare</td><td class="positive">+0.33%</td><td>8,874,419</td><td>1,062</td></tr>
+    <tr><td>Real Estate</td><td class="positive">+0.30%</td><td>1,834,797</td><td>254</td></tr>
+    <tr><td>Technology</td><td class="negative">-0.52%</td><td>32,830,301</td><td>791</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">Also lower: Consumer Defensive -0.04%, Industrials -0.18%, Basic Materials -0.31%, Energy -0.66%, Utilities -0.86%.</p>
+</section>
+
+<section class="key-points">
+  <h2>🔑 Today's Key Points</h2>
+  <ul>
+    <li><strong>Hot sectors:</strong> Communication Services (+2.65%) and Consumer Cyclical (+1.34%) led; Financial (+0.86%) rode the Q2 bank-earnings beat wave from WFC, BLK, MTB, USB, STT and CFG.</li>
+    <li><strong>Volume-surge characteristics:</strong> 37 stocks surged on 4.3x average relative volume with an average move of +8.2% — small/mid-cap biotech and battery/AI-infra names dominated the top of the list (ELVA, CHRN, AEHR).</li>
+    <li><strong>Earnings highlights:</strong> ASML delivered a blockbuster beat-and-raise (second 2026 guidance hike) on AI chip demand, lifting semiconductor sentiment broadly. AEHR followed with record bookings/backlog and raised FY27 guidance. Bank earnings (WFC, BLK, MTB, USB, STT, CFG, ABT, UAL) broadly beat estimates as Q2 2026 earnings season opened.</li>
+    <li><strong>After-hours focal point:</strong> J.B. Hunt Transport ($JBHT) reported after today's close and reversed a -1.63% regular-session decline to +4.24% after-hours on an EPS beat (+3.44%) and revenue beat (+3.38%).</li>
+    <li><strong>Broad market trend:</strong> SPY (+0.40%) and IWM (+0.43%) pushed toward record territory on cooler-than-expected inflation data; QQQ (-0.27%) lagged as mega-cap tech cooled even while chip-equipment names like ASML rallied. VIX fell -4.91% to 15.69, signaling a risk-on tape.</li>
+    <li><strong>Bonds &amp; gold:</strong> TLT (+0.19%) and GLD (+0.05%) were both little-changed — a muted, non-defensive tone consistent with the day's risk-on equity action.</li>
+    <li><strong>M&amp;A headline:</strong> PayPal ($PYPL, +17.18%) surged on reports Stripe and private-equity firm Advent offered roughly $53B (a 28% premium) to acquire the company; Michael Burry publicly called the bid "too low."</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, sector performance, volume-surge &amp; earnings screeners, news), Alpaca Markets (real-time ETF &amp; equity snapshots), Financial Modeling Prep (VIX quote, company profiles).</p>
+  <p>Last refreshed: 2026-07-15 16:11 ET (20:11 UTC) — Final after-market data + after-hours info.</p>
+  <p style="margin-top:10px;">This report is for informational purposes only and does not constitute financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
