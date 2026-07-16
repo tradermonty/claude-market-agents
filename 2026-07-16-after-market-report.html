@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis - July 16, 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 2.4em; margin-bottom: 10px; }
+  header .subtitle { font-size: 1.1em; opacity: 0.85; }
+  h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  section {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .etf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card .symbol { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
+  .card .name { font-size: 0.8em; opacity: 0.75; margin-bottom: 10px; }
+  .card .price { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
+  .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { background: rgba(255,255,255,0.1); font-weight: 600; }
+  tr:hover { background: rgba(255,255,255,0.05); }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .afterhours-section h2 { border-bottom: 2px solid rgba(255,255,255,0.4); }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 15px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+  }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px;
+    background: #ff4444; color: #fff; padding: 5px 10px;
+    border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .earnings-card .symbol { font-size: 1.4em; font-weight: bold; }
+  .afterhours-change { font-size: 1.6em; font-weight: bold; margin: 8px 0; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #00ff88; font-weight: bold; }
+  .surprise-negative { color: #ff6b6b; font-weight: bold; }
+  .earnings-volume { font-size: 0.85em; opacity: 0.85; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .value { font-size: 2em; font-weight: bold; color: #00ff88; }
+  .stat-box .label { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
+  .key-points ul { list-style: none; }
+  .key-points li {
+    padding: 12px 0 12px 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .key-points li:before {
+    content: "▸"; position: absolute; left: 0; color: #00ff88; font-size: 1.2em;
+  }
+  footer {
+    text-align: center;
+    padding: 25px;
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; background: rgba(255,255,255,0.2); }
+  @media (max-width: 768px) {
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.6em; }
+    table { font-size: 0.85em; }
+  }
+  @media (max-width: 480px) {
+    .etf-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="subtitle">📅 2026-07-16 (Thursday) – Final After-Market Data</div>
+  <div class="subtitle">Chip Stocks Slide Despite TSMC's Blowout Beat — ManpowerGroup Soars on Q2 Results, Netflix &amp; Intuitive Surgical Report Right at the Bell</div>
+</header>
+
+<section>
+  <h2>📈 Major ETF Performance</h2>
+  <div class="etf-grid">
+    <div class="card">
+      <div class="symbol">SPY</div>
+      <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+      <div class="price">$750.72</div>
+      <div class="negative">▼ -0.54%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$705.89</div>
+      <div class="negative">▼ -1.65%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">DIA</div>
+      <div class="name">SPDR Dow Jones Industrial Avg ETF</div>
+      <div class="price">$524.83</div>
+      <div class="negative">▼ -0.21%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$295.59</div>
+      <div class="negative">▼ -0.06%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">TLT</div>
+      <div class="name">iShares 20+ Year Treasury Bond ETF</div>
+      <div class="price">$84.21</div>
+      <div class="negative">▼ -0.04%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$364.96</div>
+      <div class="negative">▼ -1.98%</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>🔥 Top Volume-Surge Tickers (Top 5 of 88)</h2>
+  <table>
+    <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th></tr>
+    <tr><td><strong>CDNA</strong></td><td>CareDx, Inc.</td><td class="positive">+35.60%</td><td>4,473,567</td></tr>
+    <tr><td><strong>MAN</strong></td><td>ManpowerGroup Inc.</td><td class="positive">+32.37%</td><td>5,353,037</td></tr>
+    <tr><td><strong>MAAS</strong></td><td>Maase Inc.</td><td class="positive">+26.43%</td><td>594,800</td></tr>
+    <tr><td><strong>RHI</strong></td><td>Robert Half Inc.</td><td class="positive">+12.62%</td><td>3,801,646</td></tr>
+    <tr><td><strong>KARO</strong></td><td>Karooooo Ltd.</td><td class="positive">+11.23%</td><td>298,054</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">88 volume-surge tickers detected (avg relative volume 2.1x, avg price move +5.1%). Full list also includes FOXF, GHRS, SMG, JBHT, HUBG, BTI, ZGN, CTAS, IR, MATX, BKD, GBX, VSTS, WABC, SMA, KFRC, BCC, ESQ, CVLG, HOMB, EQBK, CHEF, CFG, PLD, CLBK, LTC, APEI, FFBC, NNN, ATLC, TCBK, BANR, BMRC, PESI, HBT, HFWA, EPR, ISTR, HBNC, DINO, LQDT, ONB, FRME, GSBC, SBCF, BV, BCAL, CBU, BOX, NDAQ, IRT, MCHB, NSA, AMCX, OSBC, BHRB, AMTB, FBNC, GNW, AX, CP, CLMT, CDW, AXS, CTBI, EVCM, SBSI, FBK, CHCO, TOWN, CPT, IEX, NEO, INDB, MTB, FIBK, PAG, PYPL, CURB, EGBN, CBSH, SEIC, SION.</p>
+</section>
+
+<div class="afterhours-section">
+  <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+  <p style="margin-bottom:10px;">0 stocks in tonight's after-hours screener (2%+ AH move, large-cap). The screen was run only ~10 minutes after the 4:00 PM ET close, and two marquee reporters — Netflix and Intuitive Surgical — released Q2 results right at the closing bell, so their after-hours price reaction has not yet propagated into data feeds.</p>
+  <div class="earnings-grid">
+    <div class="earnings-card">
+      <div class="afterhours-badge">Just Reported</div>
+      <div class="symbol">$NFLX</div>
+      <div style="opacity:0.85; font-size:0.85em;">Netflix Inc — Communication Services</div>
+      <div style="font-size:0.85em; opacity:0.85; margin:8px 0;">Regular session close: +0.91% ($74.35). AH reaction: pending in feeds.</div>
+      <div class="earnings-surprise">
+        <span>EPS: <span class="surprise-positive">+61.21%</span></span>
+        <span>Revenue: <span class="surprise-positive">+0.60%</span></span>
+      </div>
+      <div class="earnings-volume">Note: Q3 guidance came in below Wall Street expectations per Reuters, despite the large EPS beat.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">Just Reported</div>
+      <div class="symbol">$ISRG</div>
+      <div style="opacity:0.85; font-size:0.85em;">Intuitive Surgical Inc — Healthcare</div>
+      <div style="font-size:0.85em; opacity:0.85; margin:8px 0;">Regular session close: +3.43% ($402.33). AH reaction: pending in feeds.</div>
+      <div class="earnings-surprise">
+        <span>EPS: <span class="surprise-positive">+17.83%</span></span>
+        <span>Revenue: <span class="surprise-positive">+5.81%</span></span>
+      </div>
+      <div class="earnings-volume">Clean beat-and-beat on both lines.</div>
+    </div>
+  </div>
+  <p style="margin-top:20px; font-size:0.9em;"><strong>Today's earnings movers with session impact:</strong> ManpowerGroup ($MAN) delivered a blowout Q2 beat, with shares surging +32.37% — its best single session in years — on both an EPS and revenue beat reported this morning. Staffing peer Robert Half ($RHI, +12.62%) rallied in sympathy ahead of its own late-July report (only a call-schedule announcement was released today, no results yet). J.B. Hunt ($JBHT, +8.01%) and Karooooo ($KARO, +11.23%) extended Wednesday after-close earnings beats into a second day of gains as analysts digested the results. On the downside, Alcoa ($AA, -3.58%) missed on EPS by -8.66%.</p>
+  <p style="margin-top:15px; font-size:0.9em;"><strong>🗓️ This Week's Remaining Earnings Calendar:</strong> Friday (7/17) BMO, all 8:30 AM ET — Travelers ($TRV), Truist Financial ($TFC), Regions Financial ($RF), Fifth Third Bancorp ($FITB).</p>
+</div>
+
+<section>
+  <h2>📊 Market Statistics</h2>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="value">88</div><div class="label">Volume-Surge Tickers</div></div>
+    <div class="stat-box"><div class="value">774</div><div class="label">Up-Trend Tickers</div></div>
+    <div class="stat-box"><div class="value">2.1x</div><div class="label">Avg Relative Volume</div></div>
+    <div class="stat-box"><div class="value">+5.1%</div><div class="label">Avg Price Move (Surge List)</div></div>
+    <div class="stat-box"><div class="value">81</div><div class="label">Earnings Releases This Week</div></div>
+    <div class="stat-box"><div class="value">16.58</div><div class="label">VIX (+5.81%)</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>🏢 Sector Performance</h2>
+  <table>
+    <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>Stocks</th></tr>
+    <tr><td>Consumer Defensive</td><td class="positive">+2.78%</td><td>4,478,164</td><td>240</td></tr>
+    <tr><td>Real Estate</td><td class="positive">+2.20%</td><td>1,875,198</td><td>254</td></tr>
+    <tr><td>Healthcare</td><td class="positive">+1.48%</td><td>9,004,601</td><td>1,062</td></tr>
+    <tr><td>Energy</td><td class="positive">+0.35%</td><td>4,479,781</td><td>255</td></tr>
+    <tr><td>Utilities</td><td class="positive">+0.14%</td><td>1,968,999</td><td>111</td></tr>
+    <tr><td>Financial</td><td class="positive">+0.07%</td><td>15,122,475</td><td>1,113</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">Also lower: Consumer Cyclical -0.01%, Industrials -0.52%, Basic Materials -1.74%, Technology -2.27%, Communication Services -2.96%.</p>
+</section>
+
+<section class="key-points">
+  <h2>🔑 Today's Key Points</h2>
+  <ul>
+    <li><strong>Hot sectors:</strong> Consumer Defensive (+2.78%) led, helped by tobacco strength (British American Tobacco, $BTI, +7.54%); Real Estate (+2.20%) and Healthcare (+1.48%) also outperformed while Communication Services (-2.96%) and Technology (-2.27%) lagged hardest.</li>
+    <li><strong>Volume-surge characteristics:</strong> 88 stocks surged on 2.1x average relative volume with an average move of +5.1%. Earnings reactions dominated the top of the list: CareDx ($CDNA, +35.60%) on a Medicare transplant-testing coverage win, ManpowerGroup ($MAN, +32.37%) on a Q2 beat, and Maase ($MAAS, +26.43%) on an AI consumer-portal product launch.</li>
+    <li><strong>Earnings highlights:</strong> ManpowerGroup's blowout Q2 beat-and-raise reaction (+32.37%) was the standout of the day; staffing peer Robert Half ($RHI, +12.62%) rallied in sympathy. J.B. Hunt (+8.01%) and Karooooo (+11.23%) extended Wednesday after-close beats into a second day of gains. Alcoa ($AA, -3.58%) missed on EPS (-8.66% surprise).</li>
+    <li><strong>After-hours focal point:</strong> Netflix ($NFLX) and Intuitive Surgical ($ISRG) both released Q2 results within minutes of today's close. NFLX beat EPS by a wide +61.21% margin but guided Q3 below Street expectations per Reuters; ISRG beat cleanly on both EPS (+17.83%) and revenue (+5.81%). After-hours price reaction had not yet propagated into data feeds as of this report's 16:11 ET cutoff.</li>
+    <li><strong>Broad market trend:</strong> SPY (-0.54%) and DIA (-0.21%) slipped modestly while QQQ (-1.65%) underperformed sharply as chip stocks sold off in a "priced-for-perfection" reaction to TSMC's beat-and-raise — the Philadelphia Semiconductor Index fell -3.8%, TSM -2.5%, and SK Hynix -11% overnight — even after TSMC lifted 2026 capex guidance to $60-64B and added a new $100B Arizona investment. June retail sales rose just +0.2% month-over-month (vs. +0.3% expected), decelerating from May's revised +1.0%, though the core control-group reading held at +0.5%. VIX ticked up +5.81% to 16.58, still historically low.</li>
+    <li><strong>Bonds &amp; gold:</strong> TLT (-0.04%) was little changed; GLD (-1.98%) gave back some of its recent sharp rally (gold futures -1.73%) even as the broader risk backdrop stayed calm.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, sector performance, volume-surge &amp; earnings screeners, news), Alpaca Markets (real-time ETF &amp; equity snapshots), Financial Modeling Prep (VIX/index quotes, gold futures, company profiles), web search (TSMC earnings reaction, June retail sales report).</p>
+  <p>Last refreshed: 2026-07-16 16:11 ET (20:11 UTC) — Final after-market data + after-hours info.</p>
+  <p style="margin-top:10px;">This report is for informational purposes only and does not constitute financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
