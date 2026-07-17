@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis - July 17, 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 2.4em; margin-bottom: 10px; }
+  header .subtitle { font-size: 1.1em; opacity: 0.85; }
+  h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  section {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .etf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card .symbol { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
+  .card .name { font-size: 0.8em; opacity: 0.75; margin-bottom: 10px; }
+  .card .price { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
+  .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { background: rgba(255,255,255,0.1); font-weight: 600; }
+  tr:hover { background: rgba(255,255,255,0.05); }
+  .calendar-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-left: 5px solid #ffd700;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .calendar-section h2 { border-bottom: 2px solid rgba(255,255,255,0.4); }
+  .calendar-section table th { background: rgba(255,255,255,0.15); }
+  .calendar-section table td, .calendar-section table th { border-bottom: 1px solid rgba(255,255,255,0.25); }
+  .day-badge {
+    display: inline-block; background: rgba(255,255,255,0.25); padding: 3px 10px;
+    border-radius: 10px; font-weight: bold; font-size: 0.85em;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .value { font-size: 2em; font-weight: bold; color: #00ff88; }
+  .stat-box .label { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
+  .key-points ul { list-style: none; }
+  .key-points li {
+    padding: 12px 0 12px 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .key-points li:before {
+    content: "▸"; position: absolute; left: 0; color: #00ff88; font-size: 1.2em;
+  }
+  footer {
+    text-align: center;
+    padding: 25px;
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; background: rgba(255,255,255,0.2); }
+  @media (max-width: 768px) {
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.6em; }
+    table { font-size: 0.85em; }
+  }
+  @media (max-width: 480px) {
+    .etf-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="subtitle">📅 2026-07-17 (Friday) – Final After-Market Data</div>
+  <div class="subtitle">Growth Stocks Slide Broadly as Insurers Buck the Trend on Travelers' Q2 Beat</div>
+</header>
+
+<section>
+  <h2>📈 Major ETF Performance</h2>
+  <div class="etf-grid">
+    <div class="card">
+      <div class="symbol">SPY</div>
+      <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+      <div class="price">$743.29</div>
+      <div class="negative">▼ -0.99%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$695.33</div>
+      <div class="negative">▼ -1.50%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">DIA</div>
+      <div class="name">SPDR Dow Jones Industrial Avg ETF</div>
+      <div class="price">$520.81</div>
+      <div class="negative">▼ -0.77%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$294.04</div>
+      <div class="negative">▼ -0.52%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">TLT</div>
+      <div class="name">iShares 20+ Year Treasury Bond ETF</div>
+      <div class="price">$84.52</div>
+      <div class="positive">▲ +0.37%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$368.41</div>
+      <div class="positive">▲ +0.95%</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>🔥 Top Volume-Surge Tickers (Top 5 of 30)</h2>
+  <table>
+    <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th></tr>
+    <tr><td><strong>FEIM</strong></td><td>Frequency Electronics Inc</td><td class="positive">+17.41%</td><td>564,232</td></tr>
+    <tr><td><strong>XNCR</strong></td><td>Xencor Inc</td><td class="positive">+16.86%</td><td>1,649,580</td></tr>
+    <tr><td><strong>ETON</strong></td><td>Eton Pharmaceuticals Inc</td><td class="positive">+13.79%</td><td>1,275,950</td></tr>
+    <tr><td><strong>PESI</strong></td><td>Perma-Fix Environmental Services Inc</td><td class="positive">+13.60%</td><td>2,534,418</td></tr>
+    <tr><td><strong>GPRE</strong></td><td>Green Plains Inc</td><td class="positive">+11.74%</td><td>5,145,380</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">30 volume-surge tickers detected (avg relative volume 2.9x, avg price move +6.5%). Rest of the list: ORKA +11.63%, DCBO +9.92%, TRVI +9.85%, TRV +9.22%, SION +9.10%, BJRI +8.04%, MMED +6.61%, STX +5.66%, CNS +4.42%, CLMT +4.26%, ARWR +4.09%, SPFI +3.86%, ANDG +3.83%, KRYS +3.82%, TTE +3.26%, AIG +3.17%, CINF +2.55%, TAK +2.51%, FIVE +2.49%, CB +2.46%, WRB +2.45%, DRS +2.41%, NGNE +2.22%, XMTR +2.20%, CLBK +2.05%.</p>
+  <p style="margin-top:10px; font-size:0.85em; opacity:0.75;">Note: Finviz's stored EPS/Revenue Surprise fields for several of today's top movers (e.g. ETON, GPRE, PESI, XNCR) reflect each company's most recent quarterly report, not necessarily an event released today — several of these names (ETON +30.8% over 1M, PESI +66.8% over 1M) were already in extended momentum uptrends heading into today's session, so no same-day earnings catalyst is asserted for them.</p>
+</section>
+
+<div class="calendar-section">
+  <h2>🗓️ Next Week's Major Earnings Calendar</h2>
+  <p style="margin-bottom:15px;">Per the Friday reporting rule, today's after-hours earnings section is skipped (very few companies report post-close on a Friday). Travelers ($TRV, +9.22%) was today's own notable BMO reporter — flagged in yesterday's calendar — and led a broad rally across P&amp;C insurers (AIG +3.17%, Chubb/$CB +2.46%, Cincinnati Financial/$CINF +2.55%, W.R. Berkley/$WRB +2.45%) that appear to be trading in sympathy ahead of the group's own upcoming reports. Below is next week's major earnings slate (100 companies scheduled, market-cap $10B+, from <code>finviz:upcoming_earnings_screener</code>):</p>
+  <table>
+    <tr><th>Date</th><th>Notable Reporters</th><th>Total</th></tr>
+    <tr><td><span class="day-badge">Mon 7/20</span></td><td>$STLD, $WRB, $ZION</td><td>3</td></tr>
+    <tr><td><span class="day-badge">Tue 7/21</span></td><td>$NVS, $SCHW, $MMM, $NOC, $MSCI, $IBKR + 12 more (KEY, SYF, WBS, WAL, PEGA…)</td><td>18</td></tr>
+    <tr><td><span class="day-badge">Wed 7/22</span></td><td>$TSLA, $PM, $TXN, $T, $NOW, $MCO + 27 more (URI, WAB, RJF, LUV…)</td><td>33</td></tr>
+    <tr><td><span class="day-badge">Thu 7/23</span></td><td>$INTC, $RTX, $TMUS, $TMO, $SAP, $UNP + 34 more (LMT, HON, NDAQ…)</td><td>40</td></tr>
+    <tr><td><span class="day-badge">Fri 7/24</span></td><td>$VZ, $HCA, $THC, $LW, $LBTYA, $LBTYK</td><td>6</td></tr>
+  </table>
+  <p style="margin-top:15px; font-size:0.9em;">Headline names to watch: Tesla ($TSLA) and Intel ($INTC) anchor a heavy mega-cap week alongside Texas Instruments ($TXN), ServiceNow ($NOW), AT&amp;T ($T), Verizon ($VZ), RTX, Lockheed Martin ($LMT), and Charles Schwab ($SCHW).</p>
+</div>
+
+<section>
+  <h2>📊 Market Statistics</h2>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="value">30</div><div class="label">Volume-Surge Tickers</div></div>
+    <div class="stat-box"><div class="value">762</div><div class="label">Up-Trend Tickers</div></div>
+    <div class="stat-box"><div class="value">2.9x</div><div class="label">Avg Relative Volume</div></div>
+    <div class="stat-box"><div class="value">+6.5%</div><div class="label">Avg Price Move (Surge List)</div></div>
+    <div class="stat-box"><div class="value">85</div><div class="label">Earnings Scheduled This Week</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>🏢 Sector Performance</h2>
+  <table>
+    <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>Stocks</th></tr>
+    <tr><td>Energy</td><td class="positive">+1.46%</td><td>4,547,479</td><td>255</td></tr>
+    <tr><td>Real Estate</td><td class="negative">-0.11%</td><td>1,872,568</td><td>254</td></tr>
+    <tr><td>Healthcare</td><td class="negative">-0.25%</td><td>8,982,170</td><td>1,062</td></tr>
+    <tr><td>Utilities</td><td class="negative">-0.48%</td><td>1,959,720</td><td>111</td></tr>
+    <tr><td>Basic Materials</td><td class="negative">-0.66%</td><td>2,674,153</td><td>284</td></tr>
+    <tr><td>Consumer Defensive</td><td class="negative">-0.82%</td><td>4,440,721</td><td>240</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">Also lower: Financial -0.94%, Industrials -1.04%, Technology -1.10%, Consumer Cyclical -1.56%, Communication Services -2.13% (worst performer of the day).</p>
+</section>
+
+<section class="key-points">
+  <h2>🔑 Today's Key Points</h2>
+  <ul>
+    <li><strong>Hot sectors:</strong> Energy (+1.46%) was the lone sector in the green; Real Estate (-0.11%) and Healthcare (-0.25%) held up best among the laggards, while Communication Services (-2.13%) and Consumer Cyclical (-1.56%) led the decline.</li>
+    <li><strong>Volume-surge characteristics:</strong> 30 stocks surged on 2.9x average relative volume with an average move of +6.5%. The list was led by small/mid-cap momentum names (Frequency Electronics/$FEIM +17.41%, Xencor/$XNCR +16.86%, Eton Pharmaceuticals/$ETON +13.79%, Perma-Fix/$PESI +13.60%, Green Plains/$GPRE +11.74%) alongside a cluster of large-cap P&amp;C insurers (Travelers/$TRV +9.22%, AIG +3.17%, Chubb/$CB +2.46%, Cincinnati Financial/$CINF +2.55%, W.R. Berkley/$WRB +2.45%).</li>
+    <li><strong>Earnings highlights:</strong> Per the Friday reporting rule, today's post-close earnings/after-hours section is skipped. The session's one confirmed earnings mover was Travelers ($TRV, +9.22%), which reported Q2 results this morning (BMO, 8:30 AM ET, as flagged in yesterday's earnings calendar) — its best single-day gain in recent memory. Peer insurers AIG, Chubb, Cincinnati Financial, and W.R. Berkley (which itself doesn't report until Monday 7/20) all rallied alongside it, consistent with sector sympathy buying rather than their own results.</li>
+    <li><strong>After-hours:</strong> Not applicable today — very few companies report after a Friday close, so this section is omitted per the Friday rule. See the Next Week's Major Earnings Calendar box above for what's coming Monday through Friday.</li>
+    <li><strong>Broad market trend:</strong> All four major benchmarks finished lower — SPY -0.99%, QQQ -1.50%, DIA -0.77%, IWM -0.52% — with growth-heavy Nasdaq-tracking QQQ underperforming as Technology (-1.10%) and Communication Services (-2.13%) led sector losses. Today's market news flow was dominated by routine corporate items (board changes, inducement grants, analyst notes) with no single identifiable macro catalyst for the broad pullback; the tape read as a broad, low-conviction, risk-off drift into the weekend rather than a news-driven selloff.</li>
+    <li><strong>Bonds &amp; gold:</strong> TLT (+0.37%) and GLD (+0.95%) both advanced, a classic mild flight-to-safety pattern consistent with the day's broader risk-off tone across equities.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, sector performance, volume-surge screener, upcoming earnings screener, stock fundamentals, market news), Alpaca Markets (real-time ETF &amp; equity snapshots).</p>
+  <p>Last refreshed: 2026-07-17 16:11 ET (20:11 UTC) — Final after-market data. Friday rule applied: post-close earnings/after-hours section omitted.</p>
+  <p style="margin-top:10px;">This report is for informational purposes only and does not constitute financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
