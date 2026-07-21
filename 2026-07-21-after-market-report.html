@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis - July 21, 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 2.4em; margin-bottom: 10px; }
+  header .subtitle { font-size: 1.1em; opacity: 0.85; }
+  h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  section {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .etf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card .symbol { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
+  .card .name { font-size: 0.8em; opacity: 0.75; margin-bottom: 10px; }
+  .card .price { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
+  .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { background: rgba(255,255,255,0.1); font-weight: 600; }
+  tr:hover { background: rgba(255,255,255,0.05); }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .afterhours-section h2 { border-bottom: 2px solid rgba(255,255,255,0.4); }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 15px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+  }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px;
+    background: #ff4444; color: #fff; padding: 5px 10px;
+    border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .earnings-card .symbol { font-size: 1.4em; font-weight: bold; }
+  .afterhours-change { font-size: 1.6em; font-weight: bold; margin: 8px 0; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #00ff88; font-weight: bold; }
+  .surprise-negative { color: #ff6b6b; font-weight: bold; }
+  .earnings-volume { font-size: 0.85em; opacity: 0.85; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .value { font-size: 2em; font-weight: bold; color: #00ff88; }
+  .stat-box .label { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
+  .key-points ul { list-style: none; }
+  .key-points li {
+    padding: 12px 0 12px 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .key-points li:before {
+    content: "▸"; position: absolute; left: 0; color: #00ff88; font-size: 1.2em;
+  }
+  footer {
+    text-align: center;
+    padding: 25px;
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; background: rgba(255,255,255,0.2); }
+  @media (max-width: 768px) {
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.6em; }
+    table { font-size: 0.85em; }
+  }
+  @media (max-width: 480px) {
+    .etf-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="subtitle">📅 2026-07-21 (Tuesday) – Final After-Market Data</div>
+  <div class="subtitle">Chip Rebound Powers Broad Rally as VIX Sinks to 17 — Q2 Earnings Beats Mostly Rewarded, Some Punished</div>
+</header>
+
+<section>
+  <h2>📈 Major ETF Performance</h2>
+  <div class="etf-grid">
+    <div class="card">
+      <div class="symbol">SPY</div>
+      <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+      <div class="price">$748.28</div>
+      <div class="positive">▲ +0.83%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$708.97</div>
+      <div class="positive">▲ +1.85%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">DIA</div>
+      <div class="name">SPDR Dow Jones Industrial Avg ETF</div>
+      <div class="price">$521.51</div>
+      <div class="positive">▲ +0.69%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$296.54</div>
+      <div class="positive">▲ +1.45%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">TLT</div>
+      <div class="name">iShares 20+ Year Treasury Bond ETF</div>
+      <div class="price">$83.66</div>
+      <div class="negative">▼ -0.27%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$374.81</div>
+      <div class="positive">▲ +1.96%</div>
+    </div>
+  </div>
+  <p style="margin-top:20px; opacity:0.85; font-size:0.9em;">
+    Broad indexes also rallied: S&amp;P 500 (^GSPC) +0.86% to 7,507.32; Nasdaq Composite (^IXIC) +1.29% to 25,837.21; Dow Jones Industrial Average (^DJI) +0.74% to 52,224.64. The CBOE Volatility Index (VIX) tumbled -8.79% to 17.01 (from 18.65), its steepest one-day drop in weeks. Gold futures (GCUSD) gained +1.82% to $4,088.80.
+  </p>
+</section>
+
+<section>
+  <h2>🔥 Top Volume-Surge Tickers (Top 5 of 40)</h2>
+  <table>
+    <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th></tr>
+    <tr><td><strong>UTZ</strong></td><td>Utz Brands, Inc.</td><td class="positive">+88.72%</td><td>61,796,500</td></tr>
+    <tr><td><strong>AEHR</strong></td><td>Aehr Test Systems</td><td class="positive">+27.86%</td><td>5,178,352</td></tr>
+    <tr><td><strong>FEIM</strong></td><td>Frequency Electronics, Inc.</td><td class="positive">+19.66%</td><td>398,157</td></tr>
+    <tr><td><strong>CIFR</strong></td><td>Cipher Digital Inc.</td><td class="positive">+11.44%</td><td>46,976,138</td></tr>
+    <tr><td><strong>CBIO</strong></td><td>Connect Biopharma Holdings</td><td class="positive">+10.56%</td><td>789,666</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">
+    40 volume-surge tickers detected today (avg relative volume 2.9x, avg price move +8.7%). Full list: UTZ, AEHR, FEIM, CIFR, CBIO, HBM, SBRA, HRMY, HAS, XNCR, WASH, TPC, PKE, MMM, ANAB, FBRX, AMLX, PRE, OFG, ZBIO, TK, ETON, GM, BANC, MARA, TECK, KB, AIR, ANGO, VVX, MPTI, TDY, MBWM, ITRN, CCK, HXL, ONC, SFBS, HOG, OPY.
+  </p>
+  <p style="margin-top:10px; font-size:0.9em;">
+    <strong>Verified catalysts:</strong> Utz Brands ($UTZ, +88.72%) is being taken private by Germany's Intersnack Group in a $2.9B deal, nearly doubling its prior close. Hasbro ($HAS, +8.81%) raised its FY26 outlook after a record Magic: The Gathering-driven Q2 beat. 3M ($MMM, +7.32%) beat estimates and raised full-year guidance, pacing the Dow's gainers. General Motors ($GM, +4.91%) beat and raised its 2026 outlook on tariff relief and strong full-size-truck pricing. Sabra Health Care ($SBRA, +10.20%) issued a business update raising full-year 2026 guidance. Cipher Digital ($CIFR, +11.44%) rallied with bitcoin miners (Hut 8, IREN momentum) alongside a Morgan Stanley Overweight call with a $76 bull-case target. Tutor Perini ($TPC, +7.75%) gained on news of its pending addition to the S&amp;P SmallCap 600. Washington Trust ($WASH, +8.15%) reported Q2 results this morning. No verified catalyst was found for Aehr Test Systems ($AEHR), Frequency Electronics ($FEIM), Connect Biopharma ($CBIO), Hudbay Minerals ($HBM), Xencor ($XNCR) or Harmony Biosciences ($HRMY) as of this report's cutoff — likely technical/momentum-driven moves amid the broad risk-on tape and chip-sector rebound.
+  </p>
+</section>
+
+<div class="afterhours-section">
+  <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+  <p style="margin-bottom:10px;">The after-hours earnings screener (2%+ AH move, large-cap, today-after-close reporters) returned zero results tonight. Today's Q2 earnings action was concentrated before this morning's open instead, headlined by 3M, General Motors, Halliburton and Charles Schwab.</p>
+  <div class="earnings-grid">
+    <div class="earnings-card">
+      <div class="afterhours-badge">BMO Today</div>
+      <div class="symbol">$MMM</div>
+      <div style="opacity:0.85; font-size:0.85em;">3M Co — Industrials (Conglomerate)</div>
+      <div style="font-size:0.85em; opacity:0.85; margin:8px 0;">Session close: <span class="surprise-positive">+7.32%</span> ($170.76)</div>
+      <div class="earnings-surprise">
+        <span>Result: <span class="surprise-positive">EPS &amp; revenue beat</span></span>
+        <span>Guidance: <span class="surprise-positive">Raised</span></span>
+      </div>
+      <div class="earnings-volume">Paced the Dow's gainers as 3M's turnaround "gains traction," per the Wall Street Journal.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">BMO Today</div>
+      <div class="symbol">$GM</div>
+      <div style="opacity:0.85; font-size:0.85em;">General Motors — Consumer Cyclical (Autos)</div>
+      <div style="font-size:0.85em; opacity:0.85; margin:8px 0;">Session close: <span class="surprise-positive">+4.91%</span> ($79.52)</div>
+      <div class="earnings-surprise">
+        <span>Result: <span class="surprise-positive">EPS beat</span></span>
+        <span>Guidance: <span class="surprise-positive">Raised (2026)</span></span>
+      </div>
+      <div class="earnings-volume">Revenue grew for the first time in over a year; premium full-size-truck pricing and tariff relief cited.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">BMO Today</div>
+      <div class="symbol">$HAL</div>
+      <div style="opacity:0.85; font-size:0.85em;">Halliburton Co — Energy (Oilfield Services)</div>
+      <div style="font-size:0.85em; opacity:0.85; margin:8px 0;">Session close: <span class="surprise-negative">-5.47%</span> ($33.19)</div>
+      <div class="earnings-surprise">
+        <span>Result: <span class="surprise-positive">EPS &amp; revenue beat</span></span>
+        <span>Outlook: <span class="surprise-negative">Softer, per CEO</span></span>
+      </div>
+      <div class="earnings-volume">Shares fell despite the beat as the CEO warned of a softening oilfield-services market.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">BMO Today</div>
+      <div class="symbol">$SCHW</div>
+      <div style="opacity:0.85; font-size:0.85em;">Charles Schwab Corp — Financial (Brokerage)</div>
+      <div style="font-size:0.85em; opacity:0.85; margin:8px 0;">Session close: <span class="surprise-negative">-2.52%</span> ($99.96)</div>
+      <div class="earnings-surprise">
+        <span>Result: <span class="surprise-positive">Record revenue, EPS beat</span></span>
+        <span>Reaction: <span class="surprise-negative">Shares fell</span></span>
+      </div>
+      <div class="earnings-volume">Retail-trading-fueled record quarter, but stock slid — gains appeared largely priced in.</div>
+    </div>
+  </div>
+  <p style="margin-top:20px; font-size:0.9em;"><strong>Full BMO recap (large-cap):</strong> Beat-heavy but mixed reactions. Beat &amp; rewarded: $MMM +7.32% (raised guidance), $GM +4.91% (raised 2026 outlook), $WBS +0.96% (EPS surprise +2.76%). Beat but sold off anyway: $SCHW -2.52%, $NOC -2.23% (Northrop beat and raised guidance yet still fell — "solid earnings, stock can't catch a break" per Barron's), $SYF -1.63%, $VICR -7.05% (backlog more than doubled, shares still fell sharply), $HAL -5.47% (beat, but CEO flagged a softening oilfield-services market).</p>
+  <p style="margin-top:15px; font-size:0.9em;"><strong>🗓️ This Week's Remaining Earnings Calendar (large-cap, verified):</strong><br>
+  Wed 7/22: BMO — $T $OTIS $NTRS $PHM $WAB $TEL $RPM $RCI $ONB $MCO $CME $SF | AMC — $NOW $URI $SEIC $ROL $RJF $PKG $MOH $LVS $LUV $KNX $GL $GGG $CSX $WCN</p>
+</div>
+
+<section>
+  <h2>📊 Market Statistics</h2>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="value">40</div><div class="label">Volume-Surge Tickers</div></div>
+    <div class="stat-box"><div class="value">724</div><div class="label">Up-Trend Tickers</div></div>
+    <div class="stat-box"><div class="value">2.9x</div><div class="label">Avg Relative Volume</div></div>
+    <div class="stat-box"><div class="value">+8.7%</div><div class="label">Avg Price Move (Surge List)</div></div>
+    <div class="stat-box"><div class="value">321</div><div class="label">Earnings Releases This Week</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>🏢 Sector Performance</h2>
+  <table>
+    <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>Stocks</th></tr>
+    <tr><td>Technology</td><td class="positive">+2.90%</td><td>32,671,614.25</td><td>792</td></tr>
+    <tr><td>Basic Materials</td><td class="positive">+2.24%</td><td>2,717,204.49</td><td>284</td></tr>
+    <tr><td>Energy</td><td class="positive">+1.31%</td><td>4,612,959.14</td><td>254</td></tr>
+    <tr><td>Industrials</td><td class="positive">+1.05%</td><td>9,518,527.93</td><td>707</td></tr>
+    <tr><td>Healthcare</td><td class="positive">+0.99%</td><td>8,943,917.04</td><td>1064</td></tr>
+    <tr><td>Financial</td><td class="positive">+0.61%</td><td>14,961,462.01</td><td>1114</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">Also higher: Real Estate +0.08%, Utilities +0.05%, Consumer Cyclical +0.02%. Lower: Communication Services -0.96% and Consumer Defensive -0.96% (tied for day's weakest sectors).</p>
+</section>
+
+<section class="key-points">
+  <h2>🔑 Today's Key Points</h2>
+  <ul>
+    <li><strong>Hot sectors:</strong> Technology (+2.90%) led every sector on a broad chip-stock rebound, followed by Basic Materials (+2.24%) and Energy (+1.31%, even as oil prices climbed through the session). Communication Services and Consumer Defensive both lagged at -0.96%.</li>
+    <li><strong>Volume-surge characteristics:</strong> 40 stocks triggered the volume-surge screener (avg relative volume 2.9x, avg price move +8.7%), topped by Utz Brands' +88.72% take-private buyout by Germany's Intersnack Group ($2.9B) and a wave of Q2 earnings winners — 3M (+7.32%), Hasbro (+8.81%) and GM (+4.91%) among them.</li>
+    <li><strong>Earnings highlights:</strong> A packed Tuesday BMO slate. 3M and GM both beat and raised full-year guidance, pacing Dow gains; Hasbro raised its outlook on record Magic: The Gathering sales; Sabra Health Care raised FY2026 guidance. But several other beats didn't hold: Charles Schwab (-2.52%), Northrop Grumman (-2.23%), Synchrony (-1.63%), Vicor (-7.05%) and Halliburton (-5.47%) all fell despite topping estimates — Halliburton's CEO specifically flagged a softening oilfield-services market.</li>
+    <li><strong>After-hours focal point:</strong> The after-hours earnings screener was empty tonight — no large-cap post-close reporters moved 2%+. Wednesday brings a heavy slate instead: AT&amp;T, Moody's, CME and Otis before the open; ServiceNow, United Rentals, Las Vegas Sands and CSX after the close, among 27 verified large-cap reporters.</li>
+    <li><strong>Broad market trend:</strong> Every major benchmark rallied — S&amp;P 500 +0.86% to 7,507.32, Nasdaq +1.29% to 25,837.21, Dow +0.74% to 52,224.64 — powered by a chip-stock rebound. The VIX plunged -8.79% to 17.01, signaling a sharp drop in hedging demand. 724 stocks remain in confirmed uptrends, a healthy breadth reading.</li>
+    <li><strong>Bonds &amp; gold:</strong> TLT slipped -0.27% as long-end yields firmed modestly. GLD jumped +1.96% and gold futures (GCUSD) gained +1.82% to $4,088.80 — safe-haven demand held up even as risk appetite improved, against a backdrop of fresh US-Canada tariff tension (Trump's 50% tariff on Canada) and resumed USMCA talks with Mexico.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, sector performance, volume-surge &amp; earnings screeners, stock news), Alpaca Markets (real-time ETF &amp; equity snapshots), Financial Modeling Prep (index levels, VIX, gold futures).</p>
+  <p>Last refreshed: 2026-07-21 16:27 ET (20:27 UTC) — Final after-market data + after-hours info.</p>
+  <p style="margin-top:10px;">This report is for informational purposes only and does not constitute financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
