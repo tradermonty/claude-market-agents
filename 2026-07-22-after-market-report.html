@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis - July 22, 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 2.4em; margin-bottom: 10px; }
+  header .subtitle { font-size: 1.1em; opacity: 0.85; }
+  h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  section {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .etf-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card .symbol { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
+  .card .name { font-size: 0.8em; opacity: 0.75; margin-bottom: 10px; }
+  .card .price { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
+  .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+  .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { background: rgba(255,255,255,0.1); font-weight: 600; }
+  tr:hover { background: rgba(255,255,255,0.05); }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .afterhours-section h2 { border-bottom: 2px solid rgba(255,255,255,0.4); }
+  .afterhours-section h3 { font-size: 1.2em; margin: 20px 0 10px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 6px; }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 15px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+  }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px;
+    background: #ff4444; color: #fff; padding: 5px 10px;
+    border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .earnings-card .symbol { font-size: 1.4em; font-weight: bold; }
+  .afterhours-change { font-size: 1.6em; font-weight: bold; margin: 8px 0; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #00ff88; font-weight: bold; }
+  .surprise-negative { color: #ff6b6b; font-weight: bold; }
+  .earnings-volume { font-size: 0.85em; opacity: 0.85; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .value { font-size: 2em; font-weight: bold; color: #00ff88; }
+  .stat-box .label { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
+  .key-points ul { list-style: none; }
+  .key-points li {
+    padding: 12px 0 12px 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .key-points li:before {
+    content: "▸"; position: absolute; left: 0; color: #00ff88; font-size: 1.2em;
+  }
+  footer {
+    text-align: center;
+    padding: 25px;
+    opacity: 0.7;
+    font-size: 0.85em;
+  }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; background: rgba(255,255,255,0.2); }
+  @media (max-width: 768px) {
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.6em; }
+    table { font-size: 0.85em; }
+  }
+  @media (max-width: 480px) {
+    .etf-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="subtitle">📅 2026-07-22 (Wednesday) – Final After-Market Data</div>
+  <div class="subtitle">Quiet, Mixed Session Ahead of Mega-Cap Earnings Wave — Tesla, Alphabet &amp; IBM Report After the Bell</div>
+</header>
+
+<section>
+  <h2>📈 Major ETF Performance</h2>
+  <div class="etf-grid">
+    <div class="card">
+      <div class="symbol">SPY</div>
+      <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+      <div class="price">$747.47</div>
+      <div class="negative">▼ -0.11%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$705.35</div>
+      <div class="negative">▼ -0.51%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">DIA</div>
+      <div class="name">SPDR Dow Jones Industrial Avg ETF</div>
+      <div class="price">$521.54</div>
+      <div class="positive">▲ +0.01%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$293.77</div>
+      <div class="negative">▼ -0.93%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">TLT</div>
+      <div class="name">iShares 20+ Year Treasury Bond ETF</div>
+      <div class="price">$83.44</div>
+      <div class="negative">▼ -0.26%</div>
+    </div>
+    <div class="card">
+      <div class="symbol">GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$379.04</div>
+      <div class="positive">▲ +1.13%</div>
+    </div>
+  </div>
+  <p style="margin-top:20px; opacity:0.85; font-size:0.9em;">
+    Broad indexes were mixed-to-lower into the close: S&amp;P 500 (^GSPC) -0.13% to 7,499.44; Nasdaq Composite (^IXIC) -0.57% to 25,690.90; Dow Jones Industrial Average (^DJI) roughly flat at -0.01% to 52,218.58. The CBOE Volatility Index (VIX) eased -1.23% to 16.84, still near multi-month lows even as options markets priced elevated single-stock swings into tonight's Big Tech earnings (86% implied volatility cited for the Tesla/Alphabet/IBM print, per BeInCrypto). Gold futures (GCUSD) rallied +1.47% to $4,136.50 alongside a firmer GLD, with safe-haven demand aided by an ongoing Iran conflict (11th consecutive night of U.S.-Iran strikes per MarketWatch) that also pushed oil prices toward roughly $95/barrel, according to Wednesday market-news reporting — a Treasury-bearish, gold-bullish backdrop that also lifted 10Y-sensitive TLT modestly lower.
+  </p>
+</section>
+
+<section>
+  <h2>🔥 Top Volume-Surge Tickers (Top 8 of 28)</h2>
+  <table>
+    <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th></tr>
+    <tr><td><strong>ARWR</strong></td><td>Arrowhead Pharmaceuticals Inc</td><td class="positive">+19.03%</td><td>7,011,655</td></tr>
+    <tr><td><strong>LBRX</strong></td><td>LB Pharmaceuticals Inc</td><td class="positive">+10.93%</td><td>799,164</td></tr>
+    <tr><td><strong>WAB</strong></td><td>Westinghouse Air Brake Technologies (Wabtec)</td><td class="positive">+10.04%</td><td>3,262,231</td></tr>
+    <tr><td><strong>PAG</strong></td><td>Penske Automotive Group Inc</td><td class="positive">+9.93%</td><td>2,561,115</td></tr>
+    <tr><td><strong>SLN</strong></td><td>Silence Therapeutics plc ADR</td><td class="positive">+9.03%</td><td>847,376</td></tr>
+    <tr><td><strong>RIOT</strong></td><td>Riot Platforms Inc</td><td class="positive">+8.79%</td><td>27,983,710</td></tr>
+    <tr><td><strong>AYA</strong></td><td>Aya Gold &amp; Silver Inc</td><td class="positive">+8.52%</td><td>771,257</td></tr>
+    <tr><td><strong>PLSE</strong></td><td>Pulse Biosciences Inc</td><td class="positive">+8.26%</td><td>592,126</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">
+    28 volume-surge tickers detected today (avg relative volume 2.7x, avg price move +6.0%). Full list: ARWR, LBRX, WAB, PAG, SLN, RIOT, AYA, PLSE, LQDA, BLFS, RPM, LOMA, BMA, CRESY, DOCN, FBP, BBAR, IMAX, PCAR, WAL, PM, GM, TX, CHCO, TFIN, TNL, FMNB, PHM.
+  </p>
+  <p style="margin-top:10px; font-size:0.9em;">
+    <strong>Verified catalysts:</strong> Arrowhead Pharmaceuticals ($ARWR, +19.03%) reported topline Phase 3 SHASTA-3/SHASTA-4 results for plozasiran in severe hypertriglyceridemia — Investor's Business Daily called it a "best-case scenario" that pushed shares toward five-year highs. LB Pharmaceuticals ($LBRX, +10.93%) announced accelerated timing for Phase 3 NOVA-2 topline results of LB-102 in schizophrenia. Wabtec ($WAB, +10.04%) beat Q2 estimates and raised full-year revenue/adjusted-EPS guidance, hitting a record high. Penske Automotive Group ($PAG, +9.93%) surged on a ~$4B go-private bid at $210/share from Penske family interests and Mitsui (WSJ). RPM International ($RPM, +5.81%) posted record fiscal Q4/full-year results and boosted its share buyback. DigitalOcean ($DOCN, +4.57%) was upgraded to Buy at Stifel (target raised to $160) on AI-inference demand. PulteGroup ($PHM, +2.00%) reported Q2 results before the open with a comparatively muted reaction. Separately, five Argentina-linked ADRs moved higher together — Loma Negra ($LOMA, +5.82%), Banco Macro ($BMA, +5.24%), Cresud ($CRESY, +4.63%), BBVA Argentina ($BBAR, +4.04%) and Ternium ($TX, +3.14%) — consistent with a broad country/FX-driven basket move rather than isolated single-name news. No same-day catalyst was verified for Silence Therapeutics ($SLN), Riot Platforms ($RIOT), Aya Gold &amp; Silver ($AYA), Pulse Biosciences ($PLSE), Liquidia ($LQDA) or BioLife Solutions ($BLFS) as of this report's cutoff — several (SLN, PLSE, LQDA, BLFS) carry positive EPS/revenue surprise data in Finviz fundamentals, but without a same-day news item confirming today as the report date, we do not label these as today's earnings catalyst.
+  </p>
+</section>
+
+<div class="afterhours-section">
+  <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+  <p style="margin-bottom:10px;">The after-hours earnings screener (2%+ AH move, large-cap $10B+, today-after-close reporters) returned 3 results: $NOW, $IBM and $CSX — all higher after the print (avg EPS surprise +5.37%, max +10.54%). Tonight is also headlined by two Magnificent Seven reporters, Tesla and Alphabet, which don't clear the screener's "+2% up" threshold but are the day's biggest earnings story.</p>
+  <div class="earnings-grid">
+    <div class="earnings-card">
+      <div class="afterhours-badge">AMC Today</div>
+      <div class="symbol">$NOW</div>
+      <div style="opacity:0.85; font-size:0.85em;">ServiceNow Inc — Technology (Software-Application)</div>
+      <div class="afterhours-change surprise-positive">▲ +4.46% AH</div>
+      <div style="font-size:0.85em; opacity:0.85;">Regular session: <span class="surprise-negative">-6.47%</span> ($95.46) ahead of the print</div>
+      <div class="earnings-surprise">
+        <span>EPS Surprise: <span style="color:#fff;">-0.01% (in-line)</span></span>
+        <span>Revenue Surprise: <span class="surprise-positive">+0.78%</span></span>
+      </div>
+      <div class="earnings-volume">Volume: 36.1M. Shares had sold off into the print (62.1% short interest, "option traders wary" per MarketWatch) then reversed higher after-hours on the revenue beat.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">AMC Today</div>
+      <div class="symbol">$IBM</div>
+      <div style="opacity:0.85; font-size:0.85em;">International Business Machines Corp — Technology</div>
+      <div class="afterhours-change surprise-positive">▲ +2.65% AH</div>
+      <div style="font-size:0.85em; opacity:0.85;">Regular session: <span class="surprise-negative">-2.15%</span> ($205.96)</div>
+      <div class="earnings-surprise">
+        <span>EPS Surprise: <span class="surprise-positive">+5.57%</span></span>
+        <span>Revenue Surprise: <span class="surprise-positive">+1.83%</span></span>
+      </div>
+      <div class="earnings-volume">Volume: 12.6M. Beat on both lines after Barron's framed this as IBM's "biggest earnings test yet" following a historic stock drop.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">AMC Today</div>
+      <div class="symbol">$CSX</div>
+      <div style="opacity:0.85; font-size:0.85em;">CSX Corp — Industrials (Railroads)</div>
+      <div class="afterhours-change surprise-positive">▲ +2.54% AH</div>
+      <div style="font-size:0.85em; opacity:0.85;">Regular session: roughly flat +0.08% ($49.93)</div>
+      <div class="earnings-surprise">
+        <span>EPS Surprise: <span class="surprise-positive">+10.54%</span></span>
+        <span>Revenue Surprise: <span class="surprise-negative">-0.18%</span></span>
+      </div>
+      <div class="earnings-volume">Volume: 17.0M. Strong bottom-line beat despite a slight top-line miss.</div>
+    </div>
+  </div>
+
+  <h3>🌟 Mega-Cap Spotlight: Tesla &amp; Alphabet (not captured by the "+2% up" screener)</h3>
+  <div class="earnings-grid">
+    <div class="earnings-card">
+      <div class="afterhours-badge">AMC Today</div>
+      <div class="symbol">$TSLA</div>
+      <div style="opacity:0.85; font-size:0.85em;">Tesla Inc — Consumer Cyclical (Auto Manufacturers)</div>
+      <div class="afterhours-change surprise-negative">▼ approx. -2.8% AH (preliminary)</div>
+      <div style="font-size:0.85em; opacity:0.85;">Regular session: -1.30% ($374.01) into the print</div>
+      <div class="earnings-surprise">
+        <span>Headline: <span class="surprise-negative">"Big Earnings Miss" — Barron's</span></span>
+      </div>
+      <div class="earnings-volume">Note: this AH% is a preliminary read from live trade data captured ~12 minutes after the close and may still move materially as the print is digested. Finviz's screener-level EPS-surprise figure for TSLA (+15.85%) conflicts with contemporaneous news framing of a bottom-line miss, so we withhold a specific EPS-surprise number here pending confirmation.</div>
+    </div>
+    <div class="earnings-card">
+      <div class="afterhours-badge">AMC Today</div>
+      <div class="symbol">$GOOGL</div>
+      <div style="opacity:0.85; font-size:0.85em;">Alphabet Inc — Communication Services</div>
+      <div class="afterhours-change surprise-positive">▲ approx. +0.9% AH (preliminary)</div>
+      <div style="font-size:0.85em; opacity:0.85;">Regular session: -1.46% ($342.09) into the print</div>
+      <div class="earnings-surprise">
+        <span>Result: <span class="surprise-positive">Revenue beat (AI-driven)</span></span>
+        <span>Capex: <span class="surprise-negative">Doubling to ~$45B</span></span>
+      </div>
+      <div class="earnings-volume">MarketWatch: "Alphabet's AI investments drive a revenue beat," but capex guidance nearly doubling to $45B tempered the after-hours reaction. AH% is a preliminary read from live trade data ~12 minutes post-close.</div>
+    </div>
+  </div>
+
+  <p style="margin-top:20px; font-size:0.9em;"><strong>Today's BMO recap (large-cap):</strong> Wabtec (+10.04%, beat &amp; raised guidance, record high) and RPM International (+5.81%, record Q4/FY results, buyback boost) led. PulteGroup (+2.00%) reaction was muted. Other confirmed BMO reporters today — AT&amp;T, Otis, Northern Trust, Moody's, CME Group, Stifel Financial, TE Connectivity, Rogers Communications and Old National Bancorp — did not clear the volume-surge or after-hours screens, implying inline-to-modest regular-session reactions. Additional AMC reporters tonight per company press releases (Globe Life, Rollins, Las Vegas Sands, Molina Healthcare) also did not clear the +2% after-hours screen as of this report's cutoff.</p>
+  <p style="margin-top:15px; font-size:0.9em;"><strong>🗓️ Thursday 7/23 Earnings Calendar (large-cap, verified via screener):</strong><br>
+  BMO — $UNP $HON $LMT $TMO $NDAQ $CMCSA $BX $FCX $DOW $STM $ROP $NSC $HBAN $AMP $TSCO $WST $DGX $DOV $ORI $CX $ALLE $BPOP $RELX $TECK $NOK $INFY | AMC — $VRSN $SAP $NEM $SSNC $HIG $EW $DECK $SMMT</p>
+</div>
+
+<section>
+  <h2>📊 Market Statistics</h2>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="value">28</div><div class="label">Volume-Surge Tickers</div></div>
+    <div class="stat-box"><div class="value">618</div><div class="label">Up-Trend Tickers</div></div>
+    <div class="stat-box"><div class="value">2.7x</div><div class="label">Avg Relative Volume</div></div>
+    <div class="stat-box"><div class="value">+6.0%</div><div class="label">Avg Price Move (Surge List)</div></div>
+    <div class="stat-box"><div class="value">337</div><div class="label">Earnings Releases This Week</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>🏢 Sector Performance</h2>
+  <table>
+    <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>Stocks</th></tr>
+    <tr><td>Utilities</td><td class="positive">+2.15%</td><td>1,992,589.78</td><td>110</td></tr>
+    <tr><td>Basic Materials</td><td class="positive">+1.92%</td><td>2,769,380.97</td><td>284</td></tr>
+    <tr><td>Energy</td><td class="positive">+1.37%</td><td>4,677,118.46</td><td>254</td></tr>
+    <tr><td>Consumer Defensive</td><td class="positive">+0.39%</td><td>4,392,855.41</td><td>240</td></tr>
+    <tr><td>Financial</td><td class="positive">+0.03%</td><td>14,962,912.68</td><td>1114</td></tr>
+    <tr><td>Technology</td><td class="negative">-0.37%</td><td>32,568,884.20</td><td>792</td></tr>
+  </table>
+  <p style="margin-top:15px; opacity:0.85; font-size:0.9em;">Also lower: Real Estate -0.58%, Industrials -0.59%, Consumer Cyclical -0.75%, Healthcare -0.76%. Communication Services was the day's weakest sector at -1.40%.</p>
+</section>
+
+<section class="key-points">
+  <h2>🔑 Today's Key Points</h2>
+  <ul>
+    <li><strong>Hot sectors:</strong> Defensive-leaning groups led — Utilities (+2.15%), Basic Materials (+1.92%) and Energy (+1.37%, aided by Iran-conflict-driven oil strength) topped the tape, while Financial and Consumer Defensive were roughly flat-to-positive. Communication Services (-1.40%) and Healthcare (-0.76%) lagged as investors de-risked ahead of tonight's Big Tech earnings.</li>
+    <li><strong>Volume-surge characteristics:</strong> 28 stocks triggered the volume-surge screener (avg relative volume 2.7x, avg price move +6.0%) — a lighter, more idiosyncratic session than recent days, led by two biotech Phase 3 data readouts (Arrowhead +19.03%, LB Pharmaceuticals +10.93%), a go-private bid (Penske Automotive +9.93%) and a Q2 beat-and-raise (Wabtec +10.04%, record high).</li>
+    <li><strong>Earnings highlights:</strong> The regular session absorbed a heavy BMO slate (AT&amp;T, Otis, Moody's, CME, Wabtec, RPM, PulteGroup and more), with Wabtec and RPM standing out as beat-and-raise winners. After the bell, ServiceNow, IBM and CSX all cleared the +2% after-hours screen on beats (avg EPS surprise +5.37%), while the marquee story is Tesla and Alphabet: Tesla fell further after a reported earnings miss (Barron's), and Alphabet posted an AI-driven revenue beat that was tempered by capex guidance nearly doubling to ~$45B.</li>
+    <li><strong>After-hours focal point:</strong> $NOW led the official after-hours screener at +4.46% (revenue beat, EPS in-line) after a rough pre-earnings regular session; $IBM (+2.65%, EPS &amp; revenue beat) and $CSX (+2.54%, EPS beat) followed. Preliminary post-close reads (not yet screener-confirmed) show Tesla down roughly 2.8% and Alphabet up roughly 0.9%, both subject to change as the prints are digested overnight.</li>
+    <li><strong>Broad market trend:</strong> Major benchmarks were mixed-to-lower — S&amp;P 500 -0.13% to 7,499.44, Nasdaq -0.57% to 25,690.90, Dow essentially flat at -0.01% to 52,218.58 — with the Russell 2000 (IWM -0.93%) underperforming large caps notably. The VIX eased slightly to 16.84 even as options markets priced an outsized 86% implied volatility into tonight's Tesla/Alphabet/IBM earnings cluster. 618 stocks remain in confirmed uptrends.</li>
+    <li><strong>Bonds &amp; gold:</strong> TLT slipped -0.26% as yields firmed on Iran-conflict-driven oil strength (news reports cite crude approaching ~$95/barrel amid an 11th night of U.S.-Iran strikes). GLD rallied +1.13% and gold futures (GCUSD) gained +1.47% to $4,136.50, reflecting safe-haven demand alongside rising geopolitical risk and elevated rate-hike-odds chatter.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, sector performance, volume-surge, earnings &amp; after-hours screeners, stock news, fundamentals), Alpaca Markets (real-time ETF &amp; equity snapshots), Financial Modeling Prep (index levels, VIX, gold futures).</p>
+  <p>Last refreshed: 2026-07-22 16:12 ET (20:12 UTC) — Final after-market data + preliminary after-hours info. Mega-cap AH% figures for TSLA/GOOGL are preliminary (~12 minutes post-close) and unconfirmed by the dedicated after-hours screener.</p>
+  <p style="margin-top:10px;">This report is for informational purposes only and does not constitute financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
