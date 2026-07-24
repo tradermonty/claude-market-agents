@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis — July 24, 2026</title>
+<style>
+  :root{
+    --bg1:#0f1f3d; --bg2:#1e3c72; --bg3:#2a5298;
+    --card-bg: rgba(255,255,255,0.08);
+    --card-border: rgba(255,255,255,0.15);
+    --up:#00ff88; --down:#ff6b6b; --neutral:#ffd166;
+    --text-main:#f4f7ff; --text-sub:#c3d0f0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 100%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    min-height:100vh;
+    padding: 24px 16px 60px;
+  }
+  .container{max-width:1180px; margin:0 auto;}
+  header.hero{
+    text-align:center; padding: 36px 20px 30px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin-bottom: 30px;
+  }
+  header.hero h1{font-size: 2.1em; margin:0 0 8px; letter-spacing:0.5px;}
+  header.hero .date-line{font-size:1.05em; color:var(--text-sub); margin-bottom:6px;}
+  header.hero .tagline{
+    display:inline-block; margin-top:10px; padding:8px 18px;
+    background: linear-gradient(135deg, rgba(0,255,136,0.18), rgba(255,209,102,0.15));
+    border:1px solid rgba(255,255,255,0.25); border-radius: 30px; font-weight:600;
+  }
+  h2.section-title{
+    font-size:1.5em; margin: 40px 0 18px; padding-bottom:10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    display:flex; align-items:center; gap:10px;
+  }
+  .grid{display:grid; gap:20px;}
+  .grid-3x2{grid-template-columns: repeat(3, 1fr);}
+  .grid-2col{grid-template-columns: 1fr 1fr;}
+  .grid-movers{grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));}
+  @media (max-width:900px){
+    .grid-3x2{grid-template-columns: repeat(2, 1fr);}
+    .grid-2col{grid-template-columns: 1fr;}
+  }
+  @media (max-width:600px){
+    .grid-3x2{grid-template-columns: 1fr;}
+  }
+  .card{
+    background: var(--card-bg); border:1px solid var(--card-border);
+    border-radius:16px; padding:20px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    backdrop-filter: blur(10px); transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover{ transform: translateY(-4px); box-shadow: 0 14px 34px rgba(0,0,0,0.4); }
+  .etf-card .ticker{font-size:1.3em; font-weight:700;}
+  .etf-card .name{font-size:0.78em; color:var(--text-sub); margin-bottom:10px;}
+  .etf-card .price{font-size:1.6em; font-weight:700; margin:6px 0;}
+  .etf-card .change{font-size:1.15em; font-weight:700;}
+  .up{color:var(--up); text-shadow:0 0 12px rgba(0,255,136,0.35);}
+  .down{color:var(--down); text-shadow:0 0 12px rgba(255,107,107,0.35);}
+  .neutral-txt{color:var(--neutral);}
+  .vol-note{font-size:0.75em; color:var(--text-sub); margin-top:8px;}
+
+  table{width:100%; border-collapse: collapse; font-size:0.92em;}
+  th, td{padding:10px 12px; text-align:left;}
+  th{
+    background: rgba(255,255,255,0.08); text-transform:uppercase; font-size:0.75em;
+    letter-spacing:0.5px; color:var(--text-sub);
+  }
+  tbody tr{border-bottom:1px solid rgba(255,255,255,0.08);}
+  tbody tr:hover{background: rgba(255,255,255,0.06);}
+  .table-wrap{
+    background: var(--card-bg); border:1px solid var(--card-border);
+    border-radius:16px; overflow:hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .badge{
+    display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.72em; font-weight:700;
+  }
+  .badge-merger{background: rgba(155,89,255,0.25); color:#c9a8ff;}
+  .badge-earnings{background: rgba(0,255,136,0.18); color:#7dffc0;}
+  .badge-sector{background: rgba(255,209,102,0.2); color:#ffe08a;}
+  .badge-unconfirmed{background: rgba(255,255,255,0.12); color:var(--text-sub);}
+
+  .stats-grid{grid-template-columns: repeat(5, 1fr);}
+  @media (max-width:900px){.stats-grid{grid-template-columns: repeat(2, 1fr);}}
+  .stat-card{text-align:center;}
+  .stat-card .value{font-size:2em; font-weight:800; margin-bottom:4px;}
+  .stat-card .label{font-size:0.8em; color:var(--text-sub); text-transform:uppercase; letter-spacing:0.5px;}
+
+  .earnings-cal{
+    background: linear-gradient(135deg, rgba(30,60,114,0.55), rgba(42,82,152,0.55));
+    border-left: 5px solid #ffd166;
+    border-radius:16px; padding:24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .earnings-cal h3{margin-top:0; font-size:1.1em;}
+  .earnings-day{margin-bottom:14px;}
+  .earnings-day .day-label{font-weight:700; color:#ffe08a; margin-bottom:6px; display:block;}
+  .ticker-pill{
+    display:inline-block; background: rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);
+    border-radius:10px; padding:4px 10px; margin:3px 4px 3px 0; font-size:0.85em; font-weight:600;
+  }
+  .fomc-callout{
+    margin-top:16px; padding:14px 16px; border-radius:12px;
+    background: rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3);
+    font-size:0.92em;
+  }
+
+  ul.keypoints{padding-left: 20px; line-height:1.9;}
+  ul.keypoints li{margin-bottom:6px;}
+  ul.keypoints strong{color:#ffe08a;}
+
+  .risk-box{
+    background: rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.25);
+    border-radius:16px; padding:20px;
+  }
+  .sentiment-box{
+    background: rgba(0,255,136,0.08); border:1px solid rgba(0,255,136,0.25);
+    border-radius:16px; padding:20px;
+  }
+
+  footer{
+    margin-top:50px; text-align:center; font-size:0.8em; color:var(--text-sub);
+    padding-top:20px; border-top:1px solid rgba(255,255,255,0.15);
+  }
+  footer a{color:#9fc4ff;}
+  .disclaimer{font-size:0.72em; opacity:0.75; margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date-line">📅 Friday, July 24, 2026 – Final After-Market Data</div>
+    <div class="tagline">Q2 Earnings Beats Lift Value Sectors — Tech Lags on AI Capex Anxiety</div>
+  </header>
+
+  <!-- Executive Summary -->
+  <h2 class="section-title">📝 Executive Summary</h2>
+  <div class="card">
+    <p>U.S. equities closed a choppy week on a mixed note. The <strong>S&amp;P 500</strong> edged up
+    0.06% to 7,412.88 and the <strong>Dow Jones Industrial Average</strong> added 0.46% to 51,947.25,
+    both lifted by a wave of Q2 earnings beats in energy, financials, healthcare and real estate.
+    The <strong>Nasdaq Composite</strong>, however, slipped 0.62% to 24,981.71 (QQQ -1.11%) as
+    "Magnificent 7" names continued to digest Thursday's roughly $797B valuation wipe-out — the group's
+    worst single day since April 2025 — on investor anxiety over ballooning AI capital-expenditure plans
+    disclosed in this week's Alphabet and Tesla reports. Despite today's rebound in the Dow, Barron's
+    noted the index could not fully escape a down week overall.</p>
+    <p>Under the surface, breadth was healthy: <strong>637 stocks</strong> remain in confirmed uptrends and
+    <strong>45 stocks</strong> triggered volume-surge signals (average relative volume 2.7x, average move
+    +7.8%), led by binary earnings and M&amp;A reactions rather than broad index momentum. The
+    <strong>VIX</strong> held steady at 18.64 (-0.32%), signaling no acute stress despite the tech
+    drawdown. Treasuries (TLT +0.10%) and gold (GLD +0.10%) were both modestly firmer, consistent with a
+    day of sector rotation rather than a risk-off shock.</p>
+  </div>
+
+  <!-- Major Index Performance -->
+  <h2 class="section-title">📈 Major Index Performance</h2>
+  <div class="grid grid-3x2">
+    <div class="card etf-card">
+      <div class="ticker">S&amp;P 500 <span style="font-size:0.6em; color:var(--text-sub);">(^GSPC)</span></div>
+      <div class="name">Broad Market Benchmark</div>
+      <div class="price">7,412.88</div>
+      <div class="change up">▲ +4.58 (+0.06%)</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">Dow Jones <span style="font-size:0.6em; color:var(--text-sub);">(^DJI)</span></div>
+      <div class="name">Industrial Average</div>
+      <div class="price">51,947.25</div>
+      <div class="change up">▲ +235.60 (+0.46%)</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">Nasdaq Composite <span style="font-size:0.6em; color:var(--text-sub);">(^IXIC)</span></div>
+      <div class="name">Tech-Heavy Index</div>
+      <div class="price">24,981.71</div>
+      <div class="change down">▼ -155.99 (-0.62%)</div>
+    </div>
+  </div>
+
+  <!-- Major ETF Performance -->
+  <h2 class="section-title">💹 Major ETF Performance</h2>
+  <div class="grid grid-3x2">
+    <div class="card etf-card">
+      <div class="ticker">$SPY</div>
+      <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+      <div class="price">$738.93</div>
+      <div class="change up">▲ +0.10%</div>
+      <div class="vol-note">Vol: 43.6M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$684.25</div>
+      <div class="change down">▼ -1.11%</div>
+      <div class="vol-note">Vol: 41.7M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$DIA</div>
+      <div class="name">SPDR Dow Jones ETF</div>
+      <div class="price">$518.76</div>
+      <div class="change up">▲ +0.48%</div>
+      <div class="vol-note">Vol: 3.3M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$291.17</div>
+      <div class="change down">▼ -0.31%</div>
+      <div class="vol-note">Vol: 19.3M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$TLT</div>
+      <div class="name">iShares 20+ Year Treasury</div>
+      <div class="price">$83.25</div>
+      <div class="change up">▲ +0.10%</div>
+      <div class="vol-note">Vol: 14.7M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$371.90</div>
+      <div class="change up">▲ +0.10%</div>
+      <div class="vol-note">Vol: 3.8M</div>
+    </div>
+  </div>
+
+  <!-- Top Volume-Surge Tickers -->
+  <h2 class="section-title">🔥 Top Volume-Surge Tickers</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>Symbol</th><th>Company</th><th>Sector</th><th>1D Change</th><th>Catalyst</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>$SAFT</strong></td><td>Safety Insurance Group</td><td>Financial</td><td class="up">+41.49%</td><td><span class="badge badge-merger">M&amp;A</span> Mapfre $1.54B buyout agreement</td></tr>
+        <tr><td>2</td><td><strong>$RNG</strong></td><td>RingCentral Inc</td><td>Technology</td><td class="up">+25.22%</td><td><span class="badge badge-earnings">Earnings</span> Q2 beat + OpenAI/NiCE AI partnerships</td></tr>
+        <tr><td>3</td><td><strong>$THC</strong></td><td>Tenet Healthcare Corp</td><td>Healthcare</td><td class="up">+17.22%</td><td><span class="badge badge-earnings">Earnings</span> Q2 beat, raised 2026 outlook</td></tr>
+        <tr><td>4</td><td><strong>$WRLD</strong></td><td>World Acceptance Corp</td><td>Financial</td><td class="up">+13.03%</td><td><span class="badge badge-earnings">Earnings</span> Fiscal Q1 EPS beat (revenue softer)</td></tr>
+        <tr><td>5</td><td><strong>$IP</strong></td><td>International Paper Co</td><td>Consumer Cyclical</td><td class="up">+11.26%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> Packaging-group strength, no single catalyst identified</td></tr>
+        <tr><td>6</td><td><strong>$SW</strong></td><td>Smurfit WestRock plc</td><td>Consumer Cyclical</td><td class="up">+11.12%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> Reports earnings 7/29; today's move not tied to a fresh release</td></tr>
+        <tr><td>7</td><td><strong>$ORIC</strong></td><td>ORIC Pharmaceuticals</td><td>Healthcare</td><td class="up">+11.11%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No confirming news found</td></tr>
+        <tr><td>8</td><td><strong>$SLB</strong></td><td>SLB Ltd</td><td>Energy</td><td class="up">+11.08%</td><td><span class="badge badge-earnings">Earnings</span> Q2 beat; production systems growth offsets Mideast weakness</td></tr>
+        <tr><td>9</td><td><strong>$DLR</strong></td><td>Digital Realty Trust</td><td>Real Estate</td><td class="up">+10.90%</td><td><span class="badge badge-earnings">Earnings</span> Q2 beat, raised FFO/2026 outlook on data-center demand</td></tr>
+        <tr><td>10</td><td><strong>$UVE</strong></td><td>Universal Insurance Holdings</td><td>Financial</td><td class="up">+10.36%</td><td><span class="badge badge-earnings">Earnings</span> Q2 results beat</td></tr>
+        <tr><td>11</td><td><strong>$AMTB</strong></td><td>Amerant Bancorp</td><td>Financial</td><td class="up">+10.25%</td><td><span class="badge badge-earnings">Earnings</span> Q2 results + dividend declared</td></tr>
+        <tr><td>12</td><td><strong>$OII</strong></td><td>Oceaneering International</td><td>Energy</td><td class="up">+9.89%</td><td><span class="badge badge-earnings">Earnings</span> Q2 beat, record EBITDA</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="disclaimer">Catalysts verified via Finviz stock news (2-day lookback) and fundamentals data per ticker.
+  Where no earnings/M&amp;A news could be confirmed, the move is labeled "Unconfirmed" rather than assumed.</p>
+
+  <!-- Next Week's Major Earnings Calendar (Friday Rule) -->
+  <h2 class="section-title">🗓️ Next Week's Major Earnings Calendar</h2>
+  <div class="earnings-cal">
+    <h3>Friday Rule Applied: after-hours earnings section skipped (stale/thin data on Friday close).
+    Below is the confirmed large-cap earnings slate for the week of July 27–31, 2026.</h3>
+    <div class="earnings-day">
+      <span class="day-label">Tuesday, July 28</span>
+      <span class="ticker-pill">$WM</span><span class="ticker-pill">$UPS</span><span class="ticker-pill">$TER</span>
+      <span class="ticker-pill">$STX</span><span class="ticker-pill">$TXT</span><span class="ticker-pill">$TRU</span>
+      <span class="ticker-pill">$VLTO</span><span class="ticker-pill">$UNM</span><span class="ticker-pill">$UMBF</span>
+      <span class="ticker-pill">$XYL</span>
+    </div>
+    <div class="earnings-day">
+      <span class="day-label">Wednesday, July 29 (FOMC decision day)</span>
+      <span class="ticker-pill">$VRT</span><span class="ticker-pill">$VRSK</span><span class="ticker-pill">$VMC</span>
+      <span class="ticker-pill">$UBS</span><span class="ticker-pill">$TEVA</span><span class="ticker-pill">$SW</span>
+      <span class="ticker-pill">$TT</span><span class="ticker-pill">$WWD</span><span class="ticker-pill">$TYL</span>
+      <span class="ticker-pill">$UMC</span><span class="ticker-pill">$SWK</span>
+    </div>
+    <div class="earnings-day">
+      <span class="day-label">Thursday, July 30</span>
+      <span class="ticker-pill">$SYK</span><span class="ticker-pill">$YUM</span><span class="ticker-pill">$YUMC</span>
+      <span class="ticker-pill">$XPO</span><span class="ticker-pill">$WTW</span><span class="ticker-pill">$WCC</span>
+      <span class="ticker-pill">$TW</span><span class="ticker-pill">$SPXC</span>
+    </div>
+    <div class="earnings-day">
+      <span class="day-label">Friday, July 31</span>
+      <span class="ticker-pill">$TROW</span>
+    </div>
+    <div class="fomc-callout">
+      ⚠️ <strong>FOMC Rate Decision — Wednesday, July 29, 2:00 PM ET</strong> (press conference 2:30 PM ET).
+      The Fed has held the federal funds rate at 3.50%–3.75% through recent meetings; no Summary of
+      Economic Projections is released at this meeting. This decision lands in the middle of the week's
+      earnings slate and is a key volatility catalyst to watch.
+    </div>
+  </div>
+
+  <!-- Market Statistics -->
+  <h2 class="section-title">📊 Market Statistics</h2>
+  <div class="grid stats-grid">
+    <div class="card stat-card">
+      <div class="value">45</div>
+      <div class="label">Volume-Surge Stocks</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">637</div>
+      <div class="label">Uptrend Stocks</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">2.7x</div>
+      <div class="label">Avg. Relative Volume</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">+7.8%</div>
+      <div class="label">Avg. Price Move (Surge List)</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">390</div>
+      <div class="label">Cos. Reporting This Week</div>
+    </div>
+  </div>
+
+  <!-- Sector Performance -->
+  <h2 class="section-title">🏢 Sector Performance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>P/E</th><th># Stocks</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Real Estate</td><td class="up">+2.09%</td><td>1,829,563</td><td>32.30</td><td>254</td></tr>
+        <tr><td>Consumer Defensive</td><td class="up">+0.99%</td><td>4,372,768</td><td>26.22</td><td>240</td></tr>
+        <tr><td>Financial</td><td class="up">+0.81%</td><td>14,778,543</td><td>17.86</td><td>1,115</td></tr>
+        <tr><td>Communication Services</td><td class="up">+0.45%</td><td>11,848,104</td><td>28.09</td><td>261</td></tr>
+        <tr><td>Healthcare</td><td class="up">+0.42%</td><td>9,004,763</td><td>30.58</td><td>1,066</td></tr>
+        <tr><td>Basic Materials</td><td class="up">+0.28%</td><td>2,737,819</td><td>21.15</td><td>284</td></tr>
+        <tr><td>Consumer Cyclical</td><td class="up">+0.15%</td><td>8,562,319</td><td>27.63</td><td>533</td></tr>
+        <tr><td>Energy</td><td class="down">-0.03%</td><td>4,704,288</td><td>19.52</td><td>254</td></tr>
+        <tr><td>Industrials</td><td class="down">-0.20%</td><td>9,524,277</td><td>38.95</td><td>707</td></tr>
+        <tr><td>Utilities</td><td class="down">-0.20%</td><td>1,993,186</td><td>21.05</td><td>110</td></tr>
+        <tr><td>Technology</td><td class="down">-1.46%</td><td>31,769,858</td><td>35.17</td><td>792</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Today's Key Points -->
+  <h2 class="section-title">🔑 Today's Key Points</h2>
+  <div class="card">
+    <ul class="keypoints">
+      <li><strong>Hot sectors:</strong> Real Estate (+2.09%) led on Digital Realty's blow-out Q2 print and
+      raised FFO guidance — the sector closed at its highest level since 2022. Consumer Defensive
+      (+0.99%) and Financial (+0.81%) followed, both supported by insurer/bank earnings beats
+      (Safety Insurance, Universal Insurance, Amerant, World Acceptance).</li>
+      <li><strong>Volume-surge characteristics:</strong> Of the 45 volume-surge names, the majority were
+      idiosyncratic Q2 earnings reactions (RNG, THC, SLB, DLR, OII, UVE, AMTB, WRLD) rather than a
+      market-wide theme, plus one confirmed M&amp;A deal (Safety Insurance's $1.54B buyout by Mapfre).
+      A handful of movers (IP, SW, ORIC) lacked a confirmable single catalyst in available news/data and
+      are flagged as sector-sympathy or unconfirmed.</li>
+      <li><strong>Earnings highlights:</strong> Energy services names SLB and Oceaneering both beat on
+      strong offshore/data-center-linked demand, offsetting Middle East disruption. Tenet Healthcare
+      raised its 2026 outlook after a Q2 beat. RingCentral paired an earnings beat with new OpenAI and
+      NiCE AI partnership announcements.</li>
+      <li><strong>Big Tech / AI capex overhang:</strong> The Nasdaq lagged for a second straight session as
+      investors continued digesting Thursday's ~$797B "Magnificent 7" valuation drop — the group's worst
+      day since April 2025 — driven by concerns that Alphabet's and Tesla's expanded AI capital spending
+      plans will pressure near-term margins. QQQ (-1.11%) underperformed SPY (+0.10%) by more than a
+      point on the day.</li>
+      <li><strong>Broad market trend:</strong> Breadth remains constructive with 637 stocks in confirmed
+      uptrends even as headline tech names wobble — consistent with a rotation out of mega-cap AI
+      names and into value/earnings-driven cyclicals rather than a broad risk-off move. VIX at 18.64
+      shows no elevated stress.</li>
+      <li><strong>Bonds &amp; gold:</strong> TLT (+0.10%) and GLD (+0.10%) both ticked higher in tandem — a
+      modest, unremarkable move that does not suggest a flight-to-safety bid despite the tech
+      weakness.</li>
+    </ul>
+  </div>
+
+  <!-- Technical Analysis Observations -->
+  <h2 class="section-title">📐 Technical Analysis Observations</h2>
+  <div class="card">
+    <ul class="keypoints">
+      <li>S&amp;P 500 (7,412.88) remains within a tight range of its recent highs (52-week range: 6,212.69 –
+      7,620.90), holding above both its 20-day and 200-day moving averages per the broader uptrend
+      screen (637 stocks above SMA20/SMA200 with SMA50 &gt; SMA200).</li>
+      <li>QQQ's underperformance versus SPY/DIA highlights a narrowing of leadership away from
+      mega-cap AI/semis names — a pattern worth monitoring for follow-through distribution days if it
+      persists into next week's Fed decision and earnings-heavy calendar.</li>
+      <li>VIX at 18.64, essentially flat on the day and well below its 52-week high of 35.30, indicates
+      options markets are not yet pricing elevated event risk around next week's FOMC meeting or the
+      remaining large-cap earnings slate.</li>
+    </ul>
+  </div>
+
+  <!-- Forward-looking commentary -->
+  <h2 class="section-title">🔮 Forward-Looking Commentary &amp; Key Levels</h2>
+  <div class="card">
+    <ul class="keypoints">
+      <li><strong>FOMC (Wed 7/29, 2:00 PM ET):</strong> The Fed decision is the week's single largest
+      catalyst. Consensus expects the funds rate to stay at 3.50%–3.75%; any surprise on the statement
+      language or Chair's press conference tone (2:30 PM ET) could swing both rate-sensitive sectors
+      (Real Estate, Utilities) and the broader tape.</li>
+      <li><strong>Earnings watch:</strong> Tuesday's slate (WM, UPS, TER, STX, TXT, TRU) will set an early
+      tone for industrials/logistics and semis-equipment, ahead of a heavier Wednesday/Thursday docket
+      (Vertiv, Verisk, UBS, Stryker, Yum Brands, Trane Technologies) that spans data-center
+      infrastructure, financials, healthcare and industrials.</li>
+      <li><strong>Key levels to watch:</strong> SPY support near its 20-day trend; QQQ needs to stabilize
+      relative to SPY to avoid confirming a leadership rotation out of mega-cap tech; DIA continuing its
+      relative strength would reinforce the value/cyclical rotation thesis seen today.</li>
+    </ul>
+  </div>
+
+  <!-- Risk Factors & Sentiment -->
+  <h2 class="section-title">⚠️ Risk Factors &amp; Market Sentiment</h2>
+  <div class="grid grid-2col">
+    <div class="risk-box">
+      <h3 style="margin-top:0;">Risk Factors</h3>
+      <ul class="keypoints">
+        <li>AI capex anxiety could deepen if next week's mega-cap reports echo Alphabet/Tesla's spending
+        commentary, risking further Nasdaq underperformance.</li>
+        <li>FOMC on 7/29 sits mid-week amid a heavy earnings docket — a hawkish surprise would compound
+        volatility across both rate-sensitive and growth sectors simultaneously.</li>
+        <li>Several volume-surge movers (IP, SW, ORIC) lack a confirmed catalyst; sympathy moves of this
+        kind can reverse quickly once the underlying driver (if any) becomes clear.</li>
+      </ul>
+    </div>
+    <div class="sentiment-box">
+      <h3 style="margin-top:0;">Sentiment Indicators</h3>
+      <ul class="keypoints">
+        <li>VIX 18.64 (-0.32%): calm, below its 1-year median range, no acute fear signal.</li>
+        <li>637 stocks in confirmed uptrends vs. 45 volume-surge names: breadth still constructive despite
+        mega-cap tech softness.</li>
+        <li>Safe-haven proxies (TLT, GLD) both modestly higher — consistent with rotation, not panic.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Data sources: Finviz Elite (market overview, volume-surge/uptrend screeners, sector performance,
+    stock fundamentals &amp; news), Alpaca Markets (ETF snapshots), Financial Modeling Prep (index quotes,
+    VIX), web search (FOMC schedule verification).</p>
+    <p>Last refreshed: 2026-07-24 16:11 ET (13:11 PDT) — final after-market data.</p>
+    <p class="disclaimer">This report is provided for informational purposes only and does not constitute
+    investment advice. Data reflects regular-session closing levels; the after-hours earnings section was
+    intentionally omitted per the Friday Rule (thin/stale after-hours activity on Fridays).</p>
+  </footer>
+
+</div>
+</body>
+</html>
