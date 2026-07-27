@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis — 2026-07-27</title>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2d3748;
+  --txt:#e6edf3; --muted:#8b949e;
+  --a:#22c55e; --b:#3b82f6; --c:#f59e0b; --d:#ef4444;
+  --up:#22c55e; --down:#ef4444; --accent:#38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  line-height:1.55; padding:16px 12px 48px;
+}
+.wrap{max-width:1120px;margin:0 auto}
+
+header.hero{
+  background:linear-gradient(135deg,#12263f 0%,#1b3a5c 55%,#0f2233 100%);
+  border:1px solid var(--line); border-radius:14px;
+  padding:26px 22px; margin-bottom:20px; text-align:center;
+}
+header.hero h1{font-size:1.75rem;letter-spacing:-.3px;margin-bottom:6px}
+header.hero .sub{color:#a9c3d9;font-size:.95rem}
+header.hero .stamp{color:var(--muted);font-size:.8rem;margin-top:10px}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.4px}
+.badge-warn{background:rgba(245,158,11,.15);color:var(--c);border:1px solid rgba(245,158,11,.4)}
+
+section{margin-bottom:22px}
+h2.sec{font-size:1.05rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent);
+  margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+
+/* dashboard */
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.kpi .v{font-size:1.7rem;font-weight:800;line-height:1.1}
+.kpi .l{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:6px}
+.kpi.gA .v{color:var(--a)} .kpi.gB .v{color:var(--b)} .kpi.gC .v{color:var(--c)} .kpi.gD .v{color:var(--d)}
+
+/* summary table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:640px}
+th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--panel2);color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
+td:first-child,th:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(56,189,248,.05)}
+.tick{font-weight:800;color:var(--accent)}
+.pos{color:var(--up);font-weight:700} .neg{color:var(--down);font-weight:700}
+
+.pill{display:inline-block;min-width:26px;padding:2px 9px;border-radius:6px;font-weight:800;font-size:.8rem;color:#0d1117}
+.pA{background:var(--a)} .pB{background:var(--b)} .pC{background:var(--c)} .pD{background:var(--d)}
+
+/* stock cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:0;margin-bottom:18px;overflow:hidden}
+.card.cC{border-left:5px solid var(--c)}
+.card.cA{border-left:5px solid var(--a)}
+.card.cB{border-left:5px solid var(--b)}
+.card.cD{border-left:5px solid var(--d)}
+.card-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;
+  gap:10px;padding:16px 18px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.card-head .name{font-size:1.2rem;font-weight:800}
+.card-head .name small{display:block;font-size:.76rem;color:var(--muted);font-weight:500;letter-spacing:.3px}
+.card-head .px{text-align:right}
+.card-head .px .p{font-size:1.5rem;font-weight:800}
+.card-head .px .g{font-size:.85rem}
+.card-body{padding:16px 18px}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-bottom:16px}
+.m{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px 10px;text-align:center}
+.m .mv{font-size:1.02rem;font-weight:800}
+.m .ml{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* score bars */
+.scores{margin-bottom:16px}
+.srow{display:grid;grid-template-columns:150px 1fr 78px;align-items:center;gap:10px;margin-bottom:7px;font-size:.8rem}
+.srow .lab{color:var(--muted)}
+.bar{background:#0d1117;border:1px solid var(--line);border-radius:5px;height:15px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px}
+.f5{background:var(--a)} .f4{background:#84cc16} .f3{background:var(--c)} .f2{background:#f97316} .f1{background:var(--d)}
+.srow .val{text-align:right;font-weight:700;font-size:.76rem}
+.total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;
+  border-top:1px dashed var(--line);font-size:.95rem}
+.total b{font-size:1.35rem}
+
+h4{font-size:.76rem;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin:16px 0 7px}
+.card-body p{font-size:.87rem;color:#c9d4e0;margin-bottom:8px}
+ul{margin:0 0 8px 18px;font-size:.87rem;color:#c9d4e0}
+li{margin-bottom:4px}
+
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:8px}
+.plan div{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px;text-align:center}
+.plan .pv{font-size:1rem;font-weight:800}
+.plan .pl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.plan .entry .pv{color:var(--accent)} .plan .stop .pv{color:var(--down)}
+.plan .t1 .pv,.plan .t2 .pv{color:var(--up)}
+
+.risk{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.32);border-radius:9px;
+  padding:12px 14px;margin-top:12px;font-size:.84rem;color:#f3c6c6}
+.risk strong{color:#ff9c9c}
+
+.note{background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.28);border-radius:12px;
+  padding:14px 16px;font-size:.86rem;color:#bfe3f5}
+
+footer{margin-top:26px;padding:16px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:.76rem;text-align:center}
+
+@media(max-width:640px){
+  header.hero h1{font-size:1.3rem}
+  .srow{grid-template-columns:106px 1fr 62px;font-size:.73rem}
+  .card-head{flex-direction:column;align-items:flex-start}
+  .card-head .px{text-align:left}
+  body{padding:10px 8px 36px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Yesterday After-Hours &amp; Today Pre-Market Earnings — Backtest-Scored Momentum Gap Candidates</div>
+  <div class="stamp">Report date: Monday, July 27, 2026 &nbsp;|&nbsp; Analysis run: 09:10 ET (pre-market) &nbsp;|&nbsp; Screener: finviz earnings_trading_screener()</div>
+</header>
+
+<!-- ============ DASHBOARD ============ -->
+<section>
+  <h2 class="sec">Summary Dashboard</h2>
+  <div class="dash">
+    <div class="kpi"><div class="v">2</div><div class="l">Stocks Screened</div></div>
+    <div class="kpi gA"><div class="v">0</div><div class="l">A-Grade (85+)</div></div>
+    <div class="kpi gB"><div class="v">0</div><div class="l">B-Grade (70-84)</div></div>
+    <div class="kpi gC"><div class="v">2</div><div class="l">C-Grade (55-69)</div></div>
+    <div class="kpi gD"><div class="v">0</div><div class="l">D-Grade (&le;54)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--c)">67.0</div><div class="l">Avg Score</div></div>
+  </div>
+  <div class="note" style="margin-top:14px">
+    <strong>Read-through:</strong> The fixed screener returned only <strong>2</strong> qualifying large-cap names today, and
+    <strong>neither reached A- or B-grade</strong>. Both land in the C band (40&ndash;54% historical success rate), which is
+    a <em>half-size, tactical-only</em> regime — not a conviction day. Each name scored 3/5 on both of the two
+    heaviest-weighted factors (Gap 25%, Pre-Earnings Trend 30%), so the entire spread between them comes from
+    secondary volume and moving-average inputs.
+  </div>
+</section>
+
+<!-- ============ SUMMARY TABLE ============ -->
+<section>
+  <h2 class="sec">Candidate Summary (Sorted by Score)</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Ticker / Company</th><th>Grade</th><th>Score</th><th>Price</th><th>Gap</th>
+        <th>Pre-Earn 20D</th><th>Vol Ratio</th><th>vs MA200</th><th>vs MA50</th>
+        <th>EPS Surp.</th><th>Rev Surp.</th><th>Success Prob.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tick">ENSG</span><br><span style="color:var(--muted);font-size:.78rem">Ensign Group Inc</span></td>
+        <td><span class="pill pC">C</span></td><td><b>68.0</b></td><td>$186.21</td>
+        <td class="pos">+7.64%</td><td class="pos">+4.37%</td><td>108.5%</td>
+        <td class="pos">101.9%</td><td class="pos">112.0%</td>
+        <td class="pos">+3.91%</td><td class="neg">-0.08%</td><td>50%</td>
+      </tr>
+      <tr>
+        <td><span class="tick">BKR</span><br><span style="color:var(--muted);font-size:.78rem">Baker Hughes Co</span></td>
+        <td><span class="pill pC">C</span></td><td><b>66.0</b></td><td>$59.05</td>
+        <td class="pos">+3.14%</td><td class="pos">+0.54%</td><td>113.4%</td>
+        <td class="pos">105.0%</td><td class="neg">98.1%</td>
+        <td class="pos">+29.90%</td><td class="pos">+3.60%</td><td>52%</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ ENSG CARD ============ -->
+<section>
+  <h2 class="sec">Individual Stock Analysis</h2>
+
+  <div class="card cC">
+    <div class="card-head">
+      <div class="name">ENSG — The Ensign Group, Inc.
+        <small>Healthcare &middot; Medical Care Facilities &middot; Mkt Cap $10.88B &middot; Earnings 7/27/2026 8:30 AM ET (pre-market)</small>
+      </div>
+      <div class="px">
+        <div class="p">$186.21</div>
+        <div class="g pos">+$13.22 &nbsp;(+7.64% vs 7/24 close $172.99)</div>
+        <div style="margin-top:5px"><span class="pill pC">C-GRADE</span> <b style="margin-left:6px">68.0 pts</b> &nbsp;⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="metrics">
+        <div class="m"><div class="mv pos">+3.91%</div><div class="ml">EPS Surprise</div></div>
+        <div class="m"><div class="mv neg">-0.08%</div><div class="ml">Rev Surprise</div></div>
+        <div class="m"><div class="mv pos">+21.93%</div><div class="ml">EPS Gr. QoQ</div></div>
+        <div class="m"><div class="mv pos">+18.43%</div><div class="ml">Sales Gr. QoQ</div></div>
+        <div class="m"><div class="mv" style="color:var(--c)">70.8</div><div class="ml">RSI(14)</div></div>
+        <div class="m"><div class="mv">0.68</div><div class="ml">Beta</div></div>
+        <div class="m"><div class="mv">$4.30</div><div class="ml">ATR(14)</div></div>
+        <div class="m"><div class="mv">30.3</div><div class="ml">P/E (Fwd 22.3)</div></div>
+      </div>
+
+      <h4>5-Element Backtest Score</h4>
+      <div class="scores">
+        <div class="srow"><span class="lab">Gap Size (25%)</span><span class="bar"><i class="f3" style="width:60%"></i></span><span class="val">3/5 &middot; +7.64%</span></div>
+        <div class="srow"><span class="lab">Pre-Earnings Trend (30%)</span><span class="bar"><i class="f3" style="width:60%"></i></span><span class="val">3/5 &middot; +4.37%</span></div>
+        <div class="srow"><span class="lab">Volume Trend (20%)</span><span class="bar"><i class="f4" style="width:80%"></i></span><span class="val">4/5 &middot; 108.5%</span></div>
+        <div class="srow"><span class="lab">MA200 Position (15%)</span><span class="bar"><i class="f3" style="width:60%"></i></span><span class="val">3/5 &middot; 101.9%</span></div>
+        <div class="srow"><span class="lab">MA50 Position (10%)</span><span class="bar"><i class="f5" style="width:100%"></i></span><span class="val">5/5 &middot; 112.0%</span></div>
+        <div class="total"><span>Weighted Total &nbsp;(3.40 / 5.00 &times; 20)</span><b style="color:var(--c)">68.0 / 100 — C</b></div>
+      </div>
+
+      <h4>Earnings Result (verified from newswire &amp; screener data)</h4>
+      <ul>
+        <li><strong>Q2 2026 results released pre-market today</strong> — "The Ensign Group Reports Second Quarter 2026 Results" (GlobeNewswire, 7/27 06:04 ET); AP "Q2 Earnings Snapshot" followed at 06:11 ET.</li>
+        <li><strong>EPS beat consensus by +3.91%</strong> — a modest, in-line-plus print rather than a blowout.</li>
+        <li><strong>Revenue missed marginally at -0.08%</strong> vs consensus, but <strong>sales grew +18.43% QoQ</strong> and EPS +21.93% QoQ — the growth engine (skilled-nursing operations expansion) is intact.</li>
+        <li>No guidance/analyst headlines have hit the tape yet as of 09:10 ET, so the +7.6% pre-market move is running on the release itself. <em>Treat any "guidance raise" narrative as unconfirmed.</em></li>
+      </ul>
+
+      <h4>Technical Factors</h4>
+      <p>Best-positioned name on the medium-term trend axis: price sits <strong>+12.0% above its 50-day MA ($166.27)</strong>
+      — a full 5/5 on that input — after a clean recovery off the June 11 washout low of $141.58. It has also just
+      reclaimed the 200-day MA ($182.77), now <strong>+1.9% above</strong>, which flips the long-term structure back to
+      constructive. Volume is running at <strong>108.5%</strong> of the 60-day baseline (healthy participation, not a blow-off).
+      The pre-earnings 20-day trend of <strong>+4.37%</strong> is the "stable uptrend" bucket — good, but short of the
+      10%+ momentum tier that historically carries the highest gap-continuation odds.</p>
+
+      <h4>Rationale &amp; Probability</h4>
+      <p><strong>Estimated probability of continued upside: ~50%.</strong> The bull case is the trend structure — reclaiming
+      the 200-day MA on an earnings beat with 18% QoQ sales growth is the kind of setup that extends. The offsetting
+      drags are real: the EPS beat was thin (+3.91%), revenue actually came in a hair light, <strong>RSI is already 70.8
+      (overbought)</strong>, and a +7.6% gap in a $10.9B name that normally trades ~840k shares/day is a lot of move to
+      hold. This is a coin-flip with a decent structural tailwind, which is exactly what a C-grade is supposed to mean.</p>
+
+      <h4>Trade Plan (half unit — C-grade)</h4>
+      <div class="plan">
+        <div class="entry"><div class="pv">$186.21</div><div class="pl">Reference Entry</div></div>
+        <div class="stop"><div class="pv">$179.75</div><div class="pl">Stop (-3.47%, 1.5&times;ATR)</div></div>
+        <div class="t1"><div class="pv">$192.67</div><div class="pl">Target 1 (+3.47%, 1R)</div></div>
+        <div class="t2"><div class="pv">$199.12</div><div class="pl">Target 2 (+6.93%, 2R)</div></div>
+        <div><div class="pv">77 sh</div><div class="pl">Size @ $100k / 0.5% risk</div></div>
+        <div><div class="pv">$14,338</div><div class="pl">Notional (14.3% equity)</div></div>
+      </div>
+
+      <div class="risk">
+        <strong>⚠ Execution risk is the dominant risk here, not direction.</strong> ENSG's pre-market book is extremely thin:
+        the Alpaca quote at 08:48 ET was <strong>bid $181.63 / ask $192.50</strong> — a ~$10.9 (5.8%) spread — with the last
+        pre-market print only 100 shares at $180.00. Finviz relative volume is <strong>0.02</strong>. The $186.21 reference
+        price is therefore <em>indicative</em>, not executable. <strong>Do not use market orders.</strong> Wait for the
+        opening auction to print and for the first 15&ndash;30 minutes of real two-sided volume before committing size;
+        if the open gaps well above $186.21, re-derive the stop from the actual fill rather than from this reference.
+        Secondary risks: RSI 70.8 leaves no cushion for a momentum stall, and the marginal revenue miss gives sellers
+        a talking point if the tape turns.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BKR CARD ============ -->
+  <div class="card cC">
+    <div class="card-head">
+      <div class="name">BKR — Baker Hughes Company
+        <small>Energy &middot; Oil &amp; Gas Equipment &amp; Services &middot; Mkt Cap $58.61B &middot; Earnings 7/26/2026 4:30 PM ET (after-hours)</small>
+      </div>
+      <div class="px">
+        <div class="p">$59.05</div>
+        <div class="g pos">+$1.80 &nbsp;(+3.14% vs 7/24 close $57.25)</div>
+        <div style="margin-top:5px"><span class="pill pC">C-GRADE</span> <b style="margin-left:6px">66.0 pts</b> &nbsp;⭐⭐⭐</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="metrics">
+        <div class="m"><div class="mv pos">+29.90%</div><div class="ml">EPS Surprise</div></div>
+        <div class="m"><div class="mv pos">+3.60%</div><div class="ml">Rev Surprise</div></div>
+        <div class="m"><div class="mv pos">+132.03%</div><div class="ml">EPS Gr. QoQ</div></div>
+        <div class="m"><div class="mv pos">+2.49%</div><div class="ml">Sales Gr. QoQ</div></div>
+        <div class="m"><div class="mv">55.9</div><div class="ml">RSI(14)</div></div>
+        <div class="m"><div class="mv">0.97</div><div class="ml">Beta</div></div>
+        <div class="m"><div class="mv">$1.67</div><div class="ml">ATR(14)</div></div>
+        <div class="m"><div class="mv">18.8</div><div class="ml">P/E (Fwd 20.5)</div></div>
+      </div>
+
+      <h4>5-Element Backtest Score</h4>
+      <div class="scores">
+        <div class="srow"><span class="lab">Gap Size (25%)</span><span class="bar"><i class="f3" style="width:60%"></i></span><span class="val">3/5 &middot; +3.14%</span></div>
+        <div class="srow"><span class="lab">Pre-Earnings Trend (30%)</span><span class="bar"><i class="f3" style="width:60%"></i></span><span class="val">3/5 &middot; +0.54%</span></div>
+        <div class="srow"><span class="lab">Volume Trend (20%)</span><span class="bar"><i class="f5" style="width:100%"></i></span><span class="val">5/5 &middot; 113.4%</span></div>
+        <div class="srow"><span class="lab">MA200 Position (15%)</span><span class="bar"><i class="f3" style="width:60%"></i></span><span class="val">3/5 &middot; 105.0%</span></div>
+        <div class="srow"><span class="lab">MA50 Position (10%)</span><span class="bar"><i class="f2" style="width:40%"></i></span><span class="val">2/5 &middot; 98.1%</span></div>
+        <div class="total"><span>Weighted Total &nbsp;(3.30 / 5.00 &times; 20)</span><b style="color:var(--c)">66.0 / 100 — C</b></div>
+      </div>
+
+      <h4>Earnings Result (verified from newswire &amp; screener data)</h4>
+      <ul>
+        <li><strong>Large EPS beat: +29.90% above consensus</strong>, with revenue also ahead at <strong>+3.60%</strong>. EPS grew
+        <strong>+132.03% QoQ</strong>. Release: "Baker Hughes Announces Second-Quarter 2026 Results" (GlobeNewswire, 7/26 17:00 ET);
+        Investing.com followed with "Baker Hughes beats Q2 results forecasts, shares climb" (7/27 07:37 ET).</li>
+        <li><strong>Outlook raised on record equipment bookings</strong> — "Baker Hughes Raises Outlook After Record Equipment
+        Bookings" (Oilprice.com, 7/26 22:01 ET). This is the single most important item: a guidance raise backed by a
+        backlog metric is materially more durable than a one-quarter cost beat.</li>
+        <li><strong>Fresh commercial catalyst stacked on top</strong> — "Baker Hughes Secures Major LNG Technology Order for
+        Venture Global's CP2 LNG Expansion" (GlobeNewswire, 7/27 07:00 ET), reinforcing the equipment-bookings story
+        with a named award the morning after the print.</li>
+        <li><strong>Quarterly dividend declared</strong> (GlobeNewswire, 7/26 16:05 ET); yield 1.58%. Macro backdrop is
+        supportive — Oilprice.com reported crude "hover near $100" on 7/24 — though rig counts ticked down.</li>
+      </ul>
+
+      <h4>Technical Factors</h4>
+      <p>The fundamental news here is clearly the strongest of the two candidates, but the chart is the weaker one.
+      BKR is <strong>+5.0% above its 200-day MA ($56.25)</strong> yet still <strong>-1.9% below its 50-day MA ($60.21)</strong> —
+      the gap is being used to <em>attack</em> overhead resistance rather than extend from a position of strength, and
+      that MA50 reading is the only 2/5 score in today's entire sheet. The pre-earnings 20-day trend was essentially
+      flat at <strong>+0.54%</strong>, reflecting the grind down from the June highs into the July 2 low of $52.78 and the
+      subsequent recovery. Volume is the standout positive: <strong>113.4%</strong> of the 60-day baseline sits in the
+      optimal 110&ndash;120% band (5/5) — elevated institutional interest without the &gt;120% "abnormal/unstable" flag.
+      RSI 55.9 leaves genuine room to run, in sharp contrast to ENSG.</p>
+
+      <h4>Rationale &amp; Probability</h4>
+      <p><strong>Estimated probability of continued upside: ~52%.</strong> A +29.9% EPS beat, a revenue beat, a raised
+      outlook on record bookings, and a named LNG award the next morning is about as clean a fundamental stack as
+      earnings season produces. What holds the score down is purely positional: a modest +3.14% gap into the
+      underside of a declining 50-day MA, with the stock still -14.31% over three months. <strong>The 50-day at $60.21
+      is the whole trade</strong> — a decisive reclaim converts this from a bounce into a trend re-entry; a rejection
+      there likely retraces the gap. Slightly better odds than ENSG on catalyst quality and RSI headroom, slightly
+      worse on structure, which is why the two scores sit only 2 points apart.</p>
+
+      <h4>Trade Plan (half unit — C-grade)</h4>
+      <div class="plan">
+        <div class="entry"><div class="pv">$59.05</div><div class="pl">Reference Entry</div></div>
+        <div class="stop"><div class="pv">$56.54</div><div class="pl">Stop (-4.25%, 1.5&times;ATR)</div></div>
+        <div class="t1"><div class="pv">$61.56</div><div class="pl">Target 1 (+4.25%, 1R)</div></div>
+        <div class="t2"><div class="pv">$64.07</div><div class="pl">Target 2 (+8.50%, 2R)</div></div>
+        <div><div class="pv">199 sh</div><div class="pl">Size @ $100k / 0.5% risk</div></div>
+        <div><div class="pv">$11,751</div><div class="pl">Notional (11.8% equity)</div></div>
+      </div>
+
+      <div class="risk">
+        <strong>⚠ Key risk: the 50-day MA at $60.21 sits directly overhead</strong>, only ~2.0% above the reference entry and
+        <em>below</em> Target 1 ($61.56). A gap that stalls into declining-MA resistance is the classic C-grade failure
+        mode — consider scaling out into $60.00&ndash;$60.20 if momentum fades there rather than holding for T1.
+        Stop placement at $56.54 is deliberately just under the 7/16 close ($56.54) and the $56.25 200-day MA;
+        losing the 200-day invalidates the entire setup. Additional exposure: BKR is a beta-0.97 energy name, so the
+        position carries crude-price risk on top of company risk — Oilprice.com noted US drillers pausing with crude
+        near $100 (7/24), and a sharp oil reversal would pressure the name independent of the earnings beat.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RISK / SIZING ============ -->
+<section>
+  <h2 class="sec">Risk Metrics &amp; Position Sizing</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>Ticker</th><th>Grade</th><th>Entry</th><th>Stop</th><th>Stop Dist.</th>
+      <th>Target 1</th><th>Target 2</th><th>R:R (T2)</th><th>ATR(14)</th><th>Risk Budget</th><th>Shares</th><th>Notional</th><th>% Equity</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tick">ENSG</span></td><td><span class="pill pC">C</span></td><td>$186.21</td><td>$179.75</td>
+      <td class="neg">-3.47%</td><td class="pos">$192.67</td><td class="pos">$199.12</td><td>1 : 2.0</td><td>$4.30</td>
+      <td>$500</td><td>77</td><td>$14,338</td><td>14.3%</td></tr>
+      <tr><td><span class="tick">BKR</span></td><td><span class="pill pC">C</span></td><td>$59.05</td><td>$56.54</td>
+      <td class="neg">-4.25%</td><td class="pos">$61.56</td><td class="pos">$64.07</td><td>1 : 2.0</td><td>$1.67</td>
+      <td>$500</td><td>199</td><td>$11,751</td><td>11.8%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note" style="margin-top:14px">
+    <strong>Sizing convention.</strong> Modeled on a $100,000 account. C-grade candidates receive a <strong>half unit</strong> —
+    0.5% of equity at risk per trade rather than the standard 1.0% reserved for A/B setups. Stops are set at
+    1.5&times; ATR(14) below the reference entry; targets at 1.0R and 2.0R. Combined notional across both names is
+    <strong>$26,089 (26.1% of equity)</strong> with total capital at risk of <strong>$997 (1.0%)</strong>.
+    If only one position is taken, BKR carries the stronger catalyst and better RSI headroom; ENSG carries the
+    better trend structure but materially worse pre-market liquidity.
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section>
+  <h2 class="sec">Scoring Methodology &amp; Data Sources</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Factor</th><th>Weight</th><th>ENSG Input</th><th>ENSG Pts</th><th>BKR Input</th><th>BKR Pts</th></tr></thead>
+    <tbody>
+      <tr><td>Gap Size</td><td>25%</td><td>+7.64% (5-10% band)</td><td>3</td><td>+3.14% (2-5% band)</td><td>3</td></tr>
+      <tr><td>Pre-Earnings 20D Trend</td><td>30%</td><td>+4.37% (0-10% band)</td><td>3</td><td>+0.54% (0-10% band)</td><td>3</td></tr>
+      <tr><td>Volume Trend (20D / 60D)</td><td>20%</td><td>108.5% (100-110%)</td><td>4</td><td>113.4% (110-120%)</td><td>5</td></tr>
+      <tr><td>MA200 Position</td><td>15%</td><td>101.9% (100-105%)</td><td>3</td><td>105.0% (100-105%)</td><td>3</td></tr>
+      <tr><td>MA50 Position</td><td>10%</td><td>112.0% (&gt;110%)</td><td>5</td><td>98.1% (95-100%)</td><td>2</td></tr>
+      <tr style="background:var(--panel2)"><td><b>Weighted Total &times; 20</b></td><td><b>100%</b></td>
+      <td></td><td><b style="color:var(--c)">68.0 — C</b></td><td></td><td><b style="color:var(--c)">66.0 — C</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note" style="margin-top:14px">
+    <strong>Grade bands:</strong> A = 85+ (70%+ hist. success) &middot; B = 70&ndash;84 (55&ndash;69%) &middot;
+    C = 55&ndash;69 (40&ndash;54%) &middot; D = &le;54 (&lt;40%).<br><br>
+    <strong>Data provenance.</strong> Universe: <code>finviz:earnings_trading_screener()</code> (fixed filter — Large+ cap $10B&#43;,
+    earnings yesterday after-hours or today pre-market, EPS estimate upward revision, net margin 3%+, avg volume 200k+,
+    price $30+, price trending up, 4-week performance 0% to down; 2 of a possible 60 results returned).
+    Moving averages and reference prices: <code>finviz:get_moving_average_position()</code> @ 09:05 ET.
+    Fundamentals, EPS/revenue surprise and earnings timestamps: <code>finviz:get_stock_fundamentals()</code>.
+    Volume trend and ATR: <code>alpaca:get_stock_bars()</code>, 1Day, 61 bars (2026-04-28 &rarr; 2026-07-24).
+    Pre-market quotes/spreads: <code>alpaca:get_stock_snapshot()</code>. News: <code>finviz:get_stock_news()</code>, 5-day window.
+    <strong>No catalyst in this report is inferred</strong> — every one traces to a dated headline or a screener field above.
+  </div>
+</section>
+
+<footer>
+  <p><strong>Disclaimer:</strong> This report is generated for informational and educational purposes only and is not
+  investment advice, a recommendation, or a solicitation to buy or sell any security. Post-earnings gap trading is a
+  high-risk, short-holding-period strategy; gaps frequently reverse intraday and stops can be exceeded on fast markets.
+  Reference prices are pre-market snapshots taken at approximately 09:05&ndash;09:10 ET on 2026-07-27 and will differ
+  from the regular-session open — ENSG's pre-market quote in particular was illiquid with a ~5.8% bid/ask spread and
+  should not be treated as executable. All position sizes are illustrative on a hypothetical $100,000 account.
+  Verify all data independently and never risk capital you cannot afford to lose.</p>
+  <p style="margin-top:8px">Generated 2026-07-27 09:10 ET &middot; Post-Earnings Gap-Up Stock Analysis &middot; Backtest Scoring System v1</p>
+</footer>
+
+</div>
+</body>
+</html>
