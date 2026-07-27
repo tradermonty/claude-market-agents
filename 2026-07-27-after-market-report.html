@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Stock Market Analysis — July 27, 2026</title>
+<style>
+  :root{
+    --bg1:#0f1f3d; --bg2:#1e3c72; --bg3:#2a5298;
+    --card-bg: rgba(255,255,255,0.08);
+    --card-border: rgba(255,255,255,0.15);
+    --up:#00ff88; --down:#ff6b6b; --neutral:#ffd166;
+    --text-main:#f4f7ff; --text-sub:#c3d0f0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 45%, var(--bg3) 100%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    min-height:100vh;
+    padding: 24px 16px 60px;
+  }
+  .container{max-width:1180px; margin:0 auto;}
+  header.hero{
+    text-align:center; padding: 36px 20px 30px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin-bottom: 30px;
+  }
+  header.hero h1{font-size: 2.1em; margin:0 0 8px; letter-spacing:0.5px;}
+  header.hero .date-line{font-size:1.05em; color:var(--text-sub); margin-bottom:6px;}
+  header.hero .tagline{
+    display:inline-block; margin-top:10px; padding:8px 18px;
+    background: linear-gradient(135deg, rgba(0,255,136,0.18), rgba(255,209,102,0.15));
+    border:1px solid rgba(255,255,255,0.25); border-radius: 30px; font-weight:600;
+  }
+  h2.section-title{
+    font-size:1.5em; margin: 40px 0 18px; padding-bottom:10px;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    display:flex; align-items:center; gap:10px;
+  }
+  .grid{display:grid; gap:20px;}
+  .grid-3x2{grid-template-columns: repeat(3, 1fr);}
+  .grid-2col{grid-template-columns: 1fr 1fr;}
+  .grid-movers{grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));}
+  @media (max-width:900px){
+    .grid-3x2{grid-template-columns: repeat(2, 1fr);}
+    .grid-2col{grid-template-columns: 1fr;}
+  }
+  @media (max-width:600px){
+    .grid-3x2{grid-template-columns: 1fr;}
+  }
+  .card{
+    background: var(--card-bg); border:1px solid var(--card-border);
+    border-radius:16px; padding:20px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    backdrop-filter: blur(10px); transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover{ transform: translateY(-4px); box-shadow: 0 14px 34px rgba(0,0,0,0.4); }
+  .etf-card .ticker{font-size:1.3em; font-weight:700;}
+  .etf-card .name{font-size:0.78em; color:var(--text-sub); margin-bottom:10px;}
+  .etf-card .price{font-size:1.6em; font-weight:700; margin:6px 0;}
+  .etf-card .change{font-size:1.15em; font-weight:700;}
+  .up{color:var(--up); text-shadow:0 0 12px rgba(0,255,136,0.35);}
+  .down{color:var(--down); text-shadow:0 0 12px rgba(255,107,107,0.35);}
+  .neutral-txt{color:var(--neutral);}
+  .vol-note{font-size:0.75em; color:var(--text-sub); margin-top:8px;}
+
+  table{width:100%; border-collapse: collapse; font-size:0.92em;}
+  th, td{padding:10px 12px; text-align:left;}
+  th{
+    background: rgba(255,255,255,0.08); text-transform:uppercase; font-size:0.75em;
+    letter-spacing:0.5px; color:var(--text-sub);
+  }
+  tbody tr{border-bottom:1px solid rgba(255,255,255,0.08);}
+  tbody tr:hover{background: rgba(255,255,255,0.06);}
+  .table-wrap{
+    background: var(--card-bg); border:1px solid var(--card-border);
+    border-radius:16px; overflow:hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .badge{
+    display:inline-block; padding:3px 10px; border-radius:12px; font-size:0.72em; font-weight:700;
+  }
+  .badge-merger{background: rgba(155,89,255,0.25); color:#c9a8ff;}
+  .badge-earnings{background: rgba(0,255,136,0.18); color:#7dffc0;}
+  .badge-analyst{background: rgba(120,180,255,0.22); color:#a9d0ff;}
+  .badge-sector{background: rgba(255,209,102,0.2); color:#ffe08a;}
+  .badge-unconfirmed{background: rgba(255,255,255,0.12); color:var(--text-sub);}
+
+  .stats-grid{grid-template-columns: repeat(5, 1fr);}
+  @media (max-width:900px){.stats-grid{grid-template-columns: repeat(2, 1fr);}}
+  .stat-card{text-align:center;}
+  .stat-card .value{font-size:2em; font-weight:800; margin-bottom:4px;}
+  .stat-card .label{font-size:0.8em; color:var(--text-sub); text-transform:uppercase; letter-spacing:0.5px;}
+
+  .afterhours-section{
+    background: linear-gradient(135deg, rgba(255,107,107,0.16) 0%, rgba(255,165,0,0.16) 100%);
+    border-left: 5px solid #ffff00;
+    border-radius:16px; padding:24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .afterhours-section h3{margin-top:0;}
+  .earnings-grid{display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; margin-top:16px;}
+  @media (max-width:700px){.earnings-grid{grid-template-columns: 1fr;}}
+  .earnings-card{
+    background: rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25);
+    border-radius:14px; padding:18px; position:relative;
+  }
+  .earnings-card .symbol{font-size:1.3em; font-weight:800;}
+  .earnings-card .afterhours-change{font-size:1.4em; font-weight:800; margin:6px 0;}
+  .earnings-surprise{display:flex; justify-content:space-between; margin:10px 0; font-size:0.9em;}
+  .surprise-positive{color:#00ff88; font-weight:700;}
+  .surprise-negative{color:#ff6b6b; font-weight:700;}
+  .afterhours-badge{
+    position:absolute; top:-10px; right:-10px; background:#ff4444; color:#fff;
+    padding:5px 10px; border-radius:15px; font-size:0.75em; font-weight:800;
+  }
+
+  .earnings-cal{
+    background: linear-gradient(135deg, rgba(30,60,114,0.55), rgba(42,82,152,0.55));
+    border-left: 5px solid #ffd166;
+    border-radius:16px; padding:24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .earnings-cal h3{margin-top:0; font-size:1.1em;}
+  .earnings-day{margin-bottom:14px;}
+  .earnings-day .day-label{font-weight:700; color:#ffe08a; margin-bottom:6px; display:block;}
+  .ticker-pill{
+    display:inline-block; background: rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);
+    border-radius:10px; padding:4px 10px; margin:3px 4px 3px 0; font-size:0.85em; font-weight:600;
+  }
+  .fomc-callout{
+    margin-top:16px; padding:14px 16px; border-radius:12px;
+    background: rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3);
+    font-size:0.92em;
+  }
+
+  ul.keypoints{padding-left: 20px; line-height:1.9;}
+  ul.keypoints li{margin-bottom:6px;}
+  ul.keypoints strong{color:#ffe08a;}
+
+  .risk-box{
+    background: rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.25);
+    border-radius:16px; padding:20px;
+  }
+  .sentiment-box{
+    background: rgba(0,255,136,0.08); border:1px solid rgba(0,255,136,0.25);
+    border-radius:16px; padding:20px;
+  }
+
+  footer{
+    margin-top:50px; text-align:center; font-size:0.8em; color:var(--text-sub);
+    padding-top:20px; border-top:1px solid rgba(255,255,255,0.15);
+  }
+  footer a{color:#9fc4ff;}
+  .disclaimer{font-size:0.72em; opacity:0.75; margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date-line">📅 Monday, July 27, 2026 – Final After-Market Data</div>
+    <div class="tagline">Choppy Session, Small-Caps Outperform Ahead of FOMC &amp; Earnings Deluge</div>
+  </header>
+
+  <!-- Executive Summary -->
+  <h2 class="section-title">📝 Executive Summary</h2>
+  <div class="card">
+    <p>U.S. equities closed a seesaw session mixed to kick off a pivotal week. The <strong>S&amp;P 500</strong>
+    edged up 0.02% to 7,413.43 and the <strong>Dow Jones Industrial Average</strong> added 0.51% to 52,210.08,
+    while the <strong>Nasdaq Composite</strong> slipped 0.18% to 24,932.08 as mega-cap tech lagged value and
+    cyclical names. Among the major ETF proxies, <strong>$IWM</strong> (+0.60%) and <strong>$DIA</strong>
+    (+0.48%) outperformed <strong>$SPY</strong> (+0.02%) and <strong>$QQQ</strong> (-0.29%), consistent with
+    MarketWatch's characterization of a "seesaw session" for the benchmark index. Notably, both
+    <strong>$TLT</strong> (+0.60%) and <strong>$GLD</strong> (+0.73%) firmed alongside equities — a pattern
+    more consistent with idiosyncratic, stock-specific dispersion (M&amp;A, analyst notes, momentum) than a
+    broad risk-on or risk-off move, and possibly some pre-FOMC positioning.</p>
+    <p>The day's headline mover was <strong>Forte Biosciences ($FBRX, +39.65%)</strong>, which rocketed after
+    <strong>argenx</strong> agreed to acquire the company for $2.2 billion to add its anti-CD122 antibody
+    FB102 to its immunology pipeline — the clearest, best-verified catalyst of the session. Breadth remained
+    constructive with <strong>661 stocks</strong> in confirmed uptrends (up from 637 on Friday) even as the
+    <strong>volume-surge list narrowed to 39 names</strong> (from 45) with a milder average move of
+    <strong>+6.2%</strong> (vs. +7.8% Friday) — fewer, but still active, idiosyncratic dispersion. The
+    <strong>VIX</strong> ticked up slightly to 18.71 (+0.70%), remaining well below its 52-week high of 35.30
+    and signaling no acute stress. After-hours, only two large-cap reporters cleared the ±2% threshold:
+    <strong>Amkor Technology ($AMKR)</strong> bounced +2.12% on a large EPS beat (+37.67%) after a rough
+    -6.54% regular session, while <strong>Rambus ($RMBS)</strong> added +3.07% despite a modest EPS miss
+    (-1.76%). This is the first session of a week that includes the <strong>FOMC's July 28–29 meeting</strong>
+    (decision Wednesday 2:00 PM ET, no Summary of Economic Projections) and roughly <strong>760 companies</strong>
+    reporting earnings.</p>
+  </div>
+
+  <!-- Major Index Performance -->
+  <h2 class="section-title">📈 Major Index Performance</h2>
+  <div class="grid grid-3x2">
+    <div class="card etf-card">
+      <div class="ticker">S&amp;P 500 <span style="font-size:0.6em; color:var(--text-sub);">(^GSPC)</span></div>
+      <div class="name">Broad Market Benchmark</div>
+      <div class="price">7,413.43</div>
+      <div class="change up">▲ +1.45 (+0.02%)</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">Dow Jones <span style="font-size:0.6em; color:var(--text-sub);">(^DJI)</span></div>
+      <div class="name">Industrial Average</div>
+      <div class="price">52,210.08</div>
+      <div class="change up">▲ +262.83 (+0.51%)</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">Nasdaq Composite <span style="font-size:0.6em; color:var(--text-sub);">(^IXIC)</span></div>
+      <div class="name">Tech-Heavy Index</div>
+      <div class="price">24,932.08</div>
+      <div class="change down">▼ -43.74 (-0.18%)</div>
+    </div>
+  </div>
+
+  <!-- Major ETF Performance -->
+  <h2 class="section-title">💹 Major ETF Performance</h2>
+  <div class="grid grid-3x2">
+    <div class="card etf-card">
+      <div class="ticker">$SPY</div>
+      <div class="name">SPDR S&amp;P 500 ETF Trust</div>
+      <div class="price">$739.09</div>
+      <div class="change up">▲ +0.02%</div>
+      <div class="vol-note">Vol: 39.2M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$QQQ</div>
+      <div class="name">Invesco QQQ Trust</div>
+      <div class="price">$682.23</div>
+      <div class="change down">▼ -0.29%</div>
+      <div class="vol-note">Vol: 41.8M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$DIA</div>
+      <div class="name">SPDR Dow Jones ETF</div>
+      <div class="price">$521.26</div>
+      <div class="change up">▲ +0.48%</div>
+      <div class="vol-note">Vol: 3.1M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$IWM</div>
+      <div class="name">iShares Russell 2000 ETF</div>
+      <div class="price">$292.91</div>
+      <div class="change up">▲ +0.60%</div>
+      <div class="vol-note">Vol: 19.1M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$TLT</div>
+      <div class="name">iShares 20+ Year Treasury</div>
+      <div class="price">$83.75</div>
+      <div class="change up">▲ +0.60%</div>
+      <div class="vol-note">Vol: 23.5M</div>
+    </div>
+    <div class="card etf-card">
+      <div class="ticker">$GLD</div>
+      <div class="name">SPDR Gold Shares</div>
+      <div class="price">$374.63</div>
+      <div class="change up">▲ +0.73%</div>
+      <div class="vol-note">Vol: 3.6M</div>
+    </div>
+  </div>
+
+  <!-- Top Volume-Surge Tickers -->
+  <h2 class="section-title">🔥 Top Volume-Surge Tickers</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>Symbol</th><th>Company</th><th>Sector</th><th>1D Change</th><th>Catalyst</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>$FBRX</strong></td><td>Forte Biosciences Inc</td><td>Healthcare</td><td class="up">+39.65%</td><td><span class="badge badge-merger">M&amp;A</span> argenx agrees to acquire for $2.2B (FB102 anti-CD122 antibody)</td></tr>
+        <tr><td>2</td><td><strong>$OMER</strong></td><td>Omeros Corp</td><td>Healthcare</td><td class="up">+15.83%</td><td><span class="badge badge-analyst">Analyst</span> AstraZeneca rare-disease drug setback flagged as competitive positive for Omeros</td></tr>
+        <tr><td>3</td><td><strong>$RHI</strong></td><td>Robert Half Inc</td><td>Industrials</td><td class="up">+12.61%</td><td><span class="badge badge-analyst">Analyst</span> BMO upgrade</td></tr>
+        <tr><td>4</td><td><strong>$TENX</strong></td><td>Tenax Therapeutics Inc</td><td>Healthcare</td><td class="up">+11.42%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No earnings/M&amp;A news found for today</td></tr>
+        <tr><td>5</td><td><strong>$RNG</strong></td><td>RingCentral Inc</td><td>Technology</td><td class="up">+11.16%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No fresh catalyst found; EPS surprise data on file is from a prior quarter</td></tr>
+        <tr><td>6</td><td><strong>$ANDG</strong></td><td>Andersen Group Inc</td><td>Consumer</td><td class="up">+9.62%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No news catalyst found</td></tr>
+        <tr><td>7</td><td><strong>$SLN</strong></td><td>Silence Therapeutics plc ADR</td><td>Healthcare</td><td class="up">+9.53%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No news catalyst found</td></tr>
+        <tr><td>8</td><td><strong>$LW</strong></td><td>Lamb Weston Holdings Inc</td><td>Consumer</td><td class="up">+7.12%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> EPS surprise on file (+38.93%) is from a prior report, not confirmed for today</td></tr>
+        <tr><td>9</td><td><strong>$OTLY</strong></td><td>Oatly Group AB ADR</td><td>Consumer</td><td class="up">+6.96%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No news catalyst found</td></tr>
+        <tr><td>10</td><td><strong>$ENVA</strong></td><td>Enova International Inc</td><td>Financial</td><td class="up">+6.19%</td><td><span class="badge badge-unconfirmed">Unconfirmed</span> No news catalyst found</td></tr>
+        <tr><td>15</td><td><strong>$KFRC</strong></td><td>Kforce Inc</td><td>Industrials</td><td class="up">+5.46%</td><td><span class="badge badge-earnings">Earnings</span> Q2 EPS beat +16.25%, revenue beat +0.32%</td></tr>
+        <tr><td>23</td><td><strong>$FFIV</strong></td><td>F5 Inc</td><td>Technology</td><td class="up">+4.23%</td><td><span class="badge badge-earnings">Earnings</span> EPS beat +12.87%, revenue beat +3.56%</td></tr>
+        <tr><td>24</td><td><strong>$HAPN</strong></td><td>Happen Inc</td><td>Financial</td><td class="up">+3.99%</td><td><span class="badge badge-earnings">Earnings</span> Q2 results released today, EPS beat +17.49%</td></tr>
+        <tr><td>35</td><td><strong>$CLF</strong></td><td>Cleveland-Cliffs Inc</td><td>Basic Materials</td><td class="up">+2.68%</td><td><span class="badge badge-earnings">Earnings</span> Post-earnings momentum — Q2 net loss but beat estimates (+4.03%); shares +36.4% over the week per Trefis coverage</td></tr>
+        <tr><td>36</td><td><strong>$RTX</strong></td><td>RTX Corp</td><td>Industrials</td><td class="up">+2.65%</td><td><span class="badge badge-unconfirmed">Momentum</span> Fresh 52-week high; extending a prior-week earnings beat (+13.90%), no new catalyst identified today</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="disclaimer">Ranks reflect position within the full 39-name volume-surge screener (sorted by % change
+  descending). Catalysts verified via Finviz stock news (1–2 day lookback) and fundamentals data per ticker.
+  Where no earnings/M&amp;A/analyst news could be confirmed for today specifically, the move is labeled
+  "Unconfirmed" rather than assumed — several tickers carry EPS-surprise figures in fundamentals data that
+  reflect a prior reporting quarter, not a fresh release today.</p>
+
+  <!-- Post-Close Earnings & After-Hours -->
+  <h2 class="section-title">🌙 Post-Close Earnings &amp; After-Hours</h2>
+  <div class="afterhours-section">
+    <h3>Monday After-Hours Reporters (Large-Cap, $10B+, ±2% AH threshold)</h3>
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$AMKR — Amkor Technology</div>
+        <div class="afterhours-change up">▲ +2.12% AH</div>
+        <div class="earnings-surprise">
+          <span>EPS Surprise: <span class="surprise-positive">+37.67%</span></span>
+          <span>Revenue Surprise: <span class="surprise-positive">+3.32%</span></span>
+        </div>
+        <div class="vol-note">Regular session: -6.54% (into the print) → AH recovery of +2.12% on a large
+        EPS beat. Volume: 10.6M.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$RMBS — Rambus Inc</div>
+        <div class="afterhours-change up">▲ +3.07% AH</div>
+        <div class="earnings-surprise">
+          <span>EPS Surprise: <span class="surprise-negative">-1.76%</span></span>
+          <span>Revenue Surprise: <span class="surprise-positive">+0.14%</span></span>
+        </div>
+        <div class="vol-note">Regular session: +0.43%. AH gain despite a slight EPS miss, on an in-line
+        revenue print. Volume: 3.9M.</div>
+      </div>
+    </div>
+    <p class="disclaimer" style="margin-top:14px;">Only 2 of 60 possible large-cap ($10B+) names cleared the
+    ±2% after-hours threshold tonight — a thin post-close reaction night by recent standards. 1 of 2
+    (Amkor) beat consensus EPS; Rambus posted a narrow miss.</p>
+  </div>
+
+  <!-- Market Statistics -->
+  <h2 class="section-title">📊 Market Statistics</h2>
+  <div class="grid stats-grid">
+    <div class="card stat-card">
+      <div class="value">39</div>
+      <div class="label">Volume-Surge Stocks</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">661</div>
+      <div class="label">Uptrend Stocks</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">2.8x</div>
+      <div class="label">Avg. Relative Volume</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">+6.2%</div>
+      <div class="label">Avg. Price Move (Surge List)</div>
+    </div>
+    <div class="card stat-card">
+      <div class="value">760</div>
+      <div class="label">Cos. Reporting This Week</div>
+    </div>
+  </div>
+
+  <!-- Sector Performance -->
+  <h2 class="section-title">🏢 Sector Performance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Sector</th><th>Change</th><th>Market Cap ($M)</th><th>P/E</th><th># Stocks</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Consumer Defensive</td><td class="up">+1.56%</td><td>4,442,027</td><td>26.64</td><td>240</td></tr>
+        <tr><td>Communication Services</td><td class="up">+1.55%</td><td>12,093,155</td><td>28.76</td><td>259</td></tr>
+        <tr><td>Consumer Cyclical</td><td class="up">+1.13%</td><td>8,722,897</td><td>28.15</td><td>534</td></tr>
+        <tr><td>Financial</td><td class="up">+0.94%</td><td>14,916,255</td><td>18.02</td><td>1,112</td></tr>
+        <tr><td>Healthcare</td><td class="up">+0.51%</td><td>9,035,726</td><td>30.71</td><td>1,061</td></tr>
+        <tr><td>Basic Materials</td><td class="up">+0.29%</td><td>2,744,061</td><td>21.17</td><td>284</td></tr>
+        <tr><td>Industrials</td><td class="up">+0.12%</td><td>9,528,125</td><td>38.94</td><td>705</td></tr>
+        <tr><td>Real Estate</td><td class="down">-0.22%</td><td>1,826,521</td><td>32.23</td><td>253</td></tr>
+        <tr><td>Technology</td><td class="down">-0.90%</td><td>31,481,860</td><td>34.82</td><td>791</td></tr>
+        <tr><td>Utilities</td><td class="down">-1.03%</td><td>1,973,504</td><td>20.60</td><td>109</td></tr>
+        <tr><td>Energy</td><td class="down">-2.40%</td><td>4,588,771</td><td>18.77</td><td>254</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Next-Session Earnings Calendar -->
+  <h2 class="section-title">🗓️ Tuesday's Earnings Docket (FOMC Day 1)</h2>
+  <div class="earnings-cal">
+    <h3>Tuesday, July 28 kicks off both a heavy earnings slate and the first day of the FOMC's two-day meeting.</h3>
+    <div class="earnings-day">
+      <span class="day-label">Before Market Open</span>
+      <span class="ticker-pill">$UPS</span><span class="ticker-pill">$SPGI</span><span class="ticker-pill">$PYPL</span>
+      <span class="ticker-pill">$SHW</span><span class="ticker-pill">$RCL</span><span class="ticker-pill">$PCAR</span>
+      <span class="ticker-pill">$ITW</span><span class="ticker-pill">$IQV</span><span class="ticker-pill">$TXT</span>
+      <span class="ticker-pill">$TRU</span><span class="ticker-pill">$XYL</span><span class="ticker-pill">$HUBB</span>
+    </div>
+    <div class="earnings-day">
+      <span class="day-label">After Market Close</span>
+      <span class="ticker-pill">$NXPI</span><span class="ticker-pill">$MDLZ</span><span class="ticker-pill">$WM</span>
+      <span class="ticker-pill">$TER</span><span class="ticker-pill">$STX</span><span class="ticker-pill">$VLTO</span>
+      <span class="ticker-pill">$UNM</span><span class="ticker-pill">$PPG</span><span class="ticker-pill">$OMC</span>
+      <span class="ticker-pill">$LOGI</span><span class="ticker-pill">$UMBF</span>
+    </div>
+    <div class="fomc-callout">
+      ⚠️ <strong>FOMC Meeting — Tuesday–Wednesday, July 28–29, 2026</strong> (verified via web search). Policy
+      statement Wednesday 2:00 PM ET; Chair press conference 2:30 PM ET. No Summary of Economic Projections
+      at this meeting. The Fed has held the federal funds rate at 3.50%–3.75% through recent meetings — this
+      decision lands in the middle of the week's earnings slate and is the single largest catalyst to watch.
+    </div>
+  </div>
+
+  <!-- Today's Key Points -->
+  <h2 class="section-title">🔑 Today's Key Points</h2>
+  <div class="card">
+    <ul class="keypoints">
+      <li><strong>Hot sectors:</strong> Consumer Defensive (+1.56%) and Communication Services (+1.55%) led,
+      followed by Consumer Cyclical (+1.13%) — a defensive-leaning, breadth-positive rotation rather than a
+      single dominant theme.</li>
+      <li><strong>Volume-surge characteristics:</strong> Of the 39 volume-surge names, the clearest, best-verified
+      catalyst was Forte Biosciences' $2.2B buyout by argenx. Omeros (analyst competitive read-through) and
+      Robert Half (BMO upgrade) were the next two verified movers. The remaining names in the top 10
+      (TENX, RNG, ANDG, SLN, LW, OTLY, ENVA) had no confirmable earnings/M&amp;A/analyst news for today despite
+      some carrying EPS-surprise data on file from prior quarters — these are flagged "Unconfirmed" rather
+      than mislabeled as earnings reactions.</li>
+      <li><strong>Earnings highlights:</strong> Kforce, F5 and Happen Inc all posted verified EPS beats today
+      (+16.25%, +12.87%, +17.49% respectively). Cleveland-Cliffs continued a post-earnings rally (Q2 net loss
+      but beat estimates) that has taken shares up 36.4% over the past week per Trefis coverage.</li>
+      <li><strong>After-hours:</strong> Only Amkor Technology and Rambus cleared the ±2% after-hours bar
+      tonight — a quiet post-close night. Amkor's EPS beat (+37.67%) helped it claw back some of a rough
+      regular session (-6.54%); Rambus edged higher despite a narrow EPS miss.</li>
+      <li><strong>Broad market trend:</strong> Breadth improved to 661 confirmed uptrend stocks (from 637
+      Friday) even as headline indices were mixed — the Dow and small-caps (IWM) outperformed a softer
+      Nasdaq, consistent with rotation rather than a broad risk-off move.</li>
+      <li><strong>Bonds &amp; gold:</strong> TLT (+0.60%) and GLD (+0.73%) both firmed alongside equities —
+      an unusual combination that may reflect some pre-FOMC positioning rather than a flight-to-safety signal.</li>
+    </ul>
+  </div>
+
+  <!-- Technical Analysis Observations -->
+  <h2 class="section-title">📐 Technical Analysis Observations</h2>
+  <div class="card">
+    <ul class="keypoints">
+      <li>S&amp;P 500 (7,413.43) sits within a tight range of its 52-week high (6,212.69 – 7,620.90), and the
+      broader uptrend screen (661 stocks above SMA20/SMA200 with SMA50 &gt; SMA200) confirms the underlying
+      trend remains intact despite today's choppiness.</li>
+      <li>By construction, all 39 volume-surge names trade above their 200-day moving average; several are
+      technically extended in the very short term — Forte Biosciences (RSI 85.6), Oatly (RSI 79.9), Lamb
+      Weston (RSI 76.5) and RTX (RSI 77.3) are all in deeply overbought territory, raising the odds of
+      near-term consolidation even where the underlying catalyst (M&amp;A, earnings) is durable.</li>
+      <li>QQQ's underperformance versus DIA/IWM (-0.29% vs. +0.48%/+0.60%) points to a mild rotation away
+      from mega-cap tech leadership — worth monitoring for follow-through into the FOMC decision and
+      Tuesday's NXP Semiconductors report.</li>
+      <li>VIX at 18.71 (+0.70%) is only marginally higher on the day and remains well below its 52-week high
+      of 35.30, indicating options markets are not yet pricing elevated event risk into Wednesday's Fed
+      decision.</li>
+    </ul>
+  </div>
+
+  <!-- Forward-looking commentary -->
+  <h2 class="section-title">🔮 Forward-Looking Commentary &amp; Key Levels</h2>
+  <div class="card">
+    <ul class="keypoints">
+      <li><strong>FOMC (Tue–Wed, 7/28–7/29; decision 2:00 PM ET Wednesday):</strong> The week's dominant
+      catalyst. Consensus expects the funds rate to hold at 3.50%–3.75%; any surprise in the statement
+      language or the Chair's 2:30 PM ET press conference tone could swing rate-sensitive sectors (Real
+      Estate, Utilities) and the broader tape mid-week.</li>
+      <li><strong>Earnings watch:</strong> Tuesday's slate (UPS, S&amp;P Global, PayPal, NXP Semiconductors,
+      Mondelez, Waste Management, Teradyne, Seagate) sets an early tone for logistics, payments, semis and
+      staples ahead of a heavier Wednesday/Thursday docket, all landing on top of the FOMC decision.</li>
+      <li><strong>Key levels to watch:</strong> SPY holding its recent range near 52-week highs; QQQ needs to
+      stabilize relative to SPY/DIA to avoid confirming a leadership rotation out of mega-cap tech; IWM's
+      relative strength today would reinforce a small-cap/cyclical rotation thesis if it persists.</li>
+    </ul>
+  </div>
+
+  <!-- Risk Factors & Sentiment -->
+  <h2 class="section-title">⚠️ Risk Factors &amp; Market Sentiment</h2>
+  <div class="grid grid-2col">
+    <div class="risk-box">
+      <h3 style="margin-top:0;">Risk Factors</h3>
+      <ul class="keypoints">
+        <li>FOMC decision (Wed 7/29) lands mid-week amid a heavy earnings docket — a hawkish surprise on the
+        statement or press conference could compound volatility across both rate-sensitive and growth
+        sectors simultaneously.</li>
+        <li>Several top volume-surge movers (TENX, RNG, ANDG, SLN, LW, OTLY, ENVA) lack a confirmed catalyst
+        for today; unconfirmed moves of this kind can reverse quickly once (or if) an underlying driver
+        becomes clear.</li>
+        <li>A cluster of volume-surge names (FBRX, OTLY, LW, RTX) are technically extended (RSI &gt; 75),
+        raising the risk of short-term profit-taking even where the fundamental catalyst is sound.</li>
+        <li>Energy (-2.40%) was today's clear underperformer; a continuation would be worth monitoring
+        against crude-price and geopolitical headlines this week.</li>
+      </ul>
+    </div>
+    <div class="sentiment-box">
+      <h3 style="margin-top:0;">Sentiment Indicators</h3>
+      <ul class="keypoints">
+        <li>VIX 18.71 (+0.70%): calm, well below its 52-week high of 35.30 — no acute fear signal heading
+        into the FOMC decision.</li>
+        <li>661 stocks in confirmed uptrends vs. 39 volume-surge names: breadth improved from Friday,
+        suggesting still-constructive underlying participation despite the mixed headline indices.</li>
+        <li>Safe-haven proxies (TLT +0.60%, GLD +0.73%) both firmed alongside equities — a mild, not acute,
+        signal that some investors are hedging into the FOMC decision.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Data sources: Finviz Elite (market overview, volume-surge screener, sector performance, stock
+    fundamentals &amp; news, earnings after-hours/upcoming screeners), Alpaca Markets (ETF snapshots),
+    Financial Modeling Prep (S&amp;P 500 / Dow / Nasdaq / VIX index quotes), web search (FOMC schedule
+    verification).</p>
+    <p>Last refreshed: 2026-07-27 16:11 ET (13:11 PDT) — final after-market data.</p>
+    <p class="disclaimer">This report is provided for informational purposes only and does not constitute
+    investment advice. Data reflects regular-session closing levels plus verified post-close after-hours
+    activity where available. Catalysts are labeled "Unconfirmed" rather than assumed whenever no supporting
+    news could be located for today specifically.</p>
+  </footer>
+
+</div>
+</body>
+</html>
