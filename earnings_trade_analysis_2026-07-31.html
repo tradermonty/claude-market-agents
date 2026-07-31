@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis &mdash; 2026-07-31</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0b1220; --panel:#131c30; --panel2:#1a2540; --line:#243352;
+    --txt:#e8eefc; --mut:#93a4c4; --pos:#22c55e; --neg:#ef4444; --acc:#3b82f6;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+       background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:24px 18px 64px}
+
+  header.hero{background:linear-gradient(135deg,#12203c 0%,#1c2f57 55%,#24406f 100%);
+       border:1px solid var(--line);border-radius:18px;padding:34px 30px;margin-bottom:26px}
+  header.hero h1{font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:800;letter-spacing:-.02em}
+  header.hero .sub{color:#b9cbec;margin-top:8px;font-size:.98rem}
+  .stamp{display:inline-block;margin-top:14px;background:rgba(59,130,246,.16);
+       border:1px solid rgba(59,130,246,.4);color:#bfd6ff;padding:5px 13px;border-radius:999px;font-size:.8rem}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:14px;margin-bottom:28px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+  .kpi .n{font-size:1.85rem;font-weight:800;line-height:1.15}
+  .kpi .l{color:var(--mut);font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;margin-top:5px}
+
+  .note{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--acc);
+       border-radius:12px;padding:18px 20px;margin-bottom:28px}
+  .note h2{font-size:1.02rem;margin-bottom:8px}
+  .note p{color:#c3d2ee;font-size:.92rem;margin-bottom:8px}
+  .note p:last-child{margin-bottom:0}
+
+  h2.sec{font-size:1.22rem;margin:34px 0 6px;display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  h2.sec .tag{font-size:.72rem;font-weight:700;padding:4px 11px;border-radius:999px;color:#fff}
+  h2.sec .rate{font-size:.8rem;color:var(--mut);font-weight:500}
+  .stars{font-size:.9rem}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(370px,1fr));gap:18px;margin-top:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--gc);
+       border-radius:15px;padding:20px;display:flex;flex-direction:column;gap:15px}
+  .card-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .tk h3{font-size:1.28rem;font-weight:800;letter-spacing:-.01em}
+  .tk p{color:var(--mut);font-size:.84rem;margin-top:2px}
+  .sector{display:inline-block;margin-top:7px;background:var(--panel2);border:1px solid var(--line);
+       color:#a9bbdd;font-size:.7rem;padding:3px 9px;border-radius:999px}
+  .gradebox{text-align:center;background:var(--panel2);border:1px solid var(--line);
+       border-radius:12px;padding:9px 14px;min-width:74px}
+  .gletter{display:block;font-size:1.6rem;font-weight:800;color:var(--gc);line-height:1}
+  .gscore{display:block;font-size:.82rem;color:var(--mut);margin-top:3px}
+
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .m{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 8px;text-align:center}
+  .ml{display:block;color:var(--mut);font-size:.66rem;text-transform:uppercase;letter-spacing:.05em}
+  .mv{display:block;font-size:.97rem;font-weight:700;margin-top:3px}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+
+  .scores{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;
+       display:flex;flex-direction:column;gap:8px}
+  .srow{display:flex;align-items:center;gap:10px;font-size:.79rem}
+  .srow span{flex:1;color:#c3d2ee}
+  .srow em{color:var(--mut);font-style:normal;font-size:.72rem}
+  .srow b{color:var(--mut);font-size:.75rem;min-width:26px;text-align:right}
+  .pips{display:inline-flex;gap:3px}
+  .pips i{width:15px;height:7px;border-radius:3px;background:#2a3a5c;display:block}
+  .pips i.on{background:var(--gc)}
+
+  .prob-hd{display:flex;justify-content:space-between;font-size:.8rem;color:#c3d2ee;margin-bottom:6px}
+  .prob-hd b{color:var(--txt);font-size:.95rem}
+  .prob-track{height:8px;background:#22304e;border-radius:999px;overflow:hidden}
+  .prob-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);border-radius:999px}
+
+  .news h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--acc);
+       margin:11px 0 3px}
+  .news h4:first-child{margin-top:0}
+  .news p{font-size:.845rem;color:#c3d2ee}
+
+  .empty{background:var(--panel);border:1px dashed var(--line);border-radius:13px;
+       padding:22px;color:var(--mut);font-size:.9rem;margin-top:14px}
+
+  .tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);
+       border-radius:14px;margin-top:16px}
+  table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:820px}
+  th{background:var(--panel2);color:var(--mut);font-size:.7rem;text-transform:uppercase;
+       letter-spacing:.06em;padding:12px 10px;text-align:left;white-space:nowrap}
+  td{padding:10px;border-top:1px solid var(--line);white-space:nowrap}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  th.num{text-align:right}
+  .t-tk{font-weight:700}
+  tbody tr:hover{background:rgba(59,130,246,.07)}
+  .pill{display:inline-block;color:#fff;font-weight:700;font-size:.72rem;
+       padding:2px 9px;border-radius:999px}
+
+  footer{margin-top:40px;background:var(--panel);border:1px solid var(--line);
+       border-left:4px solid #ef4444;border-radius:12px;padding:20px}
+  footer h3{font-size:.95rem;margin-bottom:8px}
+  footer p{color:var(--mut);font-size:.82rem;margin-bottom:7px}
+  footer p:last-child{margin-bottom:0}
+
+  @media (max-width:640px){
+    .wrap{padding:16px 12px 48px}
+    header.hero{padding:24px 20px}
+    .grid{grid-template-columns:1fr}
+    .metrics{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+    <p class="sub">Backtest-scored momentum screen &mdash; earnings released after Thursday's close
+       or before Friday's open. Friday, 2026-07-31.</p>
+    <span class="stamp">Analysis run 2026-07-31 09:15 ET &middot; pre-market prices, US market not yet open</span>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi"><div class="n">13</div><div class="l">Stocks Analyzed</div></div>
+    <div class="kpi"><div class="n" style="color:#16a34a">0</div><div class="l">A-Grade</div></div>
+    <div class="kpi"><div class="n" style="color:#2563eb">0</div><div class="l">B-Grade</div></div>
+    <div class="kpi"><div class="n" style="color:#d97706">10</div><div class="l">C-Grade</div></div>
+    <div class="kpi"><div class="n" style="color:#64748b">3</div><div class="l">D-Grade</div></div>
+    <div class="kpi"><div class="n">69.0</div><div class="l">Top Score</div></div>
+  </section>
+
+  <div class="note">
+    <h2>Market Context &amp; Read-Through</h2>
+    <p>Friday's tape is an AI relief rally. Amazon's AWS grew 37% &mdash; its fastest in five years &mdash;
+       with total revenue topping $200B and a backlog near $500B, and the read-through swept global
+       markets: Samsung and SK Hynix rose nearly 30%, and US memory names gapped with them. Apple went
+       the other way, down roughly 7% pre-market on a weak outlook. The market is paying for cloud
+       capacity and selling devices.</p>
+    <p>The energy complex is the day's other story. Chevron posted its highest profit in six years and
+       highest revenue in four as the Iran conflict lifted crude and refining margins, while Exxon
+       missed on the same tape. Worth holding in mind that the chip sector, Amazon bounce
+       notwithstanding, is still tracking its worst month since 2002.</p>
+    <p><strong>No stock reached A-grade or B-grade today &mdash; the screen returned 13 names and every
+       one scored C or D.</strong> The binding constraint is volume: 11 of the 13 show a 20-day/60-day
+       volume ratio below 90%, meaning these gaps are being made into contracting rather than expanding
+       participation. Only NVT (101.1%) and MPWR (99.3%) show volume holding up.</p>
+    <p><strong>The day's biggest headline is also one of its worst setups.</strong> Amazon gapped
+       +10.99% on an outstanding quarter and scores 53 &mdash; D-grade. The framework penalises it on
+       three inputs at once: a gap above 10% (28% historical base rate), a negative 20-session trend
+       into the print (-2.57%), and contracting volume. This is the system working as designed, not a
+       verdict on the company. The same logic downgrades MPWR (+11.84% gap) and NVT (+10.66%).</p>
+  </div>
+
+  <h2 class="sec"><span class="tag" style="background:#16a34a">A-GRADE</span>
+      <span class="rate">85+ points &middot; 70%+ success rate</span>
+      <span class="stars">⭐⭐⭐⭐⭐</span></h2>
+  <div class="grid">
+<div class="empty">No A-grade candidates today. Under the backtest thresholds this is a normal outcome and should not be forced by relaxing criteria.</div>
+  </div>
+
+
+  <h2 class="sec"><span class="tag" style="background:#2563eb">B-GRADE</span>
+      <span class="rate">70&ndash;84 points &middot; 55-69% success rate</span>
+      <span class="stars">⭐⭐⭐⭐</span></h2>
+  <div class="grid">
+<div class="empty">No B-grade candidates today either. The highest score in the screen was 69.0 ($RYAN), one point short of the B threshold &mdash; a genuinely thin day for gap setups.</div>
+  </div>
+
+
+  <h2 class="sec"><span class="tag" style="background:#d97706">C-GRADE</span>
+      <span class="rate">55&ndash;69 points &middot; 40-54% success rate</span>
+      <span class="stars">⭐⭐⭐</span></h2>
+  <div class="grid">
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$RYAN</h3>
+            <p>Ryan Specialty Holdings Inc</p>
+            <span class="sector">Financial</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">69.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$46.30</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+5.01%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+10.14%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">80.8%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+7.23%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+23.21%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>54%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:54%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS beat consensus by +23.81% with revenue +4.89% above (Business Wire, 7/30 16:05). Second-highest EPS surprise among the after-hours reporters. EPS growth QoQ was -13.32%, so the beat is against a lowered bar rather than sequential acceleration.</p>
+          <h4>Assessment</h4><p>Highest score in the screen, but that still only reaches C-grade. The setup's strength is momentum: +10.14% into the print and a +5.01% gap that sits in the historically favourable 2-10% band. The weakness is participation &mdash; volume has been running at 80.8% of its 60-day norm, so the advance is thinning even as price extends.</p>
+          <h4>Technical Factors</h4><p>Stretched: +23.21% above the 50-day MA, the widest extension in the cohort, with RSI 65.9 and +9.85% over the 20-day. Only +7.23% above the 200-day, meaning almost the entire move is recent. Chasing here buys the extension; a pullback toward the 20-day is the better entry.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$MTD</h3>
+            <p>Mettler-Toledo International Inc</p>
+            <span class="sector">Healthcare</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">66.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$1,451.22</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+5.11%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+6.17%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">75.1%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+10.05%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+17.80%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>50%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:50%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS +6.13% above consensus, but revenue came in fractionally short at -0.04% (Business Wire, 7/30 16:30). EPS growth QoQ +18.38%. The beat is margin-driven, not demand-driven &mdash; a lower-quality beat than the headline suggests.</p>
+          <h4>Assessment</h4><p>Scores well on the trend and moving-average elements but carries the most overbought reading in the screen. A +5.11% gap on top of a name already 17.8% above its 50-day, with volume at only 75.1% of normal, is the classic profile of a move running out of buyers.</p>
+          <h4>Technical Factors</h4><p>RSI 74.1 &mdash; the only name in the screen above 70. +17.80% over the 50-day and +10.05% over the 200-day. Lowest volume ratio of any gapper today at 75.1%. Momentum is real but the risk/reward on a fresh entry is poor.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$CVX</h3>
+            <p>Chevron Corp</p>
+            <span class="sector">Energy</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">65.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$193.97</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+0.86%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+16.07%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">83.1%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+10.61%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+6.17%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>53%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:53%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS +9.17% and revenue +11.69% above consensus &mdash; highest profit in six years and highest revenue in four (Business Wire / AP, 7/31 06:15). Refining margins soared as the Iran conflict drove crude higher; rival Exxon missed on the same tape (Yahoo Finance, 7/31).</p>
+          <h4>Assessment</h4><p>The cleanest fundamental story in the screen and the only one where the beat is confirmed by a peer's miss, which points to company-specific execution rather than pure commodity beta. The problem for a gap trade is that the market already knew: the stock ran +16.07% into the print, so the report produced only a +0.86% gap. The move has been front-run.</p>
+          <h4>Technical Factors</h4><p>+10.61% over the 200-day and +6.17% over the 50-day, RSI 64.2. Volume ratio 83.1%. Note the commodity dependency cuts both ways &mdash; the entire pre-earnings run is a war-premium bid that unwinds fast if Hormuz headlines reverse.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$DXCM</h3>
+            <p>Dexcom Inc</p>
+            <span class="sector">Healthcare</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">64.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$79.90</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+7.19%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+8.25%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">78.7%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+17.97%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+9.36%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>51%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:51%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS +14.75% above consensus on revenue +1.40%, with management raising full-year guidance (earnings call highlights, 7/31 01:04). EPS growth QoQ +43.63%. A raise on top of a beat is the strongest guidance signal in today's cohort.</p>
+          <h4>Assessment</h4><p>Best combination of a real guidance raise and a gap in the favourable band (+7.19%). Trend into the print was constructive at +8.25% without being extended. The single drag is volume at 78.7% of the 60-day average, which is why this cannot clear C-grade.</p>
+          <h4>Technical Factors</h4><p>Furthest above its 200-day of any healthcare name here at +17.97%, and +9.36% over the 50-day with RSI 64.0. +34.17% over three months. Structurally the healthiest chart in the screen; the participation data is the only thing arguing against it.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$CBOE</h3>
+            <p>Cboe Global Markets Inc</p>
+            <span class="sector">Financial</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">60.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$296.70</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+0.06%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+19.70%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">78.9%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+6.39%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+4.45%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>46%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:46%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS +10.76% and revenue +5.68% above consensus (PR Newswire, 7/31 07:30). EPS growth QoQ +54.16%, helped by elevated volatility trading through the June drawdown.</p>
+          <h4>Assessment</h4><p>Strongest pre-earnings trend in the screen at +19.70%, but the market's response so far is essentially nil &mdash; a +0.06% gap on a double-digit EPS beat. When a good number cannot move the stock, the number was already priced. This is a poor gap-continuation candidate despite the good score inputs.</p>
+          <h4>Technical Factors</h4><p>+6.39% over the 200-day and +4.45% over the 50-day. Still -20.07% below its 52-week high after the violent June decline from $366 to $242, so the +19.70% run is recovery, not breakout. Volume ratio 78.9%.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$D</h3>
+            <p>Dominion Energy Inc</p>
+            <span class="sector">Utilities</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">57.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$70.19</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+0.66%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+2.86%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">63.7%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+10.95%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+2.09%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>44%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:44%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS +5.31% and revenue +13.29% above consensus (Business Wire, 7/31 07:30) &mdash; the second-largest revenue surprise in the screen. Quarterly dividend declared at 66.75 cents (7/28). Data-centre load growth in Virginia remains the structural driver.</p>
+          <h4>Assessment</h4><p>A solid operational quarter that the market barely acknowledged (+0.66% gap). Utilities with data-centre exposure have a genuine demand story, but rate sensitivity caps the multiple. The volume ratio of 63.7% is the weakest in the entire screen &mdash; interest in this name is actively draining.</p>
+          <h4>Technical Factors</h4><p>The only name in the screen trading below its 20-day MA (-0.40%) despite gapping up. +10.95% over the 200-day, +2.09% over the 50-day, RSI 52.3 &mdash; directionless. Volume ratio 63.7%.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$FRT</h3>
+            <p>Federal Realty Investment Trust</p>
+            <span class="sector">Real Estate</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">57.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$124.21</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+0.10%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+3.06%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">85.8%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+14.33%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+1.24%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>45%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:45%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 results came with an explicit guidance raise (PR Newswire, 7/31 07:30: 'Reports Second Quarter 2026 Results and Guidance Raise'). Headline EPS surprise of +160.69% is inflated by property-gain accounting; revenue was in line at +0.18%, which is the more honest read.</p>
+          <h4>Assessment</h4><p>The guidance raise is the real signal and it is genuine, but the market response was a +0.10% gap &mdash; effectively nothing. Retail REITs are hostage to the long end of the curve, and no operating beat overcomes that while yields stay elevated. Treat the EPS headline with scepticism.</p>
+          <h4>Technical Factors</h4><p>Sitting on its 20-day (+0.30%) and 50-day (+1.24%) but +14.33% over the 200-day &mdash; the long-term uptrend is intact while short-term momentum has gone flat. RSI 51.7. Volume ratio 85.8%. No edge for a gap trade.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$NVT</h3>
+            <p>nVent Electric plc</p>
+            <span class="sector">Industrials</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">57.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$160.23</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+10.66%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv neg">-9.49%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">101.1%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+24.44%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv neg">-1.12%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>43%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:43%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS +15.87% and revenue +11.99% above consensus (GlobeNewswire, 7/31 06:30). Separately announced an expansion of data-centre liquid-cooling capacity (7/31 06:15). EPS growth QoQ was -60.21%, so the sequential picture is far weaker than the surprise implies.</p>
+          <h4>Assessment</h4><p>The most interesting contradiction today. Strong beat, real AI-infrastructure catalyst, and the only name with an expanding volume ratio (101.1%) &mdash; yet it scores just 57. The reason is the setup, not the story: the stock fell -9.49% over the 20 sessions into the print, and it is gapping +10.66%, which lands in the historically worst gap bucket (10%+, 28% base rate). Post-decline bounces on outsized gaps are the framework's lowest-probability configuration.</p>
+          <h4>Technical Factors</h4><p>Still -1.12% below its 50-day even after the gap, though +24.44% over the 200-day &mdash; the widest 200-day extension in the screen. RSI 53.2. Volatility 6.27%, the highest here, so stops must be wider and size correspondingly smaller.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$ETN</h3>
+            <p>Eaton Corp plc</p>
+            <span class="sector">Industrials</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">56.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$416.40</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+7.63%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv neg">-6.17%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">87.3%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+11.25%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+3.21%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>46%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:46%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Record Q2 with strong organic growth, accelerating orders and backlog, and raised organic growth guidance (Business Wire, 7/31 06:30). EPS surprise a modest +2.53% on revenue +4.61%. Barron's framed the move as 'AI relief after earnings beat' (7/31 08:40).</p>
+          <h4>Assessment</h4><p>The narrative is the best part of this print &mdash; accelerating orders and a guidance raise directly address the market's fear that AI electrical demand is peaking. But the stock had already fallen -6.17% into the report, and a -9.15% QoQ EPS decline sits behind the 'record' framing. The +7.63% gap is a relief rally off a low, not trend continuation.</p>
+          <h4>Technical Factors</h4><p>Recovering from a sharp two-day break to $361.88 on 7/29. Now +3.21% over the 50-day and +11.25% over the 200-day, RSI 54.8. Volume ratio 87.3%. The 7/29 low is the obvious stop reference for anyone taking this.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#d97706">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$MPWR</h3>
+            <p>Monolithic Power Systems Inc</p>
+            <span class="sector">Technology</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">C</span>
+            <span class="gscore">55.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$1,472.00</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+11.84%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv neg">-1.17%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">99.3%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+21.55%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+1.75%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>42%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:42%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Record Q2 revenue with EPS +10.71% and revenue +8.56% above consensus (GlobeNewswire, 7/30 16:01). EPS growth QoQ +87.44%. The report lands into an Amazon-driven relief rally in AI/memory semis, with Samsung and SK Hynix up nearly 30% (Proactive, 7/31).</p>
+          <h4>Assessment</h4><p>Genuinely strong numbers, but the trade configuration is unfavourable on two counts: the +11.84% gap falls in the 10%+ bucket where the historical base rate drops to 28%, and the stock was slightly negative (-1.17%) into the print. Note the sector caveat &mdash; chip stocks are still tracking their worst month since 2002 (Stocktwits, 7/31), so this is a bounce inside a downtrend.</p>
+          <h4>Technical Factors</h4><p>+21.55% over the 200-day but only +1.75% over the 50-day &mdash; the 50-day has been rolling over since May. RSI 57.4, volatility 5.39%. Volume ratio 99.3%, the second-best in the screen. Gap-fill risk is elevated at this gap magnitude.</p>
+        </div>
+      </article>
+
+  </div>
+
+
+  <h2 class="sec"><span class="tag" style="background:#64748b">D-GRADE</span>
+      <span class="rate">54 points or below &middot; below 40% success rate</span>
+      <span class="stars">⭐⭐</span></h2>
+  <div class="grid">
+
+      <article class="card" style="--gc:#64748b">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$CHD</h3>
+            <p>Church & Dwight Co Inc</p>
+            <span class="sector">Consumer Defensive</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">D</span>
+            <span class="gscore">54.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$99.11</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+1.46%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+0.48%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">89.8%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+6.52%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+2.08%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>40%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:40%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 organic sales jumped and management lifted the full-year outlook (WSJ, 7/31 07:36; Business Wire, 7/31 06:55). Surprise magnitudes are small &mdash; EPS +2.01%, revenue +0.93% &mdash; which is typical for a consumer-staples compounder.</p>
+          <h4>Assessment</h4><p>A clean, low-drama quarter with a raised outlook, which is exactly what you want from a defensive holding and exactly what does not produce a tradeable gap. The +1.46% response is proportionate to a 2% beat. There is no momentum here to trade.</p>
+          <h4>Technical Factors</h4><p>+6.52% over the 200-day and +2.08% over the 50-day, RSI 54.4, beta 0.46. Pre-earnings trend of +0.48% is essentially flat. Volume ratio 89.8%. Suitable as a portfolio holding, not as a gap trade.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#64748b">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$AMZN</h3>
+            <p>Amazon.com Inc</p>
+            <span class="sector">Consumer Cyclical</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">D</span>
+            <span class="gscore">53.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$261.37</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+10.99%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv neg">-2.57%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">86.2%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv pos">+11.24%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+6.06%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><b>5/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><b>4/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>41%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:41%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>AWS revenue grew 37%, its fastest pace in five years, with total Q2 sales up 20% and revenue topping $200B; AWS backlog is near $500B and advertising rose 26% (Business Wire / Reuters / MarketWatch, 7/30). 2026 capex was lifted to $220B, attributed to memory prices. Separately, Zoox won the first US approval for driverless robotaxis (Reuters, 7/31).</p>
+          <h4>Assessment</h4><p><strong>The most important result of the day and one of the weakest gap setups in it.</strong> The framework penalises AMZN on three of five inputs: the gap is +10.99% (10%+ bucket, 28% historical base rate), the stock fell -2.57% over the 20 sessions into the print, and volume ran at 86.2% of normal. Outstanding company, poor short-term gap trade &mdash; large gaps on post-decline setups are precisely where this system loses money. Note also the market is rewarding the cloud host while punishing the device maker: Apple fell about 7% pre-market on a weak outlook.</p>
+          <h4>Technical Factors</h4><p>+11.24% over the 200-day and +6.06% over the 50-day after the gap, RSI 63.8. The 7/30 close of $235.50 was near the low end of a month-long slide from $274; this gap is a violent reversal off that base rather than a continuation. Volume ratio 86.2% &mdash; and note the 6/26 session printed 248M shares, an outlier that flatters the 60-day denominator.</p>
+        </div>
+      </article>
+
+      <article class="card" style="--gc:#64748b">
+        <header class="card-hd">
+          <div class="tk">
+            <h3>$ARES</h3>
+            <p>Ares Management Corp</p>
+            <span class="sector">Financial</span>
+          </div>
+          <div class="gradebox">
+            <span class="gletter">D</span>
+            <span class="gscore">48.0</span>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <div class="m"><span class="ml">Price</span><span class="mv">$124.30</span></div>
+          <div class="m"><span class="ml">Gap Size</span><span class="mv pos">+0.15%</span></div>
+          <div class="m"><span class="ml">Pre-Earn Trend</span><span class="mv pos">+9.23%</span></div>
+          <div class="m"><span class="ml">Volume Ratio</span><span class="mv">79.6%</span></div>
+          <div class="m"><span class="ml">vs 200-Day MA</span><span class="mv neg">-7.42%</span></div>
+          <div class="m"><span class="ml">vs 50-Day MA</span><span class="mv pos">+0.48%</span></div>
+        </div>
+
+        <div class="scores">
+          <div class="srow"><span>Gap Size <em>25%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>Pre-Earnings Trend <em>30%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+          <div class="srow"><span>Volume Trend <em>20%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA200 <em>15%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span><b>2/5</b></div>
+          <div class="srow"><span>MA50 <em>10%</em></span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><b>3/5</b></div>
+        </div>
+
+        <div class="prob">
+          <div class="prob-hd"><span>Probability of Increase</span><b>35%</b></div>
+          <div class="prob-track"><div class="prob-fill" style="width:35%"></div></div>
+        </div>
+
+        <div class="news">
+          <h4>Earnings Result</h4><p>Q2 EPS beat by just +1.06% though revenue was +12.83% above consensus (PR Newswire, 7/31 06:00), alongside a separate US direct-lending origination update. Reuters' private-credit roundup (7/31 08:40) notes earnings are holding up but defaults and redemptions remain elevated across the sector.</p>
+          <h4>Assessment</h4><p>Lowest score in the screen and the only name trading below its 200-day MA. A 1% EPS beat produced a 0.15% gap &mdash; there is no surprise and no reaction. The sector context is the real concern: elevated defaults and redemptions in private credit are a structural headwind that a single quarter does not resolve. Avoid.</p>
+          <h4>Technical Factors</h4><p>-7.42% below the 200-day, the only sub-200-day name here, and barely above the 50-day at +0.48%. Down -36.34% from its 52-week high and -23.10% YTD. RSI 52.5, volume ratio 79.6%. The +9.23% pre-earnings bounce is a rally within a clear downtrend.</p>
+        </div>
+      </article>
+
+  </div>
+
+
+  <h2 class="sec">Risk &amp; Position Sizing &mdash; Top 5 by Score</h2>
+  <p style="color:#93a4c4;font-size:.88rem;margin-top:8px">With no A or B grades available, every line
+     below is a reduced-conviction trade. Risk budgets are cut to 0.75% of equity for the top three and
+     0.50% for the remainder, roughly half of what a B-grade name would justify. The stop is a fixed 4%
+     and the target 8%, giving 2:1 &mdash; but at a ~50% base rate that is a thin edge, and it disappears
+     entirely if you widen the stop to accommodate a bad fill.</p>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th><th class="num">Entry Ref</th><th class="num">Stop (-4%)</th>
+          <th class="num">Target (+8%)</th><th class="num">R : R</th>
+          <th class="num">Risk Budget</th><th class="num">Implied Position</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="t-tk">$RYAN</td>
+          <td class="num">$46.30</td>
+          <td class="num">$44.45</td>
+          <td class="num">$50.00</td>
+          <td class="num">2.0 : 1</td>
+          <td class="num">0.75%</td>
+          <td class="num">~19%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$MTD</td>
+          <td class="num">$1,451.22</td>
+          <td class="num">$1,393.17</td>
+          <td class="num">$1,567.32</td>
+          <td class="num">2.0 : 1</td>
+          <td class="num">0.75%</td>
+          <td class="num">~19%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$CVX</td>
+          <td class="num">$193.97</td>
+          <td class="num">$186.21</td>
+          <td class="num">$209.49</td>
+          <td class="num">2.0 : 1</td>
+          <td class="num">0.75%</td>
+          <td class="num">~19%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$DXCM</td>
+          <td class="num">$79.90</td>
+          <td class="num">$76.70</td>
+          <td class="num">$86.29</td>
+          <td class="num">2.0 : 1</td>
+          <td class="num">0.50%</td>
+          <td class="num">~12%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$CBOE</td>
+          <td class="num">$296.70</td>
+          <td class="num">$284.83</td>
+          <td class="num">$320.44</td>
+          <td class="num">2.0 : 1</td>
+          <td class="num">0.50%</td>
+          <td class="num">~12%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="sec">All Analyzed Stocks &mdash; Master Table</h2>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th><th>Grade</th><th class="num">Score</th><th class="num">Price</th>
+          <th class="num">Gap</th><th class="num">Pre-Earn</th><th class="num">Vol Ratio</th>
+          <th class="num">vs MA200</th><th class="num">vs MA50</th><th class="num">Prob.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="t-tk">$RYAN</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>69.0</b></td>
+          <td class="num">$46.30</td>
+<td class="num pos">+5.01%</td>
+<td class="num pos">+10.14%</td>
+          <td class="num">80.8%</td>
+<td class="num pos">+7.23%</td>
+<td class="num pos">+23.21%</td>
+          <td class="num">54%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$MTD</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>66.0</b></td>
+          <td class="num">$1,451.22</td>
+<td class="num pos">+5.11%</td>
+<td class="num pos">+6.17%</td>
+          <td class="num">75.1%</td>
+<td class="num pos">+10.05%</td>
+<td class="num pos">+17.80%</td>
+          <td class="num">50%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$CVX</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>65.0</b></td>
+          <td class="num">$193.97</td>
+<td class="num pos">+0.86%</td>
+<td class="num pos">+16.07%</td>
+          <td class="num">83.1%</td>
+<td class="num pos">+10.61%</td>
+<td class="num pos">+6.17%</td>
+          <td class="num">53%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$DXCM</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>64.0</b></td>
+          <td class="num">$79.90</td>
+<td class="num pos">+7.19%</td>
+<td class="num pos">+8.25%</td>
+          <td class="num">78.7%</td>
+<td class="num pos">+17.97%</td>
+<td class="num pos">+9.36%</td>
+          <td class="num">51%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$CBOE</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>60.0</b></td>
+          <td class="num">$296.70</td>
+<td class="num pos">+0.06%</td>
+<td class="num pos">+19.70%</td>
+          <td class="num">78.9%</td>
+<td class="num pos">+6.39%</td>
+<td class="num pos">+4.45%</td>
+          <td class="num">46%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$D</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>57.0</b></td>
+          <td class="num">$70.19</td>
+<td class="num pos">+0.66%</td>
+<td class="num pos">+2.86%</td>
+          <td class="num">63.7%</td>
+<td class="num pos">+10.95%</td>
+<td class="num pos">+2.09%</td>
+          <td class="num">44%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$FRT</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>57.0</b></td>
+          <td class="num">$124.21</td>
+<td class="num pos">+0.10%</td>
+<td class="num pos">+3.06%</td>
+          <td class="num">85.8%</td>
+<td class="num pos">+14.33%</td>
+<td class="num pos">+1.24%</td>
+          <td class="num">45%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$NVT</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>57.0</b></td>
+          <td class="num">$160.23</td>
+<td class="num pos">+10.66%</td>
+<td class="num neg">-9.49%</td>
+          <td class="num">101.1%</td>
+<td class="num pos">+24.44%</td>
+<td class="num neg">-1.12%</td>
+          <td class="num">43%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$ETN</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>56.0</b></td>
+          <td class="num">$416.40</td>
+<td class="num pos">+7.63%</td>
+<td class="num neg">-6.17%</td>
+          <td class="num">87.3%</td>
+<td class="num pos">+11.25%</td>
+<td class="num pos">+3.21%</td>
+          <td class="num">46%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$MPWR</td>
+          <td><span class="pill" style="background:#d97706">C</span></td>
+          <td class="num"><b>55.0</b></td>
+          <td class="num">$1,472.00</td>
+<td class="num pos">+11.84%</td>
+<td class="num neg">-1.17%</td>
+          <td class="num">99.3%</td>
+<td class="num pos">+21.55%</td>
+<td class="num pos">+1.75%</td>
+          <td class="num">42%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$CHD</td>
+          <td><span class="pill" style="background:#64748b">D</span></td>
+          <td class="num"><b>54.0</b></td>
+          <td class="num">$99.11</td>
+<td class="num pos">+1.46%</td>
+<td class="num pos">+0.48%</td>
+          <td class="num">89.8%</td>
+<td class="num pos">+6.52%</td>
+<td class="num pos">+2.08%</td>
+          <td class="num">40%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$AMZN</td>
+          <td><span class="pill" style="background:#64748b">D</span></td>
+          <td class="num"><b>53.0</b></td>
+          <td class="num">$261.37</td>
+<td class="num pos">+10.99%</td>
+<td class="num neg">-2.57%</td>
+          <td class="num">86.2%</td>
+<td class="num pos">+11.24%</td>
+<td class="num pos">+6.06%</td>
+          <td class="num">41%</td>
+        </tr>
+        <tr>
+          <td class="t-tk">$ARES</td>
+          <td><span class="pill" style="background:#64748b">D</span></td>
+          <td class="num"><b>48.0</b></td>
+          <td class="num">$124.30</td>
+<td class="num pos">+0.15%</td>
+<td class="num pos">+9.23%</td>
+          <td class="num">79.6%</td>
+<td class="num neg">-7.42%</td>
+<td class="num pos">+0.48%</td>
+          <td class="num">35%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:24px">
+    <h2>Methodology &amp; Data Provenance</h2>
+    <p><strong>Stage 1</strong> &mdash; Universe from <code>finviz:earnings_trading_screener()</code>
+       (fixed filters: market cap $10B+, earnings yesterday after-hours or today pre-market,
+       upward EPS revision, net margin 3%+, avg volume 200k+, price $30+, upward price action).
+       Returned 13 names; no tickers were added from any other source.</p>
+    <p><strong>Stage 2</strong> &mdash; Moving-average positions and current prices from
+       <code>finviz:get_moving_average_position</code>, with EPS/revenue surprise and RSI from
+       <code>finviz:get_multiple_stocks_fundamentals</code>. Sixty-two daily bars per name from
+       <code>alpaca:get_stock_bars</code> (1 May &ndash; 30 July 2026) supplied the volume ratio
+       (20-day average / 60-day average) and the 20-session pre-earnings trend. All MCP calls
+       returned data for all 13 tickers; no values are estimated or interpolated.</p>
+    <p><strong>Gap definition</strong> &mdash; Gap = pre-market price against the verified 30 July
+       close from Alpaca. The pre-earnings trend is measured from the 1 July close to the 30 July
+       close, so the earnings gap itself is excluded from the trend input.</p>
+    <p><strong>Stage 3</strong> &mdash; Weighted score = Gap Size (25%) + Pre-Earnings Trend (30%)
+       + Volume Trend (20%) + MA200 (15%) + MA50 (10%), each scored 1&ndash;5, total normalised
+       to 100. Grades: A &ge;85, B 70&ndash;84, C 55&ndash;69, D &le;54.</p>
+    <p><strong>Stage 4</strong> &mdash; Every catalyst cited was verified against
+       <code>finviz:get_stock_news</code> output dated 30&ndash;31 July 2026. No catalyst is inferred
+       or assumed; where a move has no identifiable driver beyond the earnings release itself, the
+       card says so.</p>
+    <p><strong>Timing caveat</strong> &mdash; Prices were captured at 09:15 ET, before the US open.
+       Pre-market gaps frequently compress at the opening auction, particularly on the largest movers.</p>
+  </div>
+
+  <footer>
+    <h3>Risk Disclaimer</h3>
+    <p>This document is generated for research and educational purposes only. It is not investment
+       advice, an offer, or a solicitation to buy or sell any security.</p>
+    <p>Post-earnings gap trading carries substantial risk. Backtest grades describe historical
+       base rates for similar configurations and do not predict individual outcomes. No A-grade or
+       B-grade setups were identified today; the highest-scoring name carries an estimated 54%
+       probability, which is close to a coin flip after costs.</p>
+    <p>Prices are pre-market quotes captured at 09:15 ET on 2026-07-31 and will move at the opening
+       auction. Verify all levels against live quotes before acting. Never risk capital you cannot
+       afford to lose, and size positions so that no single trade can materially impair the account.</p>
+  </footer>
+
+</div>
+</body>
+</html>
