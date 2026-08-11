@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis — 2026-08-11</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3441;
+    --txt:#e6edf3; --muted:#8b949e;
+    --a:#22c55e; --b:#3b82f6; --c:#f59e0b; --d:#ef4444;
+    --up:#22c55e; --down:#ef4444; --accent:#58a6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.6;padding:16px}
+  .wrap{max-width:1120px;margin:0 auto}
+  header{background:linear-gradient(135deg,#1f2937 0%,#111827 100%);
+    border:1px solid var(--line);border-radius:14px;padding:26px 22px;margin-bottom:20px}
+  h1{font-size:1.75rem;letter-spacing:-.02em;margin-bottom:6px}
+  .sub{color:var(--muted);font-size:.9rem}
+  .ts{color:var(--muted);font-size:.8rem;margin-top:10px;font-variant-numeric:tabular-nums}
+  h2{font-size:1.15rem;margin:26px 0 12px;padding-left:10px;border-left:4px solid var(--accent)}
+
+  .dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:8px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px;text-align:center}
+  .kpi .lab{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+  .kpi .val{font-size:1.6rem;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums}
+
+  .banner{background:#2d2410;border:1px solid #6b4f0f;border-left:4px solid var(--c);
+    border-radius:9px;padding:13px 15px;margin:14px 0;font-size:.87rem;color:#f0dcae}
+  .banner b{color:#ffd77a}
+
+  table{width:100%;border-collapse:collapse;background:var(--panel);
+    border:1px solid var(--line);border-radius:11px;overflow:hidden;font-size:.87rem}
+  th{background:var(--panel2);color:var(--muted);text-align:left;padding:11px 13px;
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+  td{padding:11px 13px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:20px;margin-bottom:18px}
+  .card.grade-B{border-left:5px solid var(--b)}
+  .card.grade-C{border-left:5px solid var(--c)}
+  .chead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+    justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .tick{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+  .cname{color:var(--muted);font-size:.85rem}
+  .badge{padding:5px 13px;border-radius:999px;font-weight:700;font-size:.82rem}
+  .bB{background:rgba(59,130,246,.16);color:var(--b);border:1px solid rgba(59,130,246,.45)}
+  .bC{background:rgba(245,158,11,.16);color:var(--c);border:1px solid rgba(245,158,11,.45)}
+  .stars{letter-spacing:2px}
+
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));
+    gap:10px;margin:16px 0}
+  .m{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px}
+  .m .lab{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em}
+  .m .val{font-size:1.12rem;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+  .up{color:var(--up)} .down{color:var(--down)} .neu{color:var(--muted)}
+
+  .bar-wrap{margin:9px 0}
+  .bar-top{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px}
+  .bar-top .n{color:var(--muted)}
+  .track{height:9px;background:#0b1220;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;border-radius:999px}
+  .f5{background:var(--a)} .f4{background:#4ade80} .f3{background:var(--c)}
+  .f2{background:#fb923c} .f1{background:var(--d)}
+
+  .sec{margin-top:16px}
+  .sec h4{font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--muted);margin-bottom:7px}
+  .sec ul{list-style:none}
+  .sec li{padding:5px 0 5px 17px;position:relative;font-size:.88rem}
+  .sec li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+  .note{background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+    padding:12px 14px;font-size:.87rem}
+
+  .lvl{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:8px}
+  .lv{border-radius:9px;padding:11px;border:1px solid var(--line);background:var(--panel2)}
+  .lv .lab{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .lv .val{font-size:1.05rem;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+  .lv.e{border-left:3px solid var(--b)} .lv.s{border-left:3px solid var(--d)}
+  .lv.t{border-left:3px solid var(--a)}
+
+  footer{margin-top:28px;padding:18px;background:var(--panel);border:1px solid var(--line);
+    border-radius:11px;color:var(--muted);font-size:.78rem}
+  footer b{color:#f0dcae}
+  a{color:var(--accent)}
+  @media(max-width:640px){body{padding:10px}h1{font-size:1.35rem}.tick{font-size:1.25rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Momentum gap screening &amp; 5-factor backtest scoring — earnings released after Monday's close or before today's open</div>
+  <div class="ts">Report date: Tuesday, August 11, 2026 &nbsp;|&nbsp; Analysis run: 2026-08-11 09:00 ET (pre-market, before the 09:30 ET open)</div>
+</header>
+
+<h2>Summary Dashboard</h2>
+<div class="dash">
+  <div class="kpi"><div class="lab">Screened</div><div class="val">3</div></div>
+  <div class="kpi"><div class="lab">A-Grade</div><div class="val" style="color:var(--a)">0</div></div>
+  <div class="kpi"><div class="lab">B-Grade</div><div class="val" style="color:var(--b)">1</div></div>
+  <div class="kpi"><div class="lab">C-Grade</div><div class="val" style="color:var(--c)">2</div></div>
+  <div class="kpi"><div class="lab">D-Grade</div><div class="val" style="color:var(--d)">0</div></div>
+  <div class="kpi"><div class="lab">Top Score</div><div class="val" style="color:var(--b)">72</div></div>
+</div>
+
+<div class="banner">
+  <b>Three names, no A-grade.</b> The fixed Finviz filter returned <b>CIB, SE and ALC</b> for this session.
+  CIB is the only B-grade setup (72.0) — a blowout Colombian bank quarter breaking to new 52-week highs, but
+  on a contracting-volume base and an EPS surprise likely flattered by one-off items. SE posted the biggest
+  revenue beat but its <b>+10.05% pre-market gap lands in the model's weakest band (28% historical success)</b>
+  and its GAAP EPS missed the FactSet consensus. ALC is a clean guidance-raise story held back by a 200-day MA
+  it only just reclaimed. All three carry RSI ≈ 72–74 into the open — chase risk is elevated across the board.
+  Also note: <b>July CPI prints tomorrow 08:30 ET</b>, a macro catalyst that can cut any gap trade short.
+</div>
+
+<h2>Candidate Ranking</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>Ticker</th><th>Company</th><th>Price</th><th>Gap</th>
+        <th>EPS Surprise</th><th>Score</th><th>Grade</th><th>Win Prob.</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td><td><b>CIB</b></td><td>Grupo Cibest S.A. ADR</td>
+      <td>$96.00</td><td class="up">+4.95%</td><td class="up">+37.74%</td>
+      <td><b>72.0</b></td><td style="color:var(--b);font-weight:700">B</td><td>58%</td>
+    </tr>
+    <tr>
+      <td>2</td><td><b>SE</b></td><td>Sea Ltd ADR</td>
+      <td>$126.34</td><td class="up">+10.05%</td><td class="up">+17.97%</td>
+      <td><b>69.0</b></td><td style="color:var(--c);font-weight:700">C</td><td>45%</td>
+    </tr>
+    <tr>
+      <td>3</td><td><b>ALC</b></td><td>Alcon Inc</td>
+      <td>$76.51</td><td class="up">+3.91%</td><td class="up">+11.36%</td>
+      <td><b>68.0</b></td><td style="color:var(--c);font-weight:700">C</td><td>50%</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Individual Stock Analysis</h2>
+
+<!-- ============================== CIB ============================== -->
+<div class="card grade-B">
+  <div class="chead">
+    <div>
+      <div class="tick">$CIB <span class="stars" style="color:var(--b)">★★★★</span></div>
+      <div class="cname">Grupo Cibest S.A. (ADR, Bancolombia holding) &nbsp;·&nbsp; Financial — Banks &nbsp;·&nbsp; Colombia &nbsp;·&nbsp; Mkt Cap $10.7B</div>
+    </div>
+    <div style="text-align:right">
+      <span class="badge bB">B-Grade · 72.0 pts</span>
+      <div class="cname" style="margin-top:6px">Backtest band: 55–69% success rate</div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="m"><div class="lab">Price</div><div class="val">$96.00</div></div>
+    <div class="m"><div class="lab">Prev Close (8/10)</div><div class="val">$91.47</div></div>
+    <div class="m"><div class="lab">Gap</div><div class="val up">+4.95%</div></div>
+    <div class="m"><div class="lab">EPS Surprise</div><div class="val up">+37.74%</div></div>
+    <div class="m"><div class="lab">Rev Surprise</div><div class="val up">+1.09%</div></div>
+    <div class="m"><div class="lab">RSI (14)</div><div class="val down">72.14</div></div>
+    <div class="m"><div class="lab">Beta</div><div class="val neu">0.72</div></div>
+    <div class="m"><div class="lab">P/E</div><div class="val neu">48.83</div></div>
+    <div class="m"><div class="lab">Fwd P/E</div><div class="val up">8.84</div></div>
+    <div class="m"><div class="lab">PEG</div><div class="val up">0.23</div></div>
+    <div class="m"><div class="lab">P/B</div><div class="val neu">2.29</div></div>
+    <div class="m"><div class="lab">Volatility (M)</div><div class="val neu">3.17%</div></div>
+    <div class="m"><div class="lab">YTD Perf</div><div class="val up">+50.92%</div></div>
+    <div class="m"><div class="lab">vs 52W High</div><div class="val up">+1.90% (new high)</div></div>
+  </div>
+
+  <div class="sec">
+    <h4>5-Factor Backtest Score — 72.0 / 100</h4>
+
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Gap Size (25%) — +4.95%, band 2–5%</span><span><b>3</b>/5</span></div>
+      <div class="track"><div class="fill f3" style="width:60%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Pre-Earnings 20D Trend (30%) — +13.74%, band 10–20%</span><span><b>4</b>/5</span></div>
+      <div class="track"><div class="fill f4" style="width:80%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Volume Trend (20%) — 78.7%, band &lt;90%</span><span><b>2</b>/5</span></div>
+      <div class="track"><div class="fill f2" style="width:40%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">MA200 Position (15%) — 133.19%, band &gt;110%</span><span><b>5</b>/5</span></div>
+      <div class="track"><div class="fill f5" style="width:100%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">MA50 Position (10%) — 116.91%, band &gt;110%</span><span><b>5</b>/5</span></div>
+      <div class="track"><div class="fill f5" style="width:100%"></div></div>
+    </div>
+
+    <div class="note" style="margin-top:12px">
+      <b>Weighted total</b> = (3×0.25) + (4×0.30) + (2×0.20) + (5×0.15) + (5×0.10)
+      = 3.60 / 5.00 → <b>72.0 / 100 → B-Grade</b>.
+      Trend structure is close to perfect — MA200 and MA50 both max out and the 20-day pre-earnings run
+      (+13.74%) sits in the strong-momentum band. The one weak input is <b>volume</b>: the 20-day average
+      (292,794 sh) is only 78.7% of the 60-day average (371,875 sh), the "declining interest" band. The rally
+      into the print was made on shrinking participation, which is the classic caveat on an otherwise strong
+      B-grade setup.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h4>Earnings Result — 2Q 2026 (released 2026-08-10, after Monday's close)</h4>
+    <ul>
+      <li><b>EPS $3.32 vs $2.14 consensus (Zacks, 3 analysts)</b> — quarterly net income of
+          <b>$755.2M (COP 2.73tn), roughly double a year ago</b>. Finviz scores the EPS surprise at
+          <b>+37.74%</b> against its own consensus; the revenue surprise was a modest <b>+1.09%</b>.</li>
+      <li><b>Profitability is the headline: ROE 28.73% and NIM 7.94%</b> — exceptional levels for a
+          large-cap bank and the core of the bull case for a re-rating.</li>
+      <li><b>Balance sheet steady, not spectacular:</b> gross loans COP 262tn (+0.17% QoQ, +5.72% YoY),
+          deposits COP 271tn (−0.25% QoQ, +7.14% YoY). Digital reach keeps compounding — 9.5M active
+          Mi Bancolombia app users and 28.8M Nequi accounts (23.5M active).</li>
+      <li><b>Capital actions stack up:</b> the <b>USD 1.418B Banistmo (Panama) sale closed</b> in the quarter
+          and a <b>COP 1.35tn share buyback</b> is in motion. ⚠️ The doubled profit and the size of the EPS
+          beat likely include <b>one-off effects tied to the Banistmo disposal</b> — the +37.74% surprise
+          should not be read as a pure run-rate beat.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h4>Technical Factors</h4>
+    <ul>
+      <li><b>Blue-sky breakout.</b> The $96.00 pre-market print is <b>+1.90% above the prior 52-week high
+          (~$94.21)</b> — there is no overhead supply above; the nearest reference levels are round numbers
+          ($100) and measured extensions. Price is +9.46% above the 20-day ($87.70), +16.91% above the 50-day
+          ($82.11) and +33.19% above the 200-day ($72.08), all stacked in correct bullish order.</li>
+      <li><b>Pre-earnings 20-day trend +13.74%</b> ($80.42 on 7/13 → $91.47 on 8/10) — the stock rallied hard
+          into the print, so part of the good news was already priced in. YTD it is up 50.92%.</li>
+      <li><b>Volume contracted into the print</b> (20D avg 292.8K = 78.7% of the 60D avg 371.9K). The last two
+          sessions (159K on 8/7, 266K on 8/10) were unremarkable. For the gap to hold, today needs a decisive
+          volume expansion through the open.</li>
+      <li><b>RSI 72.14 is overbought</b> and monthly volatility is 3.17% on a thin ADR (avg volume ~300–400K
+          shares). Slippage risk on both entry and stop is materially higher than on SE or ALC.</li>
+      <li><b>Pre-market caveat:</b> the +4.95% gap printed on only ~2.8K pre-market shares — treat it as
+          indicative until the 09:30 ET open confirms.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h4>Probability Assessment — 58%</h4>
+    <div class="note">
+      The setup pairs an <b>elite profitability print (ROE 28.7%, NIM 7.9%)</b> with a <b>new-high breakout
+      and a 0.23 PEG / 8.8× forward P/E</b> — cheap growth breaking into clear air, which is exactly the
+      profile the B-grade band is built on. Three deductions keep it from scoring higher: the <b>EPS surprise
+      is inflated by likely one-off Banistmo effects</b>, so the fundamental fuel is weaker than +37.74%
+      suggests; <b>volume contracted to 78.7%</b> of trend into the print, the model's "declining interest"
+      flag; and <b>RSI 72 after a +50.92% YTD run</b> means the marginal buyer is late. Emerging-market ADR
+      risk (COP FX, Colombian politics, thin float) adds a tail. Net: <b>58%</b> — mid-B-band, tradeable at
+      standard B-grade size but only on an opening confirmation with volume.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h4>Trade Plan</h4>
+    <div class="lvl">
+      <div class="lv e"><div class="lab">Entry Zone</div><div class="val">$94.50 – $96.50</div></div>
+      <div class="lv s"><div class="lab">Stop Loss</div><div class="val">$91.20 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(-5.00%)</span></div></div>
+      <div class="lv t"><div class="lab">Target 1</div><div class="val">$100.00 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(+4.17%)</span></div></div>
+      <div class="lv t"><div class="lab">Target 2</div><div class="val">$105.00 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(+9.38%)</span></div></div>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <b>Structure:</b> the stop sits just below the 8/10 close ($91.47) — a full gap fill negates the
+      breakout thesis. Target 1 is the $100 round level in blue-sky territory; Target 2 is a measured
+      extension. From a $96.00 reference: <b>0.83R to T1, 1.88R to T2</b>. <b>Invalidation:</b> an open that
+      immediately trades back under $94.21 (the old 52-week high) turns the breakout into a fake-out — exit
+      early rather than ride to the stop. Thin ADR: use limit orders only. <b>Horizon:</b> 2–10 sessions.
+    </div>
+  </div>
+</div>
+
+<!-- ============================== SE ============================== -->
+<div class="card grade-C">
+  <div class="chead">
+    <div>
+      <div class="tick">$SE <span class="stars" style="color:var(--c)">★★★</span></div>
+      <div class="cname">Sea Ltd (ADR) &nbsp;·&nbsp; Consumer Cyclical — Internet Retail &nbsp;·&nbsp; Singapore &nbsp;·&nbsp; Mkt Cap $71.6B</div>
+    </div>
+    <div style="text-align:right">
+      <span class="badge bC">C-Grade · 69.0 pts</span>
+      <div class="cname" style="margin-top:6px">Backtest band: 40–54% success rate</div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="m"><div class="lab">Price</div><div class="val">$126.34</div></div>
+    <div class="m"><div class="lab">Prev Close (8/10)</div><div class="val">$114.80</div></div>
+    <div class="m"><div class="lab">Gap</div><div class="val up">+10.05%</div></div>
+    <div class="m"><div class="lab">EPS Surprise</div><div class="val up">+17.97%</div></div>
+    <div class="m"><div class="lab">Rev Surprise</div><div class="val up">+9.95%</div></div>
+    <div class="m"><div class="lab">RSI (14)</div><div class="val down">73.87</div></div>
+    <div class="m"><div class="lab">Beta</div><div class="val neu">1.52</div></div>
+    <div class="m"><div class="lab">P/E</div><div class="val neu">48.43</div></div>
+    <div class="m"><div class="lab">Fwd P/E</div><div class="val neu">26.06</div></div>
+    <div class="m"><div class="lab">PEG</div><div class="val neu">1.26</div></div>
+    <div class="m"><div class="lab">P/S</div><div class="val neu">2.84</div></div>
+    <div class="m"><div class="lab">Volatility (M)</div><div class="val neu">2.37%</div></div>
+    <div class="m"><div class="lab">3M Perf</div><div class="val up">+48.82%</div></div>
+    <div class="m"><div class="lab">vs 52W High</div><div class="val neu">-36.63% (~$199)</div></div>
+  </div>
+
+  <div class="sec">
+    <h4>5-Factor Backtest Score — 69.0 / 100</h4>
+
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Gap Size (25%) — +10.05%, band 10%+ (weakest: 28% historical success)</span><span><b>2</b>/5</span></div>
+      <div class="track"><div class="fill f2" style="width:40%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Pre-Earnings 20D Trend (30%) — +3.74%, band 0–10%</span><span><b>3</b>/5</span></div>
+      <div class="track"><div class="fill f3" style="width:60%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Volume Trend (20%) — 105.0%, band 100–110%</span><span><b>4</b>/5</span></div>
+      <div class="track"><div class="fill f4" style="width:80%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">MA200 Position (15%) — 116.05%, band &gt;110%</span><span><b>5</b>/5</span></div>
+      <div class="track"><div class="fill f5" style="width:100%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">MA50 Position (10%) — 126.09%, band &gt;110%</span><span><b>5</b>/5</span></div>
+      <div class="track"><div class="fill f5" style="width:100%"></div></div>
+    </div>
+
+    <div class="note" style="margin-top:12px">
+      <b>Weighted total</b> = (2×0.25) + (3×0.30) + (4×0.20) + (5×0.15) + (5×0.10)
+      = 3.45 / 5.00 → <b>69.0 / 100 → C-Grade</b> (one point shy of B).
+      The killer is the gap itself: at +10.05% it falls into the model's worst-performing band, where only
+      28% of historical trades worked — oversized gaps price in the whole surprise at the open and leave
+      latecomers holding the extension. Everything else — rising volume (105.0%), maxed MA200/MA50 — supports
+      the move.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h4>Earnings Result — 2Q 2026 (released 2026-08-11, 06:30 ET, before the open)</h4>
+    <ul>
+      <li><b>Revenue $7.79B vs $7.06B consensus (+9.95% surprise), up ~48% YoY</b> — beats on the strength of
+          all three arms. Net income came in at <b>$458M</b>, with diluted EPS of <b>$0.70 vs $0.65</b> a year
+          ago. ⚠️ Note the provider split: Finviz scores EPS at <b>+17.97% positive surprise</b>, while the
+          FactSet consensus was $0.77 — i.e., a <b>GAAP EPS miss</b> on that yardstick ("misses EPS but
+          revenue beat pushes shares higher" — Investing.com).</li>
+      <li><b>Shopee is the engine:</b> e-commerce revenue <b>+48.9% YoY to $4.93B</b> with record GMV
+          (<b>+28.4% to $38.3B</b>), record gross orders, and management now guiding Shopee to
+          <b>$1B of adjusted EBITDA for full-year 2026</b>.</li>
+      <li><b>Monee (digital financial services) grew even faster: +58.9% to $1.40B</b> — the second growth
+          leg keeps compounding on a larger loan book.</li>
+      <li><b>Quality caveat:</b> profit growth (+7.7% YoY EPS) badly lags revenue growth (+48%) — margins are
+          being reinvested into Shopee logistics and content. The market is paying up for top-line momentum,
+          not earnings leverage, which makes the stock sensitive to any growth deceleration.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h4>Technical Factors</h4>
+    <ul>
+      <li><b>The gap extends an already-extended run.</b> SE is +48.82% over three months and closed at
+          $114.80 on 8/10 after five up-days in the last six. The +10.05% gap to $126.34 puts price
+          <b>+16.22% above the 20-day ($108.71)</b>, <b>+26.09% above the 50-day ($100.20)</b> and
+          <b>+16.05% above the 200-day ($108.87)</b> — a textbook extension, not a base breakout.</li>
+      <li><b>Pre-earnings 20-day trend was only +3.74%</b> ($110.66 on 7/13 → $114.80 on 8/10): the last month
+          was consolidation ($100–$115), so the gap does clear a defined shelf — the July high zone around
+          $115.90 now becomes first support.</li>
+      <li><b>Volume trend is constructive:</b> 20D avg 4.39M = 105.0% of the 60D avg 4.17M, and pre-market
+          relative volume printed 5.08 — participation is expanding into the event, unlike CIB.</li>
+      <li><b>RSI 73.87, beta 1.52.</b> Overbought and high-beta into a CPI print tomorrow. Distance to the
+          52-week high (~$199, −36.63%) means no meaningful overhead until the $130s supply zone from
+          February.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h4>Probability Assessment — 45%</h4>
+    <div class="note">
+      The fundamental momentum is real — a ~$730M revenue beat, record Shopee GMV and a credible $1B Shopee
+      EBITDA target — and volume expansion plus maxed trend factors argue the move can continue. But the
+      short-swing math is against chasing: <b>+10% opening gaps historically work only 28% of the time</b> in
+      this model, the <b>GAAP EPS missed the FactSet consensus</b> (a hook for "sell the pop" narratives), and
+      the stock is <b>+49% in three months with RSI 74</b> and a 1.52 beta into tomorrow's CPI. Day-one gap
+      buyers are paying for perfection. Net: <b>45%</b> — mid-C-band. The higher-probability play is the
+      first orderly pullback toward $118–$120, not the opening print.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h4>Trade Plan (if taken — reduced size)</h4>
+    <div class="lvl">
+      <div class="lv e"><div class="lab">Entry Zone</div><div class="val">$122.00 – $127.00</div></div>
+      <div class="lv s"><div class="lab">Stop Loss</div><div class="val">$118.50 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(-6.21%)</span></div></div>
+      <div class="lv t"><div class="lab">Target 1</div><div class="val">$134.00 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(+6.06%)</span></div></div>
+      <div class="lv t"><div class="lab">Target 2</div><div class="val">$142.00 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(+12.40%)</span></div></div>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <b>Structure:</b> the stop sits under the $120 round level and the upper edge of the July consolidation
+      ($115.90 high) — if the gap gives back that much, the extension has failed. From a $126.34 reference:
+      <b>0.98R to T1, 2.00R to T2</b>. Preferred execution is a <b>pullback entry near $122–$123</b> rather
+      than the opening print, which meaningfully improves the R multiples. <b>Invalidation:</b> a first-hour
+      reversal through $120 on heavy volume = the 28%-band failure mode playing out — stand aside.
+      <b>Horizon:</b> 2–10 sessions.
+    </div>
+  </div>
+</div>
+
+<!-- ============================== ALC ============================== -->
+<div class="card grade-C">
+  <div class="chead">
+    <div>
+      <div class="tick">$ALC <span class="stars" style="color:var(--c)">★★★</span></div>
+      <div class="cname">Alcon Inc &nbsp;·&nbsp; Healthcare — Medical Instruments &amp; Supplies &nbsp;·&nbsp; Switzerland &nbsp;·&nbsp; Mkt Cap $37.3B</div>
+    </div>
+    <div style="text-align:right">
+      <span class="badge bC">C-Grade · 68.0 pts</span>
+      <div class="cname" style="margin-top:6px">Backtest band: 40–54% success rate</div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="m"><div class="lab">Price</div><div class="val">$76.51</div></div>
+    <div class="m"><div class="lab">Prev Close (8/10)</div><div class="val">$73.63</div></div>
+    <div class="m"><div class="lab">Gap</div><div class="val up">+3.91%</div></div>
+    <div class="m"><div class="lab">EPS Surprise</div><div class="val up">+11.36%</div></div>
+    <div class="m"><div class="lab">Rev Surprise</div><div class="val up">+0.72%</div></div>
+    <div class="m"><div class="lab">RSI (14)</div><div class="val down">71.99</div></div>
+    <div class="m"><div class="lab">Beta</div><div class="val neu">0.86</div></div>
+    <div class="m"><div class="lab">P/E</div><div class="val neu">46.15</div></div>
+    <div class="m"><div class="lab">Fwd P/E</div><div class="val up">19.34</div></div>
+    <div class="m"><div class="lab">PEG</div><div class="val neu">1.41</div></div>
+    <div class="m"><div class="lab">P/B</div><div class="val up">1.69</div></div>
+    <div class="m"><div class="lab">Volatility (M)</div><div class="val neu">2.22%</div></div>
+    <div class="m"><div class="lab">YTD Perf</div><div class="val down">-2.92%</div></div>
+    <div class="m"><div class="lab">vs 52W High</div><div class="val neu">-15.37% (~$90)</div></div>
+  </div>
+
+  <div class="sec">
+    <h4>5-Factor Backtest Score — 68.0 / 100</h4>
+
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Gap Size (25%) — +3.91%, band 2–5%</span><span><b>3</b>/5</span></div>
+      <div class="track"><div class="fill f3" style="width:60%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Pre-Earnings 20D Trend (30%) — +6.71%, band 0–10%</span><span><b>3</b>/5</span></div>
+      <div class="track"><div class="fill f3" style="width:60%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">Volume Trend (20%) — 105.7%, band 100–110%</span><span><b>4</b>/5</span></div>
+      <div class="track"><div class="fill f4" style="width:80%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">MA200 Position (15%) — 102.41%, band 100–105%</span><span><b>3</b>/5</span></div>
+      <div class="track"><div class="fill f3" style="width:60%"></div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-top"><span class="n">MA50 Position (10%) — 112.58%, band &gt;110%</span><span><b>5</b>/5</span></div>
+      <div class="track"><div class="fill f5" style="width:100%"></div></div>
+    </div>
+
+    <div class="note" style="margin-top:12px">
+      <b>Weighted total</b> = (3×0.25) + (3×0.30) + (4×0.20) + (3×0.15) + (5×0.10)
+      = 3.40 / 5.00 → <b>68.0 / 100 → C-Grade</b> (two points shy of B).
+      A balanced scorecard with no disaster input: healthy mid-band gap, steady trend, expanding volume.
+      The cap on the score is the <b>200-day MA at only 102.41%</b> — ALC spent most of 2026 below its 200-day
+      ($74.71) and reclaimed it just six sessions ago (8/3), so the long-term trend is repaired, not proven.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h4>Earnings Result — 2Q 2026 (released 2026-08-10, 16:30 ET, after Monday's close)</h4>
+    <ul>
+      <li><b>Core diluted EPS $0.84 vs $0.76 consensus (+11.2% beat; Finviz +11.36%)</b> on net sales of
+          <b>$2.78B, +7.2% YoY</b>, a hair above the $2.77B estimate (+0.72% revenue surprise).</li>
+      <li><b>New products are driving the acceleration:</b> Surgical revenue $1.57B with
+          <b>equipment sales +26% on the Unity platform launch</b>; Vision Care $1.21B behind
+          <b>Tryptyr</b> (dry-eye pharmaceutical) and Systane. This is the "commercial execution" quarter
+          management promised.</li>
+      <li><b>Full-year 2026 guidance raised:</b> core diluted EPS growth lifted to <b>12–15% constant-currency
+          (from 10–13%)</b>, core operating margin improvement to <b>90–190bp</b>.</li>
+      <li><b>Tariff headwind cut roughly in half:</b> net full-year tariff impact now estimated at
+          <b>$40–90M, down from $100–150M</b>, helped by an expected U.S. duty refund. ⚠️ GAAP results carry a
+          <b>$402M charge</b> (Finviz GAAP EPS growth QoQ −45.13%) — the beat and the guidance are on
+          <i>core</i> numbers; screeners keying on GAAP may read this quarter very differently.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h4>Technical Factors</h4>
+    <ul>
+      <li><b>Turnaround chart, not a momentum chart.</b> Price $76.51 is <b>+2.41% above the 200-day
+          ($74.71)</b> — reclaimed on 8/3 after months underneath — with the 50-day ($67.96, +12.58%) and
+          20-day ($69.85, +9.53%) rising beneath. YTD performance is still −2.92%: this gap is part of a
+          bottoming process, and the ~$90 52-week high is 18% overhead.</li>
+      <li><b>Pre-earnings 20-day trend +6.71%</b> ($69.00 on 7/13 → $73.63 on 8/10), including a
+          <b>+2.53% surge on 3.59M shares on 8/10</b> — the market front-ran the print, so some of today's gap
+          was bought yesterday.</li>
+      <li><b>Volume is expanding:</b> 20D avg 2.27M = 105.7% of the 60D avg 2.15M, with 8/7 and 8/10 both
+          above-average accumulation days. Healthy demand pattern.</li>
+      <li><b>RSI 71.99</b> — first overbought reading of this recovery. Beta 0.86 and 2.22% monthly volatility
+          make ALC the tamest mover of today's three; expect a grind, not a sprint, toward targets.</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h4>Probability Assessment — 50%</h4>
+    <div class="note">
+      This is the <b>highest-quality fundamental story of the day</b> — a core EPS beat, an unambiguous
+      guidance raise, a halved tariff headwind and two genuinely new growth drivers (Unity, Tryptyr) — in the
+      <b>weakest technical position</b> of the three: barely above a 200-day it just reclaimed, −2.92% YTD,
+      and a $402M GAAP charge muddying the print. Guidance-raise gaps in the 2–5% band with expanding volume
+      have decent follow-through odds, and the low beta limits tail risk; but overhead supply from the
+      December–January $80s range will slow the advance, and RSI 72 invites a pause first. Net: <b>50%</b> —
+      top of the C-band, the best pullback-buy candidate of the day even if the opening print is skipped.
+    </div>
+  </div>
+
+  <div class="sec">
+    <h4>Trade Plan</h4>
+    <div class="lvl">
+      <div class="lv e"><div class="lab">Entry Zone</div><div class="val">$75.50 – $77.50</div></div>
+      <div class="lv s"><div class="lab">Stop Loss</div><div class="val">$73.40 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(-4.06%)</span></div></div>
+      <div class="lv t"><div class="lab">Target 1</div><div class="val">$80.00 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(+4.56%)</span></div></div>
+      <div class="lv t"><div class="lab">Target 2</div><div class="val">$84.00 <span style="font-size:.78rem;font-weight:400;color:var(--muted)">(+9.79%)</span></div></div>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <b>Structure:</b> the stop sits just below the 8/10 close ($73.63) and, critically, below the 200-day
+      MA ($74.71) — losing both refutes the reclaim thesis, not just the gap. Target 1 is the $80 round level
+      at the base of the winter supply zone; Target 2 sits mid-zone below the ~$90 52-week high. From a
+      $76.51 reference: <b>1.12R to T1, 2.41R to T2</b> — the best risk-reward geometry of today's slate.
+      <b>Invalidation:</b> a close back below $74.71 (the 200-day) within the first two sessions.
+      <b>Horizon:</b> 2–10 sessions.
+    </div>
+  </div>
+</div>
+
+<h2>Risk Metrics &amp; Position Sizing</h2>
+<table>
+  <thead>
+    <tr><th>Grade</th><th>Backtest Success Rate</th><th>Max Position (% of portfolio)</th>
+        <th>Account Risk / Trade</th><th>Today's Tickers</th></tr>
+  </thead>
+  <tbody>
+    <tr><td style="color:var(--a);font-weight:700">A (85+)</td><td>70%+</td><td>8–10%</td><td>1.00%</td><td class="neu">— none —</td></tr>
+    <tr><td style="color:var(--b);font-weight:700">B (70–84)</td><td>55–69%</td><td>5–7%</td><td>0.75%</td><td><b>CIB</b></td></tr>
+    <tr><td style="color:var(--c);font-weight:700">C (55–69)</td><td>40–54%</td><td>3–5%</td><td>0.50%</td><td><b>SE, ALC</b></td></tr>
+    <tr><td style="color:var(--d);font-weight:700">D (≤54)</td><td>&lt;40%</td><td>0–2% (skip)</td><td>0.25%</td><td class="neu">— none —</td></tr>
+  </tbody>
+</table>
+
+<table style="margin-top:14px">
+  <thead>
+    <tr><th>Ticker</th><th>Entry</th><th>Stop</th><th>Stop Distance</th><th>Suggested Position</th>
+        <th>R/R to T2</th><th>Note</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><b>CIB</b></td><td>$94.50–$96.50</td><td>$91.20</td><td>-5.00%</td>
+        <td>5% of portfolio</td><td>1.88 : 1</td><td>Thin ADR — limit orders only; confirm open with volume</td></tr>
+    <tr><td><b>SE</b></td><td>$122.00–$127.00</td><td>$118.50</td><td>-6.21%</td>
+        <td>3% of portfolio</td><td>2.00 : 1</td><td>10%+ gap band (28% success) — prefer pullback to $122–123</td></tr>
+    <tr><td><b>ALC</b></td><td>$75.50–$77.50</td><td>$73.40</td><td>-4.06%</td>
+        <td>4% of portfolio</td><td>2.41 : 1</td><td>Best R/R geometry; stop guarded by the 200-day MA</td></tr>
+  </tbody>
+</table>
+
+<h2>Data Sources &amp; Verification</h2>
+<table>
+  <thead><tr><th>Item</th><th>Value</th><th>Source</th></tr></thead>
+  <tbody>
+    <tr><td>Screener universe</td><td>3 tickers (CIB, SE, ALC)</td><td>finviz:earnings_trading_screener()</td></tr>
+    <tr><td>Current prices / MA deviations</td><td>CIB $96.00 (MA200 +33.19%) · SE $126.34 (MA200 +16.05%) · ALC $76.51 (MA200 +2.41%)</td><td>finviz:get_moving_average_position</td></tr>
+    <tr><td>Fundamentals, EPS/Rev surprise, RSI, beta</td><td>CIB +37.74%/+1.09% · SE +17.97%/+9.95% · ALC +11.36%/+0.72%</td><td>finviz:get_multiple_stocks_fundamentals</td></tr>
+    <tr><td>Volume ratios (20D avg / 60D avg)</td><td>CIB 292,794/371,875 = 78.7% · SE 4,385,057/4,174,534 = 105.0% · ALC 2,273,538/2,151,142 = 105.7%</td><td>alpaca:get_stock_bars (1Day, 63 bars 2026-05-11 → 2026-08-10), averages computed and verified in Python</td></tr>
+    <tr><td>Pre-earnings 20D trends (7/13 close → 8/10 close)</td><td>CIB $80.42→$91.47 = +13.74% · SE $110.66→$114.80 = +3.74% · ALC $69.00→$73.63 = +6.71%</td><td>alpaca:get_stock_bars, computed in Python</td></tr>
+    <tr><td>Gap sizes (pre-market vs 8/10 close)</td><td>CIB 96.00/91.47 = +4.95% · SE 126.34/114.80 = +10.05% · ALC 76.51/73.63 = +3.91%</td><td>Finviz pre-market price ÷ Alpaca 8/10 close, computed in Python</td></tr>
+    <tr><td>CIB earnings detail</td><td>EPS $3.32 vs $2.14 est; net income $755.2M (~2×); ROE 28.73%, NIM 7.94%; Banistmo sale $1.418B closed; COP 1.35tn buyback</td><td>WebSearch (Zacks/WTOP snapshot, stocktitan 6-K summary)</td></tr>
+    <tr><td>SE earnings detail</td><td>Revenue $7.79B vs $7.06B est; EPS $0.70 dil. (FactSet est $0.77); net income $458M; Shopee +48.9% $4.93B, GMV +28.4% $38.3B; DFS +58.9% $1.40B</td><td>finviz:get_stock_news + WebSearch (Reuters, MarketScreener, stocktitan)</td></tr>
+    <tr><td>ALC earnings detail</td><td>Core EPS $0.84 vs $0.76 est; sales $2.78B +7.2%; FY26 core EPS growth raised to 12–15% cc; tariff impact cut to $40–90M; $402M GAAP charge</td><td>finviz:get_stock_news + WebSearch (247wallst, Investing.com, Medical Device Network, SEC 6-K)</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  <b>Data caveats.</b> Prices ($96.00 / $126.34 / $76.51) are Finviz pre-market quotes captured ~09:00 ET on
+  2026-08-11 and will change at the 09:30 ET open; CIB's gap printed on only ~2.8K pre-market shares and ALC's
+  on ~84.7K, so both gaps are provisional. EPS surprise figures are Finviz's own consensus comparisons (the
+  screener's sort key); they diverge from other providers — most notably SE, where the FactSet consensus
+  ($0.77) implies a GAAP EPS <i>miss</i>, and CIB, where the Zacks comparison ($3.32 vs $2.14) implies a much
+  larger beat than Finviz's +37.74%, likely because Banistmo-sale effects are treated differently. ALC's beat
+  and guidance are on core (non-GAAP) figures; GAAP includes a $402M charge. Volume ratios use the last 60
+  Alpaca daily bars through 2026-08-10; 20-day pre-earnings trends deliberately end at the 8/10 close so the
+  gap itself does not contaminate the trend factor. The "Pre-Earnings Trend" for SE is measured to 8/10 even
+  though SE reported on 8/11 pre-market; for CIB and ALC (both released 8/10 after hours) the same endpoint
+  applies. July CPI is released tomorrow, 2026-08-12 08:30 ET — a binding macro risk for all three trades.
+  <br><br>
+  <b>Disclaimer.</b> This report is generated for informational and educational purposes only and is not
+  investment advice, nor an offer or solicitation to buy or sell any security. Post-earnings gap trading is a
+  high-risk, short-horizon strategy; gaps can reverse violently and stop-loss orders may fill well beyond the
+  intended level. Backtest success rates are historical and do not predict future results. Emerging-market and
+  foreign-domiciled ADRs carry additional currency, sovereign and disclosure risk. Size every position so that
+  a full stop-out is survivable, and verify all data independently before trading. You alone are responsible
+  for your trading decisions.
+</footer>
+
+</div>
+</body>
+</html>
