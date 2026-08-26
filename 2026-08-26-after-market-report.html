@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇺🇸 U.S. Stock Market Analysis — 2026-08-26 After-Market</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh; color: #fff; padding: 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .header { text-align: center; padding: 40px 20px; margin-bottom: 30px;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+    border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: fadeIn 0.8s ease; }
+  .header h1 { font-size: 2.4em; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .header .date { font-size: 1.2em; opacity: 0.9; }
+  .header .tagline { margin-top: 12px; font-size: 1.05em; color: #ffd166; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-bottom: 30px; }
+  .card { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 20px;
+    padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; animation: fadeIn 0.8s ease; }
+  .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+  .card h2 { font-size: 1.5em; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid rgba(255,255,255,0.3); }
+  .full { grid-column: 1 / -1; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+  .etf { background: rgba(255,255,255,0.12); border-radius: 15px; padding: 18px; text-align: center; transition: transform 0.2s; }
+  .etf:hover { transform: scale(1.04); background: rgba(255,255,255,0.2); }
+  .etf .sym { font-size: 1.3em; font-weight: 700; }
+  .etf .name { font-size: 0.75em; opacity: 0.8; margin: 4px 0 8px; }
+  .etf .price { font-size: 1.1em; }
+  .chg { font-weight: 700; }
+  .up { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+  .down { color: #ff6b6b; text-shadow: 0 0 10px rgba(255,107,107,0.5); }
+  .flat { color: #e0e0e0; }
+  .mover { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px;
+    margin-bottom: 10px; background: rgba(255,255,255,0.1); border-radius: 12px; border-left: 4px solid #00ff88; transition: background 0.2s; }
+  .mover:hover { background: rgba(255,255,255,0.2); }
+  .mover .sym { font-weight: 700; font-size: 1.15em; }
+  .mover .name { font-size: 0.8em; opacity: 0.8; }
+  .mover .vol { font-size: 0.8em; opacity: 0.8; }
+  .mover .right { text-align: right; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+  .stat { background: rgba(255,255,255,0.12); border-radius: 15px; padding: 20px; text-align: center; }
+  .stat .val { font-size: 2em; font-weight: 700; color: #ffd166; }
+  .stat .lbl { font-size: 0.85em; opacity: 0.85; margin-top: 5px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+  th { opacity: 0.8; font-weight: 600; font-size: 0.85em; text-transform: uppercase; }
+  td.num, th.num { text-align: right; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  .bar { height: 6px; border-radius: 3px; margin-top: 4px; }
+  .points li { margin: 10px 0 10px 20px; line-height: 1.5; }
+  .points b { color: #ffd166; }
+
+  /* Earnings & After-Hours styles */
+  .afterhours-section { background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00; }
+  .afterhours-section h2 { border-bottom-color: rgba(255,255,255,0.5); }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; margin-top: 10px; }
+  .earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    position: relative; border-radius: 15px; padding: 20px; transition: transform 0.2s; }
+  .earnings-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.28); }
+  .afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+  .afterhours-badge.neg { background: #8b0000; }
+  .earnings-card .symbol { font-size: 1.4em; font-weight: 700; }
+  .earnings-card .company { font-size: 0.8em; opacity: 0.9; margin-bottom: 8px; }
+  .afterhours-change { font-size: 1.7em; font-weight: 800; }
+  .afterhours-change.positive { color: #00ff88; text-shadow: 0 0 10px rgba(0,0,0,0.3); }
+  .afterhours-change.negative { color: #ffd6d6; text-shadow: 0 0 10px rgba(0,0,0,0.3); }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #00ff88; font-weight: 700; }
+  .surprise-negative { color: #ff6b6b; font-weight: 700; }
+  .earnings-volume { font-size: 0.8em; opacity: 0.9; }
+  .earnings-note { margin-top: 18px; font-size: 0.85em; opacity: 0.95; background: rgba(0,0,0,0.15); padding: 12px 15px; border-radius: 10px; }
+  .footer { text-align: center; padding: 25px; opacity: 0.8; font-size: 0.85em; line-height: 1.7; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; gap: 20px; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .header h1 { font-size: 1.7em; }
+    .card { padding: 20px; }
+    th, td { font-size: 0.85em; padding: 8px 5px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-08-26 (Wed) – Final After-Market Data</div>
+    <div class="tagline">Indexes Flat Ahead of NVDA · Retail &amp; Biotech Lead the Tape · Software Rips After Hours (OKTA, CRM, CRWD)</div>
+  </div>
+
+  <div class="grid">
+    <!-- Major ETFs -->
+    <div class="card full">
+      <h2>📈 Major ETF Performance</h2>
+      <div class="etf-grid">
+        <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$766.01</div><div class="chg up">+0.01%</div></div>
+        <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq-100</div><div class="price">$711.39</div><div class="chg up">+0.09%</div></div>
+        <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$534.28</div><div class="chg down">-0.18%</div></div>
+        <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$298.96</div><div class="chg down">-0.09%</div></div>
+        <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$83.30</div><div class="chg down">-0.20%</div></div>
+        <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$421.33</div><div class="chg down">-1.57%</div></div>
+      </div>
+    </div>
+
+    <!-- Volume surge movers -->
+    <div class="card">
+      <h2>🔥 Top Volume-Surge Tickers</h2>
+      <div class="mover"><div><div class="sym">ANF 🚀</div><div class="name">Abercrombie &amp; Fitch — Q2 beat, FY outlook raised</div></div><div class="right"><div class="chg up">+35.67%</div><div class="vol">$147.75 · Vol 17.1M</div></div></div>
+      <div class="mover"><div><div class="sym">BHVN</div><div class="name">Biohaven — SK Biopharm licensing deal ($795M)</div></div><div class="right"><div class="chg up">+17.87%</div><div class="vol">$16.95 · Vol 15.7M</div></div></div>
+      <div class="mover"><div><div class="sym">BZ</div><div class="name">Kanzhun — post-earnings follow-through</div></div><div class="right"><div class="chg up">+15.65%</div><div class="vol">$18.84 · Vol 25.1M</div></div></div>
+      <div class="mover"><div><div class="sym">PRE</div><div class="name">Prenetics — insider buying after Q2</div></div><div class="right"><div class="chg up">+10.88%</div><div class="vol">$25.78 · Vol 0.8M</div></div></div>
+      <div class="mover"><div><div class="sym">SMTC</div><div class="name">Semtech — Q2 beat, Q3 guide up</div></div><div class="right"><div class="chg up">+10.41%</div><div class="vol">$140.80 · Vol 10.1M</div></div></div>
+      <div class="mover"><div><div class="sym">URBN</div><div class="name">Urban Outfitters — record Q2 (reported post-close)</div></div><div class="right"><div class="chg up">+9.46%</div><div class="vol">$82.95 · Vol 3.5M</div></div></div>
+      <div class="mover"><div><div class="sym">ERAS</div><div class="name">Erasca</div></div><div class="right"><div class="chg up">+7.83%</div><div class="vol">$19.15 · Vol 7.7M</div></div></div>
+    </div>
+
+    <!-- Market stats -->
+    <div class="card">
+      <h2>📊 Market Statistics</h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="val">24</div><div class="lbl">Volume-Surge Tickers</div></div>
+        <div class="stat"><div class="val">654</div><div class="lbl">Uptrend Tickers</div></div>
+        <div class="stat"><div class="val">2.8x</div><div class="lbl">Avg Relative Volume</div></div>
+        <div class="stat"><div class="val up">+7.2%</div><div class="lbl">Avg Price Move (surge)</div></div>
+        <div class="stat"><div class="val">9</div><div class="lbl">Large-Cap Earnings Today (AMC)</div></div>
+        <div class="stat"><div class="val">130</div><div class="lbl">Earnings This Week</div></div>
+      </div>
+      <p style="margin-top:18px;font-size:0.85em;opacity:0.85">Uptrend leaders by sector: Healthcare 206 · Financial 94 · Technology 93</p>
+    </div>
+
+    <!-- After-hours earnings -->
+    <div class="card full afterhours-section">
+      <h2>⏰ Post-Close Earnings &amp; After-Hours — 6/6 screened names beat EPS</h2>
+      <div class="earnings-grid">
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$OKTA 🚀</div><div class="company">Okta Inc · Q2 FY27</div>
+          <div class="afterhours-change positive">+14.07%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+6.73%</span></span><span>Revenue: <span class="surprise-positive">+1.75%</span></span></div>
+          <div class="earnings-volume">Close $134.42 → AH $153.33 · Day +2.92%, Vol 5.9M</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$CRM</div><div class="company">Salesforce · "Record Q2 FY27"</div>
+          <div class="afterhours-change positive">+11.75%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+24.05%</span></span><span>Revenue: <span class="surprise-positive">+0.72%</span></span></div>
+          <div class="earnings-volume">Close $205.62 → AH $229.79 · Vol 11.7M</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$CRWD</div><div class="company">CrowdStrike · Q2 FY27</div>
+          <div class="afterhours-change positive">+9.64%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+2.96%</span></span><span>Revenue: <span class="surprise-positive">+1.67%</span></span></div>
+          <div class="earnings-volume">Close $189.18 → AH $207.42 · Vol 11.5M</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$A</div><div class="company">Agilent Technologies</div>
+          <div class="afterhours-change positive">+4.33%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+5.79%</span></span><span>Revenue: <span class="surprise-positive">+2.03%</span></span></div>
+          <div class="earnings-volume">Close $155.08 → AH $161.79 · Vol 3.1M</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$VEEV</div><div class="company">Veeva Systems · Q2 FY27</div>
+          <div class="afterhours-change positive">+3.51%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+4.70%</span></span><span>Revenue: <span class="surprise-positive">+2.94%</span></span></div>
+          <div class="earnings-volume">Close $244.91 → AH $253.50 · Vol 1.4M</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$P</div><div class="company">Everpure · Q2 FY27</div>
+          <div class="afterhours-change positive">+2.52%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+18.18%</span></span><span>Revenue: <span class="surprise-positive">+5.29%</span></span></div>
+          <div class="earnings-volume">Close $108.90 → AH $111.64 · Day +5.92%, Vol 5.1M</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$NTNX</div><div class="company">Nutanix</div>
+          <div class="afterhours-change positive">+2.31%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+32.10%</span></span><span>Revenue: <span class="surprise-positive">+2.44%</span></span></div>
+          <div class="earnings-volume">Close $65.39 → AH $66.90 · Day -1.58%</div></div>
+        <div class="earnings-card"><div class="afterhours-badge neg">After-Hours</div>
+          <div class="symbol">$SNPS</div><div class="company">Synopsys · Q3 FY26</div>
+          <div class="afterhours-change negative">-3.41%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+6.21%</span></span><span>Revenue: <span class="surprise-positive">+1.12%</span></span></div>
+          <div class="earnings-volume">Close $410.00 → AH $396.00 · beat, but sold</div></div>
+        <div class="earnings-card"><div class="afterhours-badge neg">After-Hours</div>
+          <div class="symbol">$HPQ</div><div class="company">HP Inc</div>
+          <div class="afterhours-change negative">-0.52%</div>
+          <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+21.01%</span></span><span>Revenue: <span class="surprise-positive">+2.99%</span></span></div>
+          <div class="earnings-volume">Close $30.52 → AH $30.36 · Day +3.39%, Vol 19.8M</div></div>
+      </div>
+      <div class="earnings-note">
+        📌 <b>$NVDA</b> also reports tonight; as of 16:11 ET the stock was little changed after hours ($209.99 vs $209.66 close, +0.16%) — results/reaction not yet reflected in this snapshot.
+        After-hours prices are early prints taken ~16:10 ET; surprise figures are preliminary (Finviz) and may be revised. Screener universe: large-cap ($10B+), today-after-close reporters.
+      </div>
+    </div>
+
+    <!-- Sector performance -->
+    <div class="card">
+      <h2>🏢 Sector Performance</h2>
+      <table>
+        <thead><tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap</th><th class="num">Stocks</th></tr></thead>
+        <tbody>
+          <tr><td>Industrials</td><td class="num up">+0.98%</td><td class="num">$9.71T</td><td class="num">711</td></tr>
+          <tr><td>Utilities</td><td class="num up">+0.31%</td><td class="num">$1.79T</td><td class="num">109</td></tr>
+          <tr><td>Technology</td><td class="num up">+0.30%</td><td class="num">$33.21T</td><td class="num">792</td></tr>
+          <tr><td>Energy</td><td class="num up">+0.18%</td><td class="num">$4.80T</td><td class="num">252</td></tr>
+          <tr><td>Financial</td><td class="num down">-0.08%</td><td class="num">$15.13T</td><td class="num">1,124</td></tr>
+          <tr><td>Consumer Defensive</td><td class="num down">-0.43%</td><td class="num">$4.43T</td><td class="num">243</td></tr>
+          <tr><td>Consumer Cyclical</td><td class="num down">-0.64%</td><td class="num">$9.22T</td><td class="num">533</td></tr>
+          <tr><td>Real Estate</td><td class="num down">-0.65%</td><td class="num">$1.88T</td><td class="num">251</td></tr>
+          <tr><td>Communication Services</td><td class="num down">-0.78%</td><td class="num">$12.47T</td><td class="num">258</td></tr>
+          <tr><td>Healthcare</td><td class="num down">-0.94%</td><td class="num">$9.55T</td><td class="num">1,064</td></tr>
+          <tr><td>Basic Materials</td><td class="num down">-1.25%</td><td class="num">$3.12T</td><td class="num">287</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Key points -->
+    <div class="card">
+      <h2>💡 Today's Key Points</h2>
+      <ul class="points">
+        <li><b>Broad market:</b> Indexes closed essentially flat (SPY +0.01%, QQQ +0.09%) as traders waited on NVDA and Thursday's PCE print. Dow and small caps slipped marginally; 4 of 11 sectors rose.</li>
+        <li><b>Hot sectors:</b> Industrials led (+0.98%) with LECO, DCI, GTX among surge names; Utilities and Tech modestly green. Basic Materials (-1.25%) and Healthcare (-0.94%) lagged.</li>
+        <li><b>Volume-surge character:</b> 24 names, avg +7.2% on 2.8x relative volume — dominated by earnings reactions (ANF, SMTC, BZ, SJM, BBY, DCI, URBN) plus biotech deal/catalyst moves (BHVN, ERAS, ZYME, NBTX). ANF's +35.67% on 17.1M shares was its best day on record per headlines.</li>
+        <li><b>Earnings highlights (regular session):</b> BMO reporters ANF (+35.67%), SJM (+4.34%), DCI (+2.12%) and BBY (+2.52%) all rallied on beats/raised outlooks; tariff-refund tailwinds cited in retail beats.</li>
+        <li><b>After-hours focal points:</b> Software staged a relief rally — OKTA +14.07%, CRM +11.75% (EPS +24.05%), CRWD +9.64% — after a week of "AI eats software" pressure. SNPS fell -3.41% despite a beat; NTNX +2.31%. NVDA reaction still pending at snapshot time.</li>
+        <li><b>Bonds &amp; gold:</b> TLT -0.20% (yields slightly higher) and GLD -1.57%, giving back part of Tuesday's gold spike ahead of PCE.</li>
+        <li><b>Next up (Thu 8/27):</b> BMO — DG, DLTR, BURL, HRL, CM; AMC — WDAY, ADSK, ULTA, AFRM, RBRK, IREN. PCE inflation data also due.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    📊 Data sources: Finviz Elite (market overview, screeners, sector performance, EPS/revenue surprise), Alpaca Market Data (ETF &amp; stock snapshots, after-hours trades), Finviz news feed<br>
+    ⏰ Last refreshed: 2026-08-26 13:11 PDT (16:11 ET) · Final after-market data + after-hours info<br>
+    ⚠️ After-hours prices are thin early prints; earnings figures may be preliminary. Information only — not financial advice.
+  </div>
+</div>
+</body>
+</html>
