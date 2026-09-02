@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis — 2026-09-02</title>
+<style>
+  :root{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--text:#e2e8f0;--accent:#38bdf8;--good:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px}
+  h1{margin:0 0 4px;font-size:28px}
+  .sub{color:var(--muted);margin-bottom:24px}
+  .card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #334155}
+  .empty{font-size:20px;font-weight:600;color:var(--accent);margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid #334155;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:500}
+  .up{color:var(--good)}.dn{color:var(--bad)}.warn{color:var(--warn)}
+  h3{margin:20px 0 8px;font-size:16px;color:var(--accent)}
+  ul{margin:6px 0;padding-left:20px}
+  .note{font-size:13px;color:var(--muted)}
+  code{background:#0f172a;padding:2px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report date: 2026-09-02 (Wed) · Generated 09:05 ET (pre-market) · Screener: finviz earnings_trading_screener (Large+ cap $10B+, price $30+, net margin 3%+, EPS revision up, avg vol 200K+, change up, 4-week perf &gt; 0%)</div>
+
+  <div class="card">
+    <div class="empty">No stocks available for earnings trading.</div>
+    <p><code>finviz:earnings_trading_screener()</code> returned <strong>0 stocks</strong> for the Tuesday-after-close / Wednesday-pre-market earnings window on two consecutive runs. No candidates qualify today, so no backtest scoring, news scoring, or ranking was performed. The candidates JSON for today is an empty list.</p>
+    <div class="note">Unlike Monday's empty day, this window was <strong>not</strong> bare. Four Large+ cap names reported, and one of them gapped up sharply. The section below shows exactly which filter removed each name.</div>
+  </div>
+
+  <div class="card">
+    <h3>Why the screen is empty — the four reporters in the window</h3>
+    <p class="note">Universe check via <code>custom_screener("cap_largeover,earningsdate_yesterdayafter|todaybefore,sh_price_o30")</code> returned exactly these four. Prices and changes are Finviz pre-market values at 09:05 ET.</p>
+    <table>
+      <tr><th>Ticker</th><th>Company</th><th>Price</th><th>Pre-mkt change</th><th>EPS surprise</th><th>Rev surprise</th><th>Perf 4-week</th><th>Blocking filter</th></tr>
+      <tr><td><strong>DELL</strong></td><td>Dell Technologies</td><td>$465.77</td><td class="up">+9.59%</td><td class="up">+43.34%</td><td class="up">+4.63%</td><td class="dn">-0.70%</td><td class="warn"><code>ta_perf_0to-4w</code> — 4-week performance must be above 0%</td></tr>
+      <tr><td>PANW</td><td>Palo Alto Networks</td><td>$354.45</td><td class="dn">-2.11%</td><td class="up">+4.35%</td><td class="up">+1.74%</td><td class="dn">-3.21%</td><td><code>ta_change_u</code> (gap down) and <code>ta_perf_0to-4w</code></td></tr>
+      <tr><td>CRDO</td><td>Credo Technology</td><td>$188.50</td><td class="dn">-8.77%</td><td class="up">+2.21%</td><td class="up">+1.21%</td><td class="dn">-20.90%</td><td><code>ta_change_u</code> (gap down) and <code>ta_perf_0to-4w</code></td></tr>
+      <tr><td>MDB</td><td>MongoDB</td><td>$381.01</td><td class="dn">-12.25%</td><td class="up">+17.62%</td><td class="up">+5.00%</td><td class="up">+0.33%</td><td><code>ta_change_u</code> (gap down)</td></tr>
+    </table>
+    <p class="note">All four beat on EPS and revenue. Three of them are selling off anyway, which is the classic "beat-and-fade" pattern the screen is designed to avoid.</p>
+  </div>
+
+  <div class="card">
+    <h3>Filter isolation — confirming the DELL exclusion</h3>
+    <table>
+      <tr><th>Run</th><th>Filter set</th><th>Result</th></tr>
+      <tr><td>1</td><td><code>earnings_trading_screener()</code> (full fixed filter), run twice</td><td>0 stocks</td></tr>
+      <tr><td>2</td><td>Full filter <strong>minus</strong> <code>ta_perf_0to-4w</code></td><td class="up">1 stock — DELL</td></tr>
+      <tr><td>3</td><td>Full filter <strong>minus</strong> <code>ta_change_u</code></td><td>0 stocks</td></tr>
+      <tr><td>4</td><td><code>earnings_premarket_screener()</code> (today pre-market reporters only)</td><td>0 stocks — no Large+ pre-market reporters this morning</td></tr>
+    </table>
+    <p>Run 2 versus run 3 isolates the cause. DELL passes market cap, earnings window, EPS revision, net margin, volume, price, and pre-market change. The single filter it fails is the 4-week performance requirement: Finviz shows DELL's 1-month performance at -0.70%, marginally below the 0% floor, because the stock drifted sideways in August ahead of the print. Per the analysis rules the fixed filter is not overridden and screener results are not augmented, so DELL is <strong>not scored or listed as a candidate</strong>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Reference — DELL context (not a candidate)</h3>
+    <p class="note">Provided for situational awareness only. No backtest grade is assigned because the ticker did not pass the screen.</p>
+    <ul>
+      <li><strong>Result:</strong> Q2 FY2027 EPS surprise +43.34%, revenue surprise +4.63%, EPS growth QoQ +273.6%, sales growth QoQ +56.9% (Finviz). Company raised the full-year revenue outlook by roughly $25B and reported a record ~$95B AI server backlog (Bloomberg, MarketWatch, Stocktwits headlines, 9/1 16:05 to 9/2 08:36 ET).</li>
+      <li><strong>Technicals (Finviz, pre-market):</strong> price $465.77, 20D SMA +1.48%, 50D SMA +6.68%, 200D SMA +86.06%, RSI 54, relative volume 2.3x. Sitting about 10% below the 52-week high.</li>
+      <li><strong>Why the filter matters here:</strong> with the pre-market gap near +9.6% the gap-size bucket would land in the 5–10% band, and the flat 4-week trend is exactly the condition under which the backtest's pre-earnings-trend factor scores lowest. A flat-into-print, large-gap setup is not the high-probability shape this system targets.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Calendar context — next candidate windows this week</h3>
+    <p class="note">Reference only. These come from the forward earnings calendar, not from the trading screener, and are <strong>not</strong> today's candidates. Each becomes eligible on the morning after it reports. Labor Day is Monday 9/7, so Friday 9/4 is the last session before a long weekend.</p>
+    <table>
+      <tr><th>Report date / time (ET)</th><th>Tickers</th><th>Screened on</th></tr>
+      <tr><td>Wed 9/2 · 16:30 after-hours</td><td>SNOW, NTAP, HPE, FIVE</td><td>Thu 9/3</td></tr>
+      <tr><td>Thu 9/3 · 08:30 pre-market</td><td>CIEN</td><td>Thu 9/3</td></tr>
+      <tr><td>Thu 9/3 · 16:30 after-hours</td><td>ZS, LULU, IOT, GWRE, DOCU</td><td>Fri 9/4</td></tr>
+    </table>
+    <p class="note">Source: <code>finviz:upcoming_earnings_screener()</code>, custom range 2026-09-01 → 2026-09-04, Large cap, $30+ price.</p>
+  </div>
+
+  <div class="card">
+    <h3>Trader's read</h3>
+    <ul>
+      <li><strong>No trade today.</strong> The screen did its job: three of four reporters are beat-and-fade, and the one gap-up came off a flat base.</li>
+      <li><strong>Tape context is hostile to chasing.</strong> Headlines this morning cite rising bond yields pressuring the AI rally, a US–Iran stalemate, and oil spiking on Hormuz tanker reports. Gap-ups into that backdrop have a higher fade risk than the base rates assume.</li>
+      <li><strong>Watch Thursday.</strong> SNOW, HPE, NTAP, and FIVE report tonight. HPE is a direct DELL read-through on AI server demand. Pre-mark levels rather than chasing DELL at the open.</li>
+    </ul>
+  </div>
+
+  <div class="card note">
+    <strong>MCP data status:</strong> finviz <code>earnings_trading_screener</code> (2 runs), <code>earnings_premarket_screener</code>, <code>custom_screener</code> (3 filter-isolation runs), <code>upcoming_earnings_screener</code>, <code>get_stock_fundamentals</code>, <code>get_multiple_stocks_fundamentals</code>, <code>get_stock_news</code>, and FMP <code>get_aftermarket_quote</code> all returned successfully. Per-stock scoring calls — <code>get_moving_average_position</code>, Alpaca <code>get_stock_bars</code>, FMP price history — were not executed because the screener returned no tickers to score.
+  </div>
+
+  <div class="card note">Disclaimer: For informational purposes only; not investment advice. Backtest success rates are historical and do not guarantee future results.</div>
+</div>
+</body>
+</html>
