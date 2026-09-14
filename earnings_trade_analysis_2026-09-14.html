@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis — 2026-09-14</title>
+<style>
+  :root{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--text:#e2e8f0;--accent:#38bdf8;--good:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px}
+  h1{margin:0 0 4px;font-size:28px}
+  .sub{color:var(--muted);margin-bottom:24px}
+  .card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #334155}
+  .empty{font-size:20px;font-weight:600;color:var(--accent);margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid #334155;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:500}
+  .up{color:var(--good)}.dn{color:var(--bad)}.warn{color:var(--warn)}
+  h3{margin:20px 0 8px;font-size:16px;color:var(--accent)}
+  ul{margin:6px 0;padding-left:20px}
+  .note{font-size:13px;color:var(--muted)}
+  code{background:#0f172a;padding:2px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report date: 2026-09-14 (Mon) &middot; Generated 09:00 ET, pre-market &middot; Screener: finviz <code>earnings_trading_screener</code> (Large+ cap $10B+, price $30+, net margin 3%+, EPS revision up, avg vol 200K+, change up, 4-week perf &gt; 0%)</div>
+
+  <div class="card">
+    <div class="empty">No stocks available for earnings trading.</div>
+    <p><code>finviz:earnings_trading_screener()</code> returned <strong>0 stocks</strong>. No candidates qualify today, so no backtest scoring, news analysis, or ranking was performed. The candidates JSON for today is an empty list.</p>
+    <div class="note">Markets are <strong>open normally</strong> today &mdash; Alpaca <code>get_market_clock</code> reports next open 2026-09-14 09:30 ET, next close 16:00 ET. This is not a holiday gap. The window the screener covers is "after the previous close through this morning", and on a Monday the previous close was <strong>Friday 9/11</strong>, with the weekend in between. Almost nothing of size reports into that window.</div>
+  </div>
+
+  <div class="card">
+    <h3>Why the screen is empty &mdash; no Large+ reporters in the window</h3>
+    <table>
+      <tr><th>Run</th><th>Filter set</th><th>Result</th></tr>
+      <tr><td>1</td><td><code>earnings_trading_screener()</code> (full fixed filter)</td><td>0 stocks</td></tr>
+      <tr><td>2</td><td><code>earnings_premarket_screener()</code> (today pre-market reporters, +2% or better)</td><td>0 stocks</td></tr>
+      <tr><td>3</td><td><code>custom_screener("cap_largeover,earningsdate_yesterdayafter|todaybefore,sh_price_o30")</code> &mdash; universe check, cap + window + price only</td><td>0 stocks</td></tr>
+      <tr><td>4</td><td><code>custom_screener("earningsdate_yesterdayafter|todaybefore")</code> &mdash; earnings window only, no cap, price, or trend filter</td><td>5 stocks, all micro-cap</td></tr>
+    </table>
+    <p>Runs 3 and 4 together are decisive. With every fundamental and technical filter stripped away, the entire universe that reported in this window is five names, and the <strong>largest is $626M market cap</strong> &mdash; roughly 6% of the $10B floor. Not one of them trades above $30 either. The empty result is a genuine calendar gap, not a case of good candidates being filtered out by <code>ta_change_u</code> or <code>ta_perf_0to-4w</code>.</p>
+    <table>
+      <tr><th>Ticker</th><th>Company</th><th>Price</th><th>Market cap</th><th>EPS surprise</th><th>Fails on</th></tr>
+      <tr><td>CSHR</td><td>CoinShares Plc</td><td>$4.75</td><td>$626M</td><td>+0.00%</td><td>cap, price</td></tr>
+      <tr><td>ABAT</td><td>American Battery Technology</td><td>$2.48</td><td>$338M</td><td class="dn">-225.00%</td><td>cap, price, margin</td></tr>
+      <tr><td>CODA</td><td>Coda Octopus Group</td><td>$10.05</td><td>$113M</td><td class="up">+15.38%</td><td>cap, price</td></tr>
+      <tr><td>RFIL</td><td>RF Industries</td><td>$9.58</td><td>$104M</td><td class="up">+55.56%</td><td>cap, price</td></tr>
+      <tr><td>HAIN</td><td>Hain Celestial Group</td><td>$0.62</td><td>$56M</td><td>+0.00%</td><td>cap, price</td></tr>
+    </table>
+    <p class="note">Listed for completeness of the universe check only. These are <strong>not</strong> candidates and were not scored &mdash; each misses the cap floor by more than an order of magnitude, and the strategy is explicitly not built for names at these prices and liquidity levels.</p>
+  </div>
+
+  <div class="card">
+    <h3>Calendar context &mdash; candidate windows this week</h3>
+    <p class="note">Reference only. These come from the forward earnings calendar, not from the trading screener, and are <strong>not</strong> today's candidates. Each becomes eligible on the morning after it reports. Times are Finviz-listed ET; confirm against company IR before trading.</p>
+    <table>
+      <tr><th>Report date / time (ET)</th><th>Ticker</th><th>Cap tier</th><th>Sector</th><th>First screenable morning</th></tr>
+      <tr><td>Tue 9/15 &middot; 08:30 pre-market</td><td>FPS (Forgent Power Solutions)</td><td class="warn">Mid</td><td>Industrials</td><td>&mdash; fails <code>cap_largeover</code></td></tr>
+      <tr><td>Tue 9/15 &middot; 16:30 after-hours</td><td>TCOM (Trip.com Group ADR)</td><td>Large</td><td>Consumer Cyclical</td><td>Wed 9/16</td></tr>
+      <tr><td>Wed 9/16 &middot; 16:30 after-hours</td><td>LEN (Lennar Corp)</td><td>Large</td><td>Consumer Cyclical</td><td>Thu 9/17</td></tr>
+    </table>
+    <p class="note">Source: <code>finviz:upcoming_earnings_screener()</code>, custom range 2026-09-14 &rarr; 2026-09-18, run separately for mega, large, and mid cap at $30+ price. The <strong>mega-cap run returned nothing at all</strong> &mdash; there is no mega-cap reporter anywhere this week. Tue 9/15 and Fri 9/18 screens are expected to be empty as well: nothing Large+ reports into either window.</p>
+  </div>
+
+  <div class="card">
+    <h3>Trader's read</h3>
+    <ul>
+      <li><strong>No trade today.</strong> Nothing reported, so there is no gap to grade. Standing aside costs nothing.</li>
+      <li><strong>This is the quiet trough between quarters.</strong> The June-quarter cycle finished with last week's ORCL / ADBE / KR prints, and the September-quarter cycle does not begin until mid-October. Two Large+ names all week is the signature of that gap &mdash; expect thin screens through the end of the month, not a data problem.</li>
+      <li><strong>Only two shots this week, both after-hours.</strong> TCOM Tuesday evening and LEN Wednesday evening. That means exactly two live screens: Wed 9/16 and Thu 9/17.</li>
+      <li><strong>TCOM carries an ADR caveat.</strong> Overnight ADR gaps are driven as much by the Hong Kong session and the CNY cross as by the print itself, which weakens the read on gap size &mdash; the 25%-weighted first factor in the score. Size any TCOM entry smaller than the grade alone would suggest.</li>
+      <li><strong>LEN is the cleaner setup of the two,</strong> but it is a homebuilder, so the rate backdrop into Wednesday matters more than the EPS line. Check its 4-week performance Tuesday: a drift below flat fails <code>ta_perf_0to-4w</code> and removes it from Thursday's screen no matter how strong the gap.</li>
+      <li><strong>Pre-work:</strong> mark the 20-day and 50-day levels on TCOM and LEN today while there is nothing else to do. Both need to be above the 200-day for the MA200 factor (15% weight) to contribute anything.</li>
+    </ul>
+  </div>
+
+  <div class="card note">
+    <strong>MCP data status:</strong> All calls returned successfully. finviz <code>earnings_trading_screener</code>, <code>earnings_premarket_screener</code>, <code>custom_screener</code> (2 runs, universe checks), and <code>upcoming_earnings_screener</code> (3 runs: mega, large, mid) completed; Alpaca <code>get_market_clock</code> confirmed a normal session today. Per-stock scoring calls &mdash; <code>get_moving_average_position</code>, Alpaca <code>get_stock_bars</code>, FMP price history, <code>get_stock_news</code> &mdash; were not executed because the screener returned no tickers to score. Day-of-week mapping for 9/14&ndash;9/18 verified with <code>calendar.month(2026, 9)</code>.
+  </div>
+
+  <div class="card note">Disclaimer: For informational purposes only; not investment advice. Backtest success rates are historical and do not guarantee future results.</div>
+</div>
+</body>
+</html>
