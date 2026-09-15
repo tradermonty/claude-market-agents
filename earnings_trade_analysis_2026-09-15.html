@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis &mdash; 2026-09-15</title>
+<style>
+  :root{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--text:#e2e8f0;--accent:#38bdf8;--good:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px}
+  h1{margin:0 0 4px;font-size:28px}
+  .sub{color:var(--muted);margin-bottom:24px}
+  .card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #334155}
+  .empty{font-size:20px;font-weight:600;color:var(--accent);margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid #334155;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:500}
+  .up{color:var(--good)}.dn{color:var(--bad)}.warn{color:var(--warn)}
+  h3{margin:20px 0 8px;font-size:16px;color:var(--accent)}
+  ul{margin:6px 0;padding-left:20px}
+  li{margin-bottom:6px}
+  .note{font-size:13px;color:var(--muted)}
+  code{background:#0f172a;padding:2px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report date: 2026-09-15 (Tue) &middot; Generated 09:00 ET, pre-market &middot; Screener: finviz <code>earnings_trading_screener</code> (Large+ cap $10B+, price $30+, net margin 3%+, EPS revision up, avg vol 200K+, change up, 4-week perf above 0%)</div>
+
+  <div class="card">
+    <div class="empty">No stocks available for earnings trading.</div>
+    <p><code>finviz:earnings_trading_screener()</code> returned <strong>0 stocks</strong>. No candidates qualify today, so no backtest scoring, news analysis, or ranking was performed. The candidates JSON for today is an empty list.</p>
+    <div class="note">Markets are <strong>open normally</strong> today &mdash; Alpaca <code>get_market_clock</code> reports current time 09:00 ET, next open 2026-09-15 09:30 ET, next close 16:00 ET. This is not a holiday gap. Yesterday's report forecast that today's screen would be empty; that forecast is confirmed here independently rather than assumed.</div>
+  </div>
+
+  <div class="card">
+    <h3>Why the screen is empty &mdash; a double exclusion, not a near miss</h3>
+    <table>
+      <tr><th>Run</th><th>Filter set</th><th>Result</th></tr>
+      <tr><td>1</td><td><code>earnings_trading_screener()</code> (full fixed filter)</td><td>0 stocks</td></tr>
+      <tr><td>2</td><td><code>earnings_premarket_screener()</code> (today pre-market reporters, +2% or better)</td><td>0 stocks</td></tr>
+      <tr><td>3</td><td><code>custom_screener("earningsdate_yesterdayafter|todaybefore,cap_largeover")</code> &mdash; window + cap floor only</td><td><strong>0 stocks</strong></td></tr>
+      <tr><td>4</td><td>Full fundamental + technical filter set with <strong>the cap floor removed</strong></td><td><strong>0 stocks</strong></td></tr>
+      <tr><td>5</td><td><code>custom_screener("earningsdate_yesterdayafter|todaybefore,sh_price_o30,ta_change_u")</code></td><td>1 stock (FPS)</td></tr>
+      <tr><td>6</td><td>Run 5 plus <code>ta_perf_0to-4w</code></td><td>0 stocks</td></tr>
+      <tr><td>7</td><td><code>custom_screener("earningsdate_yesterdayafter|todaybefore")</code> &mdash; window only, no other filter</td><td>13 stocks</td></tr>
+    </table>
+    <p>Run 3 is the headline: <strong>not a single company of $10B or more reported in this window.</strong> The entire reporting universe is 13 names and the largest, FPS, is $9.50B.</p>
+    <p>Runs 4 through 6 answer the more interesting question &mdash; whether the cap floor alone is costing us a trade. It is not. Run 4 strips the $10B floor away entirely and <em>still</em> returns nothing, and runs 5 and 6 pin down why: FPS survives price and change-up, then dies on <code>ta_perf_0to-4w</code>. FPS is excluded <strong>twice over, on independent grounds</strong>. There is no judgment call here and nothing to override.</p>
+  </div>
+
+  <div class="card">
+    <h3>FPS &mdash; the one reporter worth explaining, and why it is not a candidate</h3>
+    <p class="note">Listed to document the exclusion. FPS was <strong>not</strong> scored and is <strong>not</strong> in the candidates JSON.</p>
+    <table>
+      <tr><th>Metric</th><th>Value</th><th>Filter test</th></tr>
+      <tr><td>Company</td><td>Forgent Power Solutions Inc (Industrials / Electrical Equipment &amp; Parts)</td><td>&mdash;</td></tr>
+      <tr><td>Earnings</td><td>9/15/2026 08:30 ET, pre-market</td><td class="up">in window</td></tr>
+      <tr><td>Price</td><td>$31.20</td><td class="up">passes <code>sh_price_o30</code></td></tr>
+      <tr><td>Change</td><td class="up">+8.95%</td><td class="up">passes <code>ta_change_u</code></td></tr>
+      <tr><td>EPS surprise</td><td class="up">+12.50%</td><td>&mdash;</td></tr>
+      <tr><td>Revenue surprise</td><td class="up">+14.90%</td><td>&mdash;</td></tr>
+      <tr><td>EPS growth QoQ</td><td class="up">+298.01%</td><td>&mdash;</td></tr>
+      <tr><td>Sales growth QoQ</td><td class="up">+115.99%</td><td>&mdash;</td></tr>
+      <tr><td>Market cap</td><td class="dn">$9.50B</td><td class="dn">FAILS <code>cap_largeover</code> ($10B floor, short by 5.0%)</td></tr>
+      <tr><td>Performance, 1 month</td><td class="dn">-21.32%</td><td class="dn">FAILS <code>ta_perf_0to-4w</code></td></tr>
+      <tr><td>Performance, 3 months</td><td class="dn">-48.43%</td><td>&mdash;</td></tr>
+      <tr><td>20D SMA</td><td class="dn">-1.12%</td><td>below</td></tr>
+      <tr><td>50D SMA</td><td class="dn">-13.13%</td><td>below</td></tr>
+      <tr><td>200D SMA</td><td class="dn">-20.89%</td><td>below</td></tr>
+      <tr><td>RSI(14)</td><td>45.11</td><td>&mdash;</td></tr>
+    </table>
+    <p><strong>The read:</strong> this is exactly the setup the strategy is built to refuse. The print itself was genuinely strong &mdash; a double beat with triple-digit QoQ growth on both lines &mdash; but it lands on a chart that is down 48% in three months and trading below all three moving averages. In the scoring model this profile is punished twice: pre-earnings trend is the heaviest single factor at 30% weight and would score the minimum 1 point for a sub -10% trend, and MA200 at 15% weight would also score 1. Before any gap or volume input, roughly a third of the available score is already gone. A +9% gap into a downtrend of this depth is the classic bounce-into-supply that the pre-earnings trend factor exists to filter out.</p>
+    <p class="note">One data caveat: Finviz reports FPS average volume as 7,735, which is inconsistent with today's 1.41M share volume and a 3.64 relative volume reading. That field looks like a units or parsing artifact, so <code>sh_avgvol_o200</code> could not be evaluated reliably for FPS. It does not change the conclusion &mdash; the cap and trend exclusions are each independently decisive.</p>
+  </div>
+
+  <div class="card">
+    <h3>Filter semantics check &mdash; <code>ta_perf_0to-4w</code></h3>
+    <p>The prompt glosses this filter as "4-week performance: month above 0%", but the MCP tool's own description glosses it the opposite way, as a post-decline recovery screen admitting names that have fallen. The two readings imply very different expectations for the rest of the week, so it was tested directly rather than assumed.</p>
+    <table>
+      <tr><th>Test</th><th>Month perf</th><th>Result under <code>ta_perf_0to-4w</code></th></tr>
+      <tr><td>AAPL via <code>cap_mega,ta_perf_0to-4w</code></td><td class="up">+8.29%</td><td class="up">PASSES</td></tr>
+      <tr><td>FPS via runs 5 &rarr; 6 above</td><td class="dn">-21.32%</td><td class="dn">FAILS</td></tr>
+    </table>
+    <p>A positive-month name passes and a negative-month name fails, so the filter behaves as the <strong>prompt</strong> describes: it requires 4-week performance above zero. <strong>The MCP tool's description is misleading and should not be relied on.</strong> This is the correct reading to carry into the rest of the week, and it materially lowers the odds that either upcoming reporter screens at all.</p>
+  </div>
+
+  <div class="card">
+    <h3>Calendar context &mdash; candidate windows this week</h3>
+    <p class="note">Reference only, from the forward earnings calendar. These are <strong>not</strong> today's candidates. Each becomes eligible on the morning after it reports. Times are Finviz-listed ET; confirm against company IR before trading.</p>
+    <table>
+      <tr><th>Report date / time (ET)</th><th>Ticker</th><th>Price</th><th>Market cap</th><th>1M perf</th><th>RSI</th><th>First screenable morning</th></tr>
+      <tr><td>Tue 9/15 &middot; 16:30 after-hours</td><td>TCOM (Trip.com Group ADR)</td><td>$39.82</td><td>$25.87B</td><td class="dn">-11.5%</td><td>32.2</td><td>Wed 9/16</td></tr>
+      <tr><td>Wed 9/16 &middot; 16:30 after-hours</td><td>LEN (Lennar Corp)</td><td>$79.82</td><td>$19.19B</td><td class="dn">-8.1%</td><td>40.1</td><td>Thu 9/17</td></tr>
+    </table>
+    <p class="note">Source: <code>finviz:upcoming_earnings_screener()</code>, range 2026-09-15 &rarr; 2026-09-21, run separately for large and mega cap at $30+ price. The <strong>mega-cap run returned nothing at all</strong> &mdash; there is no mega-cap reporter anywhere this week.</p>
+    <h3>Both reporters are currently disqualified by the trend filter</h3>
+    <p>This is the actionable finding. TCOM and LEN are each <strong>below</strong> their 4-week starting price, so as of this morning both would fail <code>ta_perf_0to-4w</code>. The gap itself is what would have to rescue them, and the required move is large:</p>
+    <table>
+      <tr><th>Ticker</th><th>Current 4-week perf</th><th>Gap needed to lift 4-week perf above 0</th><th>Assessment</th></tr>
+      <tr><td>TCOM</td><td class="dn">-11.5%</td><td class="warn">about +13.0%</td><td>Unlikely. A 13% overnight ADR gap is a tail event, not a base case.</td></tr>
+      <tr><td>LEN</td><td class="dn">-8.1%</td><td class="warn">about +8.8%</td><td>Possible but demanding for a homebuilder print.</td></tr>
+    </table>
+    <p class="note">Arithmetic: a stock at 4-week performance of <em>p</em> needs a move of 1/(1+p) - 1 to return to its 4-week-ago price. Verified by calculation, not estimated. This assumes the 4-week lookback window is otherwise unchanged; the reference price rolls forward daily, so the exact threshold will drift by Wednesday and Thursday and should be re-checked on the morning of.</p>
+  </div>
+
+  <div class="card">
+    <h3>Trader's read</h3>
+    <ul>
+      <li><strong>No trade today.</strong> Nothing of size reported, and the one name that did report is in a downtrend the model is designed to avoid. Standing aside costs nothing.</li>
+      <li><strong>Do not be tempted by the FPS headline.</strong> A double beat with +298% EPS growth QoQ reads well and it is up 9%, but it is $9.5B, down 48% in three months, and under all three moving averages. Two independent filters reject it. Chasing it would be overriding the strategy on exactly the setup where the backtest says the edge is worst.</li>
+      <li><strong>This is still the quiet trough between quarters.</strong> The June-quarter cycle ended with last week's ORCL / ADBE / KR prints and the September-quarter cycle does not start until mid-October. Two Large+ names all week, no mega-caps at all. Expect thin screens through month-end; this is a calendar feature, not a data problem.</li>
+      <li><strong>Realistically this week may produce zero screenable candidates.</strong> Both TCOM and LEN currently fail the 4-week trend test, and each needs an outsized gap just to become eligible. Plan for no trades rather than waiting on Wednesday and Thursday.</li>
+      <li><strong>If LEN does gap hard enough to qualify, treat the grade with suspicion.</strong> A name that only clears the trend filter by virtue of the earnings gap itself is a different animal from one that was already trending up into the print. The 30%-weighted pre-earnings trend factor would be scoring a barely-positive number that the gap manufactured, which is not the durable momentum the backtest rewards.</li>
+      <li><strong>TCOM carries the usual ADR caveat.</strong> Overnight gaps are driven as much by the Hong Kong session and the CNY cross as by the print, which weakens the read on gap size, the 25%-weighted first factor. RSI at 32.2 is near oversold, so a relief pop is plausible, but a relief pop is not the setup this model trades.</li>
+      <li><strong>Pre-work:</strong> mark 20-day and 50-day levels on TCOM and LEN today. Both need to be above the 200-day for the MA200 factor to contribute anything, and both are well below their 4-week starting price now.</li>
+    </ul>
+  </div>
+
+  <div class="card note">
+    <strong>MCP data status:</strong> All calls returned successfully. finviz <code>earnings_trading_screener</code>, <code>earnings_premarket_screener</code>, <code>custom_screener</code> (5 runs: universe, cap-stripped filter set, filter isolation, and semantics test), <code>get_stock_fundamentals</code> (FPS, AAPL), <code>get_multiple_stocks_fundamentals</code>, and <code>upcoming_earnings_screener</code> (2 runs: large, mega) completed; Alpaca <code>get_market_clock</code> confirmed a normal session today. Per-stock scoring calls &mdash; <code>get_moving_average_position</code>, Alpaca <code>get_stock_bars</code>, FMP price history, <code>get_stock_news</code> &mdash; were not executed because the screener returned no tickers to score. Day-of-week mapping for 9/15&ndash;9/18 verified with <code>calendar.month(2026, 9)</code>; gap thresholds verified by explicit calculation.
+  </div>
+
+  <div class="card note">Disclaimer: For informational purposes only; not investment advice. Backtest success rates are historical and do not guarantee future results.</div>
+</div>
+</body>
+</html>
