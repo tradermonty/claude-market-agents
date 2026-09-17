@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis &mdash; 2026-09-17</title>
+<style>
+  :root{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--text:#e2e8f0;--accent:#38bdf8;--good:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px}
+  h1{margin:0 0 4px;font-size:28px}
+  .sub{color:var(--muted);margin-bottom:24px}
+  .card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #334155}
+  .empty{font-size:20px;font-weight:600;color:var(--accent);margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid #334155;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:500}
+  .up{color:var(--good)}.dn{color:var(--bad)}.warn{color:var(--warn)}
+  h3{margin:20px 0 8px;font-size:16px;color:var(--accent)}
+  ul{margin:6px 0;padding-left:20px}
+  li{margin-bottom:6px}
+  .note{font-size:13px;color:var(--muted)}
+  code{background:#0f172a;padding:2px 6px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report date: 2026-09-17 (Thu) &middot; Generated 09:00 ET, pre-market &middot; Screener: finviz <code>earnings_trading_screener</code> (Large+ cap $10B+, price $30+, net margin 3%+, EPS revision up, avg vol 200K+, change up, 4-week perf above 0%)</div>
+
+  <div class="card">
+    <div class="empty">No stocks available for earnings trading.</div>
+    <p><code>finviz:earnings_trading_screener()</code> returned <strong>0 stocks</strong>. It was run twice to rule out a transient response; both runs came back empty. No candidates qualify today, so no backtest scoring, news analysis, or ranking was performed. The candidates JSON for today is an empty list.</p>
+    <div class="note">Markets are <strong>open normally</strong> today &mdash; Alpaca <code>get_market_clock</code> reports current time 09:01 ET, next open 2026-09-17 09:30 ET, next close 16:00 ET. This is not a holiday gap. Yesterday's forecast in the 9/15 report was that LEN would need roughly a +8.8% gap to become eligible; the outcome is recorded below, measured rather than assumed.</div>
+  </div>
+
+  <div class="card">
+    <h3>Why the screen is empty &mdash; the universe is four names and they are mutually exclusive</h3>
+    <table>
+      <tr><th>Run</th><th>Filter set</th><th>Result</th></tr>
+      <tr><td>1</td><td><code>earnings_trading_screener()</code> (full fixed filter)</td><td>0 stocks</td></tr>
+      <tr><td>2</td><td><code>earnings_trading_screener()</code> re-run, confirmation</td><td>0 stocks</td></tr>
+      <tr><td>3</td><td><code>earnings_premarket_screener()</code> (today pre-market reporters, +2% or better)</td><td>0 stocks</td></tr>
+      <tr><td>4</td><td><code>custom_screener("earningsdate_yesterdayafter|todaybefore")</code> &mdash; window only, no other filter</td><td><strong>4 stocks</strong> (LEN, ALMU, IPHA, YI)</td></tr>
+      <tr><td>5</td><td>Window + <code>cap_largeover</code></td><td>1 stock (LEN)</td></tr>
+      <tr><td>6</td><td>Window + <code>ta_change_u</code></td><td>1 stock (YI)</td></tr>
+      <tr><td>7</td><td>Window + <code>fa_epsrev_ep</code></td><td>1 stock (IPHA)</td></tr>
+      <tr><td>8</td><td>Window + <code>ta_change_u</code> + <code>fa_epsrev_ep</code></td><td><strong>0 stocks</strong></td></tr>
+      <tr><td>9</td><td>Full fundamental + technical filter set with <strong>the cap floor removed</strong></td><td><strong>0 stocks</strong></td></tr>
+    </table>
+    <p>Runs 5 through 8 are the whole story. The reporting universe is only four companies, and <strong>each of the three core gates is satisfied by a different single stock.</strong> LEN is the only Large+ name but it is trading down. YI is the only name trading up but it is an $18.68M micro-cap at $3.60. IPHA is the only name with an upward EPS revision but it is a $218.93M ADR at $1.96 and also down. The intersection is empty by construction &mdash; run 8 confirms that even the two loosest gates, taken together and with no cap or price floor at all, admit nobody.</p>
+    <p>Run 9 answers the standing question of whether the $10B cap floor is costing a trade. It is not. Strip the floor away entirely and the screen is <em>still</em> empty. There is no judgment call here and nothing to override.</p>
+  </div>
+
+  <div class="card">
+    <h3>The full reporting universe &mdash; all four names, for the record</h3>
+    <p class="note">Listed to document the exclusions. <strong>None</strong> of these were scored and <strong>none</strong> are in the candidates JSON.</p>
+    <table>
+      <tr><th>Ticker</th><th>Company / sector</th><th>Price</th><th>Change</th><th>Market cap</th><th>EPS surprise</th><th>Why it is out</th></tr>
+      <tr><td><strong>LEN</strong></td><td>Lennar Corp &middot; Consumer Cyclical / Residential Construction</td><td>$77.61</td><td class="dn">-0.96%</td><td class="up">$18.65B</td><td class="dn">-6.91%</td><td class="dn">Fails <code>ta_change_u</code>, <code>fa_epsrev_ep</code>, <code>ta_perf_0to-4w</code></td></tr>
+      <tr><td>ALMU</td><td>Aeluma Inc &middot; Technology / Semiconductors</td><td>$11.56</td><td class="dn">-13.92%</td><td class="dn">$222.71M</td><td class="dn">-100.00%</td><td class="dn">Fails cap, price, change, EPS revision</td></tr>
+      <tr><td>IPHA</td><td>Innate Pharma ADR &middot; Healthcare / Biotechnology</td><td>$1.96</td><td class="dn">-2.49%</td><td class="dn">$218.93M</td><td class="up">+17.75%</td><td class="dn">Fails cap, price, change, net margin</td></tr>
+      <tr><td>YI</td><td>111 Inc ADR &middot; Healthcare / Medical Distribution</td><td>$3.60</td><td class="up">+6.51%</td><td class="dn">$18.68M</td><td>N/A</td><td class="dn">Fails cap, price, EPS revision, net margin</td></tr>
+    </table>
+    <p class="note">Prices are pre-market quotes as of roughly 09:00 ET and drift during the session; LEN was quoted between $77.44 and $77.73 across the data pulls used here. None of that drift is material to the conclusion.</p>
+  </div>
+
+  <div class="card">
+    <h3>LEN &mdash; the one reporter of size, and why it is a clean rejection</h3>
+    <p class="note">This is the name yesterday's report was waiting on. It reported 9/16 at 16:30 ET, in the window, and is the only Large+ company in it.</p>
+    <table>
+      <tr><th>Metric</th><th>Value</th><th>Filter test</th></tr>
+      <tr><td>Company</td><td>Lennar Corp (Consumer Cyclical / Residential Construction)</td><td>&mdash;</td></tr>
+      <tr><td>Earnings</td><td>9/16/2026 16:30 ET, after-hours</td><td class="up">in window</td></tr>
+      <tr><td>Price</td><td>$77.61 (pre-market)</td><td class="up">passes <code>sh_price_o30</code></td></tr>
+      <tr><td>Market cap</td><td>$18.65B</td><td class="up">passes <code>cap_largeover</code></td></tr>
+      <tr><td>Avg volume</td><td>2.70M</td><td class="up">passes <code>sh_avgvol_o200</code></td></tr>
+      <tr><td>Gap / change</td><td class="dn">-1.17% (prev close $78.36 &rarr; $77.44)</td><td class="dn">FAILS <code>ta_change_u</code></td></tr>
+      <tr><td>EPS surprise</td><td class="dn">-6.91%</td><td class="dn">contributes to FAILING <code>fa_epsrev_ep</code></td></tr>
+      <tr><td>Revenue surprise</td><td class="dn">-3.28%</td><td>&mdash;</td></tr>
+      <tr><td>EPS growth QoQ</td><td class="dn">-47.89%</td><td>&mdash;</td></tr>
+      <tr><td>Sales growth QoQ</td><td class="dn">-8.52%</td><td>&mdash;</td></tr>
+      <tr><td>Performance, 1 month</td><td class="dn">-8.49%</td><td class="dn">FAILS <code>ta_perf_0to-4w</code></td></tr>
+      <tr><td>Performance, 3 months</td><td class="dn">-10.12%</td><td>&mdash;</td></tr>
+      <tr><td>Performance, YTD</td><td class="dn">-24.39%</td><td>&mdash;</td></tr>
+      <tr><td>Performance, 1 year</td><td class="dn">-41.54%</td><td>&mdash;</td></tr>
+      <tr><td>20-day pre-earnings trend</td><td class="dn">-9.45% (calculated: $86.54 on 8/17 &rarr; $78.36 on 9/16)</td><td>&mdash;</td></tr>
+      <tr><td>20D SMA</td><td class="dn">-6.36%</td><td>below</td></tr>
+      <tr><td>50D SMA</td><td class="dn">-7.74%</td><td>below</td></tr>
+      <tr><td>200D SMA</td><td class="dn">-19.53%</td><td>below</td></tr>
+      <tr><td>RSI(14)</td><td class="warn">35.99</td><td>&mdash;</td></tr>
+      <tr><td>P/B</td><td>0.87</td><td>&mdash;</td></tr>
+    </table>
+    <h3>News read</h3>
+    <ul>
+      <li><strong>Earnings result:</strong> a double miss &mdash; EPS surprise <span class="dn">-6.91%</span> and revenue surprise <span class="dn">-3.28%</span>, with EPS down <span class="dn">47.89%</span> QoQ on sales down <span class="dn">8.52%</span> QoQ. This is deterioration in the operating result, not an accounting artifact.</li>
+      <li><strong>Guidance:</strong> the Wall Street Journal headline the same evening is explicit &mdash; <em>"Lennar Cuts Deliveries Target Again on Rate Pressure, Housing Market Conditions."</em> The word that matters is <em>again</em>. This is a repeated guide-down, which is what drives a durable de-rating rather than a one-quarter air pocket.</li>
+      <li><strong>Macro fit:</strong> the FOMC concluded 9/16 at 14:00 ET with a <strong>25bp hike</strong> to a 3.75&ndash;4.00% target range on a 12&ndash;0 vote, with Chair Kevin Warsh saying inflation has been "too high for too long." A homebuilder cutting its delivery target on rate pressure, hours after the Fed tightened, is about as coherent a negative as the tape produces.</li>
+      <li><strong>Probability of increase over the next few months:</strong> roughly <strong>30%</strong>. The valuation case exists &mdash; P/B 0.87, forward P/E 12.3, RSI 36 &mdash; but it is a value case, not a momentum case, and it requires a rate reversal the Fed just argued against. Below all three moving averages with a repeated guide-down, the burden of proof sits on the bull.</li>
+      <li><strong>Backtest score:</strong> not scored. LEN is disqualified at the screening stage and no grade is assigned. Had it been forced through the model it would have graded <strong>D</strong> &mdash; a negative gap scores 1 of 5 on the 25%-weighted gap factor, a -9.45% pre-earnings trend scores 2 of 5 on the 30%-weighted trend factor, and 200D at -19.53% and 50D at -7.74% each score the minimum. That arithmetic is offered only to show the direction of travel; it is <strong>not</strong> a candidate and appears nowhere in the JSON.</li>
+    </ul>
+    <p><strong>The read:</strong> yesterday's report framed LEN as the week's one live possibility and noted it needed roughly a +8.8% gap merely to clear the 4-week trend filter. It gapped <em>down</em> 1.17% instead. The filter did not have to make a close call &mdash; three independent gates reject it. Worth noting for discipline: LEN is down 41.5% over a year, sits 19.5% below its 200-day, and is now cheap on book value. That combination is exactly the bounce-into-supply profile the pre-earnings trend factor, the heaviest weight in the model at 30%, exists to refuse.</p>
+  </div>
+
+  <div class="card">
+    <h3>Market context &mdash; risk-on tape, but not in this window</h3>
+    <table>
+      <tr><th>Instrument</th><th>Price</th><th>Change</th></tr>
+      <tr><td>SPY</td><td>$763.90</td><td class="up">+1.31%</td></tr>
+      <tr><td>QQQ</td><td>$716.57</td><td class="up">+1.68%</td></tr>
+      <tr><td>DIA</td><td>$521.77</td><td class="up">+1.27%</td></tr>
+      <tr><td>IWM</td><td>$288.04</td><td class="up">+1.45%</td></tr>
+      <tr><td>TLT</td><td>$81.49</td><td class="up">+0.75%</td></tr>
+      <tr><td>GLD</td><td>$400.77</td><td class="up">+2.31%</td></tr>
+    </table>
+    <p>Broad and strong: every index ETF up more than 1.2%, small caps participating, bonds and gold up alongside equities. Uptrend stock count 411, volume-surge names 4 with an average move of +14.0%. Leading uptrend sectors are Healthcare (98), Technology (95) and Financial (67).</p>
+    <p><strong>The disconnect worth naming:</strong> this rally is happening the morning after a <em>rate hike</em>, with gold up 2.3% and long bonds up at the same time. Whatever is driving it, it is a macro repricing rather than an earnings tape, and it is not a reason to loosen the screen. A stock that only looks strong because the index gapped up 1.3% is not exhibiting the idiosyncratic post-earnings momentum this model is built to buy. The absence of candidates today is a calendar fact, and a strong tape does not change it.</p>
+    <p class="note">FOMC date and decision verified by web search rather than assumed: the September 2026 meeting ran 9/15&ndash;16 and the decision was announced Wednesday 9/16 at 14:00 ET.</p>
+  </div>
+
+  <div class="card">
+    <h3>Forward calendar &mdash; tomorrow is a certain blank, next week has one pre-qualified name</h3>
+    <h3>Friday 9/18</h3>
+    <p>The 9/18 window (<code>earningsdate_todayafter|tomorrowbefore</code>) contains <strong>exactly one company</strong>: UPXI (Upexi Inc), an $85.79M micro-cap at $1.09 with an EPS surprise of -735.00%. There are <strong>zero</strong> Large+ reporters tonight and zero tomorrow pre-market. Tomorrow's screen will be empty &mdash; this is not a forecast with a probability attached, it is arithmetic on a one-name universe, subject only to a late calendar addition.</p>
+    <h3>Week of 9/21 &mdash; seven Large+ reporters</h3>
+    <p class="note">Reference only. These are <strong>not</strong> candidates. Each becomes eligible on the morning after it reports. Dates are Finviz-listed; the calendar tool warns its date field is unreliable, so confirm against company IR before trading.</p>
+    <table>
+      <tr><th>Ticker</th><th>Company</th><th>Market cap</th><th>50D SMA</th><th>200D SMA</th><th>RSI</th><th>Clears 4-week trend filter?</th><th>Clears fundamental gates?</th></tr>
+      <tr><td><strong>CTAS</strong></td><td>Cintas Corp</td><td>$80.18B</td><td class="dn">-0.39%</td><td class="up">+6.87%</td><td>49.4</td><td class="up">YES</td><td class="up">YES</td></tr>
+      <tr><td>SNX</td><td>TD Synnex Corp</td><td>$20.95B</td><td class="up">+3.14%</td><td class="up">+25.22%</td><td>54.2</td><td class="up">YES</td><td class="dn">NO</td></tr>
+      <tr><td>COST</td><td>Costco Wholesale</td><td>$397.49B</td><td class="dn">-4.32%</td><td class="dn">-6.67%</td><td class="warn">36.5</td><td class="dn">NO</td><td class="dn">NO</td></tr>
+      <tr><td>AZO</td><td>Autozone Inc</td><td>$46.64B</td><td class="dn">-4.77%</td><td class="dn">-14.50%</td><td class="warn">39.9</td><td class="dn">NO</td><td class="up">YES</td></tr>
+      <tr><td>PAYX</td><td>Paychex Inc</td><td>$41.61B</td><td class="dn">-1.35%</td><td class="up">+12.10%</td><td>43.6</td><td class="dn">NO</td><td class="up">YES</td></tr>
+      <tr><td>DRI</td><td>Darden Restaurants</td><td>$23.63B</td><td class="dn">-1.14%</td><td class="up">+2.65%</td><td>44.3</td><td class="dn">NO</td><td class="up">YES</td></tr>
+      <tr><td>GIS</td><td>General Mills</td><td>$19.84B</td><td class="dn">-1.90%</td><td class="dn">-5.98%</td><td>44.2</td><td class="dn">NO</td><td class="dn">NO</td></tr>
+    </table>
+    <p class="note">Tested directly, not inferred. "Clears 4-week trend filter" = survives <code>cap_largeover,earningsdate_nextweek,ta_perf_0to-4w</code>. "Clears fundamental gates" = survives <code>cap_largeover,earningsdate_nextweek,fa_epsrev_ep,fa_netmargin_3to,sh_avgvol_o200,sh_price_o30</code>. Running both together returns exactly one name.</p>
+    <p><strong>CTAS is the only pre-qualified candidate for next week.</strong> It satisfies every fixed filter except <code>ta_change_u</code>, which cannot be known until the gap prints. It is above its 200-day by 6.87%, essentially flat to its 50-day, RSI 49.4 &mdash; a neutral-to-constructive chart rather than a stretched one. If it gaps up on the print it screens, and the pre-earnings trend factor would be scoring genuine momentum rather than momentum manufactured by the gap itself. That is the distinction that matters.</p>
+    <p><strong>SNX is the instructive exclusion.</strong> It has the best chart of the seven &mdash; 25.22% above its 200-day, above its 50-day, RSI 54 &mdash; and a +17.13% EPS surprise last time. It still fails, on <code>fa_netmargin_3to</code>. As an IT distributor its net margin is structurally around 1%, so this is not a temporary miss that a good quarter can fix; SNX is permanently outside this strategy's universe regardless of how the print lands. Do not spend time on it next Thursday morning.</p>
+  </div>
+
+  <div class="card">
+    <h3>Trader's read</h3>
+    <ul>
+      <li><strong>No trade today.</strong> Four companies reported, one of them has any size, and it missed on both lines and guided deliveries down again. Standing aside costs nothing.</li>
+      <li><strong>The LEN thesis from yesterday is closed, and closed correctly.</strong> It was flagged as needing an outsized gap just to become eligible. It gapped down instead. No override, no second look &mdash; a repeated guide-down into a tightening cycle is not a swing-long setup at any price.</li>
+      <li><strong>Do not let a +1.3% index gap loosen the screen.</strong> The tape is strong this morning, but strength that belongs to the index is not the idiosyncratic earnings momentum the backtest rewards. On a day like this every chart looks better than it is.</li>
+      <li><strong>The cap floor is not the binding constraint today.</strong> Remove it entirely and the screen stays empty. On days when the only up-stock is a $19M micro-cap, the filter set is doing its job rather than being over-tight.</li>
+      <li><strong>Plan for zero trades through Friday.</strong> Tomorrow's window holds a single $86M name. Blocking out screening time for Friday morning is wasted effort; use it on next week's prep instead.</li>
+      <li><strong>Next week's single piece of prep is CTAS.</strong> It is the only name of the seven that clears everything but the gap. Mark its 20-day and 50-day levels now, and re-check <code>ta_perf_0to-4w</code> on the morning of &mdash; the 4-week reference price rolls forward daily and CTAS sits only marginally above its 50-day, so its trend-filter status is not locked in.</li>
+      <li><strong>Rate-sensitive cyclicals are the sector to down-weight into next week.</strong> The Fed hiked, the Chair was hawkish about it, and the first rate-exposed company to report afterward missed and cut guidance. AZO and DRI both report next week into that same backdrop; both already sit below their 4-week start.</li>
+      <li><strong>This remains the quiet trough between reporting cycles.</strong> The June-quarter cycle is finished and the September-quarter cycle does not begin until mid-October. Thin screens through month-end are a calendar feature, not a data problem.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Data provenance</h3>
+    <ul>
+      <li><strong>Screening:</strong> finviz <code>earnings_trading_screener</code> (run twice), <code>earnings_premarket_screener</code>, <code>custom_screener</code> (nine filter combinations), <code>upcoming_earnings_screener</code>.</li>
+      <li><strong>Fundamentals / technicals:</strong> finviz <code>get_stock_fundamentals</code> (LEN), <code>get_multiple_stocks_fundamentals</code> (next week's seven), <code>get_moving_average_position</code> (LEN), <code>get_market_overview</code>.</li>
+      <li><strong>Price history:</strong> Alpaca <code>get_stock_bars</code> (LEN, 1Day, 2026-06-20 &rarr; 2026-09-16) for the 20-day pre-earnings trend; FMP <code>get_quote</code> (LEN) for the 9/16 close used as the gap reference.</li>
+      <li><strong>Market status:</strong> Alpaca <code>get_market_clock</code>.</li>
+      <li><strong>News / macro:</strong> finviz <code>get_stock_news</code> (LEN, 3 days); FOMC date and decision verified by web search.</li>
+      <li><strong>Calculated, not estimated:</strong> LEN gap -1.17% and 20-day pre-earnings trend -9.45% were computed in Python from the bar data and quote above.</li>
+      <li><strong>Not retrieved:</strong> no volume-ratio or MA scoring was performed for any stock, because no stock passed screening. This is the intended behaviour, not a data failure.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
