@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Earnings Gap-Up Stock Analysis &mdash; 2026-09-18</title>
+<style>
+  :root{--bg:#0f172a;--card:#1e293b;--muted:#94a3b8;--text:#e2e8f0;--accent:#38bdf8;--good:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px}
+  h1{margin:0 0 4px;font-size:28px}
+  .sub{color:var(--muted);margin-bottom:24px}
+  .card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;border:1px solid #334155}
+  .empty{font-size:20px;font-weight:600;color:var(--accent);margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid #334155;text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:500}
+  .up{color:var(--good)}.dn{color:var(--bad)}.warn{color:var(--warn)}
+  h3{margin:20px 0 8px;font-size:16px;color:var(--accent)}
+  ul{margin:6px 0;padding-left:20px}
+  li{margin-bottom:6px}
+  .note{font-size:13px;color:var(--muted)}
+  code{background:#0f172a;padding:2px 6px;border-radius:4px;font-size:13px}
+  .grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+  .tile{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px 14px;min-width:120px}
+  .tile .lbl{font-size:12px;color:var(--muted)}
+  .tile .val{font-size:16px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post-Earnings Gap-Up Stock Analysis</h1>
+  <div class="sub">Report date: 2026-09-18 (Fri) &middot; Generated 09:05 ET, pre-market &middot; Screener: finviz <code>earnings_trading_screener</code> (Large+ cap $10B+, price $30+, net margin 3%+, EPS revision up, avg vol 200K+, change up, 4-week performance gate)</div>
+
+  <div class="card">
+    <div class="empty">No stocks available for earnings trading.</div>
+    <p><code>finviz:earnings_trading_screener()</code> returned <strong>0 stocks</strong> on two consecutive runs. No candidates qualify today, so no backtest scoring, news analysis, or ranking was performed. The candidates JSON for today is an empty list.</p>
+    <div class="note">Markets are <strong>open normally</strong> today &mdash; Alpaca <code>get_market_clock</code> at 09:01 ET reports next open 2026-09-18 09:30 ET, next close 16:00 ET. This is not a holiday gap.</div>
+  </div>
+
+  <div class="card">
+    <h3>Why the screen is empty &mdash; nothing of size reported into the window</h3>
+    <table>
+      <tr><th>Run</th><th>Call</th><th>Result</th></tr>
+      <tr><td>1&ndash;2</td><td><code>earnings_trading_screener()</code> (full fixed filter, run twice)</td><td>0 stocks, both runs</td></tr>
+      <tr><td>3</td><td><code>earnings_premarket_screener()</code> (today pre-market reporters, +2% or better)</td><td>0 stocks</td></tr>
+      <tr><td>4</td><td><code>upcoming_earnings_screener(2026-09-18 &rarr; 2026-09-18, cap $300M+, price $1+)</code> &mdash; universe check</td><td>0 stocks</td></tr>
+      <tr><td>5</td><td><code>earnings_screener(this_week, large)</code> &mdash; loose window check</td><td>3 stocks, all reported earlier in the week</td></tr>
+    </table>
+    <p>Run 4 is the decisive one. With the cap floor dropped from $10B to $300M and the price floor dropped from $30 to $1, <strong>not one company reports into today's window</strong>. The empty screen is a calendar gap, not a case of good candidates being filtered out by the trend or margin conditions.</p>
+
+    <h3>The three names the loose screener still tags &mdash; all stale</h3>
+    <p class="note">Finviz's "yesterday after-hours OR today pre-market" tag on the CSV export still carries names that printed earlier in the week. Checked against the PR and wire timestamps in <code>get_stock_news</code>, none of the three falls inside the 9/17 close &rarr; 9/18 open window. They are <strong>not</strong> candidates and were not scored.</p>
+    <table>
+      <tr><th>Ticker</th><th>Company</th><th>Actual report time (ET)</th><th>Price</th><th>Market cap</th><th>EPS surprise</th><th>1M perf</th><th>Status</th></tr>
+      <tr><td>TCOM</td><td>Trip.com Group ADR</td><td>Tue 9/15 18:00 (Q2)</td><td>$40.61</td><td>$26.4B</td><td class="up">+22.32%</td><td class="dn">-12.70%</td><td>Out of window &mdash; belonged to the Wed 9/16 screen</td></tr>
+      <tr><td>FPS</td><td>Forgent Power Solutions</td><td>Tue 9/15 06:30 (FQ4)</td><td>$39.17</td><td>$11.9B</td><td class="up">+4.30%</td><td class="up">+13.67%</td><td>Out of window &mdash; belonged to the Tue 9/15 screen</td></tr>
+      <tr><td>LEN</td><td>Lennar Corp</td><td>Wed 9/16 16:30 (FQ3)</td><td>$78.70</td><td>$18.9B</td><td class="dn">-6.91%</td><td class="dn">-9.85%</td><td>Out of window &mdash; belonged to the Thu 9/17 screen, gapped down</td></tr>
+    </table>
+    <p class="note">LEN also fails on its own merits regardless of the window: change &minus;1.25% (fails <code>ta_change_u</code>), EPS surprise &minus;6.91%, revenue surprise &minus;3.28%, EPS &minus;47.89% QoQ, and it cut its full-year delivery target again on rate pressure. It sits below all three moving averages (20D &minus;4.92%, 50D &minus;6.51%, 200D &minus;18.32%) with RSI 39.3.</p>
+  </div>
+
+  <div class="card">
+    <h3>Market context &mdash; 09:01 ET pre-market</h3>
+    <div class="grid">
+      <div class="tile"><div class="lbl">SPY</div><div class="val dn">$760.39 &minus;0.29%</div></div>
+      <div class="tile"><div class="lbl">QQQ</div><div class="val up">$717.75 +0.12%</div></div>
+      <div class="tile"><div class="lbl">DIA</div><div class="val dn">$515.86 &minus;0.48%</div></div>
+      <div class="tile"><div class="lbl">IWM</div><div class="val dn">$284.51 &minus;0.32%</div></div>
+      <div class="tile"><div class="lbl">TLT</div><div class="val dn">$81.47 &minus;0.38%</div></div>
+      <div class="tile"><div class="lbl">GLD</div><div class="val up">$400.79 +0.61%</div></div>
+    </div>
+    <p class="note" style="margin-top:14px">Breadth: 421 stocks in uptrend (Technology 121, Healthcare 95, Financial 61). Only 3 volume-surge names, averaging 6.6x relative volume and +5.0%. Source: <code>finviz:get_market_overview</code>, 06:01 PT / 09:01 ET.</p>
+    <p class="note"><strong>Today is the third Friday of September</strong> (verified: September 2026 Fridays are 4, 11, 18, 25), so quarterly index, stock-option and futures expiration lands on the close. Expiration flow dominates the tape on a day with no earnings catalyst &mdash; another reason a discretionary gap trade has no edge here even if one appeared intraday.</p>
+  </div>
+
+  <div class="card">
+    <h3>Calendar context &mdash; next week's Large+ reporters</h3>
+    <p class="note">Reference only. These come from the forward earnings calendar, not from the trading screener, and are <strong>not</strong> candidates. Each becomes screenable on the morning after it reports, which is the same morning for a pre-market print. Times are Finviz-listed ET; confirm against company IR before trading. Net margin is implied from P/S &divide; P/E and is a check on the <code>fa_netmargin_3to</code> floor, not a reported figure.</p>
+    <table>
+      <tr><th>Report date / time (ET)</th><th>Ticker</th><th>Price</th><th>Cap</th><th>1M perf</th><th>vs 200D SMA</th><th>Implied net margin</th><th>First screenable morning</th></tr>
+      <tr><td>Wed 9/23 &middot; 08:30 pre</td><td>CTAS (Cintas)</td><td>$197.82</td><td>$79.3B</td><td class="dn">-2.59%</td><td class="up">+5.49%</td><td>17.5%</td><td>Wed 9/23</td></tr>
+      <tr><td>Wed 9/23 &middot; 08:30 pre</td><td>PAYX (Paychex)</td><td>$116.51</td><td>$41.5B</td><td class="dn">-4.89%</td><td class="up">+11.71%</td><td>26.7%</td><td>Wed 9/23</td></tr>
+      <tr><td>Wed 9/23 &middot; 08:30 pre</td><td>GIS (General Mills)</td><td>$36.70</td><td>$19.6B</td><td class="dn">-8.23%</td><td class="dn">-6.90%</td><td class="warn">n/a &mdash; TTM EPS &minus;$0.19</td><td>Wed 9/23</td></tr>
+      <tr><td>Thu 9/24 &middot; 08:30 pre</td><td>DRI (Darden)</td><td>$207.73</td><td>$23.6B</td><td class="dn">-6.38%</td><td class="up">+2.40%</td><td>9.0%</td><td>Thu 9/24</td></tr>
+      <tr><td>Thu 9/24 &middot; 08:30 pre</td><td>SNX (TD Synnex)</td><td>$264.41</td><td>$21.1B</td><td class="up">+5.02%</td><td class="up">+26.03%</td><td class="dn">1.6% &mdash; below 3% floor</td><td>Thu 9/24</td></tr>
+      <tr><td>Thu 9/24 &middot; 16:30 after</td><td>COST (Costco)</td><td>$891.90</td><td>$395.5B</td><td class="dn">-6.80%</td><td class="dn">-7.13%</td><td class="warn">3.0% &mdash; on the floor</td><td>Fri 9/25</td></tr>
+    </table>
+    <p class="note">Source: <code>finviz:upcoming_earnings_screener()</code>, custom range 2026-09-21 &rarr; 2026-09-25, run separately for large and mega cap at $30+ price, plus <code>get_multiple_stocks_fundamentals</code>. <strong>SNX is structurally out</strong> on the net-margin floor &mdash; distribution economics put it at roughly 1.6%, so no print can qualify it. <strong>COST sits on the 3.01% line</strong>, close enough that the filter outcome turns on rounding. <strong>GIS carries negative TTM EPS</strong> and is unlikely to clear the margin floor either. That leaves <strong>CTAS, PAYX and DRI</strong> as the realistic candidate set next week: all three above their 200-day, all three currently below their 4-week starting point.</p>
+    <p class="note"><strong>Filter-doc caveat:</strong> the repo prompt describes <code>ta_perf_0to-4w</code> as "4-week performance above 0%", while the MCP tool's own docstring describes it as "0% to down, post-decline recovery candidates". The two readings gate next week's names in opposite directions &mdash; CTAS, PAYX, DRI, GIS and COST are all below flat on the month, and SNX is the only one above. Worth resolving against the live Finviz URL before next week's screens, since this single condition decides whether those mornings return anything at all.</p>
+  </div>
+
+  <div class="card">
+    <h3>Trader's read</h3>
+    <ul>
+      <li><strong>No trade today.</strong> Nothing reported into the window, so there is no gap to grade. Standing aside costs nothing, and yesterday's report already flagged today as a certain blank.</li>
+      <li><strong>Three blanks in a row is the calendar, not the filter.</strong> 9/14, 9/17 and 9/18 all screened empty. The June-quarter cycle is finished and the September-quarter cycle does not start until mid-October. Expect thin screens through month-end.</li>
+      <li><strong>Next live screens are Wed 9/23 and Thu 9/24.</strong> Five pre-market prints across those two mornings, each screenable the same morning it reports &mdash; be at the desk by 09:00 ET, not 09:25.</li>
+      <li><strong>CTAS is the cleanest setup on paper.</strong> Above its 200-day by 5.5%, 17.5% net margin, +4.00% EPS surprise last quarter, RSI 43.9 &mdash; a stable name pulling back into the print rather than one stretched into it. The 30%-weighted pre-earnings-trend factor is the swing input: at &minus;2.59% on the month it grades 2 points, so it needs a real gap to reach B.</li>
+      <li><strong>PAYX is the momentum alternative</strong> &mdash; +18.60% over three months and +11.71% above the 200-day, the strongest MA200 reading in the group. Its 1M of &minus;4.89% carries the same pre-earnings-trend drag.</li>
+      <li><strong>Skip SNX regardless of the print.</strong> A 1.6% net margin fails the strategy's own floor, and a +17.13% EPS surprise last quarter does not change that. Do not be tempted by the +76% YTD.</li>
+      <li><strong>COST on Thursday evening is the week's one after-hours shot,</strong> screenable Fri 9/25. It is the weakest technically of the group &mdash; below the 20-, 50- and 200-day with RSI 34.5 &mdash; so even a beat scores poorly on the 25% of weight sitting in the MA factors.</li>
+      <li><strong>Pre-work for the quiet stretch:</strong> mark the 20-, 50- and 200-day levels on CTAS, PAYX and DRI today. All three are above the 200-day now; if any loses it before Wednesday, the MA200 factor (15% weight) drops from 4 points to 2 and the grade falls a full rank.</li>
+    </ul>
+  </div>
+
+  <div class="card note">
+    <strong>MCP data status:</strong> All calls returned successfully. finviz <code>earnings_trading_screener</code> (2 runs), <code>earnings_premarket_screener</code>, <code>earnings_screener</code>, <code>upcoming_earnings_screener</code> (3 runs: 9/18 universe check, next-week large, next-week mega), <code>get_multiple_stocks_fundamentals</code> (2 runs), <code>get_stock_news</code>, <code>get_market_overview</code> and <code>get_moving_average_position</code> (AAPL, server health check) all completed; Alpaca <code>get_market_clock</code> confirmed a normal session. Per-stock scoring calls &mdash; <code>get_moving_average_position</code> on candidates, Alpaca <code>get_stock_bars</code>, FMP price history &mdash; were not executed because the screener returned no tickers to score. Day-of-week and third-Friday mapping for September 2026 verified with <code>calendar</code>; implied net margins computed, not estimated.
+  </div>
+
+  <div class="card note">Disclaimer: For informational purposes only; not investment advice. Backtest success rates are historical and do not guarantee future results.</div>
+</div>
+</body>
+</html>
