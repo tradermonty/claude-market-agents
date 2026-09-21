@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇺🇸 U.S. Stock Market Analysis — 2026-09-21</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { background: #0f1f3d; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        /* No background-attachment: fixed — on a tall page it leaves the lower
+           sections with no gradient behind them, which kills card contrast. */
+        background-color: #1e3c72;
+        background-image: linear-gradient(160deg, #0f1f3d 0%, #1e3c72 45%, #2a5298 100%);
+        background-repeat: no-repeat;
+        color: #f2f6ff;
+        line-height: 1.6;
+        padding: 30px 20px 60px;
+    }
+
+    .wrap { max-width: 1240px; margin: 0 auto; }
+
+    /* ---------- Header ---------- */
+    header {
+        text-align: center;
+        padding: 40px 30px;
+        margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 20px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    header h1 { font-size: 2.3em; letter-spacing: -0.5px; margin-bottom: 10px; }
+    header .date { font-size: 1.05em; color: #bcd2ff; }
+    header .tagline {
+        margin-top: 16px;
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 30px;
+        background: rgba(0, 255, 136, 0.15);
+        border: 1px solid rgba(0, 255, 136, 0.45);
+        color: #00ff88;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .index-strip {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 22px;
+    }
+    .index-strip div {
+        padding: 10px 18px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.95em;
+    }
+
+    /* ---------- Layout ---------- */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .full { grid-column: 1 / -1; }
+
+    section.card {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 30px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        margin-bottom: 30px;
+    }
+    section.card > h2 {
+        font-size: 1.35em;
+        margin-bottom: 22px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .up { color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.45); }
+    .down { color: #ff6b6b; text-shadow: 0 0 10px rgba(255, 107, 107, 0.45); }
+    .flat { color: #dfe7f7; }
+
+    /* ---------- ETF cards ---------- */
+    .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .etf-card {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .etf-card:hover { transform: translateY(-5px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4); }
+    .etf-card .sym { font-size: 1.35em; font-weight: 800; letter-spacing: 0.5px; }
+    .etf-card .nm { font-size: 0.78em; color: #b9cbec; min-height: 2.4em; margin: 6px 0 10px; }
+    .etf-card .px { font-size: 1.15em; font-weight: 600; }
+    .etf-card .chg { font-size: 1.4em; font-weight: 800; margin-top: 6px; }
+
+    /* ---------- Movers ---------- */
+    .mover {
+        display: grid;
+        grid-template-columns: 78px 1fr auto;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        transition: background 0.2s ease;
+    }
+    .mover:hover { background: rgba(255, 255, 255, 0.18); }
+    .mover .sym { font-weight: 800; font-size: 1.1em; }
+    .mover .nm { font-size: 0.88em; }
+    .mover .meta { font-size: 0.76em; color: #b9cbec; }
+    .mover .chg { font-size: 1.3em; font-weight: 800; text-align: right; }
+
+    /* ---------- Earnings / after-hours ---------- */
+    .afterhours-section {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+        border-left: 5px solid #ffff00;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .afterhours-section h2 {
+        font-size: 1.35em;
+        margin-bottom: 8px;
+        color: #2b1200;
+        text-shadow: none;
+    }
+    .afterhours-section .sub { color: #3a1c00; font-size: 0.92em; margin-bottom: 22px; }
+    .ah-note {
+        background: rgba(255, 255, 255, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 14px;
+        padding: 16px 20px;
+        color: #2b1200;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+    .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+    .earnings-card {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
+        padding: 20px 18px;
+        position: relative;
+        color: #2b1200;
+    }
+    .earnings-card .symbol { font-size: 1.25em; font-weight: 800; }
+    .earnings-card .co { font-size: 0.82em; margin: 4px 0 12px; }
+    .earnings-card .row { display: flex; justify-content: space-between; font-size: 0.85em; margin-top: 5px; }
+    .afterhours-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #ff4444;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.72em;
+        font-weight: bold;
+    }
+    .badge-day {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #1e3c72;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.72em;
+        font-weight: bold;
+    }
+
+    /* ---------- Stats ---------- */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; }
+    .stat {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 16px;
+        padding: 22px 18px;
+        text-align: center;
+    }
+    .stat .val { font-size: 1.85em; font-weight: 800; }
+    .stat .lbl { font-size: 0.82em; color: #b9cbec; margin-top: 6px; }
+
+    /* ---------- Sector bars ---------- */
+    .sector-row {
+        display: grid;
+        grid-template-columns: 200px 1fr 80px;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 11px;
+        font-size: 0.92em;
+    }
+    .bar-track {
+        height: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+    .bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 8px; }
+    .bar-fill.pos { left: 50%; background: linear-gradient(90deg, #00ff88, #00c46a); }
+    .bar-fill.neg { right: 50%; background: linear-gradient(90deg, #ff6b6b, #ff3b3b); }
+    .sector-row .pct { text-align: right; font-weight: 700; }
+
+    /* ---------- Key points ---------- */
+    .points { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .point {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #00ff88;
+        border-radius: 14px;
+        padding: 20px;
+    }
+    .point.warn { border-left-color: #ff6b6b; }
+    .point.neutral { border-left-color: #ffa500; }
+    .point h3 { font-size: 1.02em; margin-bottom: 9px; }
+    .point p { font-size: 0.9em; color: #dbe6fb; }
+
+    .caveat {
+        background: rgba(255, 165, 0, 0.14);
+        border: 1px solid rgba(255, 165, 0, 0.5);
+        border-radius: 14px;
+        padding: 18px 22px;
+        font-size: 0.9em;
+        color: #ffe2b8;
+    }
+    .caveat strong { color: #ffa500; }
+
+    footer {
+        text-align: center;
+        padding: 28px 20px;
+        margin-top: 10px;
+        font-size: 0.85em;
+        color: #a8bde0;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 20px;
+    }
+    footer p { margin: 4px 0; }
+
+    @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+        .etf-grid { grid-template-columns: repeat(2, 1fr); }
+        .sector-row { grid-template-columns: 130px 1fr 64px; font-size: 0.84em; }
+        header h1 { font-size: 1.6em; }
+        .mover { grid-template-columns: 64px 1fr auto; gap: 10px; }
+    }
+    @media (max-width: 520px) {
+        .etf-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-09-21 (Mon) — Final After-Market Data</div>
+    <div class="tagline">Semis &amp; Meta Lead a Broad AI Melt-Up</div>
+    <div class="index-strip">
+        <div>S&amp;P 500 <strong>7,764.22</strong> <span class="up">+1.49%</span></div>
+        <div>Nasdaq Comp <strong>27,122.09</strong> <span class="up">+2.26%</span></div>
+        <div>Dow <strong>52,048.83</strong> <span class="up">+0.71%</span></div>
+        <div>VIX <strong>14.80</strong> <span class="flat">-0.07%</span></div>
+    </div>
+</header>
+
+<!-- ===== Major ETFs ===== -->
+<section class="card">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+        <div class="etf-card">
+            <div class="sym">SPY</div>
+            <div class="nm">SPDR S&amp;P 500</div>
+            <div class="px">$773.51</div>
+            <div class="chg up">+1.55%</div>
+            <div class="meta" style="font-size:0.74em;color:#b9cbec;margin-top:8px;">Vol 43.3M</div>
+        </div>
+        <div class="etf-card">
+            <div class="sym">QQQ</div>
+            <div class="nm">Invesco QQQ Trust</div>
+            <div class="px">$741.47</div>
+            <div class="chg up">+2.77%</div>
+            <div class="meta" style="font-size:0.74em;color:#b9cbec;margin-top:8px;">Vol 42.5M</div>
+        </div>
+        <div class="etf-card">
+            <div class="sym">DIA</div>
+            <div class="nm">SPDR Dow Jones Industrial</div>
+            <div class="px">$519.77</div>
+            <div class="chg up">+0.75%</div>
+            <div class="meta" style="font-size:0.74em;color:#b9cbec;margin-top:8px;">Vol 2.8M</div>
+        </div>
+        <div class="etf-card">
+            <div class="sym">IWM</div>
+            <div class="nm">iShares Russell 2000</div>
+            <div class="px">$285.55</div>
+            <div class="chg up">+0.51%</div>
+            <div class="meta" style="font-size:0.74em;color:#b9cbec;margin-top:8px;">Vol 17.2M</div>
+        </div>
+        <div class="etf-card">
+            <div class="sym">TLT</div>
+            <div class="nm">iShares 20+ Yr Treasury</div>
+            <div class="px">$81.80</div>
+            <div class="chg up">+0.68%</div>
+            <div class="meta" style="font-size:0.74em;color:#b9cbec;margin-top:8px;">Vol 25.3M</div>
+        </div>
+        <div class="etf-card">
+            <div class="sym">GLD</div>
+            <div class="nm">SPDR Gold Shares</div>
+            <div class="px">$398.37</div>
+            <div class="chg down">-0.70%</div>
+            <div class="meta" style="font-size:0.74em;color:#b9cbec;margin-top:8px;">Vol 6.0M</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Volume-surge movers ===== -->
+<div class="grid">
+<section class="card">
+    <h2>🔥 Top Volume-Surge Movers (Large &amp; Mid Cap)</h2>
+
+    <div class="mover">
+        <div><span class="sym">GRAL</span></div>
+        <div>
+            <div class="nm">GRAIL Inc.</div>
+            <div class="meta">$4.6B · Vol 3.48M · FDA staff review docs raise no major concerns on the Galleri multi-cancer test ahead of this week's AdCom</div>
+        </div>
+        <div class="chg up">+33.68%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">SECZ</span></div>
+        <div>
+            <div class="nm">Securitize Corp.</div>
+            <div class="meta">$2.0B · Vol 6.55M · Tokenization name riding the broad crypto bid (no company-specific release verified)</div>
+        </div>
+        <div class="chg up">+24.31%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">ARM</span></div>
+        <div>
+            <div class="nm">Arm Holdings plc</div>
+            <div class="meta">$345B · Vol 12.7M · CPU demand thesis repriced on agentic-AI workloads</div>
+        </div>
+        <div class="chg up">+17.16%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">MRNA</span></div>
+        <div>
+            <div class="nm">Moderna, Inc.</div>
+            <div class="meta">$68.6B · Vol 20.8M · Phase 3 adjuvant melanoma data for intismeran autogene selected for an ESMO Presidential Symposium</div>
+        </div>
+        <div class="chg up">+12.27%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">INTC</span></div>
+        <div>
+            <div class="nm">Intel Corp.</div>
+            <div class="meta">$614B · Vol 184.5M · AI chip demand plus the annual SOX index reconstitution</div>
+        </div>
+        <div class="chg up">+12.14%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">META</span></div>
+        <div>
+            <div class="nm">Meta Platforms, Inc.</div>
+            <div class="meta">$1.89T · Vol 47.5M · Muse AI assistant outpacing ChatGPT's early download curve; Wells Fargo lifts PT to $796 from $640 ahead of Meta Connect</div>
+        </div>
+        <div class="chg up">+11.34%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">WBD</span></div>
+        <div>
+            <div class="nm">Warner Bros. Discovery</div>
+            <div class="meta">$77.2B · Vol 227.1M · Paramount Skydance settles with 12 state AGs, clearing the last major hurdle to the ~$110B merger</div>
+        </div>
+        <div class="chg up">+10.79%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">AMD</span></div>
+        <div>
+            <div class="nm">Advanced Micro Devices</div>
+            <div class="meta">$1.00T · Vol 43.3M · Breakout to a fresh 52-week high; market cap crosses the $1T line</div>
+        </div>
+        <div class="chg up">+9.95%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">MSTR</span></div>
+        <div>
+            <div class="nm">Strategy Inc</div>
+            <div class="meta">$55.7B · Vol 39.9M · Bitcoin proxy bid ($IBIT +6.50%)</div>
+        </div>
+        <div class="chg up">+9.47%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">QCOM</span></div>
+        <div>
+            <div class="nm">QUALCOMM Incorporated</div>
+            <div class="meta">$204B · Vol 17.9M · AI interconnect demo with optical partners broadens the story past handsets, ahead of the Snapdragon Summit</div>
+        </div>
+        <div class="chg up">+9.29%</div>
+    </div>
+</section>
+
+<section class="card">
+    <h2>📉 Notable Decliners</h2>
+
+    <div class="mover">
+        <div><span class="sym">NVO</span></div>
+        <div>
+            <div class="nm">Novo Nordisk A/S</div>
+            <div class="meta">$177B · Vol 46.6M · Capital Markets Day targets (5+ multi-blockbusters by 2030) failed to ease obesity-competition worries</div>
+        </div>
+        <div class="chg down">-7.91%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">COP</span></div>
+        <div>
+            <div class="nm">ConocoPhillips</div>
+            <div class="meta">$155B · Vol 5.3M · Fourth straight decline in crude</div>
+        </div>
+        <div class="chg down">-3.26%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">XOM</span></div>
+        <div>
+            <div class="nm">Exxon Mobil Corporation</div>
+            <div class="meta">$656B · Vol 11.0M · Crude-led energy selloff</div>
+        </div>
+        <div class="chg down">-3.14%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">HUBG</span></div>
+        <div>
+            <div class="nm">Hub Group, Inc.</div>
+            <div class="meta">$1.9B · Vol 0.75M · Fresh 52-week low; freight complex remains weak</div>
+        </div>
+        <div class="chg down">-3.18%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">CVX</span></div>
+        <div>
+            <div class="nm">Chevron Corporation</div>
+            <div class="meta">$406B · Vol 6.6M · Crude-led energy selloff</div>
+        </div>
+        <div class="chg down">-2.73%</div>
+    </div>
+
+    <div class="mover">
+        <div><span class="sym">GIS</span></div>
+        <div>
+            <div class="nm">General Mills, Inc.</div>
+            <div class="meta">$18.9B · Vol 9.0M · Defensive staples sold into the risk-on tape; reports 9/23</div>
+        </div>
+        <div class="chg down">-2.51%</div>
+    </div>
+</section>
+</div>
+
+<!-- ===== Earnings / after-hours ===== -->
+<div class="afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <div class="sub">Snapshot taken at 16:15 ET, 2026-09-21</div>
+
+    <div class="ah-note">
+        No after-hours earnings movers today. Every U.S.-listed company on today's calendar was a micro-cap
+        (ABVX, EBF, ESP, HKD, VIVO and similar), and after-hours quotes for the session's large-cap leaders
+        were all sitting within a few cents of their regular-session closes — $META $740.50/$740.97,
+        $INTC $121.88/$121.95, $AMD $615.30/$615.71, $ARM $323.00/$323.20. Per the report's fallback rule,
+        the calendar below covers the rest of this week instead.
+    </div>
+
+    <div class="earnings-grid">
+        <div class="earnings-card">
+            <div class="badge-day">Tue 9/22</div>
+            <div class="symbol">$AZO</div>
+            <div class="co">AutoZone, Inc. · $45.8B</div>
+            <div class="row"><span>Close</span><span>$2,803.25</span></div>
+            <div class="row"><span>Today</span><span>-1.82%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Tue 9/22</div>
+            <div class="symbol">$KBH</div>
+            <div class="co">KB Home · $2.9B</div>
+            <div class="row"><span>Close</span><span>$47.87</span></div>
+            <div class="row"><span>Today</span><span>+1.59%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Tue 9/22</div>
+            <div class="symbol">$THO</div>
+            <div class="co">Thor Industries · $3.6B</div>
+            <div class="row"><span>Close</span><span>$69.94</span></div>
+            <div class="row"><span>Today</span><span>+3.20%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Wed 9/23</div>
+            <div class="symbol">$CTAS</div>
+            <div class="co">Cintas Corporation · $78.8B</div>
+            <div class="row"><span>Close</span><span>$196.88</span></div>
+            <div class="row"><span>Today</span><span>-0.38%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Wed 9/23</div>
+            <div class="symbol">$PAYX</div>
+            <div class="co">Paychex, Inc. · $40.9B</div>
+            <div class="row"><span>Close</span><span>$115.01</span></div>
+            <div class="row"><span>Today</span><span>-0.97%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Wed 9/23</div>
+            <div class="symbol">$GIS</div>
+            <div class="co">General Mills, Inc. · $18.9B</div>
+            <div class="row"><span>Close</span><span>$35.41</span></div>
+            <div class="row"><span>Today</span><span>-2.51%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="afterhours-badge">Biggest</div>
+            <div class="symbol">$COST</div>
+            <div class="co">Costco Wholesale · $398B · Thu 9/24</div>
+            <div class="row"><span>Close</span><span>$898.48</span></div>
+            <div class="row"><span>Today</span><span>+0.35%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Thu 9/24</div>
+            <div class="symbol">$DRI</div>
+            <div class="co">Darden Restaurants · $24.2B</div>
+            <div class="row"><span>Close</span><span>$211.36</span></div>
+            <div class="row"><span>Today</span><span>+0.99%</span></div>
+        </div>
+        <div class="earnings-card">
+            <div class="badge-day">Thu 9/24</div>
+            <div class="symbol">$SNX</div>
+            <div class="co">TD Synnex Corp · $22.4B</div>
+            <div class="row"><span>Close</span><span>$279.59</span></div>
+            <div class="row"><span>Today</span><span>+5.05%</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Stats ===== -->
+<section class="card">
+    <h2>📊 Market Statistics</h2>
+    <div class="stat-grid">
+        <div class="stat"><div class="val up">7 / 11</div><div class="lbl">Sector SPDRs closing green</div></div>
+        <div class="stat"><div class="val up">+15.0%</div><div class="lbl">Avg move, 10 volume-surge movers above</div></div>
+        <div class="stat"><div class="val up">+4.02%</div><div class="lbl">$SMH semiconductor ETF</div></div>
+        <div class="stat"><div class="val up">+2.66%</div><div class="lbl">$IGV software ETF</div></div>
+        <div class="stat"><div class="val flat">14.80</div><div class="lbl">VIX (-0.07%)</div></div>
+        <div class="stat"><div class="val down">-3.68%</div><div class="lbl">$USO crude proxy</div></div>
+        <div class="stat"><div class="val up">+6.50%</div><div class="lbl">$IBIT spot bitcoin ETF</div></div>
+        <div class="stat"><div class="val flat">0</div><div class="lbl">Large-cap after-hours earnings movers</div></div>
+    </div>
+    <div class="caveat" style="margin-top:22px;">
+        <strong>Data-source note:</strong> the finviz and alpaca MCP servers both failed to connect this session
+        (CONNECT_TIMEOUT), so the usual screener-derived counts — volume-surge stock count, uptrend stock count and
+        average relative volume — could not be retrieved and are deliberately omitted rather than estimated.
+        Every figure above is computed from Financial Modeling Prep quote data pulled after the 16:00 ET close.
+    </div>
+</section>
+
+<!-- ===== Sectors ===== -->
+<section class="card">
+    <h2>🏛️ Sector Performance (Select Sector SPDRs)</h2>
+
+    <div class="sector-row"><span>Communication Svcs (XLC)</span><span class="bar-track"><span class="bar-fill pos" style="width:23.7%"></span></span><span class="pct up">+3.56%</span></div>
+    <div class="sector-row"><span>Technology (XLK)</span><span class="bar-track"><span class="bar-fill pos" style="width:18.4%"></span></span><span class="pct up">+2.76%</span></div>
+    <div class="sector-row"><span>Cons. Discretionary (XLY)</span><span class="bar-track"><span class="bar-fill pos" style="width:7.1%"></span></span><span class="pct up">+1.06%</span></div>
+    <div class="sector-row"><span>Health Care (XLV)</span><span class="bar-track"><span class="bar-fill pos" style="width:2.4%"></span></span><span class="pct up">+0.36%</span></div>
+    <div class="sector-row"><span>Real Estate (XLRE)</span><span class="bar-track"><span class="bar-fill pos" style="width:0.9%"></span></span><span class="pct up">+0.14%</span></div>
+    <div class="sector-row"><span>Industrials (XLI)</span><span class="bar-track"><span class="bar-fill pos" style="width:0.8%"></span></span><span class="pct up">+0.12%</span></div>
+    <div class="sector-row"><span>Financials (XLF)</span><span class="bar-track"><span class="bar-fill pos" style="width:0.3%"></span></span><span class="pct up">+0.05%</span></div>
+    <div class="sector-row"><span>Materials (XLB)</span><span class="bar-track"><span class="bar-fill neg" style="width:3.3%"></span></span><span class="pct down">-0.50%</span></div>
+    <div class="sector-row"><span>Consumer Staples (XLP)</span><span class="bar-track"><span class="bar-fill neg" style="width:7.1%"></span></span><span class="pct down">-1.07%</span></div>
+    <div class="sector-row"><span>Utilities (XLU)</span><span class="bar-track"><span class="bar-fill neg" style="width:7.3%"></span></span><span class="pct down">-1.09%</span></div>
+    <div class="sector-row"><span>Energy (XLE)</span><span class="bar-track"><span class="bar-fill neg" style="width:19.4%"></span></span><span class="pct down">-2.91%</span></div>
+
+    <p style="margin-top:18px;font-size:0.84em;color:#b9cbec;">
+        Bars are scaled to the day's largest absolute move (XLC +3.56%). Sector figures are Select Sector SPDR
+        ETF closes versus the prior close, not cap-weighted index constituents.
+    </p>
+</section>
+
+<!-- ===== Key points ===== -->
+<section class="card">
+    <h2>🔑 Today's Key Points</h2>
+    <div class="points">
+        <div class="point">
+            <h3>🔥 Hot sectors</h3>
+            <p>Communication Services (+3.56%) and Technology (+2.76%) did nearly all the index work. Meta alone added
+            more than $200B of market value, and $SMH closed +4.02% with the 3x semi ETF $SOXL up 14.77%.</p>
+        </div>
+        <div class="point">
+            <h3>📊 Volume-surge character</h3>
+            <p>Turnover concentrated in the AI-CPU complex and one merger name. Intel traded 184.5M shares and
+            Warner Bros. Discovery 227.1M — the two heaviest tapes of the session, both on identifiable catalysts
+            rather than drift.</p>
+        </div>
+        <div class="point neutral">
+            <h3>💼 Earnings highlights</h3>
+            <p>An empty Monday. No U.S.-listed company above micro-cap reported before or after today's bell, which
+            is normal for the gap between reporting seasons. The week's weight sits in Thursday's Costco print.</p>
+        </div>
+        <div class="point neutral">
+            <h3>🌙 After-hours focus</h3>
+            <p>Nothing to trade. Bid/ask on all the day's leaders sat within pennies of the 16:00 ET close, so the
+            session's gains carried into the evening without give-back.</p>
+        </div>
+        <div class="point">
+            <h3>📈 Broad market trend</h3>
+            <p>Third straight up session and a three-month high for the Nasdaq 100, but breadth was narrow: SPY
+            +1.55% against IWM +0.51% and DIA +0.75%. Seven of eleven sector SPDRs closed green. VIX barely moved
+            at 14.80.</p>
+        </div>
+        <div class="point warn">
+            <h3>🪙 Bonds, gold &amp; crude</h3>
+            <p>TLT +0.68% as yields eased, which is part of why growth names worked. Gold slipped 0.70% with
+            defensives out of favour. Crude fell a fourth consecutive session ($USO -3.68%), dragging Energy to
+            last place at -2.91% and pulling XOM, COP and CVX down 2.7–3.3%.</p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p><strong>Data sources:</strong> Financial Modeling Prep (quotes, after-market quotes, sector ETFs, earnings calendar, stock news).</p>
+    <p>finviz and alpaca MCP servers were unavailable this session (CONNECT_TIMEOUT); their screener statistics are omitted, not estimated.</p>
+    <p>Last refreshed: 2026-09-21 16:16 ET (13:16 PT) · Final after-market data + after-hours quote check.</p>
+    <p>Earnings figures for upcoming dates are scheduled, not reported, and may shift. Information only — not financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
