@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-09-24</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+header h1 { font-size: 2.4em; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+header .date { font-size: 1.1em; opacity: 0.9; margin-top: 8px; }
+header .tagline { display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 20px; background: rgba(255,255,255,0.15); font-weight: 600; }
+.card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.8s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+h2 { font-size: 1.4em; margin-bottom: 18px; }
+.full { margin-bottom: 30px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+.etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.etf { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; text-align: center; transition: background 0.3s; }
+.etf:hover { background: rgba(255,255,255,0.2); }
+.etf .sym { font-size: 1.3em; font-weight: 700; }
+.etf .name { font-size: 0.8em; opacity: 0.75; }
+.etf .price { font-size: 1.4em; margin-top: 6px; }
+.etf .chg { font-size: 1.2em; font-weight: 700; margin-top: 4px; }
+.up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+.down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+th { font-size: 0.85em; text-transform: uppercase; opacity: 0.8; }
+tr:hover td { background: rgba(255,255,255,0.08); }
+td.num, th.num { text-align: right; }
+.note { font-size: 0.85em; opacity: 0.8; margin-top: 12px; }
+.afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00; border-radius: 20px; padding: 30px; margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: fadeIn 0.8s ease;
+}
+.afterhours-section h2 { color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+.afterhours-section h3 { margin: 20px 0 12px; font-size: 1.1em; }
+.earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 20px; position: relative; transition: transform 0.3s; }
+.earnings-card:hover { transform: scale(1.02); }
+.afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+.badge-pending { background: #6a1b9a; }
+.earnings-card .symbol { font-size: 1.4em; font-weight: 800; }
+.earnings-card .company { font-size: 0.85em; opacity: 0.9; }
+.earnings-card .move { font-size: 1.5em; font-weight: 800; margin: 8px 0; }
+.earnings-card .move.down { color: #7a0000; text-shadow: none; }
+.earnings-card .detail { font-size: 0.85em; }
+.ah-empty { background: rgba(0,0,0,0.18); border-radius: 12px; padding: 14px 18px; font-weight: 600; }
+.stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+.stat { text-align: center; background: rgba(255,255,255,0.1); border-radius: 16px; padding: 20px 10px; }
+.stat .val { font-size: 1.9em; font-weight: 800; }
+.stat .lbl { font-size: 0.8em; opacity: 0.8; margin-top: 4px; }
+.bar { height: 8px; border-radius: 4px; margin-top: 4px; }
+.bar.up { background: #00ff88; }
+.bar.down { background: #ff6b6b; }
+ul.points { list-style: none; }
+ul.points li { padding: 10px 0 10px 28px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.1); }
+ul.points li::before { content: "▸"; position: absolute; left: 6px; color: #ffd166; }
+footer { text-align: center; font-size: 0.85em; opacity: 0.8; margin-top: 20px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (max-width: 800px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.8em; }
+    .card, .afterhours-section { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-09-24 (Thu) – Final After-Market Data</div>
+    <div class="tagline">Flat Indexes, Bonds Slide · Meta Muse &amp; Healthcare Lead</div>
+</header>
+
+<section class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+        <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$767.27</div><div class="chg down">-0.07%</div></div>
+        <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$741.08</div><div class="chg down">-0.02%</div></div>
+        <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$512.65</div><div class="chg down">-0.32%</div></div>
+        <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$281.69</div><div class="chg down">-0.08%</div></div>
+        <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$79.43</div><div class="chg down">-1.28%</div></div>
+        <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$391.73</div><div class="chg down">-0.29%</div></div>
+    </div>
+</section>
+
+<div class="grid2">
+    <section class="card">
+        <h2>🔥 Top Volume-Surge Tickers</h2>
+        <table>
+            <tr><th>Symbol</th><th>Name</th><th class="num">Change</th><th class="num">Volume</th><th class="num">RVol</th></tr>
+            <tr><td><b>SRZN</b> 🚀</td><td>Surrozen</td><td class="num up">+108.42%</td><td class="num">11.4M</td><td class="num">52.6x</td></tr>
+            <tr><td><b>DNA</b></td><td>Ginkgo Bioworks</td><td class="num up">+19.64%</td><td class="num">4.0M</td><td class="num">3.3x</td></tr>
+            <tr><td><b>TWST</b></td><td>Twist Bioscience</td><td class="num up">+16.11%</td><td class="num">3.4M</td><td class="num">2.0x</td></tr>
+            <tr><td><b>SECZ</b></td><td>Securitize</td><td class="num up">+14.90%</td><td class="num">10.3M</td><td class="num">4.5x</td></tr>
+            <tr><td><b>GRAL</b></td><td>GRAIL</td><td class="num up">+14.11%</td><td class="num">3.2M</td><td class="num">4.1x</td></tr>
+        </table>
+        <p class="note">Also notable: P (Everpure) +11.11% on an FY2028 outlook above estimates, META +4.50% after the Muse AI launch and a JPMorgan target raise to $920.</p>
+    </section>
+
+    <section class="card">
+        <h2>🏢 Sector Performance</h2>
+        <table>
+            <tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap ($B)</th><th class="num">Stocks</th></tr>
+            <tr><td>Communication Services<div class="bar up" style="width:100%"></div></td><td class="num up">+1.67%</td><td class="num">12,807</td><td class="num">255</td></tr>
+            <tr><td>Healthcare<div class="bar up" style="width:39%"></div></td><td class="num up">+0.65%</td><td class="num">9,243</td><td class="num">1,052</td></tr>
+            <tr><td>Energy<div class="bar up" style="width:7%"></div></td><td class="num up">+0.12%</td><td class="num">4,830</td><td class="num">251</td></tr>
+            <tr><td>Financial<div class="bar down" style="width:5%"></div></td><td class="num down">-0.08%</td><td class="num">14,366</td><td class="num">1,122</td></tr>
+            <tr><td>Real Estate<div class="bar down" style="width:22%"></div></td><td class="num down">-0.36%</td><td class="num">1,719</td><td class="num">247</td></tr>
+            <tr><td>Technology<div class="bar down" style="width:23%"></div></td><td class="num down">-0.38%</td><td class="num">35,240</td><td class="num">794</td></tr>
+        </table>
+        <p class="note">Bottom: Consumer Cyclical -0.45%, Industrials -0.62%, Consumer Defensive -0.89%, Utilities -0.99%, Basic Materials -1.04%.</p>
+    </section>
+</div>
+
+<section class="afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <div class="ah-empty">The large-cap after-hours earnings screener returned no results at 16:10 ET. Costco reports at 16:30 ET, after this snapshot was taken.</div>
+
+    <h3>☀️ Today's BMO Earnings – Regular-Session Reaction</h3>
+    <div class="earnings-grid">
+        <div class="earnings-card">
+            <div class="afterhours-badge">BMO</div>
+            <div class="symbol">$SNX</div>
+            <div class="company">TD Synnex · Technology · $20.7B</div>
+            <div class="move down">-9.88%</div>
+            <div class="detail">Close $259.44 · RVol 4.6x</div>
+        </div>
+        <div class="earnings-card">
+            <div class="afterhours-badge">BMO</div>
+            <div class="symbol">$DRI</div>
+            <div class="company">Darden Restaurants · Consumer Cyclical · $23.5B</div>
+            <div class="move down">-2.99%</div>
+            <div class="detail">Close $207.31 · RVol 1.5x</div>
+        </div>
+    </div>
+
+    <h3>🌙 Reporting After Today's Close – Results Pending</h3>
+    <div class="earnings-grid">
+        <div class="earnings-card">
+            <div class="afterhours-badge badge-pending">16:30 ET</div>
+            <div class="symbol">$COST</div>
+            <div class="company">Costco Wholesale · $397.6B</div>
+            <div class="detail">Regular close $896.48 (-0.91%) · 1M -6.6% · RSI 38.4</div>
+        </div>
+        <div class="earnings-card">
+            <div class="afterhours-badge badge-pending">Released 16:01</div>
+            <div class="symbol">$SCHL</div>
+            <div class="company">Scholastic · FQ1 2027 results</div>
+            <div class="detail">Regular close $34.83 (-1.50%)</div>
+        </div>
+        <div class="earnings-card">
+            <div class="afterhours-badge badge-pending">Released 16:05</div>
+            <div class="symbol">$LGCY</div>
+            <div class="company">Legacy Education · FY2026</div>
+            <div class="detail">Company reported record FY2026 results with 25% revenue growth. Regular close $10.64 (+3.20%).</div>
+        </div>
+    </div>
+
+    <h3>🗓️ This Week's Remaining Earnings Calendar</h3>
+    <p>The finviz screener for 9/24–9/25 (small cap and above) lists only COST, SNX and DRI. No Friday 9/25 reporters were returned.</p>
+</section>
+
+<section class="card full">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+        <div class="stat"><div class="val">39</div><div class="lbl">Volume-Surge Stocks</div></div>
+        <div class="stat"><div class="val">386</div><div class="lbl">Uptrend Stocks</div></div>
+        <div class="stat"><div class="val">3.6x</div><div class="lbl">Avg Relative Volume</div></div>
+        <div class="stat"><div class="val up">+9.1%</div><div class="lbl">Avg Price Move</div></div>
+        <div class="stat"><div class="val">37</div><div class="lbl">Earnings This Week</div></div>
+    </div>
+</section>
+
+<section class="card full">
+    <h2>💡 Today's Key Points</h2>
+    <ul class="points">
+        <li><b>Broad market flat:</b> SPY -0.07% and QQQ -0.02% closed near unchanged after recovering from early lows. DIA lagged at -0.32%.</li>
+        <li><b>Hot sectors:</b> Communication Services +1.67% led, driven by META +4.50% on the Muse AI agent rollout and a JPMorgan price-target raise to $920. Healthcare +0.65% was second.</li>
+        <li><b>Volume-surge character:</b> Healthcare and biotech dominated the list with SRZN, DNA, TWST, GRAL, CDNA and VCYT. GRAL rallied +14.11% after an FDA advisory committee voted in favor of its Galleri multi-cancer test.</li>
+        <li><b>AI infrastructure:</b> Everpure (P) +11.11% as its FY2028 outlook topped estimates on AI demand. QMCO +13.55% and IONQ +5.76% also joined the surge list.</li>
+        <li><b>Earnings highlights:</b> BMO reporters sold off, with SNX -9.88% and DRI -2.99%. No large-cap after-hours movers had registered at 16:10 ET.</li>
+        <li><b>After-hours focus:</b> Costco (COST) reports at 16:30 ET and is the key name heading into Friday.</li>
+        <li><b>Bonds &amp; gold:</b> TLT -1.28% as long yields kept rising; a morning MarketWatch headline cited the 10-year at 5.11%. GLD -0.29%.</li>
+    </ul>
+</section>
+
+<footer>
+    <p>Data sources: Finviz Elite (market overview, screeners, sector performance, news) · Alpaca Markets (ETF and ticker snapshots)</p>
+    <p>Last refreshed: 2026-09-24 16:10 ET (13:10 PT)</p>
+    <p>Note: Final after-market data + after-hours info. Earnings figures may be preliminary. For information only, not financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
