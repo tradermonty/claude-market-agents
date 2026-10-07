@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-10-07</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 30px;
+}
+.container { max-width: 1300px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+header h1 { font-size: 2.6em; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+header .date { font-size: 1.2em; opacity: 0.9; margin-top: 10px; }
+header .tagline { margin-top: 12px; font-size: 1.1em; color: #ffd166; font-weight: 600; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.full { grid-column: 1 / -1; }
+.card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.8s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.4); }
+.card h2 { font-size: 1.4em; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.25); padding-bottom: 10px; }
+.etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.etf {
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    transition: background 0.3s;
+}
+.etf:hover { background: rgba(255,255,255,0.2); }
+.etf .sym { font-size: 1.3em; font-weight: 700; }
+.etf .price { opacity: 0.85; margin: 6px 0; }
+.etf .chg { font-size: 1.4em; font-weight: 700; }
+.positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+.negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 0.95em; }
+th { opacity: 0.75; font-weight: 600; }
+tr:hover td { background: rgba(255,255,255,0.06); }
+.catalyst { font-size: 0.85em; opacity: 0.85; }
+.afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+}
+.afterhours-section h2 { border-bottom-color: rgba(255,255,255,0.4); }
+.notice {
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+.earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.earnings-card {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px;
+    padding: 18px;
+    position: relative;
+}
+.afterhours-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ff4444;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+.bmo-badge { background: #1e3c72; }
+.earnings-card .symbol { font-size: 1.3em; font-weight: 700; }
+.earnings-card .name { font-size: 0.85em; opacity: 0.9; margin-bottom: 8px; }
+.earnings-card .move { font-size: 1.4em; font-weight: 700; }
+.earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+.surprise-positive { color: #00ff88; font-weight: 700; }
+.surprise-negative { color: #fff200; font-weight: 700; }
+.afterhours-section .positive { color: #eafff3; text-shadow: 0 0 6px rgba(0,80,40,0.6); }
+.afterhours-section .negative { color: #3b0000; text-shadow: none; }
+.subhead { margin: 24px 0 14px; font-size: 1.15em; font-weight: 700; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.stat { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; text-align: center; }
+.stat .val { font-size: 2em; font-weight: 800; }
+.stat .lbl { opacity: 0.8; font-size: 0.9em; margin-top: 4px; }
+ul.points { list-style: none; }
+ul.points li { padding: 10px 0 10px 28px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.1); line-height: 1.5; }
+ul.points li::before { content: "▸"; position: absolute; left: 6px; color: #ffd166; }
+footer { text-align: center; margin-top: 30px; opacity: 0.75; font-size: 0.9em; line-height: 1.7; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (max-width: 860px) {
+    body { padding: 15px; }
+    .grid { grid-template-columns: 1fr; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.9em; }
+    th, td { font-size: 0.85em; padding: 8px 4px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-10-07 (Wed) – Final After-Market Data</div>
+    <div class="tagline">Pullback From Records · Small Caps &amp; Gold Lag, Power &amp; AI Infra Hold Up</div>
+</header>
+
+<div class="grid">
+
+    <section class="card full">
+        <h2>📈 Major ETF Performance</h2>
+        <div class="etf-grid">
+            <div class="etf"><div class="sym">SPY</div><div class="price">$777.22</div><div class="chg negative">-0.24%</div></div>
+            <div class="etf"><div class="sym">QQQ</div><div class="price">$757.73</div><div class="chg negative">-0.25%</div></div>
+            <div class="etf"><div class="sym">DIA</div><div class="price">$511.02</div><div class="chg negative">-0.69%</div></div>
+            <div class="etf"><div class="sym">IWM</div><div class="price">$277.70</div><div class="chg negative">-1.29%</div></div>
+            <div class="etf"><div class="sym">TLT</div><div class="price">$77.14</div><div class="chg negative">-0.18%</div></div>
+            <div class="etf"><div class="sym">GLD</div><div class="price">$375.88</div><div class="chg negative">-1.67%</div></div>
+        </div>
+    </section>
+
+    <section class="card full">
+        <h2>🔥 Top Volume-Surge Tickers</h2>
+        <table>
+            <thead><tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th><th>Rel Vol</th><th>Catalyst</th></tr></thead>
+            <tbody>
+                <tr><td><b>XRPN</b></td><td>Armada Acquisition Corp II</td><td class="positive">+30.26%</td><td>3.4M</td><td>7.3x</td><td class="catalyst">SPAC for Evernorth XRP treasury merger; Nasdaq debut timing in focus</td></tr>
+                <tr><td><b>BSP</b></td><td>Bending Spoons</td><td class="positive">+24.19%</td><td>8.8M</td><td>3.9x</td><td class="catalyst">No company-specific headline found</td></tr>
+                <tr><td><b>PENG</b></td><td>Penguin Solutions</td><td class="positive">+13.08%</td><td>20.9M</td><td>7.4x</td><td class="catalyst">Day 2 after FQ4 beat &amp; raise; analyst price-target hikes</td></tr>
+                <tr><td><b>BRZE</b></td><td>Braze Inc</td><td class="positive">+8.05%</td><td>4.0M</td><td>1.6x</td><td class="catalyst">No company-specific headline found</td></tr>
+                <tr><td><b>NWE</b></td><td>NorthWestern Energy</td><td class="positive">+7.33%</td><td>1.8M</td><td>4.4x</td><td class="catalyst">No company-specific headline found</td></tr>
+                <tr><td><b>BKH</b></td><td>Black Hills Corp</td><td class="positive">+7.32%</td><td>4.2M</td><td>4.9x</td><td class="catalyst">$1.8B agreements to serve Google's Cheyenne data center</td></tr>
+                <tr><td><b>DSP</b></td><td>Viant Technology</td><td class="positive">+7.12%</td><td>1.2M</td><td>3.4x</td><td class="catalyst">No company-specific headline found</td></tr>
+                <tr><td><b>GKOS</b></td><td>Glaukos Corp</td><td class="positive">+6.54%</td><td>1.4M</td><td>1.8x</td><td class="catalyst">Positive 3-year Epioxa data released 4:05 PM, after the close</td></tr>
+                <tr><td><b>PGNY</b></td><td>Progyny Inc</td><td class="positive">+6.33%</td><td>2.3M</td><td>2.0x</td><td class="catalyst">Selling season pacing to record level</td></tr>
+                <tr><td><b>VST</b></td><td>Vistra Corp</td><td class="positive">+3.88%</td><td>11.9M</td><td>2.4x</td><td class="catalyst">Follow-through on DOE's intended $4.2B nuclear loan</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card full afterhours-section">
+        <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+        <div class="notice">
+            No large-cap stocks met the after-hours earnings screener criteria today. The screener covers $10B+ market caps only, and today's two after-close reporters are below that threshold.
+            LEVI and APLD after-hours prices are shown below as of about 4:11 PM ET. Their results were not yet in the fetched news, so no EPS or revenue surprise is shown.
+        </div>
+
+        <div class="subhead">🌙 After-Close Reporters – Early After-Hours Price</div>
+        <div class="earnings-grid">
+            <div class="earnings-card">
+                <div class="afterhours-badge">After-Hours</div>
+                <div class="symbol">$LEVI</div>
+                <div class="name">Levi Strauss &amp; Co · $7.5B</div>
+                <div class="move positive">+5.33% AH</div>
+                <div class="earnings-surprise"><span>Close: $19.51 (-4.97%)</span><span>AH: $20.55</span></div>
+                <div class="catalyst">Results pending in fetched data · thin early AH volume</div>
+            </div>
+            <div class="earnings-card">
+                <div class="afterhours-badge">After-Hours</div>
+                <div class="symbol">$APLD</div>
+                <div class="name">Applied Digital · $7.1B</div>
+                <div class="move positive">+1.01% AH</div>
+                <div class="earnings-surprise"><span>Close: $23.81 (-6.04%)</span><span>AH: $24.05</span></div>
+                <div class="catalyst">Results pending in fetched data</div>
+            </div>
+        </div>
+
+        <div class="subhead">☀️ Earnings Reactions in Today's Regular Session</div>
+        <div class="earnings-grid">
+            <div class="earnings-card">
+                <div class="afterhours-badge bmo-badge">Day 1</div>
+                <div class="symbol">$STZ</div>
+                <div class="name">Constellation Brands</div>
+                <div class="move positive">+2.35%</div>
+                <div class="earnings-surprise"><span>Reported Tue after close</span></div>
+                <div class="catalyst">FQ2 beat, but beer volumes softer; reversed early weakness</div>
+            </div>
+            <div class="earnings-card">
+                <div class="afterhours-badge bmo-badge">Day 2</div>
+                <div class="symbol">$PENG</div>
+                <div class="name">Penguin Solutions</div>
+                <div class="move positive">+13.08%</div>
+                <div class="earnings-surprise"><span>Reported Tue after close</span></div>
+                <div class="catalyst">Beat &amp; raise, followed by price-target hikes</div>
+            </div>
+            <div class="earnings-card">
+                <div class="afterhours-badge bmo-badge">BMO</div>
+                <div class="symbol">$TFPM</div>
+                <div class="name">Triple Flag Precious Metals</div>
+                <div class="move negative">-1.79%</div>
+                <div class="earnings-surprise"><span>Scheduled 8:30 AM</span></div>
+                <div class="catalyst">Fell with gold</div>
+            </div>
+        </div>
+
+        <div class="subhead">🗓️ This Week's Remaining Earnings Calendar (Small-cap+)</div>
+        <table>
+            <thead><tr><th>Date</th><th>Symbol</th><th>Company</th><th>Time (ET)</th><th>Mkt Cap</th></tr></thead>
+            <tbody>
+                <tr><td>Thu 10/8</td><td><b>PEP</b></td><td>PepsiCo</td><td>8:30 AM</td><td>$168.88B</td></tr>
+                <tr><td>Thu 10/8</td><td><b>ANGO</b></td><td>AngioDynamics</td><td>8:30 AM</td><td>$0.60B</td></tr>
+                <tr><td>Fri 10/9</td><td><b>DAL</b></td><td>Delta Air Lines</td><td>8:30 AM</td><td>$54.56B</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2>📊 Market Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat"><div class="val">20</div><div class="lbl">Volume-Surge Stocks</div></div>
+            <div class="stat"><div class="val">425</div><div class="lbl">Uptrend Stocks</div></div>
+            <div class="stat"><div class="val">3.0x</div><div class="lbl">Avg Relative Volume</div></div>
+            <div class="stat"><div class="val positive">+7.1%</div><div class="lbl">Avg Price Move</div></div>
+            <div class="stat"><div class="val">27</div><div class="lbl">Earnings This Week</div></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>🏢 Sector Performance</h2>
+        <table>
+            <thead><tr><th>Sector</th><th>Change</th><th>Mkt Cap</th><th>Stocks</th></tr></thead>
+            <tbody>
+                <tr><td>Healthcare</td><td class="positive">+0.77%</td><td>$9.13T</td><td>1053</td></tr>
+                <tr><td>Communication Services</td><td class="positive">+0.07%</td><td>$12.83T</td><td>256</td></tr>
+                <tr><td>Consumer Defensive</td><td class="positive">+0.07%</td><td>$4.28T</td><td>241</td></tr>
+                <tr><td>Utilities</td><td class="negative">-0.13%</td><td>$1.71T</td><td>107</td></tr>
+                <tr><td>Consumer Cyclical</td><td class="negative">-0.14%</td><td>$8.83T</td><td>528</td></tr>
+                <tr><td>Technology</td><td class="negative">-0.50%</td><td>$36.36T</td><td>799</td></tr>
+                <tr><td>Energy</td><td class="negative">-0.78%</td><td>$4.85T</td><td>251</td></tr>
+                <tr><td>Financial</td><td class="negative">-1.11%</td><td>$14.24T</td><td>1126</td></tr>
+                <tr><td>Real Estate</td><td class="negative">-1.39%</td><td>$1.66T</td><td>247</td></tr>
+                <tr><td>Basic Materials</td><td class="negative">-2.22%</td><td>$2.79T</td><td>294</td></tr>
+                <tr><td>Industrials</td><td class="negative">-2.32%</td><td>$9.59T</td><td>716</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card full">
+        <h2>💡 Today's Key Points</h2>
+        <ul class="points">
+            <li><b>Broad market:</b> Stocks eased a day after the S&amp;P 500's record close. Morning headlines pointed to higher bond yields and oil ahead of the FOMC minutes. SPY fell 0.24% and QQQ 0.25%, while IWM dropped 1.29%, so breadth was weaker than the headline indexes.</li>
+            <li><b>Sectors:</b> Only three sectors finished higher, led by Healthcare at +0.77%. Industrials (-2.32%) and Basic Materials (-2.22%) were the weakest, and Basic Materials tracked the drop in gold.</li>
+            <li><b>Volume-surge profile:</b> 20 stocks surged on 3.0x average relative volume with a +7.1% average move. XRPN led at +30.26% as the SPAC tied to the Evernorth XRP treasury merger. BSP rose 24.19%, but no company-specific headline was found.</li>
+            <li><b>Power &amp; AI infrastructure:</b> The data-center power theme continued. BKH and NWE each rose more than 7%, with BKH following its Google data-center agreements, and VST added 3.88%. PENG gained another 13.08% on price-target hikes after Tuesday's beat and raise.</li>
+            <li><b>Earnings highlights:</b> STZ rose 2.35% after reversing early weakness. Its FQ2 beat came with softer beer volumes. PGNY gained 6.33% on a record selling-season update.</li>
+            <li><b>After-hours focus:</b> LEVI traded up 5.33% and APLD up 1.01% in early after-hours, both recovering part of their regular-session losses. Results were not yet in the fetched news, so treat these moves as preliminary. PEP reports Thursday morning, and DAL reports Friday.</li>
+            <li><b>Bonds &amp; gold:</b> TLT slipped 0.18% as yields rose. GLD fell 1.67% to $375.88, its largest move among the six ETFs.</li>
+        </ul>
+    </section>
+
+</div>
+
+<footer>
+    Data sources: Finviz Elite (market overview, screeners, sector performance, news) · Alpaca Markets (ETF and stock snapshots)<br>
+    Last refreshed: 2026-10-07 16:11 ET · ETF and stock % changes are computed from the regular-session close vs. the prior close<br>
+    Note: Final after-market data + after-hours info. Earnings figures may be preliminary. For information only, not financial advice.
+</footer>
+
+</div>
+</body>
+</html>
