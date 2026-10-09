@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-10-09</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: #fff;
+        min-height: 100vh;
+        padding: 30px 20px;
+        line-height: 1.5;
+    }
+    .container { max-width: 1300px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 40px; animation: fadeIn 0.8s ease; }
+    .header h1 { font-size: 2.6em; font-weight: 800; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .header .date { font-size: 1.2em; opacity: 0.9; margin-top: 8px; }
+    .header .tagline { display: inline-block; margin-top: 14px; padding: 6px 18px; border-radius: 20px;
+        background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.4); font-weight: 600; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .full { grid-column: 1 / -1; }
+    .card {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeIn 0.8s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+    .card h2 { font-size: 1.45em; margin-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.25); padding-bottom: 10px; }
+    .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .etf { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 18px; text-align: center; transition: background 0.3s; }
+    .etf:hover { background: rgba(255,255,255,0.2); }
+    .etf .sym { font-size: 1.3em; font-weight: 800; }
+    .etf .name { font-size: 0.78em; opacity: 0.8; }
+    .etf .price { font-size: 1.15em; margin-top: 6px; }
+    .etf .chg { font-size: 1.35em; font-weight: 800; margin-top: 4px; }
+    .positive { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.5); }
+    .negative { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.5); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 0.95em; }
+    th { opacity: 0.8; font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+    tr:hover td { background: rgba(255,255,255,0.08); }
+    td.num, th.num { text-align: right; }
+    .catalyst { font-size: 0.82em; opacity: 0.85; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.72em; font-weight: 700; margin-left: 6px; }
+    .badge-warn { background: #ffa500; color: #1e3c72; }
+    .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .stat { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 18px; text-align: center; }
+    .stat .val { font-size: 1.9em; font-weight: 800; }
+    .stat .lbl { font-size: 0.82em; opacity: 0.85; }
+    .stat .note { font-size: 0.7em; opacity: 0.7; margin-top: 4px; }
+    .earnings-section {
+        background: linear-gradient(135deg, rgba(255,107,107,0.85) 0%, rgba(255,165,0,0.85) 100%);
+        border-left: 5px solid #ffff00;
+    }
+    .friday-note { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.92em; }
+    .earn-days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .earn-day { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 15px; padding: 16px; }
+    .earn-day h3 { font-size: 1.05em; margin-bottom: 10px; }
+    .earn-day ul { list-style: none; }
+    .earn-day li { padding: 4px 0; font-size: 0.92em; border-bottom: 1px dashed rgba(255,255,255,0.25); }
+    .earn-day li:last-child { border-bottom: none; }
+    .earn-day .tk { font-weight: 800; }
+    .bar-wrap { background: rgba(255,255,255,0.1); border-radius: 6px; height: 8px; margin-top: 4px; }
+    .bar { height: 8px; border-radius: 6px; }
+    .bar.pos { background: #00ff88; }
+    .bar.neg { background: #ff6b6b; }
+    .points li { margin: 0 0 12px 22px; }
+    .points strong { color: #ffd166; }
+    .footer { text-align: center; margin-top: 40px; opacity: 0.8; font-size: 0.85em; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+        .etf-grid { grid-template-columns: repeat(2, 1fr); }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .earn-days { grid-template-columns: 1fr 1fr; }
+        .header h1 { font-size: 1.9em; }
+    }
+    @media (max-width: 520px) {
+        .earn-days { grid-template-columns: 1fr; }
+        .card { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+        <div class="date">📅 2026-10-09 (Fri) – Final After-Market Data</div>
+        <div class="tagline">Healthcare Leads, Dow Outperforms</div>
+    </div>
+
+    <div class="grid">
+
+        <!-- Major ETFs -->
+        <div class="card full">
+            <h2>📈 Major ETF Performance</h2>
+            <div class="etf-grid">
+                <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$778.57</div><div class="chg positive">+0.60%</div></div>
+                <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq-100</div><div class="price">$751.27</div><div class="chg positive">+0.49%</div></div>
+                <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$516.11</div><div class="chg positive">+0.87%</div></div>
+                <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$278.93</div><div class="chg positive">+0.49%</div></div>
+                <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$77.98</div><div class="chg positive">+0.14%</div></div>
+                <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$384.58</div><div class="chg positive">+1.57%</div></div>
+            </div>
+        </div>
+
+        <!-- Volume Surge -->
+        <div class="card full">
+            <h2>🔥 Top Volume-Surge Tickers</h2>
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Symbol</th><th>Name</th><th>Sector</th><th class="num">Close</th><th class="num">% Change</th><th class="num">Volume</th><th class="num">Rel Vol</th><th>Catalyst (verified)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>WFF</strong> 🚀</td><td>WF Holding Ltd</td><td>Industrials</td><td class="num">$12.29</td><td class="num positive">+499.51%</td><td class="num">136.8M</td><td class="num">52.2x</td><td class="catalyst">No news found <span class="badge badge-warn">$515M cap · extreme move</span></td></tr>
+                    <tr><td>2</td><td><strong>FSLY</strong></td><td>Fastly Inc</td><td>Technology</td><td class="num">$29.30</td><td class="num positive">+15.86%</td><td class="num">15.1M</td><td class="num">2.4x</td><td class="catalyst">Oppenheimer upgrade to Outperform, $35 PT (agentic AI traffic)</td></tr>
+                    <tr><td>3</td><td><strong>NVAX</strong></td><td>Novavax Inc</td><td>Healthcare</td><td class="num">$12.75</td><td class="num positive">+15.80%</td><td class="num">18.9M</td><td class="num">3.6x</td><td class="catalyst">Vaccine group strength</td></tr>
+                    <tr><td>4</td><td><strong>DNA</strong></td><td>Ginkgo Bioworks</td><td>Healthcare</td><td class="num">$13.00</td><td class="num positive">+14.64%</td><td class="num">4.5M</td><td class="num">2.5x</td><td class="catalyst">NSF X-Labs autonomous lab access program</td></tr>
+                    <tr><td>5</td><td><strong>MRNA</strong></td><td>Moderna Inc</td><td>Healthcare</td><td class="num">$225.00</td><td class="num positive">+14.21%</td><td class="num">28.7M</td><td class="num">1.6x</td><td class="catalyst">Planned national cancer vaccine effort</td></tr>
+                    <tr><td>6</td><td><strong>PICS</strong></td><td>PicS NV</td><td>Technology</td><td class="num">$13.60</td><td class="num positive">+13.52%</td><td class="num">1.0M</td><td class="num">2.1x</td><td class="catalyst">—</td></tr>
+                    <tr><td>7</td><td><strong>HUM</strong></td><td>Humana Inc</td><td>Healthcare</td><td class="num">$431.87</td><td class="num positive">+11.56%</td><td class="num">5.0M</td><td class="num">4.0x</td><td class="catalyst">2027 Medicare star ratings: 95% of MA members in 4-star+ plans</td></tr>
+                    <tr><td>8</td><td><strong>ATEX</strong></td><td>Anterix Inc</td><td>Comm. Services</td><td class="num">$84.53</td><td class="num positive">+10.58%</td><td class="num">0.5M</td><td class="num">1.5x</td><td class="catalyst">SpaceX $8B spectrum deal lifts low-band spectrum value (Roth)</td></tr>
+                    <tr><td>9</td><td><strong>PCVX</strong></td><td>Vaxcyte Inc</td><td>Healthcare</td><td class="num">$71.38</td><td class="num positive">+9.78%</td><td class="num">4.4M</td><td class="num">2.6x</td><td class="catalyst">Closed $1.15B equity + convert offering</td></tr>
+                    <tr><td>10</td><td><strong>AMT</strong></td><td>American Tower</td><td>Real Estate</td><td class="num">$182.24</td><td class="num positive">+9.30%</td><td class="num">8.5M</td><td class="num">3.2x</td><td class="catalyst">Tower stocks rise on SpaceX spectrum buy</td></tr>
+                </tbody>
+            </table>
+            <p class="catalyst" style="margin-top:14px;">Also in the screen: SNOW +7.42%, VSAT +6.82%, CIEN +5.60%, GME +5.06%, TEVA +4.71% (FDA approval of once-monthly WELTRUZA), ELV +2.93%, UNH +2.25%. Volume figures are regular-session totals from Alpaca/Finviz.</p>
+        </div>
+
+        <!-- Friday: Next Week Earnings -->
+        <div class="card full earnings-section">
+            <h2>🗓️ Next Week's Major Earnings Calendar (Oct 13–16)</h2>
+            <div class="friday-note">Friday Rule: the post-close after-hours earnings section is skipped today. Very few companies report after Friday's close. The calendar below comes from <code>finviz:upcoming_earnings_screener</code> filtered to large and mega caps. Big bank earnings kick off Q3 season on Tuesday.</div>
+            <div class="earn-days">
+                <div class="earn-day">
+                    <h3>Tue 10/13</h3>
+                    <ul>
+                        <li><span class="tk">JPM</span> JPMorgan Chase · $885B</li>
+                        <li><span class="tk">GS</span> Goldman Sachs · $261B</li>
+                        <li><span class="tk">WFC</span> Wells Fargo · $253B</li>
+                        <li><span class="tk">C</span> Citigroup · $217B</li>
+                        <li><span class="tk">UNH</span> UnitedHealth · $340B</li>
+                        <li><span class="tk">JNJ</span> Johnson &amp; Johnson · $630B</li>
+                        <li><span class="tk">DPZ</span> Domino's Pizza · $10B</li>
+                    </ul>
+                </div>
+                <div class="earn-day">
+                    <h3>Wed 10/14</h3>
+                    <ul>
+                        <li><span class="tk">ASML</span> ASML Holding · $686B</li>
+                        <li><span class="tk">BAC</span> Bank of America · $380B</li>
+                        <li><span class="tk">MS</span> Morgan Stanley · $298B</li>
+                        <li><span class="tk">BLK</span> BlackRock · $176B</li>
+                        <li><span class="tk">PGR</span> Progressive · $126B</li>
+                        <li><span class="tk">FAST</span> Fastenal · $58B</li>
+                        <li><span class="tk">STT</span> State Street · $48B</li>
+                    </ul>
+                </div>
+                <div class="earn-day">
+                    <h3>Thu 10/15</h3>
+                    <ul>
+                        <li><span class="tk">TSM</span> TSMC · $2.35T</li>
+                        <li><span class="tk">SCHW</span> Charles Schwab · $167B</li>
+                        <li><span class="tk">BNY</span> BNY Mellon · $97B</li>
+                        <li><span class="tk">USB</span> U.S. Bancorp · $89B</li>
+                        <li><span class="tk">PNC</span> PNC Financial · $87B</li>
+                        <li><span class="tk">MRSH</span> Marsh · $84B</li>
+                        <li><span class="tk">IBKR</span> Interactive Brokers · $40B</li>
+                        <li><span class="tk">JBHT</span> J.B. Hunt · $22B</li>
+                        <li><span class="tk">AA</span> Alcoa · $11B</li>
+                    </ul>
+                </div>
+                <div class="earn-day">
+                    <h3>Fri 10/16</h3>
+                    <ul>
+                        <li><span class="tk">TRV</span> Travelers · $77B</li>
+                        <li><span class="tk">TFC</span> Truist Financial · $56B</li>
+                        <li><span class="tk">MTB</span> M&amp;T Bank · $31B</li>
+                        <li><span class="tk">CFG</span> Citizens Financial · $27B</li>
+                        <li><span class="tk">RF</span> Regions Financial · $23B</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="catalyst" style="margin-top:14px;">Dates are as listed by Finviz. BMO/AMC timing is not provided by the screener. Confirm with company IR before trading.</p>
+        </div>
+
+        <!-- Market Stats -->
+        <div class="card full">
+            <h2>📊 Market Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat"><div class="val">33</div><div class="lbl">Volume-Surge Tickers</div></div>
+                <div class="stat"><div class="val">539</div><div class="lbl">Uptrend Tickers</div></div>
+                <div class="stat"><div class="val">3.6x</div><div class="lbl">Avg Relative Volume</div></div>
+                <div class="stat"><div class="val positive">+22.1%</div><div class="lbl">Avg Price Move</div><div class="note">Skewed by WFF +499.51%</div></div>
+                <div class="stat"><div class="val">30</div><div class="lbl">Earnings This Week</div></div>
+            </div>
+        </div>
+
+        <!-- Sector Performance -->
+        <div class="card">
+            <h2>🏢 Sector Performance (Top 6)</h2>
+            <table>
+                <thead><tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap</th><th class="num">Stocks</th></tr></thead>
+                <tbody>
+                    <tr><td>Consumer Cyclical<div class="bar-wrap"><div class="bar pos" style="width:100%"></div></div></td><td class="num positive">+1.63%</td><td class="num">$8.95T</td><td class="num">528</td></tr>
+                    <tr><td>Healthcare<div class="bar-wrap"><div class="bar pos" style="width:94%"></div></div></td><td class="num positive">+1.53%</td><td class="num">$9.22T</td><td class="num">1,055</td></tr>
+                    <tr><td>Basic Materials<div class="bar-wrap"><div class="bar pos" style="width:93%"></div></div></td><td class="num positive">+1.52%</td><td class="num">$2.84T</td><td class="num">294</td></tr>
+                    <tr><td>Real Estate<div class="bar-wrap"><div class="bar pos" style="width:84%"></div></div></td><td class="num positive">+1.37%</td><td class="num">$1.70T</td><td class="num">247</td></tr>
+                    <tr><td>Utilities<div class="bar-wrap"><div class="bar pos" style="width:46%"></div></div></td><td class="num positive">+0.75%</td><td class="num">$1.72T</td><td class="num">107</td></tr>
+                    <tr><td>Financial<div class="bar-wrap"><div class="bar pos" style="width:41%"></div></div></td><td class="num positive">+0.67%</td><td class="num">$14.44T</td><td class="num">1,127</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>🏢 Remaining Sectors</h2>
+            <table>
+                <thead><tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap</th><th class="num">Stocks</th></tr></thead>
+                <tbody>
+                    <tr><td>Industrials</td><td class="num positive">+0.52%</td><td class="num">$9.56T</td><td class="num">717</td></tr>
+                    <tr><td>Technology</td><td class="num positive">+0.36%</td><td class="num">$35.81T</td><td class="num">799</td></tr>
+                    <tr><td>Consumer Defensive</td><td class="num positive">+0.18%</td><td class="num">$4.38T</td><td class="num">241</td></tr>
+                    <tr><td>Energy</td><td class="num negative">-0.03%</td><td class="num">$4.97T</td><td class="num">251</td></tr>
+                    <tr><td>Communication Services</td><td class="num negative">-0.54%</td><td class="num">$12.80T</td><td class="num">256</td></tr>
+                </tbody>
+            </table>
+            <p class="catalyst" style="margin-top:14px;">Communication Services lagged as SpaceX's Starlink Mobile push and $8B spectrum purchase pressured U.S. telcos, while tower REITs (AMT) rallied on the same news.</p>
+        </div>
+
+        <!-- Key Points -->
+        <div class="card full">
+            <h2>💡 Today's Key Points</h2>
+            <ul class="points">
+                <li><strong>Broad market:</strong> All four major index ETFs closed higher. DIA led at +0.87%, SPY +0.60%, and QQQ and IWM each +0.49%. Breadth was healthy with 539 uptrend stocks.</li>
+                <li><strong>Hot sector – Healthcare (+1.53%):</strong> The 2027 Medicare Advantage star ratings drove managed care. HUM +11.56% after reporting 95% of MA members in 4-star-or-higher plans, with UNH +2.25% and ELV +2.93% following. Vaccine names (MRNA, NVAX, PCVX) also surged, and TEVA hit a 52-week high on an FDA approval.</li>
+                <li><strong>SpaceX spectrum theme:</strong> SpaceX's $8B spectrum purchase lifted tower REITs and spectrum holders (AMT +9.30%, ATEX +10.58%) while weighing on telcos, leaving Communication Services as the weakest sector (-0.54%).</li>
+                <li><strong>AI software rebound:</strong> FSLY +15.86% on an Oppenheimer upgrade citing agentic AI traffic, and SNOW +7.42% continued its AI-driven momentum.</li>
+                <li><strong>Volume-surge characteristics:</strong> 33 names with 3.6x average relative volume. The +22.1% average move is heavily distorted by WFF (+499.51%, 52x relative volume, no news found), a small-cap move that should be treated with caution.</li>
+                <li><strong>Earnings outlook:</strong> No after-hours section on Friday. Q3 earnings season starts in earnest Tuesday with JPM, GS, WFC, C, UNH and JNJ, followed by BAC, MS and ASML on Wednesday and TSM on Thursday.</li>
+                <li><strong>Bonds &amp; gold:</strong> TLT edged up +0.14%. GLD gained +1.57% to $384.58, one of the stronger moves among the major ETFs.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>Data sources: Finviz Elite (market overview, volume-surge screener, sector performance, news, earnings calendar), Alpaca Markets (ETF and ticker snapshots)</p>
+        <p>Last refreshed: 2026-10-09 16:10 ET</p>
+        <p>Final after-market data. Friday edition: after-hours earnings section omitted, next week's calendar shown instead.</p>
+        <p>For informational purposes only. Not financial advice.</p>
+    </div>
+
+</div>
+</body>
+</html>
