@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis – 2026-10-19</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+  header h1 { font-size: 2.4em; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  header .date { font-size: 1.1em; opacity: 0.9; margin-top: 8px; }
+  header .tagline { display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 20px;
+    background: rgba(0,255,136,0.18); border: 1px solid rgba(0,255,136,0.45); font-weight: 600; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeIn 0.8s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+  .card h2 { font-size: 1.35em; margin-bottom: 18px; }
+  .card h3.sub { font-size: 1.05em; margin: 22px 0 10px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .full { margin-bottom: 30px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etf { background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; text-align: center; transition: background 0.2s; }
+  .etf:hover { background: rgba(255,255,255,0.22); }
+  .etf .sym { font-weight: 700; font-size: 1.15em; }
+  .etf .name { font-size: 0.75em; opacity: 0.8; }
+  .etf .price { font-size: 1.3em; margin: 6px 0; }
+  .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); font-weight: 700; }
+  .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { font-size: 0.85em; opacity: 0.8; font-weight: 600; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  td.num, th.num { text-align: right; }
+  .catalyst { font-size: 0.8em; opacity: 0.85; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stat { background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; text-align: center; }
+  .stat .val { font-size: 1.8em; font-weight: 700; }
+  .stat .lbl { font-size: 0.8em; opacity: 0.85; }
+  .afterhours-section {
+    background: linear-gradient(135deg, rgba(255,107,107,0.35) 0%, rgba(255,165,0,0.35) 100%);
+    border-left: 5px solid #ffff00;
+  }
+  .earnings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px; padding: 14px; position: relative; }
+  .afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 4px 10px; border-radius: 15px; font-size: 0.72em; font-weight: bold; }
+  .earnings-card .symbol { font-weight: 700; font-size: 1.1em; }
+  .earnings-card .cname { font-size: 0.78em; opacity: 0.85; margin-bottom: 6px; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.88em; }
+  .surprise-positive { color: #00ff88; font-weight: 700; }
+  .surprise-negative { color: #ff6b6b; font-weight: 700; }
+  .note { font-size: 0.85em; opacity: 0.9; margin-bottom: 16px; }
+  .day-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .day { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 14px; }
+  .day h3 { font-size: 1em; margin-bottom: 8px; }
+  .day ul { list-style: none; font-size: 0.9em; }
+  .day li { padding: 3px 0; }
+  .day li b { color: #ffff88; }
+  .points ul { list-style: none; }
+  .points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .points li:last-child { border-bottom: none; }
+  .bar { height: 8px; border-radius: 4px; margin-top: 4px; }
+  .bar.pos { background: linear-gradient(90deg, #00ff88, #00c86b); }
+  .bar.neg { background: linear-gradient(90deg, #ff6b6b, #c84444); }
+  footer { text-align: center; font-size: 0.85em; opacity: 0.8; margin-top: 10px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .day-grid, .earnings-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .etf-grid, .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .day-grid, .earnings-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.7em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-10-19 (Mon) – Final After-Market Data</div>
+    <div class="tagline">Tech Rebound, Biotech M&amp;A Pop</div>
+  </header>
+
+  <div class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$766.48</div><div class="up">+0.42%</div></div>
+      <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$718.36</div><div class="up">+1.21%</div></div>
+      <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$518.92</div><div class="down">-0.03%</div></div>
+      <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$271.29</div><div class="up">+0.31%</div></div>
+      <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$79.46</div><div class="down">-0.74%</div></div>
+      <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$379.69</div><div class="down">-0.61%</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>🔥 Top Volume-Surge Tickers</h2>
+      <table>
+        <tr><th>Symbol</th><th>Name</th><th class="num">Change</th><th class="num">Volume</th><th class="num">RVol</th></tr>
+        <tr><td><b>SLN</b> 🚀</td><td>Silence Therapeutics<div class="catalyst">Merck KGaA $1.3B takeover</div></td><td class="num up">+125.58%</td><td class="num">71.9M</td><td class="num">59.8x</td></tr>
+        <tr><td><b>IRON</b></td><td>Disc Medicine<div class="catalyst">Phase 3 APOLLO success</div></td><td class="num up">+38.86%</td><td class="num">8.5M</td><td class="num">17.3x</td></tr>
+        <tr><td><b>CLF</b></td><td>Cleveland-Cliffs<div class="catalyst">Q3 beat, 2027 EBITDA &gt;$4B outlook</div></td><td class="num up">+16.42%</td><td class="num">88.2M</td><td class="num">4.7x</td></tr>
+        <tr><td><b>MANE</b></td><td>Veradermics<div class="catalyst">Phase 3 hair-loss trial success</div></td><td class="num up">+12.32%</td><td class="num">1.5M</td><td class="num">1.9x</td></tr>
+        <tr><td><b>AGIO</b></td><td>Agios Pharmaceuticals</td><td class="num up">+11.43%</td><td class="num">2.0M</td><td class="num">1.8x</td></tr>
+      </table>
+      <p class="note" style="margin-top:14px">Also notable: ARQT +10.65%, TOP +9.31%, HPK +7.96% and KMTS +7.82%. Healthcare supplied 13 of the 22 volume-surge names. After the close, Disc Medicine announced a proposed $350M public offering of common stock and pre-funded warrants.</p>
+    </div>
+
+    <div class="card">
+      <h2>📊 Market Statistics</h2>
+      <div class="stats-grid">
+        <div class="stat"><div class="val">22</div><div class="lbl">Volume-surge tickers</div></div>
+        <div class="stat"><div class="val">476</div><div class="lbl">Up-trend tickers</div></div>
+        <div class="stat"><div class="val">5.7x</div><div class="lbl">Avg relative volume</div></div>
+        <div class="stat"><div class="val up">+13.4%</div><div class="lbl">Avg price move</div></div>
+        <div class="stat"><div class="val">12</div><div class="lbl">Mid+ cap reports after close</div></div>
+        <div class="stat"><div class="val">274</div><div class="lbl">Earnings this week</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card full afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <p class="note">The after-hours earnings screener returned no results on two checks after 16:00 ET. No Large-cap reporter is trading up 2% or more in after-hours. The cards below list today's post-close reporters with the EPS and revenue surprise shown by Finviz. These figures are preliminary, and after-hours prices were not available from the data feed.</p>
+    <div class="earnings-grid">
+      <div class="earnings-card"><div class="afterhours-badge">After Close</div><div class="symbol">$STLD</div><div class="cname">Steel Dynamics · $35.1B</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+1.78%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+9.57%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-positive">+1.92%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">After Close</div><div class="symbol">$WRB</div><div class="cname">W.R. Berkley · $27.5B</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+17.14%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+13.20%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-negative">-1.72%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">After Close</div><div class="symbol">$CCK</div><div class="cname">Crown Holdings · $12.5B</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+15.17%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+8.73%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-positive">+0.67%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">After Close</div><div class="symbol">$ZION</div><div class="cname">Zions Bancorp · $9.2B</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+94.32%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+0.24%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-negative">-0.36%</span></div></div>
+    </div>
+    <p class="note" style="margin-top:16px">Other post-close reporters: AGNC, WTFC, WAL, BOKF, FNB, RLI, SFBS and AERO. Regional banks fell 1–2% in the regular session ahead of their reports.</p>
+
+    <h3 class="sub">☀️ Today's Pre-Market Reporter</h3>
+    <p class="note">Cleveland-Cliffs ($CLF) reported Q3 results at 6:00 ET with an EPS surprise of +30.90% per Finviz. The company forecast 2027 adjusted EBITDA above $4B, and the stock closed +16.42% on 88.2M shares.</p>
+
+    <h3 class="sub">🗓️ This Week's Remaining Earnings Calendar (Oct 20–23)</h3>
+    <p class="note">Tuesday names were verified with the Finviz "tomorrow" earnings filter. Wednesday to Friday names come from the Finviz date-range screener. Report timing before or after the session is not confirmed by the screener.</p>
+    <div class="day-grid">
+      <div class="day"><h3>Tue 10/20</h3><ul><li><b>SPCX</b> SpaceX</li><li><b>NFLX</b> Netflix</li><li><b>GE</b> GE Aerospace</li><li><b>RTX</b> RTX</li><li><b>ISRG</b> Intuitive Surgical</li><li><b>COF</b> Capital One</li><li><b>MMM</b> 3M</li><li><b>GM</b> General Motors</li><li><b>NOC</b> Northrop Grumman</li><li><b>UAL</b> United Airlines</li></ul></div>
+      <div class="day"><h3>Wed 10/21</h3><ul><li><b>T</b> AT&amp;T</li><li><b>DHR</b> Danaher</li><li><b>CME</b> CME Group</li><li><b>ELV</b> Elevance Health</li><li><b>MCO</b> Moody's</li><li><b>CSX</b> CSX</li><li><b>LVS</b> Las Vegas Sands</li></ul></div>
+      <div class="day"><h3>Thu 10/22</h3><ul><li><b>UNP</b> Union Pacific</li><li><b>BX</b> Blackstone</li><li><b>WDC</b> Western Digital</li><li><b>LMT</b> Lockheed Martin</li><li><b>NEM</b> Newmont</li><li><b>SPOT</b> Spotify</li><li><b>HON</b> Honeywell</li><li><b>BE</b> Bloom Energy</li></ul></div>
+      <div class="day"><h3>Fri 10/23</h3><ul><li><b>INFY</b> Infosys</li><li><b>RCI</b> Rogers Communications</li></ul></div>
+    </div>
+    <p class="note" style="margin-top:14px">Mega caps META, TSLA, LRCX, PM, SAP, TXN, TMO, IBM, PG and AXP also report between Oct 21 and Oct 23. The screener did not return their individual dates.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>🏢 Sector Performance</h2>
+      <table>
+        <tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap</th><th class="num">Stocks</th></tr>
+        <tr><td>Consumer Cyclical<div class="bar pos" style="width:100%"></div></td><td class="num up">+2.05%</td><td class="num">$8.9T</td><td class="num">524</td></tr>
+        <tr><td>Technology<div class="bar pos" style="width:62%"></div></td><td class="num up">+1.28%</td><td class="num">$33.6T</td><td class="num">800</td></tr>
+        <tr><td>Communication Services<div class="bar pos" style="width:9%"></div></td><td class="num up">+0.19%</td><td class="num">$12.5T</td><td class="num">253</td></tr>
+        <tr><td>Basic Materials<div class="bar neg" style="width:13%"></div></td><td class="num down">-0.26%</td><td class="num">$2.8T</td><td class="num">295</td></tr>
+        <tr><td>Healthcare<div class="bar neg" style="width:15%"></div></td><td class="num down">-0.30%</td><td class="num">$9.4T</td><td class="num">1053</td></tr>
+        <tr><td>Industrials<div class="bar neg" style="width:16%"></div></td><td class="num down">-0.32%</td><td class="num">$9.2T</td><td class="num">716</td></tr>
+        <tr><td>Consumer Defensive<div class="bar neg" style="width:24%"></div></td><td class="num down">-0.50%</td><td class="num">$4.6T</td><td class="num">240</td></tr>
+        <tr><td>Energy<div class="bar neg" style="width:35%"></div></td><td class="num down">-0.71%</td><td class="num">$5.1T</td><td class="num">252</td></tr>
+        <tr><td>Financial<div class="bar neg" style="width:42%"></div></td><td class="num down">-0.87%</td><td class="num">$14.7T</td><td class="num">1119</td></tr>
+        <tr><td>Real Estate<div class="bar neg" style="width:60%"></div></td><td class="num down">-1.24%</td><td class="num">$1.7T</td><td class="num">248</td></tr>
+        <tr><td>Utilities<div class="bar neg" style="width:91%"></div></td><td class="num down">-1.86%</td><td class="num">$1.7T</td><td class="num">107</td></tr>
+      </table>
+    </div>
+
+    <div class="card points">
+      <h2>💡 Today's Key Points</h2>
+      <ul>
+        <li><b>Broad market:</b> QQQ rose 1.21% and recovered part of Friday's 2.49% drop. SPY gained 0.42%, while DIA finished flat. Only 3 of 11 sectors closed higher.</li>
+        <li><b>Hot sectors:</b> Consumer Cyclical +2.05% and Technology +1.28% led. Utilities -1.86%, Real Estate -1.24% and Financial -0.87% lagged, a risk-on rotation away from defensives.</li>
+        <li><b>Volume surge:</b> 22 names with an average move of +13.4% and 5.7x relative volume. Biotech catalysts dominated: SLN on the Merck KGaA takeover, IRON on Phase 3 bitopertin data, and MANE on Phase 3 hair-loss results.</li>
+        <li><b>Earnings highlights:</b> CLF jumped 16.42% after a Q3 beat and a 2027 EBITDA outlook above $4B. Regional banks fell before their post-close reports.</li>
+        <li><b>After-hours focus:</b> No Large-cap reporter is up 2% or more after hours. IRON may face pressure from its $350M offering announced at 16:01 ET.</li>
+        <li><b>Bonds &amp; gold:</b> TLT fell 0.74%, pointing to higher long-term yields. GLD slipped 0.61%.</li>
+        <li><b>Week ahead:</b> SpaceX, Netflix, GE Aerospace and RTX report Tuesday, followed by Meta, Tesla and other mega caps later in the week.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Data sources: Finviz Elite (market overview, screeners, sector performance, news) · Alpaca Markets (ETF and ticker snapshots)</p>
+    <p>Last refreshed: 2026-10-19 16:15 ET · Final after-market data + after-hours info</p>
+    <p>Earnings figures may be preliminary. For information only, not financial advice.</p>
+  </footer>
+
+</div>
+</body>
+</html>
