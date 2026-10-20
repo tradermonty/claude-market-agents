@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis – 2026-10-20</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+  header h1 { font-size: 2.4em; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  header .date { font-size: 1.1em; opacity: 0.9; margin-top: 8px; }
+  header .tagline { display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 20px;
+    background: rgba(0,255,136,0.18); border: 1px solid rgba(0,255,136,0.45); font-weight: 600; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeIn 0.8s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+  .card h2 { font-size: 1.35em; margin-bottom: 18px; }
+  .card h3.sub { font-size: 1.05em; margin: 22px 0 10px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .full { margin-bottom: 30px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etf { background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; text-align: center; transition: background 0.2s; }
+  .etf:hover { background: rgba(255,255,255,0.22); }
+  .etf .sym { font-weight: 700; font-size: 1.15em; }
+  .etf .name { font-size: 0.75em; opacity: 0.8; }
+  .etf .price { font-size: 1.3em; margin: 6px 0; }
+  .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); font-weight: 700; }
+  .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
+  th { font-size: 0.85em; opacity: 0.8; font-weight: 600; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  td.num, th.num { text-align: right; }
+  .catalyst { font-size: 0.8em; opacity: 0.85; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stat { background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; text-align: center; }
+  .stat .val { font-size: 1.8em; font-weight: 700; }
+  .stat .lbl { font-size: 0.8em; opacity: 0.85; }
+  .afterhours-section {
+    background: linear-gradient(135deg, rgba(255,107,107,0.35) 0%, rgba(255,165,0,0.35) 100%);
+    border-left: 5px solid #ffff00;
+  }
+  .earnings-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px; padding: 14px; position: relative; }
+  .afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 4px 10px; border-radius: 15px; font-size: 0.72em; font-weight: bold; }
+  .earnings-card .symbol { font-weight: 700; font-size: 1.1em; }
+  .earnings-card .cname { font-size: 0.78em; opacity: 0.85; margin-bottom: 6px; }
+  .afterhours-change { font-size: 1.5em; margin: 4px 0 6px; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.88em; }
+  .surprise-positive { color: #00ff88; font-weight: 700; }
+  .surprise-negative { color: #ff6b6b; font-weight: 700; }
+  .note { font-size: 0.85em; opacity: 0.9; margin-bottom: 16px; }
+  .day-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .day { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 14px; }
+  .day h3 { font-size: 1em; margin-bottom: 8px; }
+  .day ul { list-style: none; font-size: 0.9em; }
+  .day li { padding: 3px 0; }
+  .day li b { color: #ffff88; }
+  .points ul { list-style: none; }
+  .points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .points li:last-child { border-bottom: none; }
+  .bar { height: 8px; border-radius: 4px; margin-top: 4px; }
+  .bar.pos { background: linear-gradient(90deg, #00ff88, #00c86b); }
+  .bar.neg { background: linear-gradient(90deg, #ff6b6b, #c84444); }
+  footer { text-align: center; font-size: 0.85em; opacity: 0.8; margin-top: 10px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .day-grid, .earnings-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .etf-grid, .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .day-grid, .earnings-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.7em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-10-20 (Tue) – Final After-Market Data</div>
+    <div class="tagline">Small Caps Lead, SpaceX Beats</div>
+  </header>
+
+  <div class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$769.32</div><div class="up">+0.37%</div></div>
+      <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$717.63</div><div class="down">-0.10%</div></div>
+      <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$524.43</div><div class="up">+1.06%</div></div>
+      <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$275.82</div><div class="up">+1.67%</div></div>
+      <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$80.13</div><div class="up">+0.84%</div></div>
+      <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$377.62</div><div class="down">-0.55%</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>🔥 Top Volume-Surge Tickers</h2>
+      <table>
+        <tr><th>Symbol</th><th>Name</th><th class="num">Change</th><th class="num">Volume</th></tr>
+        <tr><td><b>BRZE</b> 🚀</td><td>Braze<div class="catalyst">Salesforce $5.7B acquisition</div></td><td class="num up">+51.70%</td><td class="num">64.6M</td></tr>
+        <tr><td><b>LION</b></td><td>Lionsgate Studios<div class="catalyst">Report of Legendary takeover bid</div></td><td class="num up">+14.55%</td><td class="num">13.7M</td></tr>
+        <tr><td><b>SLS</b></td><td>SELLAS Life Sciences</td><td class="num up">+14.20%</td><td class="num">10.0M</td></tr>
+        <tr><td><b>KVYO</b></td><td>Klaviyo<div class="catalyst">Moved with rival Braze on the Salesforce deal</div></td><td class="num up">+11.82%</td><td class="num">11.5M</td></tr>
+        <tr><td><b>HAS</b></td><td>Hasbro<div class="catalyst">Q3 results, raised 2026 outlook</div></td><td class="num up">+11.20%</td><td class="num">7.9M</td></tr>
+      </table>
+      <p class="note" style="margin-top:14px">Also notable: MAZE +9.26%, IMCR +9.25%, HTFL +8.96%, CWST +7.55% after Jana Partners disclosed a stake, TRU +6.96% and MMM +5.81% after a Q3 beat with raised guidance and an expanded Amazon agreement. Braze traded in a tight $45.26–45.61 range all day, typical of a stock pinned to a cash deal price.</p>
+    </div>
+
+    <div class="card">
+      <h2>📊 Market Statistics</h2>
+      <div class="stats-grid">
+        <div class="stat"><div class="val">57</div><div class="lbl">Volume-surge tickers</div></div>
+        <div class="stat"><div class="val">586</div><div class="lbl">Up-trend tickers</div></div>
+        <div class="stat"><div class="val">2.6x</div><div class="lbl">Avg relative volume</div></div>
+        <div class="stat"><div class="val up">+5.8%</div><div class="lbl">Avg price move</div></div>
+        <div class="stat"><div class="val">24</div><div class="lbl">Reporters in Finviz earnings screen</div></div>
+        <div class="stat"><div class="val">286</div><div class="lbl">Earnings this week</div></div>
+      </div>
+      <p class="note" style="margin-top:16px">Up-trend leaders by sector: Healthcare 114, Technology 109 and Financial 82 names.</p>
+    </div>
+  </div>
+
+  <div class="card full afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <p class="note">COF and SPCX come from the Finviz after-hours earnings screener, which lists Large-cap reporters up 2% or more. NFLX, ISRG and UAL are not in that screener. Their after-hours moves are indicative only, calculated from the bid/ask midpoint at 16:14 ET against the regular close. EPS and revenue surprises are from Finviz and may be preliminary.</p>
+    <div class="earnings-grid">
+      <div class="earnings-card"><div class="afterhours-badge">After-Hours</div><div class="symbol">$COF</div><div class="cname">Capital One · $123.7B</div>
+        <div class="afterhours-change up">+4.98%</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+21.20%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+0.58%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-positive">+0.88%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">After-Hours</div><div class="symbol">$SPCX</div><div class="cname">SpaceX · $1.95T</div>
+        <div class="afterhours-change up">+2.38%</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+60.82%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+14.46%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-negative">-0.11%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">Indicative</div><div class="symbol">$NFLX</div><div class="cname">Netflix</div>
+        <div class="afterhours-change down">≈-4.5%</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+1.73%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-negative">-0.17%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-negative">-1.66%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">Indicative</div><div class="symbol">$ISRG</div><div class="cname">Intuitive Surgical</div>
+        <div class="afterhours-change down">≈-9.5%</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+11.50%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+2.37%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-positive">+1.11%</span></div></div>
+      <div class="earnings-card"><div class="afterhours-badge">Indicative</div><div class="symbol">$UAL</div><div class="cname">United Airlines</div>
+        <div class="afterhours-change down">≈-2.1%</div>
+        <div class="earnings-surprise"><span>EPS</span><span class="surprise-positive">+6.08%</span></div>
+        <div class="earnings-surprise"><span>Revenue</span><span class="surprise-positive">+0.29%</span></div>
+        <div class="earnings-surprise"><span>Regular session</span><span class="surprise-positive">+2.27%</span></div></div>
+    </div>
+    <p class="note" style="margin-top:16px">SpaceX headlines after the close cited revenue growth of 161% and AI revenue up more than 800%, with capex below expectations. ISRG is the notable reaction: the stock is trading about 9.5% lower despite beating on both EPS and revenue. Other names in the Finviz earnings screen include CB, EWBC, WFRD, PEGA, ALK, NLY, OZK, HWC and ELS. Their after-hours quotes had spreads too wide to read reliably.</p>
+
+    <h3 class="sub">☀️ Today's Pre-Market Reporters</h3>
+    <p class="note">3M ($MMM) reported Q3 results at 6:30 ET, beat estimates and raised full-year EPS guidance. An expanded Amazon data-center agreement added to the move, and the stock closed +5.81% as a leader of the Dow. Hasbro ($HAS) also reported at 6:30 ET. Magic: The Gathering revenue topped $600M and the company raised its 2026 outlook, sending the stock up 11.20%.</p>
+
+    <h3 class="sub">🗓️ This Week's Remaining Earnings Calendar (Oct 21–23)</h3>
+    <p class="note">Wednesday names were verified with the FMP earnings calendar for 2026-10-21. Thursday and Friday names carry over from the prior report. Report timing before or after the session is not confirmed.</p>
+    <div class="day-grid">
+      <div class="day"><h3>Wed 10/21</h3><ul><li><b>TSLA</b> Tesla</li><li><b>META</b> Meta Platforms</li><li><b>IBM</b> IBM</li><li><b>LRCX</b> Lam Research</li><li><b>TXN</b> Texas Instruments</li><li><b>TMO</b> Thermo Fisher</li><li><b>T</b> AT&amp;T</li><li><b>NEE</b> NextEra Energy</li><li><b>ABT</b> Abbott Labs</li><li><b>SAP</b> SAP</li></ul></div>
+      <div class="day"><h3>Thu 10/22</h3><ul><li><b>UNP</b> Union Pacific</li><li><b>BX</b> Blackstone</li><li><b>WDC</b> Western Digital</li><li><b>LMT</b> Lockheed Martin</li><li><b>NEM</b> Newmont</li><li><b>SPOT</b> Spotify</li><li><b>HON</b> Honeywell</li></ul></div>
+      <div class="day"><h3>Fri 10/23</h3><ul><li><b>INFY</b> Infosys</li><li><b>RCI</b> Rogers Communications</li></ul></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>🏢 Sector Performance</h2>
+      <table>
+        <tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap</th><th class="num">Stocks</th></tr>
+        <tr><td>Healthcare<div class="bar pos" style="width:100%"></div></td><td class="num up">+2.48%</td><td class="num">$9.6T</td><td class="num">1053</td></tr>
+        <tr><td>Real Estate<div class="bar pos" style="width:74%"></div></td><td class="num up">+1.83%</td><td class="num">$1.7T</td><td class="num">248</td></tr>
+        <tr><td>Utilities<div class="bar pos" style="width:47%"></div></td><td class="num up">+1.17%</td><td class="num">$1.7T</td><td class="num">107</td></tr>
+        <tr><td>Financial<div class="bar pos" style="width:43%"></div></td><td class="num up">+1.06%</td><td class="num">$14.9T</td><td class="num">1119</td></tr>
+        <tr><td>Consumer Cyclical<div class="bar pos" style="width:31%"></div></td><td class="num up">+0.77%</td><td class="num">$9.1T</td><td class="num">524</td></tr>
+        <tr><td>Consumer Defensive<div class="bar pos" style="width:12%"></div></td><td class="num up">+0.30%</td><td class="num">$4.6T</td><td class="num">240</td></tr>
+        <tr><td>Energy<div class="bar pos" style="width:8%"></div></td><td class="num up">+0.21%</td><td class="num">$5.2T</td><td class="num">252</td></tr>
+        <tr><td>Industrials<div class="bar pos" style="width:4%"></div></td><td class="num up">+0.11%</td><td class="num">$9.2T</td><td class="num">716</td></tr>
+        <tr><td>Basic Materials<div class="bar neg" style="width:3%"></div></td><td class="num down">-0.08%</td><td class="num">$2.8T</td><td class="num">295</td></tr>
+        <tr><td>Technology<div class="bar neg" style="width:6%"></div></td><td class="num down">-0.16%</td><td class="num">$33.6T</td><td class="num">800</td></tr>
+        <tr><td>Communication Services<div class="bar neg" style="width:25%"></div></td><td class="num down">-0.62%</td><td class="num">$12.4T</td><td class="num">253</td></tr>
+      </table>
+    </div>
+
+    <div class="card points">
+      <h2>💡 Today's Key Points</h2>
+      <ul>
+        <li><b>Broad market:</b> IWM +1.67% and DIA +1.06% led, while QQQ slipped 0.10%. SPY gained 0.37%, and 8 of 11 sectors closed higher. Leadership rotated away from mega-cap tech into small caps and value.</li>
+        <li><b>Hot sectors:</b> Healthcare +2.48%, Real Estate +1.83% and Utilities +1.17% led. Communication Services -0.62% and Technology -0.16% lagged.</li>
+        <li><b>Volume surge:</b> 57 names with an average move of +5.8% and 2.6x relative volume. M&amp;A drove the top of the list: BRZE on the Salesforce deal, KVYO in sympathy, and LION on a reported takeover bid. Regional banks such as FITB, ZION and UCB filled out the list.</li>
+        <li><b>Earnings highlights:</b> MMM and HAS both beat and raised guidance before the open. Financial rose 1.06%, with ten regional banks in the volume-surge list.</li>
+        <li><b>After-hours focus:</b> COF +4.98% on a 21.20% EPS beat. SPCX +2.38% after beating on both lines. ISRG is about 9.5% lower and NFLX about 4.5% lower despite EPS beats.</li>
+        <li><b>Bonds &amp; gold:</b> TLT rose 0.84% as U.S. yields eased, according to a Reuters headline. GLD slipped 0.55%.</li>
+        <li><b>Next session:</b> Tesla, Meta, IBM, Lam Research and Texas Instruments report Wednesday.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>Data sources: Finviz Elite (market overview, screeners, sector performance, news) · Financial Modeling Prep (ticker quotes, after-hours bid/ask, earnings calendar)</p>
+    <p>Last refreshed: 2026-10-20 16:14 ET · Final after-market data + after-hours info</p>
+    <p>Earnings figures may be preliminary. For information only, not financial advice.</p>
+  </footer>
+
+</div>
+</body>
+</html>
