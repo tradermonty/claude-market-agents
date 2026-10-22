@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-10-22</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform .25s ease, box-shadow .25s ease;
+    animation: fadeUp .6s ease both;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  header.card { text-align: center; margin-bottom: 30px; }
+  header h1 { font-size: 2.4em; margin-bottom: 8px; }
+  header .date { font-size: 1.15em; opacity: .9; }
+  header .tagline { margin-top: 12px; font-size: 1.1em; color: #ffd166; font-weight: 600; }
+  h2 { font-size: 1.45em; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .full { grid-column: 1 / -1; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etf { background: rgba(255,255,255,0.12); border-radius: 16px; padding: 18px; text-align: center; transition: background .2s; }
+  .etf:hover { background: rgba(255,255,255,0.22); }
+  .etf .sym { font-size: 1.3em; font-weight: 700; }
+  .etf .name { font-size: .78em; opacity: .75; }
+  .etf .price { font-size: 1.15em; margin: 6px 0; }
+  .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,.45); font-weight: 700; }
+  .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,.45); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: .95em; }
+  th { opacity: .8; font-weight: 600; font-size: .85em; text-transform: uppercase; letter-spacing: .04em; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  .num { text-align: right; }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .stat { background: rgba(255,255,255,0.12); border-radius: 16px; padding: 18px; text-align: center; }
+  .stat .v { font-size: 1.9em; font-weight: 800; }
+  .stat .l { font-size: .82em; opacity: .8; }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+  }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin-top: 10px; }
+  .earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); position: relative; border-radius: 16px; padding: 18px; }
+  .afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff; padding: 5px 10px; border-radius: 15px; font-size: .8em; font-weight: bold; }
+  .bmo-badge { position: absolute; top: -10px; right: -10px; background: #1e3c72; color: #fff; padding: 5px 10px; border-radius: 15px; font-size: .8em; font-weight: bold; }
+  .earnings-card .symbol { font-size: 1.35em; font-weight: 800; }
+  .earnings-card .chg { font-size: 1.25em; font-weight: 800; margin: 4px 0; }
+  .earnings-card .note { font-size: .88em; opacity: .95; }
+  .afterhours-section .up { color: #0b6b3a; text-shadow: none; }
+  .afterhours-section .down { color: #8b0000; text-shadow: none; }
+  .surprise-positive { color: #00ff88; }
+  .surprise-negative { color: #ff6b6b; }
+  .notice { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: .92em; }
+  .sub { font-size: 1.1em; margin: 22px 0 8px; font-weight: 700; }
+  .pill { display: inline-block; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 4px 10px; margin: 3px; font-size: .88em; }
+  ul.points { list-style: none; }
+  ul.points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  ul.points li b { color: #ffd166; }
+  footer.card { text-align: center; font-size: .88em; opacity: .9; }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.7em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="card">
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-10-22 (Thu) – Final After-Market Data</div>
+    <div class="tagline">Tech Selloff, Defensive Rotation — QQQ -2.86% while Dow &amp; small caps hold flat</div>
+  </header>
+
+  <div class="grid">
+    <section class="card full">
+      <h2>📈 Major ETF Performance</h2>
+      <div class="etf-grid">
+        <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$764.06</div><div class="down">-1.17%</div></div>
+        <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$704.47</div><div class="down">-2.86%</div></div>
+        <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$527.86</div><div class="up">+0.03%</div></div>
+        <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$276.72</div><div class="up">+0.09%</div></div>
+        <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$81.74</div><div class="up">+1.87%</div></div>
+        <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$369.02</div><div class="down">-2.62%</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🔥 Top Volume-Surge Tickers</h2>
+      <table>
+        <tr><th>Symbol</th><th>Catalyst (verified)</th><th class="num">Change</th><th class="num">Volume</th></tr>
+        <tr><td><b>BHVN</b></td><td>FDA to re-review drug</td><td class="num up">+25.02%</td><td class="num">30.4M</td></tr>
+        <tr><td><b>EGBN</b></td><td>Q3 results (10/21 AMC)</td><td class="num up">+15.56%</td><td class="num">1.53M</td></tr>
+        <tr><td><b>HCSG</b></td><td>Q3 EPS beat</td><td class="num up">+14.19%</td><td class="num">1.32M</td></tr>
+        <tr><td><b>BMI</b></td><td>Q3 results</td><td class="num up">+13.48%</td><td class="num">1.23M</td></tr>
+        <tr><td><b>KSS</b></td><td>—</td><td class="num up">+11.82%</td><td class="num">8.96M</td></tr>
+        <tr><td><b>SPOT</b></td><td>Q3 premium subs beat</td><td class="num up">+11.10%</td><td class="num">4.73M</td></tr>
+        <tr><td><b>ALLE</b></td><td>Q3 beat &amp; raise</td><td class="num up">+11.02%</td><td class="num">2.10M</td></tr>
+        <tr><td><b>R</b></td><td>Q3 results</td><td class="num up">+10.49%</td><td class="num">0.62M</td></tr>
+        <tr><td><b>WCN</b></td><td>Q3 + FY outlook raised</td><td class="num up">+9.86%</td><td class="num">5.24M</td></tr>
+        <tr><td><b>ROP</b></td><td>Q3 results (BMO)</td><td class="num up">+9.73%</td><td class="num">1.90M</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>📊 Sector Performance</h2>
+      <table>
+        <tr><th>Sector</th><th class="num">Mkt Cap</th><th class="num">Stocks</th><th class="num">Change</th></tr>
+        <tr><td>Consumer Defensive</td><td class="num">$4.71T</td><td class="num">240</td><td class="num up">+3.14%</td></tr>
+        <tr><td>Utilities</td><td class="num">$1.77T</td><td class="num">107</td><td class="num up">+1.69%</td></tr>
+        <tr><td>Real Estate</td><td class="num">$1.73T</td><td class="num">248</td><td class="num up">+1.31%</td></tr>
+        <tr><td>Healthcare</td><td class="num">$9.70T</td><td class="num">1053</td><td class="num up">+1.15%</td></tr>
+        <tr><td>Financial</td><td class="num">$15.04T</td><td class="num">1121</td><td class="num up">+0.45%</td></tr>
+        <tr><td>Energy</td><td class="num">$5.13T</td><td class="num">252</td><td class="num down">-0.76%</td></tr>
+        <tr><td>Consumer Cyclical</td><td class="num">$8.94T</td><td class="num">524</td><td class="num down">-1.27%</td></tr>
+        <tr><td>Industrials</td><td class="num">$9.15T</td><td class="num">716</td><td class="num down">-2.33%</td></tr>
+        <tr><td>Communication Services</td><td class="num">$11.94T</td><td class="num">255</td><td class="num down">-2.50%</td></tr>
+        <tr><td>Basic Materials</td><td class="num">$2.68T</td><td class="num">295</td><td class="num down">-2.60%</td></tr>
+        <tr><td>Technology</td><td class="num">$33.05T</td><td class="num">801</td><td class="num down">-3.23%</td></tr>
+      </table>
+    </section>
+
+    <section class="card full afterhours-section">
+      <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+      <div class="notice">
+        The after-hours earnings screener (Large-cap+, AH ≥ +2%) returned <b>no matches</b> as of 16:10 ET.
+        Today's after-close reporters released results at 16:01–16:05 ET. The early prints below come from thin
+        after-hours trading minutes after the releases and are <b>preliminary</b>. Baseline is the regular-session close.
+      </div>
+
+      <div class="sub">🌙 Early After-Hours Reaction — Today's After-Close Reporters</div>
+      <div class="earnings-grid">
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$WDC</div><div class="chg up">+1.66%</div>
+          <div class="note">FQ1 FY27 results released 16:01 ET. Close $354.19 (-6.43%) → AH $360.06.</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$BE</div><div class="chg down">-4.03%</div>
+          <div class="note">Record Q3, FY2026 guidance raised. Close $217.77 (-8.70%) → AH $209.00.</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$DECK</div><div class="chg down">-6.50%</div>
+          <div class="note">FQ2 FY27 results. Close $85.28 → AH $79.74.</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$VRSN</div><div class="chg down">-4.79%</div>
+          <div class="note">Q3 results. Close $304.59 → AH $290.00 (very thin, 100-share print).</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$SSNC</div><div class="chg down">-3.28%</div>
+          <div class="note">Q3 results. Close $89.54 → AH $86.60 (thin).</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">After-Hours</div>
+          <div class="symbol">$OMC / $NEM</div><div class="chg">No AH print yet</div>
+          <div class="note">OMC released Q3 at 16:03 ET. NEM scheduled after close.</div></div>
+      </div>
+
+      <div class="sub">☀️ Today's BMO Earnings — Regular-Session Impact</div>
+      <div class="earnings-grid">
+        <div class="earnings-card"><div class="bmo-badge">BMO</div>
+          <div class="symbol">$SPOT</div><div class="chg up">+11.10%</div>
+          <div class="note">Premium subscribers beat; revenue +16%. EPS missed and Q4 guide was softer, but shares hit a 10-month high.</div></div>
+        <div class="earnings-card"><div class="bmo-badge">BMO</div>
+          <div class="symbol">$ALLE</div><div class="chg up">+11.02%</div>
+          <div class="note">Beat and raised guidance again on Americas non-residential strength.</div></div>
+        <div class="earnings-card"><div class="bmo-badge">BMO</div>
+          <div class="symbol">$BMI / $R</div><div class="chg up">+13.48% / +10.49%</div>
+          <div class="note">Badger Meter and Ryder Q3 results. Ryder posted "almost all strong numbers" per FreightWaves.</div></div>
+        <div class="earnings-card"><div class="bmo-badge">BMO</div>
+          <div class="symbol">$ROP / $NDAQ / $LMT</div><div class="chg up">+9.73% / +7.47% / +6.96%</div>
+          <div class="note">All three reported Q3 before the open and landed on the volume-surge list.</div></div>
+      </div>
+
+      <div class="sub">🗓️ This Week's Remaining Earnings (Fri 10/23, Large-cap)</div>
+      <div>
+        <span class="pill">$INFY</span><span class="pill">$RCI</span>
+      </div>
+      <div class="note" style="margin-top:6px;font-size:.85em;">Source: finviz upcoming_earnings_screener, 10/22–10/23 range. Timing listed as unknown by the screener.</div>
+    </section>
+
+    <section class="card full">
+      <h2>📋 Market Statistics</h2>
+      <div class="stats">
+        <div class="stat"><div class="v">88</div><div class="l">Volume-Surge Stocks</div></div>
+        <div class="stat"><div class="v">698</div><div class="l">Uptrend Stocks</div></div>
+        <div class="stat"><div class="v">2.1x</div><div class="l">Avg Relative Volume</div></div>
+        <div class="stat"><div class="v up">+5.6%</div><div class="l">Avg Price Move (surge)</div></div>
+        <div class="stat"><div class="v">307</div><div class="l">Earnings This Week</div></div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>💡 Today's Key Points</h2>
+      <ul class="points">
+        <li><b>Broad market:</b> Tech-led selloff. QQQ fell 2.86% and SPY 1.17%, while DIA (+0.03%) and IWM (+0.09%) finished flat. Headlines cited Middle East escalation lifting oil, a slide in Lam Research after earnings, and weakness in memory/storage names.</li>
+        <li><b>Hot sectors:</b> Defensive rotation. Consumer Defensive +3.14%, Utilities +1.69%, Real Estate +1.31%, Healthcare +1.15%. Technology was the worst sector at -3.23%, followed by Basic Materials -2.60% and Communication Services -2.50%.</li>
+        <li><b>Volume-surge profile:</b> 88 names, average move +5.6% at 2.1x relative volume. The list is dominated by earnings reactions and regional banks/financials rather than tech.</li>
+        <li><b>Earnings highlights:</b> SPOT +11.10% on subscriber growth, ALLE +11.02% on beat-and-raise, WCN +9.86% after raising its FY outlook. BHVN led all surge names at +25.02% after the FDA agreed to review its drug again.</li>
+        <li><b>After-hours focus:</b> No large-cap reporter cleared +2% AH at 16:10 ET. Early prints show WDC +1.66%, while BE, DECK, VRSN and SSNC traded lower. These are preliminary moves in thin volume.</li>
+        <li><b>Bonds &amp; gold:</b> TLT rallied 1.87% as investors moved into duration. GLD fell 2.62%, and gold miners also weakened after Freedom Broker downgrades of Agnico, Barrick and Newmont.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer class="card">
+    <div>Data sources: Finviz Elite (market overview, volume-surge &amp; earnings screeners, sector performance, news), Alpaca Markets (snapshots, after-hours trades)</div>
+    <div>Last refreshed: 2026-10-22 16:10 ET</div>
+    <div style="margin-top:8px;">Note: Final after-market data + after-hours info. Earnings figures and after-hours prices are preliminary. Information only, not financial advice.</div>
+  </footer>
+
+</div>
+</body>
+</html>
