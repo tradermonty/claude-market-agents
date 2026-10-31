@@ -31,7 +31,7 @@
 - X Premium long-form is allowed; do NOT artificially truncate to 280 chars — match the reference template's depth instead
 
 ### Required Section Order (after-market X post)
-Follow this exact block order, separated by blank lines:
+Follow this exact block order, separated by blank lines. Two blocks span multiple items with no blank line inside: header + ETF lines (items 1–2), and sector lines + stats line (item 5), matching the reference template:
 
 1. **Header line**: `🇺🇸 US Market Close (Mon DD) — <short context tagline>`
    - Tagline examples: "Indexes Flat, Earnings Sweep", "Post-Memorial Day Return", "Risk-On Rally". Omit only if the day is genuinely uneventful.
@@ -43,12 +43,12 @@ Follow this exact block order, separated by blank lines:
    - Header `🌙 After-Hours Earnings (N/N beat EPS):` when applicable
    - Standout on its own line with EPS surprise + sales/QoQ: `$XXX +XX.XX% AH 🚀 (EPS +X.XX%, Sales +XX% QoQ)`
    - Remaining tickers on follow-up lines, pipe-separated, with brief surprise data where space allows
-5. **📊 Sectors — 2 lines**:
+5. **📊 Sectors + stats — 3 lines, one block**:
    - Line 1: top 3 winning sectors with %
    - Line 2: bottom 2–3 losing sectors with %
-6. **Stats line**: `NN volume-surge stocks | NNN uptrend stocks | Avg move +X.X%`
-7. **🗓️ Next-session earnings preview** (optional, only with verified tickers): `🗓️ Thu earnings: $XXX $YYY $ZZZ`
-8. **Hashtags**: 5–7 tags, core set = `#StockMarket #MarketAnalysis #EarningsSeason` + situational (`#AfterHours`, `#AIStocks`, ticker tags like `#SNOW`).
+   - Line 3 (stats, directly below line 2 with no blank line): `NN volume-surge stocks | NNN uptrend stocks | Avg move +X.X%`
+6. **🗓️ Next-session earnings preview** (optional, only with verified tickers): `🗓️ Thu earnings: $XXX $YYY $ZZZ`
+7. **Hashtags**: 5–7 tags, core set = `#StockMarket #MarketAnalysis #EarningsSeason` + situational (`#AfterHours`, `#AIStocks`, ticker tags like `#SNOW`).
 
 ### Quality Rules
 - Parenthetical catalysts must trace to fetched data (EPS surprise %, sales QoQ, screener tag). Never guess.
