@@ -76,11 +76,11 @@ pytest>=7.0.0
 @dataclass
 class TradeCandidate:
     ticker: str
-    report_date: str       # YYYY-MM-DD (ファイル名から)
-    grade: str             # A/B/C/D
-    grade_source: str      # "html" | "inferred" (スコアから推定した場合)
-    score: float           # 0-100
-    price: Optional[float] # レポート時点の株価（取得できない場合はNone）
+    report_date: str  # YYYY-MM-DD (ファイル名から)
+    grade: str  # A/B/C/D
+    grade_source: str  # "html" | "inferred" (スコアから推定した場合)
+    score: float  # 0-100
+    price: Optional[float]  # レポート時点の株価（取得できない場合はNone）
     gap_size: Optional[float]
     company_name: Optional[str]
 ```
@@ -146,14 +146,16 @@ class TradeCandidate:
 
 ```python
 # ファイルレベル: no-stocks 判定（セレクタ + テキストフォールバック）
-if (soup.find(class_='no-stocks-card') or
-    soup.find(class_='no-stocks-title') or
-    soup.find(string=re.compile(r'No.*Earnings.*Stocks.*Available', re.I))):
+if (
+    soup.find(class_="no-stocks-card")
+    or soup.find(class_="no-stocks-title")
+    or soup.find(string=re.compile(r"No.*Earnings.*Stocks.*Available", re.I))
+):
     return []
 
 # DOM除去: upcoming / summary セクションを除外（section + div 両方）
-for tag_name in ['section', 'div']:
-    for el in soup.find_all(tag_name, class_=re.compile(r'upcoming|summary-section')):
+for tag_name in ["section", "div"]:
+    for el in soup.find_all(tag_name, class_=re.compile(r"upcoming|summary-section")):
         el.decompose()
 
 # summary テーブル内の ticker も除外済み（decompose済み）
@@ -194,26 +196,27 @@ for c in candidates:
 class TradeResult:
     ticker: str
     grade: str
-    grade_source: str       # "html" | "inferred"
+    grade_source: str  # "html" | "inferred"
     score: float
     report_date: str
     entry_date: str
-    entry_price: float      # Open
+    entry_price: float  # Open
     exit_date: str
     exit_price: float
-    shares: int             # floor(10000 / entry_price)
-    invested: float         # shares * entry_price
+    shares: int  # floor(10000 / entry_price)
+    invested: float  # shares * entry_price
     pnl: float
     return_pct: float
-    holding_days: int       # 暦日
-    exit_reason: str        # "stop_loss" | "max_holding" | "end_of_data"
+    holding_days: int  # 暦日
+    exit_reason: str  # "stop_loss" | "max_holding" | "end_of_data"
     gap_size: Optional[float]
+
 
 @dataclass
 class SkippedTrade:
     ticker: str
     report_date: str
-    skip_reason: str        # "no_price_data" | "zero_shares" | "missing_ohlc" | "delisted"
+    skip_reason: str  # "no_price_data" | "zero_shares" | "missing_ohlc" | "delisted"
 ```
 
 ### 5.2 損切りロジック（Stop価格 + スリッページ）
@@ -376,7 +379,7 @@ def test_parse_all_real_reports():
 
     # grade範囲内
     for c in candidates:
-        assert c.grade in {'A', 'B', 'C', 'D'}
+        assert c.grade in {"A", "B", "C", "D"}
 ```
 
 ## 10. 実装順序
