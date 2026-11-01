@@ -1397,6 +1397,17 @@ def _generate_shadow_signals(
     }
 
 
+def _configure_logging(verbose: bool) -> None:
+    """Configure root logging; verbose enables DEBUG for app loggers only.
+
+    urllib3 stays at WARNING because its DEBUG request lines include the full
+    URL, and FMP passes the API key as a query parameter.
+    """
+    logging.basicConfig(format="%(asctime)s %(levelname)-8s %(name)s - %(message)s")
+    logging.getLogger().setLevel(logging.DEBUG if verbose else logging.INFO)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+
 def main() -> None:
     """CLI entry point for signal generation."""
     parser = argparse.ArgumentParser(
@@ -1437,10 +1448,7 @@ def main() -> None:
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose logging")
     args = parser.parse_args()
 
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(asctime)s %(levelname)-8s %(name)s - %(message)s",
-    )
+    _configure_logging(args.verbose)
 
     config = LiveConfig.from_manifest(args.manifest)
     config.verify_against_manifest(args.manifest)

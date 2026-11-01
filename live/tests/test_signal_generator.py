@@ -2,6 +2,7 @@
 """Tests for live.signal_generator with mocked dependencies."""
 
 import json
+import logging
 import os
 import tempfile
 from datetime import datetime, timedelta
@@ -18,6 +19,7 @@ from live.signal_generator import (
     KillSwitchError,
     PriceValidationError,
     ReconciliationError,
+    _configure_logging,
     _derive_json_path,
     _filter_candidates,
     _recover_untracked_positions,
@@ -3031,3 +3033,33 @@ class TestFailClosedIntegration:
 
         assert result["execution"]["price_validation_failed"] is True
         assert result["shadow"]["price_validation_failed"] is True
+
+
+class TestConfigureLogging:
+    """Verbose mode must keep urllib3 request URLs out of the logs.
+
+    FMP takes its API key as a query parameter, so urllib3's DEBUG line
+    "GET /stable/...?apikey=..." would write the key to logs/.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _restore_levels(self):
+        root = logging.getLogger()
+        urllib3_logger = logging.getLogger("urllib3")
+        saved = (root.level, urllib3_logger.level)
+        yield
+        root.setLevel(saved[0])
+        urllib3_logger.setLevel(saved[1])
+
+    def test_verbose_enables_debug_for_app_loggers(self):
+        _configure_logging(verbose=True)
+        assert logging.getLogger("live.signal_generator").isEnabledFor(logging.DEBUG)
+
+    def test_verbose_keeps_urllib3_request_lines_out(self):
+        _configure_logging(verbose=True)
+        assert not logging.getLogger("urllib3.connectionpool").isEnabledFor(logging.DEBUG)
+
+    def test_non_verbose_uses_info(self):
+        _configure_logging(verbose=False)
+        assert not logging.getLogger("live.signal_generator").isEnabledFor(logging.DEBUG)
+        assert logging.getLogger("live.signal_generator").isEnabledFor(logging.INFO)
