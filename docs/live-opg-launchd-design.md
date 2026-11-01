@@ -64,7 +64,7 @@ real_available = max_positions - (db_open_count - exits_actually_processed)
 Terminal statuses are defined once in `state_db.py`:
 
 ```python
-TERMINAL_STATUSES = ('filled', 'canceled', 'expired', 'rejected', 'done_for_day', 'suspended')
+TERMINAL_STATUSES = ("filled", "canceled", "expired", "rejected", "done_for_day", "suspended")
 ```
 
 All status queries reference this single constant. `get_pending_orders()` uses
