@@ -8,20 +8,47 @@ import pytest
 
 from live.config import LiveConfig
 
+CANONICAL_MANIFEST = "reports/backtest/run_manifest.json"
+VIX20_MANIFEST = "reports/backtest/vix20/run_manifest.json"
+MANIFEST_FIXTURES = Path(__file__).parent / "fixtures" / "manifests"
 
-def test_default_config_matches_canonical_backtest_manifest() -> None:
+# Generated reports exist only on the machine that runs the backtests and
+# launchd jobs. Tracked snapshots always run; only generated-file cases skip.
+requires_canonical_manifest = pytest.mark.skipif(
+    not Path(CANONICAL_MANIFEST).exists(), reason=f"{CANONICAL_MANIFEST} not present"
+)
+requires_vix20_manifest = pytest.mark.skipif(
+    not Path(VIX20_MANIFEST).exists(), reason=f"{VIX20_MANIFEST} not present"
+)
+
+
+@pytest.mark.parametrize(
+    "manifest_path",
+    [
+        pytest.param(str(MANIFEST_FIXTURES / "canonical.json"), id="tracked-snapshot"),
+        pytest.param(CANONICAL_MANIFEST, marks=requires_canonical_manifest, id="generated"),
+    ],
+)
+def test_default_config_matches_canonical_backtest_manifest(manifest_path: str) -> None:
     """Live defaults should match the manifest used by launchd scripts."""
-    LiveConfig().verify_against_manifest("reports/backtest/run_manifest.json")
+    LiveConfig().verify_against_manifest(manifest_path)
 
 
-def test_config_from_canonical_manifest_matches_manifest() -> None:
-    config = LiveConfig.from_manifest("reports/backtest/run_manifest.json")
+@pytest.mark.parametrize(
+    "manifest_path",
+    [
+        pytest.param(str(MANIFEST_FIXTURES / "canonical.json"), id="tracked-snapshot"),
+        pytest.param(CANONICAL_MANIFEST, marks=requires_canonical_manifest, id="generated"),
+    ],
+)
+def test_config_from_canonical_manifest_matches_manifest(manifest_path: str) -> None:
+    config = LiveConfig.from_manifest(manifest_path)
 
     assert config.primary_strategy_id == "nwl_p4"
     assert config.shadow_signal_label == "shadow_nwl_p4"
     assert config.entry_quality_filter is False
     assert config.vix_filter is False
-    config.verify_against_manifest("reports/backtest/run_manifest.json")
+    config.verify_against_manifest(manifest_path)
 
 
 def test_manifest_verification_catches_trailing_stop_mismatch(tmp_path: Path) -> None:
@@ -135,8 +162,15 @@ def test_manifest_verification_catches_vix_filter_mismatch(tmp_path: Path) -> No
         LiveConfig().verify_against_manifest(str(path))
 
 
-def test_vix20_manifest_can_be_selected_explicitly() -> None:
-    config = LiveConfig.from_manifest("reports/backtest/vix20/run_manifest.json")
+@pytest.mark.parametrize(
+    "manifest_path",
+    [
+        pytest.param(str(MANIFEST_FIXTURES / "vix20.json"), id="tracked-snapshot"),
+        pytest.param(VIX20_MANIFEST, marks=requires_vix20_manifest, id="generated"),
+    ],
+)
+def test_vix20_manifest_can_be_selected_explicitly(manifest_path: str) -> None:
+    config = LiveConfig.from_manifest(manifest_path)
 
     assert config.primary_strategy_id == "nwl_p4"
     assert config.trailing_transition_weeks == 3
@@ -145,4 +179,4 @@ def test_vix20_manifest_can_be_selected_explicitly() -> None:
     assert config.exclude_price_max == 30
     assert config.vix_filter is True
     assert config.vix_threshold == 20.0
-    config.verify_against_manifest("reports/backtest/vix20/run_manifest.json")
+    config.verify_against_manifest(manifest_path)
