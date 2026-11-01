@@ -25,12 +25,12 @@ import sys
 import time
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import requests
 
 from live.alpaca_client import AlpacaClient
-from live.config import ET, LiveConfig, resolve_api_key
+from live.config import CANONICAL_MANIFEST_PATH, ET, LiveConfig, resolve_api_key
 from live.state_db import TERMINAL_STATUSES, StateDB
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def _send_kill_switch_alert(
     ticker: str,
     err: Exception,
     filled_qty: int,
-    target_qty: Optional[int],
+    target_qty: int | None,
     fill_price: float,
 ) -> None:
     """Email an alert when the executor self-activates the kill switch.
@@ -147,7 +147,7 @@ def _is_order_not_cancelable(e: requests.HTTPError) -> bool:
         return False
 
 
-def _parse_fill_price(order: dict, context: str) -> Optional[float]:
+def _parse_fill_price(order: dict, context: str) -> float | None:
     """Extract fill price from order dict. Returns None if unavailable."""
     raw = order.get("filled_avg_price")
     if raw is None:
@@ -183,7 +183,7 @@ def _generate_run_id(trade_date: str) -> str:
 
 
 def _poll_orders(
-    alpaca_client: Optional[AlpacaClient],
+    alpaca_client: AlpacaClient | None,
     state_db: StateDB,
     order_ids: List[Dict[str, Any]],
     dry_run: bool = False,
@@ -295,7 +295,7 @@ def _poll_orders(
     return results
 
 
-def _is_market_hours_et(alpaca_client: Optional[AlpacaClient]) -> bool:
+def _is_market_hours_et(alpaca_client: AlpacaClient | None) -> bool:
     """Check if current time is within market hours (9:28-19:00 ET).
 
     Uses Alpaca clock timestamp for accuracy, falls back to local time.
@@ -326,7 +326,7 @@ def _is_market_hours_et(alpaca_client: Optional[AlpacaClient]) -> bool:
 def execute_signals(
     config: LiveConfig,
     state_db: StateDB,
-    alpaca_client: Optional[AlpacaClient],
+    alpaca_client: AlpacaClient | None,
     signals: Dict[str, Any],
     trade_date: str,
     run_id: str,
@@ -344,15 +344,22 @@ def execute_signals(
         logger.critical("KILL SWITCH is ON. Aborting execution.")
         raise KillSwitchError("Kill switch is ON")
 
-    # Strategy guard: only execute ema_p10 signals
+    # Strategy guard: only execute the manifest-aligned primary signal file.
     strategy = signals.get("strategy", "")
-    if strategy and strategy != "ema_p10":
+    signal_role = signals.get("signal_role", "")
+    expected_strategy = config.primary_strategy_id
+    if strategy != expected_strategy or signal_role != "execution":
         logger.error(
-            "Refusing to execute non-ema_p10 signals (strategy=%s). "
-            "Only ema_p10.json should be passed to executor.",
+            "Refusing to execute non-primary signals "
+            "(strategy=%s, role=%s, expected_strategy=%s, expected_role=execution).",
             strategy,
+            signal_role,
+            expected_strategy,
         )
-        raise StrategyMismatchError(f"Non-ema_p10 strategy: {strategy}")
+        raise StrategyMismatchError(
+            f"Expected strategy={expected_strategy}/role=execution; "
+            f"got strategy={strategy}/role={signal_role}"
+        )
 
     if not dry_run:
         assert alpaca_client is not None
@@ -922,7 +929,7 @@ def execute_signals(
 def execute_poll_phase(
     config: LiveConfig,
     state_db: StateDB,
-    alpaca_client: Optional[AlpacaClient],
+    alpaca_client: AlpacaClient | None,
     trade_date: str,
     run_id: str,
     dry_run: bool = False,
@@ -1211,8 +1218,8 @@ def _ensure_position_recorded(
     fill_price: float,
     target_shares: int,
     actual_shares: int,
-    stop_price: Optional[float],
-    stop_client_id: Optional[str],
+    stop_price: float | None,
+    stop_client_id: str | None,
 ) -> None:
     """Record position if not already exists (idempotent)."""
     existing = state_db.get_open_position_by_ticker_date(ticker, trade_date)
@@ -1267,7 +1274,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--manifest",
-        default=None,
+        default=CANONICAL_MANIFEST_PATH,
         help="Path to run_manifest.json for verification",
     )
     parser.add_argument(
@@ -1304,7 +1311,7 @@ def main() -> None:
         format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
     )
 
-    config = LiveConfig()
+    config = LiveConfig.from_manifest(args.manifest)
 
     # OPG + all → error
     if config.entry_tif == "opg" and args.phase == "all":
@@ -1314,9 +1321,8 @@ def main() -> None:
         )
         sys.exit(6)
 
-    if args.manifest:
-        config.verify_against_manifest(args.manifest)
-        logger.info("Manifest verification passed: %s", args.manifest)
+    config.verify_against_manifest(args.manifest)
+    logger.info("Manifest verification passed: %s", args.manifest)
 
     # Resolve trade_date
     trade_date = args.trade_date or datetime.now(ET).strftime("%Y-%m-%d")

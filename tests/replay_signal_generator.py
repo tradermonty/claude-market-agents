@@ -51,12 +51,12 @@ def replay(date: str) -> None:
             dry_run=True,
         )
 
-        ema = result["ema_p10"]
+        execution = result["execution"]
         print(
-            f"{date}: entries={len(ema.get('entries', []))} "
-            f"skipped={len(ema.get('skipped', []))} "
-            f"exits={len(ema.get('exits', []))} "
-            f"price_validation_failed={ema.get('price_validation_failed')}"
+            f"{date}: entries={len(execution.get('entries', []))} "
+            f"skipped={len(execution.get('skipped', []))} "
+            f"exits={len(execution.get('exits', []))} "
+            f"price_validation_failed={execution.get('price_validation_failed')}"
         )
 
 

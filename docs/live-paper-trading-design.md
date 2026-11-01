@@ -6,11 +6,11 @@ Alpaca paper trading account to run live validation of earnings trade strategies
 
 | Item | Value |
 |------|-------|
-| Primary strategy | `ema_p10` (weekly EMA period 10) - **executed** via Alpaca |
-| Shadow strategy | `nwl_p4` (weekly N-week low period 4) - **tracked** in DB only |
-| Backtest PF | ema_p10: 2.14, nwl_p4: 2.19 |
+| Primary strategy | `nwl_p4` (weekly N-week low period 4) - **executed** via Alpaca |
+| Shadow role | `shadow_nwl_p4` file / `nwl_p4` DB strategy - **tracked** in DB only |
+| Canonical backtest | `reports/backtest/run_manifest.json` (`nwl_p4`, PF 2.19) |
 | Portfolio | max 20 positions, $10,000 per position |
-| Switching criteria | 90 days or 100 trades, PF +0.10, MaxDD neutral, P&L +3% |
+| Alternate manifests | selected via `--manifest`; `LiveConfig` is loaded from the selected manifest |
 
 ### Design Principles
 
@@ -53,19 +53,19 @@ Alpaca paper trading account to run live validation of earnings trade strategies
 ```
 signal_generator                          executor
      |                                         |
-     |  1. Parse HTML report                   |
+     |  1. Derive and parse JSON candidates    |
      |  2. Get DB positions                    |
      |  3. Reconcile with Alpaca               |
-     |  4. Check trailing stops (EMA)          |
+     |  4. Check trailing stops (NWL/4)        |
      |  5. Rotation check                      |
      |  6. Generate entries/exits              |
-     |     -> ema_p10.json                     |
-     |                                         |
-     |  7. Shadow path (NWL, independent)      |
-     |  8. Update shadow_positions DB          |
      |     -> nwl_p4.json                      |
      |                                         |
-     |                                    1. Read ema_p10.json
+     |  7. Shadow path (same rule, DB-only)    |
+     |  8. Update shadow_positions DB          |
+     |     -> shadow_nwl_p4.json               |
+     |                                         |
+     |                                    1. Read nwl_p4.json
      |                                    2. Phase A: Cancel stops + sell
      |                                    3. Phase B: Poll sells
      |                                    4. Phase C: Recount positions
@@ -80,7 +80,9 @@ signal_generator                          executor
 
 ### 3.1 `live/config.py` (102 lines)
 
-Frozen dataclass holding all trading parameters. Matches `run_manifest.json` exactly.
+Frozen dataclass holding all trading parameters. Defaults match the canonical
+`run_manifest.json`; `LiveConfig.from_manifest(path)` loads alternate manifests
+before verification.
 
 ```python
 @dataclass(frozen=True)
@@ -94,8 +96,8 @@ class LiveConfig:
     max_holding_days: Optional[int] = None
     rotation: bool = True
     min_grade: str = "D"
-    primary_trailing_stop: str = "weekly_ema"
-    primary_trailing_period: int = 10
+    primary_trailing_stop: str = "weekly_nweek_low"
+    primary_trailing_period: int = 4
     shadow_trailing_stop: str = "weekly_nweek_low"
     shadow_trailing_period: int = 4
     trailing_transition_weeks: int = 2
@@ -174,9 +176,9 @@ Pipeline:
 `TrailingStopResult` dataclass contains: `is_week_end`, `completed_weeks`,
 `transition_met`, `trend_broken`, `should_exit`, `indicator_value`, `last_close`.
 
-### 3.5 `live/signal_generator.py` (624 lines)
+### 3.5 `live/signal_generator.py`
 
-CLI module generating dual-strategy signal JSON files.
+CLI module generating execution and shadow signal JSON files.
 
 ```bash
 python -m live.signal_generator \
@@ -188,22 +190,22 @@ python -m live.signal_generator \
 ```
 
 Outputs:
-- `trade_signals_{date}_ema_p10.json` - execution target
-- `trade_signals_{date}_nwl_p4.json` - shadow record only
+- `trade_signals_{date}_{primary_strategy_id}.json` - execution target (`signal_role=execution`); default manifest emits `trade_signals_{date}_nwl_p4.json`
+- `trade_signals_{date}_{shadow_signal_label}.json` - shadow record only (`signal_role=shadow`); default manifest emits `trade_signals_{date}_shadow_nwl_p4.json`
 
-**ema_p10 path** (execution):
+**nwl_p4 path** (default manifest execution):
 1. Kill switch check (exit code 3)
-2. Parse HTML report -> filter candidates by min_grade
+2. Parse JSON candidates -> filter candidates by `min_grade`
 3. Get DB positions + reconcile with Alpaca (exit code 4 on mismatch)
-4. Check trailing stops (`TrailingStopChecker` with `weekly_ema`, period 10)
+4. Check trailing stops (`TrailingStopChecker` with `weekly_nweek_low`, period 4)
 5. Rotation check (if at capacity: weakest unrealized P&L vs best candidate score)
 6. Generate entries (up to `max_positions - open + exits`)
 
-**nwl_p4 path** (shadow, independent):
+**shadow_nwl_p4 path** (DB-only mirror):
 1. Get `shadow_positions` from DB
 2. Check trailing stops (`weekly_nweek_low`, period 4)
-3. Independent rotation check
-4. Independent entries
+3. Shadow rotation check
+4. Shadow entries
 5. Update `shadow_positions` and `shadow_signals` in DB
 
 ### 3.6 `live/executor.py` (623 lines)
@@ -212,7 +214,7 @@ CLI module executing signal JSON via Alpaca API.
 
 ```bash
 python -m live.executor \
-    --signals-file live/signals/trade_signals_2026-02-17_ema_p10.json \
+    --signals-file live/signals/trade_signals_2026-02-17_nwl_p4.json \
     --state-db live/state.db \
     --manifest reports/backtest/run_manifest.json \
     [--dry-run] [--skip-time-check] [-v]
@@ -328,24 +330,25 @@ Three-layer protection:
 | 13 | Shadow independence | `shadow_positions` table, no Alpaca interaction | test_shadow_independent |
 | 14 | Bracket order | OTO preferred, fallback + kill switch on stop failure | test_bracket_fallback |
 | 15 | Shadow responsibility | signal_generator owns all shadow state, executor ignores | test_dry_run |
-| 16 | Manifest verification | Compare LiveConfig vs run_manifest at startup | config.verify_against_manifest() |
+| 16 | Manifest verification | Compare LiveConfig vs selected run_manifest at startup | config.verify_against_manifest() |
 
 ---
 
-## 8. Dual-Strategy Comparison
+## 8. Signal Role Separation
 
 ```
 signal_generator.py generates 2 JSONs per run:
 
-trade_signals_{date}_ema_p10.json  <- executor processes this
-trade_signals_{date}_nwl_p4.json   <- shadow record only
+trade_signals_{date}_{primary_strategy_id}.json   <- executor processes this
+trade_signals_{date}_{shadow_signal_label}.json   <- shadow record only
 
-ema_p10: positions table + Alpaca reconciliation -> executed
-nwl_p4:  shadow_positions table (independent)    -> DB only
+execution file: positions table + Alpaca reconciliation -> executed
+shadow file:    shadow_positions table           -> DB only
 ```
 
-Both strategies share the same candidate list from the HTML report.
-Shadow entry_price uses theoretical slippage calculation (backtest parity).
+Both roles share the same candidate list from the JSON report. The executor
+requires `strategy=<manifest primary_strategy_id>` and `signal_role=execution`;
+DB-only shadow output is rejected by the executor guard.
 Executor never touches `shadow_positions`.
 
 ---
@@ -354,13 +357,14 @@ Executor never touches `shadow_positions`.
 
 | Test File | Tests | Scope |
 |-----------|-------|-------|
-| test_state_db.py | 27 | All DB operations, kill switch, shadow positions |
+| test_state_db.py | 41 | All DB operations, kill switch, shadow positions |
 | test_alpaca_client.py | 14 | Paper URL guard, all API methods, error handling |
+| test_config.py | 7 | LiveConfig/backtest manifest parity |
 | test_trailing_stop_checker.py | 9 | EMA/NWL detection, edge cases, warmup |
-| test_signal_generator.py | 12 | Kill switch, reconciliation, trailing exits, rotation, shadow |
-| test_executor.py | 13 | All phases, bracket/fallback, time guard, kill switch |
-| test_rule_consistency.py | 7 | Golden tests: backtest vs live decision consistency |
-| **Total** | **82** | |
+| test_signal_generator.py | 88 | Kill switch, reconciliation, trailing exits, rotation, shadow |
+| test_executor.py | 40 | All phases, bracket/fallback, time guard, kill switch |
+| test_rule_consistency.py | 8 | Golden tests: backtest vs live decision consistency |
+| **Total** | **207** | |
 
 ### Golden Tests (test_rule_consistency.py)
 
@@ -388,7 +392,7 @@ python -m live.signal_generator \
 
 # 2. Execute signals (before market open for report_open entries)
 python -m live.executor \
-    --signals-file live/signals/trade_signals_2026-02-17_ema_p10.json \
+    --signals-file live/signals/trade_signals_2026-02-17_nwl_p4.json \
     --state-db live/state.db \
     --manifest reports/backtest/run_manifest.json -v
 
@@ -409,7 +413,7 @@ ruff check live/ backtest/
 
 ## 11. File Inventory
 
-### New Files (4,361 lines total)
+### Core Files
 
 ```
 live/
@@ -424,6 +428,7 @@ live/
     __init__.py                        0 lines
     test_state_db.py                 361 lines
     test_alpaca_client.py            286 lines
+    test_config.py                    manifest parity
     test_trailing_stop_checker.py    231 lines
     test_signal_generator.py         564 lines
     test_executor.py                 407 lines
@@ -443,8 +448,6 @@ live/
 ### Verification Results
 
 ```
-backtest/tests/: 240 passed (regression-free)
-live/tests/:      82 passed
-ruff check:       All checks passed
-Total:           322 passed, 0 failed
+live/tests/:      207 passed
+targeted ruff:    All checks passed for changed Python files
 ```

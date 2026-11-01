@@ -349,7 +349,9 @@ Written after each backtest run to the output directory. Contains:
 
 ### Live System Alignment
 
-`LiveConfig.verify_against_manifest()` in `live/config.py` performs a **subset field check** against the manifest. It compares only the 8 fields listed in `MANIFEST_FIELD_MAP`:
+`LiveConfig.from_manifest(path)` in `live/config.py` builds the live runtime configuration from the selected manifest. `LiveConfig.verify_against_manifest(path)` then checks the manifest-backed live values before signal generation or execution starts.
+
+`MANIFEST_FIELD_MAP` currently covers:
 
 | Manifest Key | LiveConfig Attribute |
 |-------------|---------------------|
@@ -357,12 +359,23 @@ Written after each backtest run to the output directory. Contains:
 | `stop_loss` | `stop_loss_pct` |
 | `slippage` | `slippage_pct` |
 | `max_holding` | `max_holding_days` |
+| `min_grade` | `min_grade` |
 | `stop_mode` | `stop_mode` |
 | `entry_mode` | `entry_mode` |
+| `daily_entry_limit` | `daily_entry_limit` |
 | `max_positions` | `max_positions` |
 | `trailing_transition_weeks` | `trailing_transition_weeks` |
+| `entry_quality_filter` | `entry_quality_filter` |
+| `exclude_price_min` | `exclude_price_min` |
+| `exclude_price_max` | `exclude_price_max` |
+| `risk_gap_threshold` | `risk_gap_threshold` |
+| `risk_score_threshold` | `risk_score_threshold` |
+| `vix_filter` | `vix_filter` |
+| `vix_threshold` | `vix_threshold` |
 
-This ensures that the critical trading parameters match between backtested and live configurations, without requiring all parameters (e.g., filter thresholds) to be identical.
+Trailing stop alignment is checked separately from `trailing_stop` plus the matching period field (`trailing_ema_period` or `trailing_nweek_period`). Rotation alignment is checked from `no_rotation`.
+
+This ensures that the trading parameters used by the live signal generator and executor match the selected backtest manifest. The default manifest is `reports/backtest/run_manifest.json`; alternate manifests must be passed explicitly via `--manifest`.
 
 ---
 

@@ -72,20 +72,33 @@ for ATTEMPT in 1 2 3; do
         EC=125
     fi
 
-    if [ "$EC" -eq 0 ]; then
+    # Also check on EC=124 (timeout): the claude process can hang *after*
+    # writing all output files, so a killed-by-watchdog attempt that already
+    # produced fresh required files should count as success (see
+    # 2026-07-02 after-market-report incident for the same failure mode).
+    if [ "$EC" -eq 0 ] || [ "$EC" -eq 124 ]; then
+        FILES_OK=1
         for REQ in "$EXPECTED_HTML" "$EXPECTED_JSON" "$EXPECTED_XPOST"; do
             if [ ! -f "$REQ" ]; then
-                echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] Required output file not found: $REQ" >> "$LOG_FILE"
-                EC=126
+                FILES_OK=0
                 break
             fi
             MT=$(_file_mtime "$REQ")
             if [ "$MT" -lt "$ATTEMPT_START_TIME" ]; then
-                echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] Required output file stale: $REQ" >> "$LOG_FILE"
-                EC=126
+                FILES_OK=0
                 break
             fi
         done
+
+        if [ "$FILES_OK" -eq 1 ]; then
+            if [ "$EC" -eq 124 ]; then
+                echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] TIMEOUT but required output files exist and are fresh - treating as SUCCESS" >> "$LOG_FILE"
+            fi
+            EC=0
+        elif [ "$EC" -eq 0 ]; then
+            echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] Required output file missing or stale" >> "$LOG_FILE"
+            EC=126
+        fi
     fi
 
     LAST_EXIT_CODE=$EC

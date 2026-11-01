@@ -9,6 +9,7 @@ import requests
 from live.config import LiveConfig
 from live.executor import (
     KillSwitchError,
+    StrategyMismatchError,
     _is_market_hours_et,
     execute_poll_phase,
     execute_signals,
@@ -70,6 +71,8 @@ def _make_http_error(status_code: int, body: dict) -> requests.HTTPError:
 def _make_signals(exits=None, entries=None):
     return {
         "trade_date": TRADE_DATE,
+        "strategy": "nwl_p4",
+        "signal_role": "execution",
         "exits": exits or [],
         "entries": entries or [],
     }
@@ -88,6 +91,32 @@ class TestKillSwitch:
                 TRADE_DATE,
                 RUN_ID,
             )
+
+
+class TestStrategyGuard:
+    def test_rejects_shadow_signal_even_with_same_strategy(self, config, db, mock_alpaca):
+        signals = {
+            "trade_date": TRADE_DATE,
+            "strategy": "nwl_p4",
+            "signal_role": "shadow",
+            "exits": [],
+            "entries": [],
+        }
+
+        with pytest.raises(StrategyMismatchError):
+            execute_signals(config, db, mock_alpaca, signals, TRADE_DATE, RUN_ID)
+
+    def test_rejects_legacy_ema_strategy(self, config, db, mock_alpaca):
+        signals = {
+            "trade_date": TRADE_DATE,
+            "strategy": "ema_p10",
+            "signal_role": "execution",
+            "exits": [],
+            "entries": [],
+        }
+
+        with pytest.raises(StrategyMismatchError):
+            execute_signals(config, db, mock_alpaca, signals, TRADE_DATE, RUN_ID)
 
 
 class TestPhaseA:
@@ -803,7 +832,7 @@ class TestOPGAllPhaseRejected:
                 ],
             ),
             patch(
-                "live.executor.LiveConfig",
+                "live.executor.LiveConfig.from_manifest",
                 return_value=LiveConfig(entry_tif="opg"),
             ),
         ):
@@ -1399,7 +1428,8 @@ class TestAlpacaIdempotentTerminalNotCounted:
         )
         signals = {
             "trade_date": TRADE_DATE,
-            "strategy": "ema_p10",
+            "strategy": "nwl_p4",
+            "signal_role": "execution",
             "exits": [{"ticker": "TSLA", "reason": "trend_break", "qty": 5}],
             "entries": [],
         }
@@ -1448,7 +1478,8 @@ class TestAlpacaExitFilledRecovery:
         )
         signals = {
             "trade_date": TRADE_DATE,
-            "strategy": "ema_p10",
+            "strategy": "nwl_p4",
+            "signal_role": "execution",
             "exits": [
                 {
                     "ticker": "TSLA",
@@ -1502,7 +1533,8 @@ class TestAlpacaExitFilledRecovery:
         )
         signals = {
             "trade_date": TRADE_DATE,
-            "strategy": "ema_p10",
+            "strategy": "nwl_p4",
+            "signal_role": "execution",
             "exits": [
                 {
                     "ticker": "TSLA",

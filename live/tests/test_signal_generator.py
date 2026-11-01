@@ -336,8 +336,8 @@ class TestReconciliation:
                 run_id="test-force",
                 force=True,
             )
-            assert "ema_p10" in result
-            assert "nwl_p4" in result
+            assert "execution" in result
+            assert "shadow" in result
 
 
 class TestTrailingStopExits:
@@ -374,7 +374,7 @@ class TestTrailingStopExits:
                 run_id="test-exit",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         exit_tickers = [e["ticker"] for e in ema["exits"]]
         assert "FAIL" in exit_tickers
         assert ema["exits"][0]["reason"] == "trend_break"
@@ -444,7 +444,7 @@ class TestRotation:
                 run_id="test-rotation",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         exit_tickers = [e["ticker"] for e in ema["exits"]]
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "WEAK" in exit_tickers
@@ -479,7 +479,7 @@ class TestNewEntries:
                 run_id="test-entries",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert len(ema["entries"]) == 3
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "AAA" in entry_tickers
@@ -509,7 +509,7 @@ class TestNewEntries:
                 run_id="test-dup",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "CRDO" not in entry_tickers
         assert "PLTR" in entry_tickers
@@ -552,7 +552,7 @@ class TestShadow:
                 run_id="test-shadow",
             )
 
-        nwl = result["nwl_p4"]
+        nwl = result["shadow"]
         # Shadow should know about NVDA (shadow pos), not AAPL (real pos)
         assert nwl["summary"]["open_positions_before"] == 1
         # CRDO should be entered in shadow (capacity = 3 - 1 = 2 slots)
@@ -576,7 +576,7 @@ class TestSignalFormat:
                 run_id="test-format",
             )
 
-            for key in ("ema_p10", "nwl_p4"):
+            for key in ("execution", "shadow"):
                 sig = result[key]
                 assert "trade_date" in sig
                 assert "strategy" in sig
@@ -596,14 +596,17 @@ class TestSignalFormat:
                 assert "daily_entry_limit" in summary
 
             # Verify JSON file was written
-            ema_file = os.path.join(tmp_dir, "signals", "trade_signals_2026-02-17_ema_p10.json")
-            assert os.path.exists(ema_file)
-            with open(ema_file) as f:
+            execution_file = os.path.join(
+                tmp_dir, "signals", "trade_signals_2026-02-17_nwl_p4.json"
+            )
+            assert os.path.exists(execution_file)
+            with open(execution_file) as f:
                 loaded = json.load(f)
-            assert loaded["strategy"] == "ema_p10"
+            assert loaded["strategy"] == "nwl_p4"
+            assert loaded["signal_role"] == "execution"
 
             # Verify entry structure
-            for entry in result["ema_p10"]["entries"]:
+            for entry in result["execution"]["entries"]:
                 assert "ticker" in entry
                 assert "side" in entry
                 assert "qty" in entry
@@ -633,7 +636,7 @@ class TestDryRun:
             )
 
         # Shadow entries generated but NOT written to DB
-        nwl = result["nwl_p4"]
+        nwl = result["shadow"]
         assert len(nwl["entries"]) > 0
 
         # DB should have no shadow positions
@@ -716,14 +719,50 @@ class TestSkippedTradesToDicts:
 class TestEntryQualityFilter:
     """Entry quality filter integration in generate_signals.
 
-    Config: price_min=0, price_max=30 (exclude all $0-$30, extends backtest
-    [10,30) to also block sub-$10 penny stocks). gap>=10 & score>=85 combo
-    excluded (backtest default). Filter runs after grade filter.
+    The filter is manifest-controlled. Canonical live defaults keep it off;
+    explicit config enables the historical live safety profile used by these
+    regression tests.
     """
+
+    @staticmethod
+    def _filter_config(**overrides):
+        values = {
+            "max_positions": 10,
+            "daily_entry_limit": 5,
+            "entry_quality_filter": True,
+            "exclude_price_min": 0,
+            "exclude_price_max": 30,
+            "risk_gap_threshold": 10,
+            "risk_score_threshold": 85,
+        }
+        values.update(overrides)
+        return LiveConfig(**values)
+
+    def test_default_config_does_not_apply_live_only_filter(self, db, price_fetcher):
+        """Default config follows reports/backtest/run_manifest.json: no entry filter."""
+        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[("PLBY", 71, "B", 1.87), ("SAFE", 70, "B", 50.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=price_fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-filter-off",
+            )
+        entry_tickers = [e["ticker"] for e in result["execution"]["entries"]]
+        assert "PLBY" in entry_tickers
+        assert "SAFE" in entry_tickers
 
     def test_penny_stock_excluded(self, db, price_fetcher):
         """PLBY-style $1.87 penny stock must be excluded."""
-        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        config = self._filter_config()
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -742,7 +781,7 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-penny",
             )
-        ema = result["ema_p10"]
+        ema = result["execution"]
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "PLBY" not in entry_tickers
         assert "SAFE" in entry_tickers
@@ -752,7 +791,7 @@ class TestEntryQualityFilter:
 
     def test_price_boundary_9_99_excluded(self, db, price_fetcher):
         """$9.99 below $30 ceiling -> excluded."""
-        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        config = self._filter_config()
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -768,13 +807,13 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-999",
             )
-        entry_tickers = [e["ticker"] for e in result["ema_p10"]["entries"]]
+        entry_tickers = [e["ticker"] for e in result["execution"]["entries"]]
         assert "LOW" not in entry_tickers
         assert "PASS" in entry_tickers
 
     def test_price_boundary_29_99_excluded(self, db, price_fetcher):
         """$29.99 still inside [0,30) -> excluded."""
-        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        config = self._filter_config()
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -790,7 +829,7 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-2999",
             )
-        entry_tickers = [e["ticker"] for e in result["ema_p10"]["entries"]]
+        entry_tickers = [e["ticker"] for e in result["execution"]["entries"]]
         assert "EDGE" not in entry_tickers
         assert "PASS" in entry_tickers
 
@@ -802,7 +841,7 @@ class TestEntryQualityFilter:
         This distinguishes "filter with correct boundary" from "no filter
         at all" which would also let $30 pass.
         """
-        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        config = self._filter_config()
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -818,7 +857,7 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-30",
             )
-        ema = result["ema_p10"]
+        ema = result["execution"]
         entries = [e for e in ema["entries"] if e["ticker"] == "EXACT"]
         assert len(entries) == 1
         assert entries[0]["qty"] > 0
@@ -827,7 +866,7 @@ class TestEntryQualityFilter:
 
     def test_gap_score_combo_excluded(self, db, price_fetcher):
         """gap>=10 & score>=85 combo excluded even with safe price."""
-        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        config = self._filter_config()
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -847,7 +886,7 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-combo",
             )
-        ema = result["ema_p10"]
+        ema = result["execution"]
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "RISKY" not in entry_tickers
         assert "SAFE" in entry_tickers
@@ -863,7 +902,7 @@ class TestEntryQualityFilter:
         would look fine, but shadow_skipped would lose the audit trail
         which this assertion catches.
         """
-        config = LiveConfig(max_positions=10, daily_entry_limit=5)
+        config = self._filter_config()
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -879,13 +918,41 @@ class TestEntryQualityFilter:
                 trade_date="2026-02-17",
                 run_id="test-shadow-filter",
             )
-        shadow = result["nwl_p4"]
+        shadow = result["shadow"]
         shadow_entries = [e["ticker"] for e in shadow["entries"]]
         assert "PLBY" not in shadow_entries
         assert "SAFE" in shadow_entries
         shadow_skipped = {s["ticker"]: s["reason"] for s in shadow["skipped"]}
         assert "PLBY" in shadow_skipped
         assert "low_price" in shadow_skipped["PLBY"]
+
+    def test_vix_filter_is_config_controlled(self, db):
+        """VIX filter only applies when enabled by config/manifest."""
+        config = LiveConfig(
+            max_positions=10,
+            daily_entry_limit=5,
+            vix_filter=True,
+            vix_threshold=20.0,
+        )
+        fetcher = FakePriceFetcher({"^VIX": [_make_bar("2026-02-14", 25.0, 26.0, 24.0, 25.5)]})
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            report = _write_fake_report(
+                tmp_dir,
+                candidates=[("RISK", 80, "B", 100.0, 5.0), ("SAFE", 75, "B", 80.0, 5.0)],
+            )
+            result = generate_signals(
+                config=config,
+                state_db=db,
+                alpaca_client=None,
+                price_fetcher=fetcher,
+                report_file=report,
+                output_dir=os.path.join(tmp_dir, "signals"),
+                trade_date="2026-02-17",
+                run_id="test-vix-filter",
+            )
+
+        assert result["execution"]["entries"] == []
+        assert {s["reason"] for s in result["execution"]["skipped"]} == {"filter_high_vix_20.0"}
 
 
 class TestDailyEntryLimit:
@@ -914,7 +981,7 @@ class TestDailyEntryLimit:
                 run_id="test-daily-limit",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert len(ema["entries"]) == 2
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "AAA" in entry_tickers
@@ -946,7 +1013,7 @@ class TestDailyEntryLimit:
                 run_id="test-cap-binds",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert len(ema["entries"]) == 1
         capacity_skips = [s for s in ema["skipped"] if s["reason"] == "capacity_full"]
         assert len(capacity_skips) == 2
@@ -1017,7 +1084,7 @@ class TestDailyEntryLimit:
                 run_id="test-rotation-daily",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         # Rotation used the 1 daily slot: WEAK out, BETTER in
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "BETTER" in entry_tickers
@@ -1042,8 +1109,8 @@ class TestDailyEntryLimit:
                 run_id="test-summary",
             )
 
-        assert result["ema_p10"]["summary"]["daily_entry_limit"] == 2
-        assert result["nwl_p4"]["summary"]["daily_entry_limit"] == 2
+        assert result["execution"]["summary"]["daily_entry_limit"] == 2
+        assert result["shadow"]["summary"]["daily_entry_limit"] == 2
 
     def test_shadow_daily_limit(self, db, price_fetcher):
         """Shadow path also enforces daily_entry_limit independently."""
@@ -1067,7 +1134,7 @@ class TestDailyEntryLimit:
                 run_id="test-shadow-daily",
             )
 
-        nwl = result["nwl_p4"]
+        nwl = result["shadow"]
         assert len(nwl["entries"]) == 1
         daily_skips = [s for s in nwl["skipped"] if s["reason"] == "daily_limit"]
         assert len(daily_skips) == 1
@@ -1135,7 +1202,7 @@ class TestDailyEntryLimit:
                 run_id="test-rotation-cap",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert ema["summary"]["open_positions_after"] <= config.max_positions
         entry_tickers = [e["ticker"] for e in ema["entries"]]
         assert "BETTER" in entry_tickers
@@ -1700,7 +1767,7 @@ class TestE2EPipeline:
                 run_id="test-e2e-json",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert len(ema["entries"]) >= 1
         for entry in ema["entries"]:
             assert entry["qty"] > 0
@@ -1727,7 +1794,7 @@ class TestE2EPipeline:
                 run_id="test-e2e-compat",
             )
 
-        for key in ("ema_p10", "nwl_p4"):
+        for key in ("execution", "shadow"):
             entries = result[key]["entries"]
             for entry in entries:
                 assert isinstance(entry["ticker"], str)
@@ -1785,7 +1852,7 @@ class TestJsonSchemaValidation:
                 run_id="test-json-missing",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert ema["price_validation_failed"] is True
         assert ema["entries"] == []
 
@@ -1812,7 +1879,7 @@ class TestJsonSchemaValidation:
                 run_id="test-empty-ok",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert ema["price_validation_failed"] is False
         assert ema["entries"] == []
 
@@ -1839,8 +1906,8 @@ class TestJsonSchemaValidation:
                 run_id="test-bad-grade",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
-        assert result["ema_p10"]["entries"] == []
+        assert result["execution"]["price_validation_failed"] is True
+        assert result["execution"]["entries"] == []
 
     def test_json_invalid_ticker_blocks(self, db, config, price_fetcher):
         """ticker='$$$' (regex mismatch) → block."""
@@ -1865,7 +1932,7 @@ class TestJsonSchemaValidation:
                 run_id="test-bad-ticker",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_dollar_prefix_ticker_blocks(self, db, config, price_fetcher):
         """ticker='$AAPL' (loose parser would silently strip) → block in strict mode."""
@@ -1890,7 +1957,7 @@ class TestJsonSchemaValidation:
                 run_id="test-dollar-prefix",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_lowercase_grade_blocks(self, db, config, price_fetcher):
         """grade='a' (loose parser would silently uppercase) → block in strict mode."""
@@ -1915,7 +1982,7 @@ class TestJsonSchemaValidation:
                 run_id="test-lower-grade",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_negative_price_blocks(self, db, config, price_fetcher):
         """price=-1.0 → loose parser drops, strict raises."""
@@ -1940,7 +2007,7 @@ class TestJsonSchemaValidation:
                 run_id="test-neg-price",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_score_out_of_range_blocks(self, db, config, price_fetcher):
         """score=150 (>100) → block."""
@@ -1965,7 +2032,7 @@ class TestJsonSchemaValidation:
                 run_id="test-bad-score",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_duplicate_ticker_blocks(self, db, config, price_fetcher):
         """Same ticker twice → block."""
@@ -1993,7 +2060,7 @@ class TestJsonSchemaValidation:
                 run_id="test-dup-ticker",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_string_score_blocks(self, db, config, price_fetcher):
         """score='80' (string, would coerce in loose parser) → block in strict mode."""
@@ -2018,7 +2085,7 @@ class TestJsonSchemaValidation:
                 run_id="test-str-score",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
     def test_json_nan_price_blocks(self, db, config, price_fetcher):
         """price=NaN → block (math.isfinite check)."""
@@ -2068,7 +2135,7 @@ class TestJsonSchemaValidation:
                 run_id="test-nan-price",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -2772,7 +2839,7 @@ class TestQtyGuard:
                 run_id="test-qty-zero",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert len(ema["entries"]) == 0
         qty_zero_skipped = [s for s in ema["skipped"] if s.get("reason") == "qty_zero"]
         assert len(qty_zero_skipped) == 1
@@ -2815,7 +2882,7 @@ class TestQtyGuard:
                 force=True,
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         # No rotation should have happened
         assert len(ema["entries"]) == 0
         # OLD should NOT have been exited
@@ -2841,7 +2908,7 @@ class TestQtyGuard:
                 run_id="test-shadow-qty-zero",
             )
 
-        nwl = result["nwl_p4"]
+        nwl = result["shadow"]
         assert len(nwl["entries"]) == 0
         qty_zero_skipped = [s for s in nwl["skipped"] if s.get("reason") == "qty_zero"]
         assert len(qty_zero_skipped) == 1
@@ -2882,7 +2949,7 @@ class TestQtyGuard:
                 dry_run=True,
             )
 
-        nwl = result["nwl_p4"]
+        nwl = result["shadow"]
         assert len(nwl["entries"]) == 0
         rotated_exits = [e for e in nwl["exits"] if e.get("reason") == "rotated_out"]
         assert len(rotated_exits) == 0
@@ -2932,14 +2999,14 @@ class TestFailClosedIntegration:
                 run_id="test-broken-json",
             )
 
-        ema = result["ema_p10"]
+        ema = result["execution"]
         assert ema["price_validation_failed"] is True
         assert len(ema["entries"]) == 0
         # Exits structure should still be present (empty since no positions)
         assert isinstance(ema["exits"], list)
 
     def test_validation_failed_flag_in_both_signals(self, db, config, price_fetcher):
-        """price_validation_failed=True appears in both ema_p10 and nwl_p4."""
+        """price_validation_failed=True appears in both execution and shadow signals."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             report = _write_fake_report(
                 tmp_dir,
@@ -2962,5 +3029,5 @@ class TestFailClosedIntegration:
                 run_id="test-flag-both",
             )
 
-        assert result["ema_p10"]["price_validation_failed"] is True
-        assert result["nwl_p4"]["price_validation_failed"] is True
+        assert result["execution"]["price_validation_failed"] is True
+        assert result["shadow"]["price_validation_failed"] is True

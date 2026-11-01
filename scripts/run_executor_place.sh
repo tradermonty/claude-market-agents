@@ -11,8 +11,10 @@ PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:${HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH}"
 
-LOG_DIR="${PROJECT_DIR}/logs"
-LOG_FILE="${LOG_DIR}/executor_place_$(date +%Y-%m-%d).log"
+TODAY="${TODAY:-$(date +%Y-%m-%d)}"
+LOG_DIR="${LOG_DIR:-${PROJECT_DIR}/logs}"
+LOG_FILE="${LOG_DIR}/executor_place_${TODAY}.log"
+MANIFEST="${MANIFEST:-reports/backtest/run_manifest.json}"
 
 mkdir -p "${LOG_DIR}"
 cd "${PROJECT_DIR}" || exit 1
@@ -21,21 +23,38 @@ echo "=======================================" >> "${LOG_FILE}"
 echo "Executor Place - Started: $(date)" >> "${LOG_FILE}"
 echo "=======================================" >> "${LOG_FILE}"
 
-# Find today's signals file (ema_p10 strategy, today's date only)
+# Resolve the manifest-aligned primary strategy, then find today's execution signals file.
 SIGNALS_DIR="${PROJECT_DIR}/live/signals"
-TODAY=$(date +%Y-%m-%d)
-SIGNALS_FILE=$(ls -t "${SIGNALS_DIR}"/trade_signals_"${TODAY}"_ema_p10.json 2>/dev/null | head -1)
+if ! PRIMARY_STRATEGY=$(
+    .venv/bin/python -c '
+import sys
+from live.config import LiveConfig
+
+print(LiveConfig.from_manifest(sys.argv[1]).primary_strategy_id)
+' "${MANIFEST}" 2>> "${LOG_FILE}"
+); then
+    echo "ERROR: Could not resolve primary strategy from manifest: ${MANIFEST}" >> "${LOG_FILE}"
+    echo "Completed: $(date)" >> "${LOG_FILE}"
+    exit 1
+fi
+
+SIGNALS_FILE=""
+for f in "${SIGNALS_DIR}"/trade_signals_"${TODAY}"_"${PRIMARY_STRATEGY}".json; do
+    if [ -f "$f" ]; then
+        SIGNALS_FILE="$f"
+        break
+    fi
+done
 
 if [ -z "${SIGNALS_FILE}" ]; then
-    echo "ERROR: No ema_p10 signals file found for ${TODAY}" >> "${LOG_FILE}"
-    echo "Expected: ${SIGNALS_DIR}/trade_signals_${TODAY}_ema_p10.json" >> "${LOG_FILE}"
+    echo "ERROR: No execution signals file found for ${TODAY}" >> "${LOG_FILE}"
+    echo "Expected: ${SIGNALS_DIR}/trade_signals_${TODAY}_${PRIMARY_STRATEGY}.json" >> "${LOG_FILE}"
     echo "Completed: $(date)" >> "${LOG_FILE}"
     exit 1
 fi
 
 echo "Using signals file: ${SIGNALS_FILE}" >> "${LOG_FILE}"
-
-MANIFEST="${MANIFEST:-reports/backtest/run_manifest.json}"
+echo "Using manifest: ${MANIFEST}" >> "${LOG_FILE}"
 
 # Run executor in place phase
 # --trade-date is omitted; Python resolves via datetime.now(ET)

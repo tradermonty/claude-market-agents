@@ -2,8 +2,8 @@
 """Signal generator for live paper trading.
 
 CLI module (python -m live.signal_generator) that generates trade signal
-JSON files from earnings HTML reports. Handles both the primary ema_p10
-execution path and the nwl_p4 shadow tracking path.
+JSON files from earnings HTML reports. Handles the primary execution path
+and the nwl_p4 shadow tracking path.
 """
 
 import argparse
@@ -14,35 +14,35 @@ import os
 import re
 import sys
 import uuid
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
-from backtest.entry_filter import apply_entry_quality_filter
+from backtest.entry_filter import (
+    EXCLUDE_PRICE_MAX,
+    EXCLUDE_PRICE_MIN,
+    RISK_GAP_THRESHOLD,
+    RISK_SCORE_THRESHOLD,
+    apply_entry_quality_filter,
+)
 from backtest.html_parser import TradeCandidate  # dataclass shared; runtime parser unused
 from backtest.json_parser import TICKER_RE as _TICKER_RE
 from backtest.json_parser import VALID_GRADES, parse_candidates_json
 from backtest.price_fetcher import PriceFetcherProtocol
 from backtest.trade_simulator import SkippedTrade
+from backtest.vix_filter import (
+    VIX_LOOKBACK_DAYS,
+    VIX_THRESHOLD_DEFAULT,
+    apply_vix_filter,
+    fetch_vix_data,
+)
 from live.alpaca_client import AlpacaClient
-from live.config import ET, LiveConfig, resolve_api_key
+from live.config import CANONICAL_MANIFEST_PATH, ET, LiveConfig, resolve_api_key
 from live.state_db import TERMINAL_STATUSES, StateDB
 from live.trailing_stop_checker import TrailingStopChecker
 
 logger = logging.getLogger(__name__)
 
 GRADE_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3}
-
-# Entry quality filter thresholds (see apply_entry_quality_filter call below).
-# These are INTENTIONALLY WIDER than backtest/entry_filter defaults:
-# backtest uses [10, 30) for price; live extends to [0, 30) to additionally
-# block sub-$10 penny stocks (e.g. PLBY @ $1.87 that slipped through in
-# production on 2026-03-17 and triggered the kill switch).
-# gap/score thresholds match backtest defaults (pinned here so that future
-# backtest tuning does not silently change live entry behavior).
-LIVE_PRICE_MIN = 0
-LIVE_PRICE_MAX = 30
-LIVE_GAP_THRESHOLD = 10
-LIVE_SCORE_THRESHOLD = 85
 
 
 class PriceValidationError(Exception):
@@ -60,7 +60,7 @@ class ReconciliationError(Exception):
 DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
 
 
-def _derive_json_path(html_path: str) -> Optional[str]:
+def _derive_json_path(html_path: str) -> str | None:
     """Derive JSON candidates path from HTML report path.
 
     e.g. reports/earnings_trade_analysis_2026-02-19.html
@@ -75,11 +75,11 @@ def _derive_json_path(html_path: str) -> Optional[str]:
 
 
 def _skipped_trades_to_dicts(
-    pre_skipped: Optional[List[SkippedTrade]],
+    pre_skipped: List[SkippedTrade] | None,
 ) -> List[Dict[str, Any]]:
     """Convert SkippedTrade records into the dict shape used in signal JSON.
 
-    Shared by EMA and shadow paths so both trees record filter rejections
+    Shared by execution and shadow paths so both trees record filter rejections
     identically.
     """
     if not pre_skipped:
@@ -99,7 +99,7 @@ def _filter_candidates(candidates: List[TradeCandidate], min_grade: str) -> List
     return filtered
 
 
-def _parse_iso_date(value: Any) -> Optional[str]:
+def _parse_iso_date(value: Any) -> str | None:
     """Parse Alpaca ISO timestamp to YYYY-MM-DD; return None on failure.
 
     Accepts variants with/without timezone (e.g., '2026-04-29T15:45:46Z',
@@ -163,7 +163,7 @@ def _find_post_entry_sell_fill(
     alpaca_client: AlpacaClient,
     ticker: str,
     entry_date: str,
-) -> Optional[Dict[str, Any]]:
+) -> Dict[str, Any] | None:
     """Return the most recent filled sell order for ticker after entry_date.
 
     Used as a fallback when the recorded stop order didn't fill (canceled,
@@ -222,7 +222,7 @@ def _sync_positions_from_alpaca(
 
         # --- Path 1: recorded stop fill ----------------------------------
         stop_order_id = pos.get("stop_order_id")
-        stop_order: Optional[Dict[str, Any]] = None
+        stop_order: Dict[str, Any] | None = None
         if stop_order_id:
             try:
                 stop_order = alpaca_client.get_order(stop_order_id)
@@ -609,7 +609,7 @@ def _reconcile_positions(
 def _find_weakest_position(
     db_positions: List[Dict[str, Any]],
     alpaca_positions: List[Dict[str, Any]],
-) -> Optional[Dict[str, Any]]:
+) -> Dict[str, Any] | None:
     """Find the position with the most negative unrealized P&L."""
     alpaca_by_ticker = {p["symbol"]: p for p in alpaca_positions}
     worst = None
@@ -628,7 +628,7 @@ def _find_weakest_position(
 def _find_weakest_shadow(
     shadow_positions: List[Dict[str, Any]],
     config: LiveConfig,
-) -> Optional[Dict[str, Any]]:
+) -> Dict[str, Any] | None:
     """Find the shadow position with the worst theoretical return."""
     worst = None
     worst_ret = 0.0
@@ -655,6 +655,66 @@ def _calculate_qty(price: float, position_size: float) -> int:
 def _calculate_stop_price(price: float, stop_loss_pct: float) -> float:
     """Calculate stop price from entry price and stop loss percentage."""
     return round(price * (1 - stop_loss_pct / 100), 2)
+
+
+def _has_daily_entry_capacity(config: LiveConfig, daily_entry_count: int) -> bool:
+    """Return True when the manifest's optional daily entry cap still allows entries."""
+    return config.daily_entry_limit is None or daily_entry_count < config.daily_entry_limit
+
+
+def _remaining_daily_entries(config: LiveConfig, daily_entry_count: int) -> int | None:
+    """Remaining entries for this run, or None when the backtest uses no daily cap."""
+    if config.daily_entry_limit is None:
+        return None
+    return max(config.daily_entry_limit - daily_entry_count, 0)
+
+
+def _apply_configured_entry_quality_filter(
+    candidates: List[TradeCandidate],
+    config: LiveConfig,
+) -> tuple[List[TradeCandidate], List[SkippedTrade]]:
+    """Apply the entry-quality filter only when the manifest/config enables it."""
+    if not config.entry_quality_filter:
+        return candidates, []
+
+    price_min = (
+        config.exclude_price_min if config.exclude_price_min is not None else EXCLUDE_PRICE_MIN
+    )
+    price_max = (
+        config.exclude_price_max if config.exclude_price_max is not None else EXCLUDE_PRICE_MAX
+    )
+    gap_threshold = (
+        config.risk_gap_threshold if config.risk_gap_threshold is not None else RISK_GAP_THRESHOLD
+    )
+    score_threshold = (
+        config.risk_score_threshold
+        if config.risk_score_threshold is not None
+        else RISK_SCORE_THRESHOLD
+    )
+    return apply_entry_quality_filter(
+        candidates,
+        price_min=price_min,
+        price_max=price_max,
+        gap_threshold=gap_threshold,
+        score_threshold=score_threshold,
+    )
+
+
+def _apply_configured_vix_filter(
+    candidates: List[TradeCandidate],
+    config: LiveConfig,
+    price_fetcher: PriceFetcherProtocol,
+) -> tuple[List[TradeCandidate], List[SkippedTrade]]:
+    """Apply the manifest-controlled VIX filter."""
+    if not config.vix_filter or not candidates:
+        return candidates, []
+
+    report_dates = [datetime.strptime(c.report_date, "%Y-%m-%d") for c in candidates]
+    vix_from = (min(report_dates) - timedelta(days=VIX_LOOKBACK_DAYS)).strftime("%Y-%m-%d")
+    vix_to = (max(report_dates) + timedelta(days=VIX_LOOKBACK_DAYS)).strftime("%Y-%m-%d")
+    vix_data = fetch_vix_data(price_fetcher, vix_from, vix_to)
+    threshold = config.vix_threshold if config.vix_threshold is not None else VIX_THRESHOLD_DEFAULT
+    return apply_vix_filter(candidates, vix_data, threshold)
 
 
 def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
@@ -698,7 +758,7 @@ def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
             v = entry.get(field)
             if v is None:
                 continue
-            if isinstance(v, bool) or not isinstance(v, (int, float)):
+            if isinstance(v, bool) or not isinstance(v, int | float):
                 raise PriceValidationError(f"candidate[{i}].{field} not number: {type(v).__name__}")
             if not math.isfinite(v):
                 raise PriceValidationError(f"candidate[{i}].{field} not finite: {v}")
@@ -706,7 +766,7 @@ def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
         # gap_size: optional, but if present must be finite number
         gs = entry.get("gap_size")
         if gs is not None:
-            if isinstance(gs, bool) or not isinstance(gs, (int, float)):
+            if isinstance(gs, bool) or not isinstance(gs, int | float):
                 raise PriceValidationError(f"candidate[{i}].gap_size not number/null")
             if not math.isfinite(gs):
                 raise PriceValidationError(f"candidate[{i}].gap_size not finite: {gs}")
@@ -747,7 +807,7 @@ def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
 def generate_signals(
     config: LiveConfig,
     state_db: StateDB,
-    alpaca_client: Optional[AlpacaClient],
+    alpaca_client: AlpacaClient | None,
     price_fetcher: PriceFetcherProtocol,
     report_file: str,
     output_dir: str,
@@ -758,7 +818,7 @@ def generate_signals(
 ) -> Dict[str, Any]:
     """Generate trade signals from an earnings report.
 
-    Returns dict with keys 'ema_p10' and 'nwl_p4' signal dicts.
+    Returns dict with keys 'execution' and 'shadow' signal dicts.
     """
     # 1. Kill switch check
     if state_db.is_kill_switch_on():
@@ -785,32 +845,33 @@ def generate_signals(
             price_validation_failed = True
 
     # 3. Filter by min_grade (skip if validation failed — candidates already empty)
-    quality_skipped: List[SkippedTrade] = []
+    filter_skipped: List[SkippedTrade] = []
     if not price_validation_failed:
         candidates = _filter_candidates(candidates, config.min_grade)
         logger.info("After grade filter: %d candidates", len(candidates))
 
-        # Entry quality filter. Thresholds are pinned at module level so that
-        # backtest.entry_filter default changes never silently alter live
-        # entry behavior. See LIVE_* constants for the rationale.
-        candidates, quality_skipped = apply_entry_quality_filter(
-            candidates,
-            price_min=LIVE_PRICE_MIN,
-            price_max=LIVE_PRICE_MAX,
-            gap_threshold=LIVE_GAP_THRESHOLD,
-            score_threshold=LIVE_SCORE_THRESHOLD,
-        )
+        candidates, quality_skipped = _apply_configured_entry_quality_filter(candidates, config)
         if quality_skipped:
             logger.info(
                 "Entry quality filter skipped %d: %s",
                 len(quality_skipped),
                 [(s.ticker, s.skip_reason) for s in quality_skipped],
             )
+            filter_skipped.extend(quality_skipped)
+
+        candidates, vix_skipped = _apply_configured_vix_filter(candidates, config, price_fetcher)
+        if vix_skipped:
+            logger.info(
+                "VIX filter skipped %d: %s",
+                len(vix_skipped),
+                [(s.ticker, s.skip_reason) for s in vix_skipped],
+            )
+            filter_skipped.extend(vix_skipped)
 
     generated_at = datetime.now(ET).isoformat()
 
-    # === ema_p10 path (execution) ===
-    ema_signals = _generate_ema_signals(
+    # === primary execution path ===
+    execution_signals = _generate_execution_signals(
         config,
         state_db,
         alpaca_client,
@@ -821,21 +882,22 @@ def generate_signals(
         generated_at,
         force,
         dry_run=dry_run,
-        pre_skipped=quality_skipped,
+        pre_skipped=filter_skipped,
     )
 
     # Add validation flag to signal dicts
-    ema_signals["price_validation_failed"] = price_validation_failed
+    execution_signals["price_validation_failed"] = price_validation_failed
 
-    # Write ema signal file
-    ema_path = os.path.join(output_dir, f"trade_signals_{trade_date}_ema_p10.json")
+    execution_path = os.path.join(
+        output_dir, f"trade_signals_{trade_date}_{config.primary_strategy_id}.json"
+    )
     os.makedirs(output_dir, exist_ok=True)
-    with open(ema_path, "w") as f:
-        json.dump(ema_signals, f, indent=2)
-    logger.info("Wrote EMA signals to %s", ema_path)
+    with open(execution_path, "w") as f:
+        json.dump(execution_signals, f, indent=2)
+    logger.info("Wrote primary execution signals to %s", execution_path)
 
-    # === nwl_p4 path (shadow) ===
-    nwl_signals = _generate_shadow_signals(
+    # === shadow path ===
+    shadow_signals = _generate_shadow_signals(
         config,
         state_db,
         price_fetcher,
@@ -844,29 +906,33 @@ def generate_signals(
         run_id,
         generated_at,
         dry_run,
-        pre_skipped=quality_skipped,
+        pre_skipped=filter_skipped,
     )
 
     # Add validation flag to shadow signals
-    nwl_signals["price_validation_failed"] = price_validation_failed
+    shadow_signals["price_validation_failed"] = price_validation_failed
 
     # Write shadow signal file
-    nwl_path = os.path.join(output_dir, f"trade_signals_{trade_date}_nwl_p4.json")
-    with open(nwl_path, "w") as f:
-        json.dump(nwl_signals, f, indent=2)
-    logger.info("Wrote NWL signals to %s", nwl_path)
+    shadow_path = os.path.join(
+        output_dir, f"trade_signals_{trade_date}_{config.shadow_signal_label}.json"
+    )
+    with open(shadow_path, "w") as f:
+        json.dump(shadow_signals, f, indent=2)
+    logger.info("Wrote shadow signals to %s", shadow_path)
 
     # Store shadow signals in DB
     if not dry_run:
-        state_db.add_shadow_signals(trade_date, "nwl_p4", json.dumps(nwl_signals))
+        state_db.add_shadow_signals(
+            trade_date, config.shadow_strategy_id, json.dumps(shadow_signals)
+        )
 
-    return {"ema_p10": ema_signals, "nwl_p4": nwl_signals}
+    return {"execution": execution_signals, "shadow": shadow_signals}
 
 
-def _generate_ema_signals(
+def _generate_execution_signals(
     config: LiveConfig,
     state_db: StateDB,
-    alpaca_client: Optional[AlpacaClient],
+    alpaca_client: AlpacaClient | None,
     price_fetcher: PriceFetcherProtocol,
     candidates: List[TradeCandidate],
     trade_date: str,
@@ -874,9 +940,9 @@ def _generate_ema_signals(
     generated_at: str,
     force: bool,
     dry_run: bool = False,
-    pre_skipped: Optional[List[SkippedTrade]] = None,
+    pre_skipped: List[SkippedTrade] | None = None,
 ) -> Dict[str, Any]:
-    """Generate EMA trailing stop signals for execution."""
+    """Generate primary execution signals."""
     # 4. Get open positions
     db_positions = state_db.get_open_positions()
 
@@ -934,7 +1000,7 @@ def _generate_ema_signals(
                     "stop_order_id": pos.get("stop_order_id"),
                 }
             )
-            logger.info("EMA exit signal: %s (trend_break)", pos["ticker"])
+            logger.info("Primary exit signal: %s (trend_break)", pos["ticker"])
 
     # 8. Rotation check
     exit_tickers = {e["ticker"] for e in exits}
@@ -951,7 +1017,7 @@ def _generate_ema_signals(
         and open_after_exits == config.max_positions
         and candidates
         and not rotation_done
-        and daily_entry_count < config.daily_entry_limit
+        and _has_daily_entry_capacity(config, daily_entry_count)
     ):
         weakest = _find_weakest_position(db_positions, alpaca_positions)
         if weakest and weakest["ticker"] not in exit_tickers:
@@ -1018,11 +1084,11 @@ def _generate_ema_signals(
     open_count = len(db_positions)
     exit_count = len(exits)
     available_slots = config.max_positions - (open_count - exit_count + len(entries))
-    remaining_daily = config.daily_entry_limit - daily_entry_count
+    remaining_daily = _remaining_daily_entries(config, daily_entry_count)
     entry_tickers = {e["ticker"] for e in entries}
 
     for c in candidates:
-        if available_slots <= 0 or remaining_daily <= 0:
+        if available_slots <= 0 or (remaining_daily is not None and remaining_daily <= 0):
             break
         if c.ticker in held_tickers:
             skipped.append({"ticker": c.ticker, "reason": "already_held", "score": c.score or 0})
@@ -1049,7 +1115,8 @@ def _generate_ema_signals(
         )
         entry_tickers.add(c.ticker)
         available_slots -= 1
-        remaining_daily -= 1
+        if remaining_daily is not None:
+            remaining_daily -= 1
 
     # Remaining candidates that didn't fit
     for c in candidates:
@@ -1059,7 +1126,7 @@ def _generate_ema_signals(
             and c.ticker not in exit_tickers
             and c.ticker not in {s["ticker"] for s in skipped}
         ):
-            if remaining_daily <= 0 and available_slots > 0:
+            if remaining_daily is not None and remaining_daily <= 0 and available_slots > 0:
                 skip_reason = "daily_limit"
             else:
                 skip_reason = "capacity_full"
@@ -1069,7 +1136,8 @@ def _generate_ema_signals(
 
     return {
         "trade_date": trade_date,
-        "strategy": "ema_p10",
+        "strategy": config.primary_strategy_id,
+        "signal_role": "execution",
         "run_id": run_id,
         "generated_at": generated_at,
         "exits": exits,
@@ -1082,6 +1150,15 @@ def _generate_ema_signals(
             "open_positions_before": open_count,
             "open_positions_after": open_after,
             "daily_entry_limit": config.daily_entry_limit,
+            "trailing_stop": config.primary_trailing_stop,
+            "trailing_period": config.primary_trailing_period,
+            "entry_quality_filter": config.entry_quality_filter,
+            "exclude_price_min": config.exclude_price_min,
+            "exclude_price_max": config.exclude_price_max,
+            "risk_gap_threshold": config.risk_gap_threshold,
+            "risk_score_threshold": config.risk_score_threshold,
+            "vix_filter": config.vix_filter,
+            "vix_threshold": config.vix_threshold,
         },
     }
 
@@ -1095,11 +1172,11 @@ def _generate_shadow_signals(
     run_id: str,
     generated_at: str,
     dry_run: bool,
-    pre_skipped: Optional[List[SkippedTrade]] = None,
+    pre_skipped: List[SkippedTrade] | None = None,
 ) -> Dict[str, Any]:
-    """Generate NWL trailing stop signals for shadow tracking."""
+    """Generate shadow tracking signals."""
     # 11. Get shadow positions
-    shadow_positions = state_db.get_shadow_positions("nwl_p4")
+    shadow_positions = state_db.get_shadow_positions(config.shadow_strategy_id)
 
     # 12. Check trailing stops
     checker = TrailingStopChecker(
@@ -1142,7 +1219,7 @@ def _generate_shadow_signals(
         and len(shadow_positions) > 0
         and open_after_exits == config.max_positions
         and candidates
-        and daily_entry_count < config.daily_entry_limit
+        and _has_daily_entry_capacity(config, daily_entry_count)
     ):
         weakest = _find_weakest_shadow(shadow_positions, config)
         if weakest and weakest["ticker"] not in exit_tickers:
@@ -1190,11 +1267,11 @@ def _generate_shadow_signals(
     open_count = len(shadow_positions)
     exit_count = len(shadow_exits)
     available_slots = config.max_positions - (open_count - exit_count + len(shadow_entries))
-    remaining_daily = config.daily_entry_limit - daily_entry_count
+    remaining_daily = _remaining_daily_entries(config, daily_entry_count)
     entry_tickers = {e["ticker"] for e in shadow_entries}
 
     for c in candidates:
-        if available_slots <= 0 or remaining_daily <= 0:
+        if available_slots <= 0 or (remaining_daily is not None and remaining_daily <= 0):
             break
         if c.ticker in held_tickers:
             shadow_skipped.append(
@@ -1223,7 +1300,8 @@ def _generate_shadow_signals(
         )
         entry_tickers.add(c.ticker)
         available_slots -= 1
-        remaining_daily -= 1
+        if remaining_daily is not None:
+            remaining_daily -= 1
 
     # 15. Close shadow positions in DB
     if not dry_run:
@@ -1260,7 +1338,7 @@ def _generate_shadow_signals(
             shares = en["qty"]
             invested = entry_price * shares
             state_db.add_shadow_position(
-                strategy="nwl_p4",
+                strategy=config.shadow_strategy_id,
                 ticker=en["ticker"],
                 entry_date=trade_date,
                 entry_price=entry_price,
@@ -1280,7 +1358,7 @@ def _generate_shadow_signals(
             and c.ticker not in exit_tickers
             and c.ticker not in {s["ticker"] for s in shadow_skipped}
         ):
-            if remaining_daily <= 0 and available_slots > 0:
+            if remaining_daily is not None and remaining_daily <= 0 and available_slots > 0:
                 skip_reason = "daily_limit"
             else:
                 skip_reason = "capacity_full"
@@ -1292,7 +1370,8 @@ def _generate_shadow_signals(
 
     return {
         "trade_date": trade_date,
-        "strategy": "nwl_p4",
+        "strategy": config.shadow_strategy_id,
+        "signal_role": "shadow",
         "run_id": run_id,
         "generated_at": generated_at,
         "exits": shadow_exits,
@@ -1305,6 +1384,15 @@ def _generate_shadow_signals(
             "open_positions_before": open_count,
             "open_positions_after": open_after,
             "daily_entry_limit": config.daily_entry_limit,
+            "trailing_stop": config.shadow_trailing_stop,
+            "trailing_period": config.shadow_trailing_period,
+            "entry_quality_filter": config.entry_quality_filter,
+            "exclude_price_min": config.exclude_price_min,
+            "exclude_price_max": config.exclude_price_max,
+            "risk_gap_threshold": config.risk_gap_threshold,
+            "risk_score_threshold": config.risk_score_threshold,
+            "vix_filter": config.vix_filter,
+            "vix_threshold": config.vix_threshold,
         },
     }
 
@@ -1326,7 +1414,9 @@ def main() -> None:
         help="Path to SQLite state DB (default: live/state.db)",
     )
     parser.add_argument(
-        "--manifest", default=None, help="Path to run_manifest.json for config verification"
+        "--manifest",
+        default=CANONICAL_MANIFEST_PATH,
+        help=f"Path to run_manifest.json for config verification (default: {CANONICAL_MANIFEST_PATH})",
     )
     parser.add_argument(
         "--force", action="store_true", help="Continue despite DB/Alpaca position mismatch"
@@ -1352,12 +1442,9 @@ def main() -> None:
         format="%(asctime)s %(levelname)-8s %(name)s - %(message)s",
     )
 
-    config = LiveConfig()
-
-    # Verify against manifest if provided
-    if args.manifest:
-        config.verify_against_manifest(args.manifest)
-        logger.info("Config verified against %s", args.manifest)
+    config = LiveConfig.from_manifest(args.manifest)
+    config.verify_against_manifest(args.manifest)
+    logger.info("Config verified against %s", args.manifest)
 
     # Resolve API keys
     alpaca_key = resolve_api_key("ALPACA_API_KEY", "alpaca")

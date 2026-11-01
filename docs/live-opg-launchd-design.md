@@ -181,7 +181,7 @@ before altering.
 
 # 2. Dry-run each phase (no API keys needed)
 .venv/bin/python -m live.executor \
-    --signals-file live/signals/trade_signals_YYYY-MM-DD_ema_p10.json \
+    --signals-file live/signals/trade_signals_YYYY-MM-DD_nwl_p4.json \
     --state-db live/state.db --phase place --dry-run -v
 
 .venv/bin/python -m live.executor \
@@ -189,7 +189,7 @@ before altering.
 
 # 3. OPG + all rejection
 .venv/bin/python -m live.executor \
-    --signals-file live/signals/trade_signals_YYYY-MM-DD_ema_p10.json \
+    --signals-file live/signals/trade_signals_YYYY-MM-DD_nwl_p4.json \
     --state-db live/state.db --phase all --dry-run -v
 # → exit code 6
 
