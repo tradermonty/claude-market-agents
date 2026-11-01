@@ -48,7 +48,8 @@ MANIFEST_FIELD_MAP = {
 def _read_manifest_config(manifest_path: str) -> dict[str, Any]:
     with open(manifest_path) as f:
         manifest = json.load(f)
-    return manifest.get("config", manifest)
+    config: dict[str, Any] = manifest.get("config", manifest)
+    return config
 
 
 def strategy_id_for(trailing_stop: str, period: int) -> str:
