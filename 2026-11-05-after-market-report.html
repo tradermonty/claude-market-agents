@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-11-05</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+  header h1 { font-size: 2.4em; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+  header .date { font-size: 1.1em; opacity: 0.9; }
+  header .tagline { margin-top: 10px; font-size: 1.15em; font-weight: 600; color: #ffd166; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.25s ease, box-shadow 0.25s ease; animation: fadeIn 0.8s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+  .card h2 { font-size: 1.4em; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .full { margin-bottom: 30px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etf { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; text-align: center; transition: background 0.2s; }
+  .etf:hover { background: rgba(255,255,255,0.2); }
+  .etf .sym { font-weight: 700; font-size: 1.2em; }
+  .etf .name { font-size: 0.75em; opacity: 0.75; margin-bottom: 6px; }
+  .etf .price { font-size: 1.1em; }
+  .pos { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); font-weight: 700; }
+  .neg { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+  th { opacity: 0.8; font-weight: 600; font-size: 0.85em; text-transform: uppercase; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  .catalyst { display: block; font-size: 0.8em; opacity: 0.85; margin-top: 2px; }
+  .note { font-size: 0.8em; opacity: 0.85; margin-top: 12px; line-height: 1.5; }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00; border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 30px; animation: fadeIn 0.8s ease;
+  }
+  .afterhours-section h2 { font-size: 1.5em; margin-bottom: 20px; }
+  .earnings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px; padding: 22px; position: relative; transition: transform 0.2s;
+  }
+  .earnings-card:hover { transform: scale(1.03); }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .earnings-card .symbol { font-size: 1.5em; font-weight: 800; }
+  .earnings-card .cname { font-size: 0.85em; opacity: 0.9; margin-bottom: 8px; }
+  .afterhours-change { font-size: 1.8em; font-weight: 800; color: #0b3d1f; }
+  .afterhours-change.down { color: #8b0000; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; font-weight: 700; }
+  .surprise-positive { color: #0b3d1f; }
+  .surprise-negative { color: #8b0000; }
+  .earnings-card .detail { font-size: 0.85em; line-height: 1.5; }
+  .ah-extra { margin-top: 20px; background: rgba(0,0,0,0.18); border-radius: 14px; padding: 16px; font-size: 0.9em; line-height: 1.6; }
+  .ah-extra h3 { font-size: 1em; margin-bottom: 6px; }
+  .ah-extra .down { color: #ffd6d6; font-weight: 700; }
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .stat { text-align: center; background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px 10px; }
+  .stat .val { font-size: 1.8em; font-weight: 800; color: #ffd166; }
+  .stat .lbl { font-size: 0.8em; opacity: 0.85; margin-top: 4px; }
+  ul.points { list-style: none; }
+  ul.points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); line-height: 1.55; }
+  ul.points li strong { color: #ffd166; }
+  .cal { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cal .day { flex: 1 1 200px; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; line-height: 1.5; }
+  .cal .day h3 { font-size: 1em; margin-bottom: 6px; color: #ffd166; }
+  footer { text-align: center; font-size: 0.85em; opacity: 0.85; line-height: 1.7; margin-top: 10px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 800px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .earnings-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.8em; }
+    .card, .afterhours-section { padding: 20px; }
+    th, td { padding: 8px 5px; font-size: 0.85em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-11-05 – Final After-Market Data</div>
+    <div class="tagline">AI Trade Meltdown: Tech Routed, Every Sector Lower, Nasdaq in Correction per Headlines</div>
+  </header>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2>📈 Major ETF Performance</h2>
+      <div class="etf-grid">
+        <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$733.00</div><div class="neg">-4.41%</div></div>
+        <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$647.05</div><div class="neg">-6.49%</div></div>
+        <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$514.27</div><div class="neg">-3.53%</div></div>
+        <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$270.98</div><div class="neg">-4.59%</div></div>
+        <div class="etf"><div class="sym">TLT</div><div class="name">20+ Yr Treasuries</div><div class="price">$81.93</div><div class="pos">+0.21%</div></div>
+        <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$375.49</div><div class="pos">+0.81%</div></div>
+      </div>
+      <p class="note">Regular-session close vs. the 11/4 close, from Alpaca daily bars. QQQ closed at its session low of $647.05 and SPY closed just above its low of $732.71. Finviz showed SPY at $733.15 (-4.39%), a gap of 0.02 points.</p>
+    </section>
+
+    <section class="card">
+      <h2>🔥 Top Volume-Surge Tickers</h2>
+      <table>
+        <thead><tr><th>Ticker</th><th>Change</th><th>Volume</th><th>Rel Vol</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ECPG</strong> Encore Capital Group<span class="catalyst">Beat estimates and lifted guidance for the third time</span></td><td class="pos">+26.26%</td><td>707.6K</td><td>2.30x</td></tr>
+          <tr><td><strong>ADMA</strong> ADMA Biologics<span class="catalyst">Q3 beat on ASCENIV growth and margins</span></td><td class="pos">+26.05%</td><td>15.0M</td><td>5.17x</td></tr>
+          <tr><td><strong>TBI</strong> TrueBlue<span class="catalyst">Q3 beat with a growth inflection</span></td><td class="pos">+25.61%</td><td>1.5M</td><td>5.42x</td></tr>
+          <tr><td><strong>XERS</strong> Xeris Biopharma<span class="catalyst">Q3 beat, Recorlev nearly doubled, 2030 target raised to $1B</span></td><td class="pos">+25.05%</td><td>12.3M</td><td>5.15x</td></tr>
+          <tr><td><strong>WRBY</strong> Warby Parker<span class="catalyst">Q3 cleared a low EPS bar; guidance leans on intelligent eyewear</span></td><td class="pos">+22.50%</td><td>11.2M</td><td>3.69x</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Next five: ARDT +22.40% after lifting its EBITDA floor, MGNI +20.75% on a beat and raise, EPAM +20.63% on its first big AI deals and a buyback push, ONT +20.40% on a beat with new 2030 targets, DLX +18.27% on a beat and raise.</p>
+    </section>
+  </div>
+
+  <section class="afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$ABNB</div><div class="cname">Airbnb · Consumer Cyclical</div>
+        <div class="afterhours-change">+11.12%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+10.88%</span></span><span>Revenue: <span class="surprise-positive">+2.57%</span></span></div>
+        <div class="detail">Close $170.13, -3.54% in the session. WSJ headline says Airbnb raised its outlook. The only large-cap reporter in the up-only screener.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$AXON</div><div class="cname">Axon Enterprise · Industrials</div>
+        <div class="afterhours-change down">-19.75%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-negative">-8.99%</span></span><span>Revenue: <span class="surprise-negative">-2.76%</span></span></div>
+        <div class="detail">Close $382.56, -9.81% in the session. Reported record Q3 revenue of $909M, up 28%, and a $1.2B investment in Skydio.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$TEAM</div><div class="cname">Atlassian · Technology</div>
+        <div class="afterhours-change down">-17.34%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+18.71%</span></span><span>Revenue: <span class="surprise-positive">+3.27%</span></span></div>
+        <div class="detail">Close $183.29, -3.47% in the session. Falling despite beats on both lines. No cause was confirmed from the fetched headlines.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$NTRA</div><div class="cname">Natera · Healthcare</div>
+        <div class="afterhours-change down">-17.22%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-negative">-49.34%</span></span><span>Revenue: <span class="surprise-positive">+12.22%</span></span></div>
+        <div class="detail">Close $363.76, -6.97% in the session. Loss of $0.42 per share vs. an estimated $0.28 loss. The company also announced a leadership transition.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$GH</div><div class="cname">Guardant Health · Healthcare</div>
+        <div class="afterhours-change down">-15.92%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+61.33%</span></span><span>Revenue: <span class="surprise-positive">+2.92%</span></span></div>
+        <div class="detail">Close $153.43, -8.99% in the session. Loss of $0.29 per share vs. an estimated $0.75 loss. No cause for the decline was confirmed from the fetched headlines.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$AFRM</div><div class="cname">Affirm · Financial</div>
+        <div class="afterhours-change down">-6.12%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+23.85%</span></span><span>Revenue: <span class="surprise-positive">+4.07%</span></span></div>
+        <div class="detail">Close $69.66, -7.84% in the session. No cause for the decline was confirmed from the fetched headlines.</div>
+      </div>
+    </div>
+
+    <div class="ah-extra">
+      <h3>Other reporters</h3>
+      <span class="down">AKAM -3.47%</span> with EPS +5.99% and revenue +0.36%. <span class="down">MNST -3.20%</span> with EPS +0.30% and revenue +2.81%, which is essentially in line on EPS. In total, 6 of these 8 names beat EPS and only ABNB is rising. NET was flat at -0.19% and FMP showed no actual results yet, so it is excluded from the count.
+    </div>
+    <div class="ah-extra">
+      <h3>Data cautions</h3>
+      This snapshot was taken 16:10–16:13 ET, minutes after the close, and prices were moving quickly. AXON went from -15.18% to -19.75% within about two minutes. After-hours percentages use the latest Alpaca trade against the regular close, and ABNB matches the Finviz figure of +11.12%. After-hours volume was not available separately.<br>
+      EPS and revenue surprises are calculated from FMP actuals and estimates. Finviz's surprise columns were not used because they still held prior-quarter values for these names: ABNB showed revenue +0.78% and TEAM +6.24%, which match their previous quarters exactly. Earnings figures may be preliminary.
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat"><div class="val">69</div><div class="lbl">Volume-Surge Tickers</div></div>
+      <div class="stat"><div class="val">561</div><div class="lbl">Up-Trend Tickers</div></div>
+      <div class="stat"><div class="val">2.9x</div><div class="lbl">Avg. Relative Volume</div></div>
+      <div class="stat"><div class="val">+8.6%</div><div class="lbl">Avg. Price Move</div></div>
+      <div class="stat"><div class="val">255</div><div class="lbl">Earnings Listed After Today's Close</div></div>
+    </div>
+    <p class="note">Volume-surge names fell to 69 from 350 on 11/4, and up-trend names fell to 561 from 730. The 255 count comes from the Finviz today-after-close earnings screener, and not every listed company had reported at the time of this snapshot. Finviz lists 1,419 companies reporting this week.</p>
+  </section>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2>🏢 Sector Performance</h2>
+      <table>
+        <thead><tr><th>Sector</th><th>Change</th><th>Market Cap</th><th>Tickers</th></tr></thead>
+        <tbody>
+          <tr><td>Consumer Defensive</td><td class="neg">-0.56%</td><td>$4.83T</td><td>240</td></tr>
+          <tr><td>Utilities</td><td class="neg">-0.75%</td><td>$1.79T</td><td>107</td></tr>
+          <tr><td>Communication Services</td><td class="neg">-1.65%</td><td>$10.91T</td><td>252</td></tr>
+          <tr><td>Real Estate</td><td class="neg">-1.69%</td><td>$1.80T</td><td>248</td></tr>
+          <tr><td>Basic Materials</td><td class="neg">-2.18%</td><td>$2.74T</td><td>298</td></tr>
+          <tr><td>Energy</td><td class="neg">-2.62%</td><td>$4.67T</td><td>252</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Remaining sectors: Financial <span class="neg">-2.69%</span>, Healthcare <span class="neg">-2.80%</span>, Consumer Cyclical <span class="neg">-3.30%</span>, Industrials <span class="neg">-4.87%</span>, Technology <span class="neg">-7.58%</span>. All eleven sectors fell.</p>
+    </section>
+
+    <section class="card">
+      <h2>💡 Today's Key Points</h2>
+      <ul class="points">
+        <li><strong>Broad market:</strong> A day after the post-midterm rally, QQQ fell 6.49% and SPY 4.41%. Yahoo Finance headlines cite a Dow drop of 1,800 points and the Nasdaq entering correction.</li>
+        <li><strong>Why it fell:</strong> Headlines from Reuters and WSJ point to fears of AI regulation and a data-center backlash after the Democratic win. Investing.com and IBD also cite disappointing Qualcomm and Arm reports. WSJ put the tech rout at $2.5 trillion.</li>
+        <li><strong>Chips:</strong> SMH -11.21%, MU -17.46%, AMD -17.26%, ARM -13.08%, QCOM -9.49%, NVDA -9.26%. MCHP fell 13.92% before its own after-close report.</li>
+        <li><strong>Big Tech:</strong> MSFT -3.58%, GOOGL -2.20%, AMZN -2.19% and AAPL -1.53% fell far less than chips.</li>
+        <li><strong>Hot sectors:</strong> None rose. Consumer Defensive and Utilities held up best, while Technology and Industrials took the heaviest losses.</li>
+        <li><strong>Volume surges:</strong> Almost all of the top names moved on Q3 earnings, led by healthcare and small- to mid-caps away from the AI trade.</li>
+        <li><strong>Earnings highlights:</strong> U +14.93% on a big beat and its first GAAP profit. EPAM +20.63% stood out as a technology gainer.</li>
+        <li><strong>After-hours focus:</strong> ABNB +11.12% is the exception. AXON, TEAM, NTRA and GH are each down more than 15%, and three of those four show an EPS beat or a revenue beat.</li>
+        <li><strong>Bonds and gold:</strong> TLT +0.21% and GLD +0.81% rose modestly, well short of the scale of the equity selloff. No specific driver was confirmed from the fetched sources.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card full">
+    <h2>🗓️ Upcoming Earnings</h2>
+    <div class="cal">
+      <div class="day"><h3>Fri 11/6 before the open</h3>MRNA, BAM, HUM, CHTR, BEN, ELAN</div>
+      <div class="day"><h3>Next week</h3>CSCO, AMAT, KKR, CEG, TDG, OXY</div>
+    </div>
+    <p class="note">Friday names come from the Finviz upcoming-earnings screener, limited to large caps, so this list is partial. Next-week names are the largest from a Finviz large-cap-and-above next-week filter, also partial.</p>
+  </section>
+
+  <footer>
+    Data sources: Finviz Elite, Alpaca Markets, Financial Modeling Prep. Market context: Finviz news feed, including Reuters, WSJ, Barron's, MarketWatch and Yahoo Finance headlines.<br>
+    Last refreshed: 2026-11-05, 16:10–16:13 ET (data snapshots).<br>
+    Note: Final after-market data + after-hours info. After-hours liquidity is thin and large moves may occur on low volume.<br>
+    For information only. Not financial advice.
+  </footer>
+
+</div>
+</body>
+</html>
