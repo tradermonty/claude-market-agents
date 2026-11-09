@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-11-09</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+  header h1 { font-size: 2.4em; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+  header .date { font-size: 1.1em; opacity: 0.9; }
+  header .tagline { margin-top: 10px; font-size: 1.15em; font-weight: 600; color: #ffd166; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.25s ease, box-shadow 0.25s ease; animation: fadeIn 0.8s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+  .card h2 { font-size: 1.4em; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .full { margin-bottom: 30px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etf { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; text-align: center; transition: background 0.2s; }
+  .etf:hover { background: rgba(255,255,255,0.2); }
+  .etf .sym { font-weight: 700; font-size: 1.2em; }
+  .etf .name { font-size: 0.75em; opacity: 0.75; margin-bottom: 6px; }
+  .etf .price { font-size: 1.1em; }
+  .pos { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); font-weight: 700; }
+  .neg { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+  th { opacity: 0.8; font-weight: 600; font-size: 0.85em; text-transform: uppercase; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  .catalyst { display: block; font-size: 0.8em; opacity: 0.85; margin-top: 2px; }
+  .note { font-size: 0.8em; opacity: 0.85; margin-top: 12px; line-height: 1.5; }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00; border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 30px; animation: fadeIn 0.8s ease;
+  }
+  .afterhours-section h2 { font-size: 1.5em; margin-bottom: 20px; }
+  .afterhours-section h3.sub { font-size: 1.1em; margin: 24px 0 16px; }
+  .earnings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 16px; padding: 22px; position: relative; transition: transform 0.2s;
+  }
+  .earnings-card:hover { transform: scale(1.03); }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .afterhours-badge.bmo { background: #1e3c72; }
+  .earnings-card .symbol { font-size: 1.5em; font-weight: 800; }
+  .earnings-card .cname { font-size: 0.85em; opacity: 0.9; margin-bottom: 8px; }
+  .afterhours-change { font-size: 1.8em; font-weight: 800; color: #0b3d1f; }
+  .afterhours-change.down { color: #8b0000; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; font-weight: 700; }
+  .surprise-positive { color: #0b3d1f; }
+  .surprise-negative { color: #8b0000; }
+  .earnings-card .detail { font-size: 0.85em; line-height: 1.5; }
+  .ah-extra { margin-top: 20px; background: rgba(0,0,0,0.18); border-radius: 14px; padding: 16px; font-size: 0.9em; line-height: 1.6; }
+  .ah-extra h3 { font-size: 1em; margin-bottom: 6px; }
+  .ah-extra .down { color: #ffd6d6; font-weight: 700; }
+  .ah-extra .up { color: #d6ffe6; font-weight: 700; }
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .stat { text-align: center; background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px 10px; }
+  .stat .val { font-size: 1.8em; font-weight: 800; color: #ffd166; }
+  .stat .lbl { font-size: 0.8em; opacity: 0.85; margin-top: 4px; }
+  ul.points { list-style: none; }
+  ul.points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); line-height: 1.55; }
+  ul.points li strong { color: #ffd166; }
+  .cal { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cal .day { flex: 1 1 200px; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; line-height: 1.5; }
+  .cal .day h3 { font-size: 1em; margin-bottom: 6px; color: #ffd166; }
+  footer { text-align: center; font-size: 0.85em; opacity: 0.85; line-height: 1.7; margin-top: 10px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 800px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .earnings-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.8em; }
+    .card, .afterhours-section { padding: 20px; }
+    th, td { padding: 8px 5px; font-size: 0.85em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-11-09 – Final After-Market Data</div>
+    <div class="tagline">Relief Rally: All Eleven Sectors Higher, AMD Leads Chips While Nvidia Slides</div>
+  </header>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2>📈 Major ETF Performance</h2>
+      <div class="etf-grid">
+        <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$752.69</div><div class="pos">+2.37%</div></div>
+        <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$678.68</div><div class="pos">+3.44%</div></div>
+        <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$523.36</div><div class="pos">+2.17%</div></div>
+        <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$282.47</div><div class="pos">+3.22%</div></div>
+        <div class="etf"><div class="sym">TLT</div><div class="name">20+ Yr Treasuries</div><div class="price">$81.96</div><div class="pos">+0.05%</div></div>
+        <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$379.53</div><div class="pos">+1.88%</div></div>
+      </div>
+      <p class="note">Regular-session close vs. the 11/6 close, from Alpaca daily bars. Finviz showed QQQ at $679.35 (+3.54%), a gap of 0.10 points from the Alpaca figure. The other five ETFs agree with Finviz within 0.01 points.</p>
+    </section>
+
+    <section class="card">
+      <h2>🔥 Top Volume-Surge Tickers</h2>
+      <table>
+        <thead><tr><th>Ticker</th><th>Change</th><th>Volume</th><th>Rel Vol</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DCTH</strong> Delcath Systems<span class="catalyst">Q3 revenue up 70%; full-year guidance raised to $115M–$117M</span></td><td class="pos">+35.77%</td><td>3.44M</td><td>8.09x</td></tr>
+          <tr><td><strong>PRAX</strong> Praxis Precision Medicines<span class="catalyst">Q3 results and corporate update released this morning</span></td><td class="pos">+20.02%</td><td>1.07M</td><td>2.43x</td></tr>
+          <tr><td><strong>TOP</strong> TOP Financial Group<span class="catalyst">No catalyst found in the fetched headlines</span></td><td class="pos">+19.25%</td><td>417.1K</td><td>3.10x</td></tr>
+          <tr><td><strong>WRBY</strong> Warby Parker<span class="catalyst">No new headline today; Q3 results were reported on 11/5</span></td><td class="pos">+18.56%</td><td>11.38M</td><td>3.63x</td></tr>
+          <tr><td><strong>MPWR</strong> Monolithic Power Systems<span class="catalyst">No company-specific catalyst confirmed; chips rallied broadly</span></td><td class="pos">+16.60%</td><td>1.61M</td><td>2.07x</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Next seven: VSAT +16.29% after a NASA NEXUS Phase 1 contract award, DDI +15.61% on an all-cash tender offer at $16.25 per ADS, IMVT +15.13% on trial results and an earnings beat, SGRY +14.01% on an amended merger agreement following an unsolicited proposal, ETON +13.97%, REAL +13.83%, and AMD +13.26% on a Google Cloud deal and an Oppenheimer upgrade. Percent changes use Alpaca daily bars; volume and relative volume are from Finviz.</p>
+    </section>
+  </div>
+
+  <section class="afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <div class="ah-extra" style="margin-top:0;">
+      <h3>No large-cap after-hours gainers in the standard screen</h3>
+      The Finviz after-hours earnings screener returned no results on two runs at about 16:10 and 16:11 ET. That screen requires a market cap of $10B or more, a price of $30 or more, and an after-hours gain of at least 2%. The large-cap reporters were flat to lower after the bell: <span class="down">RKLB -2.50%</span>, <span class="down">TTWO -1.36%</span>, <span class="up">ASTS +0.43%</span> and <span class="up">OXY +0.18%</span>, based on Alpaca trades at 16:10 ET against the regular close. The larger after-hours moves came from mid-caps outside that screen, shown below.
+    </div>
+
+    <h3 class="sub">Mid-cap reporters moving after the close (outside the standard screen)</h3>
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$SANM</div><div class="cname">Sanmina · Technology</div>
+        <div class="afterhours-change">+22.76%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+35.47%</span></span><span>Revenue: <span class="surprise-positive">+10.94%</span></span></div>
+        <div class="detail">Close $149.64, +11.11% in the session. EPS of $4.43 vs. a $3.27 estimate on revenue of $3.86B.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$TTD</div><div class="cname">Trade Desk · Communication Services</div>
+        <div class="afterhours-change">+22.30%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">$0.33 vs. $0.04 est.</span></span><span>Revenue: <span class="surprise-positive">+13.07%</span></span></div>
+        <div class="detail">Close $14.93, +15.47% in the session on 3.57x relative volume before the report. Revenue of $736M vs. a $651M estimate.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$AAON</div><div class="cname">AAON · Industrials</div>
+        <div class="afterhours-change">+15.30%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+44.85%</span></span><span>Revenue: <span class="surprise-positive">+17.67%</span></span></div>
+        <div class="detail">Close $62.87, +9.93% in the session. EPS of $0.83 vs. a $0.57 estimate on revenue of $707M.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$ONTO</div><div class="cname">Onto Innovation · Technology</div>
+        <div class="afterhours-change">+5.91%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+6.09%</span></span><span>Revenue: <span class="surprise-positive">+4.51%</span></span></div>
+        <div class="detail">Close $194.04, +11.98% in the session. EPS of $2.44 vs. a $2.30 estimate. After-hours trading was thin, with 40-share prints.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$ZETA</div><div class="cname">Zeta Global · Technology</div>
+        <div class="afterhours-change">+3.92%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+34.47%</span></span><span>Revenue: <span class="surprise-positive">+4.58%</span></span></div>
+        <div class="detail">Close $32.42, +4.48% in the session. EPS of $0.38 vs. a $0.28 estimate on revenue of $493M.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$HIMS</div><div class="cname">Hims &amp; Hers Health · Healthcare</div>
+        <div class="afterhours-change down">-4.14%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-negative">-$0.14 vs. +$0.06 est.</span></span><span>Revenue: <span class="surprise-negative">-0.31%</span></span></div>
+        <div class="detail">Close $22.94, -11.77% in the session ahead of the report on 4.05x relative volume. A loss where a small profit was expected.</div>
+      </div>
+    </div>
+
+    <h3 class="sub">Before-the-open reporters today and their session moves</h3>
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <div class="afterhours-badge bmo">Pre-Market</div>
+        <div class="symbol">$FERG</div><div class="cname">Ferguson Enterprises · Industrials</div>
+        <div class="afterhours-change">+11.22%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+3.63%</span></span><span>Revenue: <span class="surprise-positive">+3.26%</span></span></div>
+        <div class="detail">Close $259.93. EPS of $3.43 vs. a $3.31 estimate on revenue of $9.03B. Also on the volume-surge list.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge bmo">Pre-Market</div>
+        <div class="symbol">$CEG</div><div class="cname">Constellation Energy · Utilities</div>
+        <div class="afterhours-change">+10.46%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+29.74%</span></span><span>Revenue: <span class="surprise-positive">+3.43%</span></span></div>
+        <div class="detail">Close $276.09. EPS of $5.06 vs. a $3.90 estimate on revenue of $9.55B.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge bmo">Pre-Market</div>
+        <div class="symbol">$NRG</div><div class="cname">NRG Energy · Utilities</div>
+        <div class="afterhours-change">+10.32%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+39.70%</span></span><span>Revenue: <span class="surprise-positive">+12.38%</span></span></div>
+        <div class="detail">Close $97.40. EPS of $4.68 vs. a $3.35 estimate on revenue of $9.47B.</div>
+      </div>
+    </div>
+
+    <div class="ah-extra">
+      <h3>Other before-the-open reporters</h3>
+      The Finviz pre-market earnings screener listed seven large-cap gainers in total. Beyond the three above: <span class="up">ROIV +4.60%</span>, <span class="up">B +4.20%</span>, <span class="up">SGI +3.31%</span> and <span class="up">RBA +2.38%</span>. These four session moves are Finviz figures.
+    </div>
+    <div class="ah-extra">
+      <h3>Data cautions</h3>
+      After-hours percentages use the latest Alpaca trade at about 16:12 ET against the regular close, and prices were still moving. TTD traded between $18.26 and $18.65 within two minutes. After-hours volume was not available separately, and liquidity in SANM, AAON and ONTO was thin.<br>
+      EPS and revenue surprises are calculated from FMP actuals and estimates. Finviz's surprise columns were not used for today's after-close reporters because they did not match the FMP actuals. Finviz showed TTD at an EPS surprise of -21.17%, while FMP shows EPS of $0.33 against a $0.04 estimate. Earnings figures may be preliminary.
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat"><div class="val">136</div><div class="lbl">Volume-Surge Tickers</div></div>
+      <div class="stat"><div class="val">686</div><div class="lbl">Up-Trend Tickers</div></div>
+      <div class="stat"><div class="val">2.2x</div><div class="lbl">Avg. Relative Volume</div></div>
+      <div class="stat"><div class="val">+6.8%</div><div class="lbl">Avg. Price Move</div></div>
+      <div class="stat"><div class="val">120</div><div class="lbl">Earnings Listed After Today's Close</div></div>
+    </div>
+    <p class="note">The first four figures come from the Finviz market overview at 16:10 ET. The 120 count comes from the Finviz today-after-close earnings screener, and not every listed company had reported at the time of this snapshot. Finviz lists 617 companies reporting this week.</p>
+  </section>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2>🏢 Sector Performance</h2>
+      <table>
+        <thead><tr><th>Sector</th><th>Change</th><th>Market Cap</th><th>Tickers</th></tr></thead>
+        <tbody>
+          <tr><td>Industrials</td><td class="pos">+4.25%</td><td>$9.29T</td><td>716</td></tr>
+          <tr><td>Basic Materials</td><td class="pos">+3.47%</td><td>$2.86T</td><td>298</td></tr>
+          <tr><td>Technology</td><td class="pos">+3.17%</td><td>$31.28T</td><td>801</td></tr>
+          <tr><td>Consumer Cyclical</td><td class="pos">+2.60%</td><td>$9.38T</td><td>521</td></tr>
+          <tr><td>Healthcare</td><td class="pos">+2.10%</td><td>$10.11T</td><td>1,053</td></tr>
+          <tr><td>Communication Services</td><td class="pos">+2.04%</td><td>$11.16T</td><td>252</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Remaining sectors: Financial <span class="pos">+1.83%</span>, Utilities <span class="pos">+1.60%</span>, Real Estate <span class="pos">+1.56%</span>, Consumer Defensive <span class="pos">+0.65%</span>, Energy <span class="pos">+0.38%</span>. All eleven sectors rose.</p>
+    </section>
+
+    <section class="card">
+      <h2>💡 Today's Key Points</h2>
+      <ul class="points">
+        <li><strong>Broad market:</strong> SPY +2.37%, QQQ +3.44% and IWM +3.22% rebounded after what headlines describe as steep losses last week. All eleven sectors closed higher.</li>
+        <li><strong>Chips split:</strong> AMD rose 13.26% on a Google Cloud deal and an Oppenheimer upgrade, and MPWR rose 16.60%. NVDA fell 4.27% as headlines from Reuters and Yahoo Finance report a company investigation involving CEO Jensen Huang.</li>
+        <li><strong>Hot sectors:</strong> Industrials +4.25%, Basic Materials +3.47% and Technology +3.17% led. Energy +0.38% lagged, and a Yahoo Finance headline notes oil prices fell.</li>
+        <li><strong>Volume surges:</strong> 136 names with an average move of +6.8%. Healthcare supplied six of the top ten, led by DCTH +35.77% on a guidance raise. Deal news lifted DDI and SGRY.</li>
+        <li><strong>Space names:</strong> RKLB +10.91% and ASTS +14.10% rallied ahead of their reports. Headlines cite NASA moon base awards and a Rakuten joint venture for AST SpaceMobile.</li>
+        <li><strong>Earnings highlights:</strong> Before the open, FERG, CEG and NRG each gained more than 10% on beats. HIMS fell 11.77% ahead of its report.</li>
+        <li><strong>After-hours focus:</strong> No large cap cleared the standard +2% screen. Mid-caps SANM +22.76%, TTD +22.30% and AAON +15.30% jumped on beats, while HIMS slipped a further 4.14% on a loss.</li>
+        <li><strong>Bonds and gold:</strong> TLT was flat at +0.05%. GLD rose 1.88% alongside equities. No specific driver for gold was confirmed from the fetched sources.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="card full">
+    <h2>🗓️ This Week's Remaining Earnings Calendar</h2>
+    <div class="cal">
+      <div class="day"><h3>Tue 11/10 before the open</h3>SE, ONON, HMC, EMBJ</div>
+      <div class="day"><h3>Tue 11/10 after the close</h3>CRWV, VIV</div>
+      <div class="day"><h3>Wed 11/11 after the close</h3>FNV, TTEK, VYLR</div>
+      <div class="day"><h3>Thu 11/12 before the open</h3>NBIS, BN, ASND, HBM</div>
+      <div class="day"><h3>Thu 11/12 after the close</h3>NU, CBRS, WSE</div>
+    </div>
+    <p class="note">From the Finviz upcoming-earnings screener for 11/10 through 11/13, limited to the large-cap tier. Mega caps and smaller companies are not included, so this list is partial. The screener returned no large-cap names for Fri 11/13.</p>
+  </section>
+
+  <footer>
+    Data sources: Finviz Elite, Alpaca Markets, Financial Modeling Prep. Market context: Finviz news feed, including Reuters, Barron's, MarketWatch, Yahoo Finance and Investor's Business Daily headlines.<br>
+    Last refreshed: 2026-11-09, 16:10–16:12 ET (data snapshots).<br>
+    Note: Final after-market data + after-hours info. After-hours liquidity is thin and large moves may occur on low volume.<br>
+    For information only. Not financial advice.
+  </footer>
+
+</div>
+</body>
+</html>
