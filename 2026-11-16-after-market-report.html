@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-11-16</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+}
+.container { max-width: 1280px; margin: 0 auto; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none; } }
+.header { text-align: center; margin-bottom: 30px; animation: fadeIn .6s ease; }
+.header h1 { font-size: 2.6em; font-weight: 800; text-shadow: 0 4px 12px rgba(0,0,0,.35); }
+.header .date { font-size: 1.15em; opacity: .9; margin-top: 8px; }
+.header .tagline { display: inline-block; margin-top: 14px; padding: 8px 20px; border-radius: 30px;
+    background: rgba(255,107,107,.25); border: 1px solid rgba(255,107,107,.6); font-weight: 600; }
+.card {
+    background: rgba(255,255,255,.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3); animation: fadeIn .7s ease; transition: transform .25s, box-shadow .25s;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.4); }
+.card h2 { font-size: 1.4em; margin-bottom: 20px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+.full { margin-bottom: 30px; }
+.etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.etf { background: rgba(255,255,255,.1); border-radius: 14px; padding: 16px; text-align: center; transition: background .2s; }
+.etf:hover { background: rgba(255,255,255,.2); }
+.etf .sym { font-weight: 800; font-size: 1.2em; }
+.etf .name { font-size: .75em; opacity: .75; }
+.etf .price { font-size: 1.3em; margin: 6px 0; }
+.up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,.45); font-weight: 700; }
+.down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,.45); font-weight: 700; }
+.flat { color: #e0e0e0; font-weight: 700; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.15); font-size: .95em; }
+th { opacity: .8; font-weight: 600; font-size: .85em; text-transform: uppercase; letter-spacing: .5px; }
+tr:hover td { background: rgba(255,255,255,.07); }
+.catalyst { font-size: .8em; opacity: .85; }
+.afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00; border-radius: 20px; padding: 30px; margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3); animation: fadeIn .8s ease;
+}
+.afterhours-section h2 { font-size: 1.5em; margin-bottom: 8px; }
+.afterhours-section .note { font-size: .9em; margin-bottom: 20px; opacity: .95; }
+.earnings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+.earnings-card { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.3); position: relative;
+    border-radius: 16px; padding: 18px; transition: transform .2s; }
+.earnings-card:hover { transform: scale(1.03); }
+.afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 5px 10px; border-radius: 15px; font-size: .8em; font-weight: bold; }
+.earnings-card .symbol { font-size: 1.3em; font-weight: 800; }
+.earnings-card .chg { font-size: 1.5em; font-weight: 800; color: #eaffea; text-shadow: 0 0 6px rgba(0,0,0,.25); }
+.earnings-card .desc { font-size: .82em; margin-top: 6px; }
+.cal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.cal-day { background: rgba(0,0,0,.18); border-radius: 14px; padding: 14px; }
+.cal-day h3 { font-size: 1em; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.35); padding-bottom: 4px; }
+.cal-day li { list-style: none; font-size: .88em; padding: 2px 0; }
+.cal-day .star { font-weight: 800; color: #ffff66; }
+.stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.stat { text-align: center; background: rgba(255,255,255,.1); border-radius: 14px; padding: 18px 10px; }
+.stat .val { font-size: 2em; font-weight: 800; }
+.stat .lbl { font-size: .8em; opacity: .8; }
+.bar-wrap { display: flex; align-items: center; gap: 10px; }
+.bar { height: 8px; border-radius: 4px; }
+.bar.neg { background: linear-gradient(90deg, #ff6b6b, #ff9a9a); }
+.bar.pos { background: linear-gradient(90deg, #00ff88, #7dffc0); }
+.points li { margin: 0 0 12px 20px; }
+.footer { text-align: center; font-size: .85em; opacity: .8; margin-top: 10px; padding: 20px; }
+@media (max-width: 900px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .earnings-grid, .cal-grid { grid-template-columns: 1fr 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+    .header h1 { font-size: 1.8em; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .earnings-grid, .cal-grid { grid-template-columns: 1fr; }
+    .card, .afterhours-section { padding: 20px; }
+    th, td { font-size: .8em; padding: 8px 4px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+    <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+    <div class="date">📅 2026-11-16 (Mon) – Final After-Market Data</div>
+    <div class="tagline">📉 Tech-Led Selloff Ahead of NVIDIA Earnings · Defensives Hold Up</div>
+</div>
+
+<div class="grid2">
+    <div class="card">
+        <h2>📈 Major ETF Performance</h2>
+        <div class="etf-grid">
+            <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$739.96</div><div class="down">-1.91%</div></div>
+            <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$661.75</div><div class="down">-2.67%</div></div>
+            <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$515.73</div><div class="down">-1.42%</div></div>
+            <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$272.95</div><div class="down">-1.65%</div></div>
+            <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$79.38</div><div class="flat">+0.00%</div></div>
+            <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$352.90</div><div class="down">-0.72%</div></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🔥 Top Volume-Surge Tickers</h2>
+        <table>
+            <thead><tr><th>Symbol</th><th>Name</th><th>Change</th><th>Volume</th></tr></thead>
+            <tbody>
+                <tr><td><b>CGON</b></td><td>CG Oncology<br><span class="catalyst">Phase 3 PIVOT-006 bladder cancer data</span></td><td class="up">+13.95%</td><td>9.85M</td></tr>
+                <tr><td><b>MOH</b></td><td>Molina Healthcare<br><span class="catalyst">Medicaid work-requirement delay</span></td><td class="up">+11.27%</td><td>1.77M</td></tr>
+                <tr><td><b>FENC</b></td><td>Fennec Pharmaceuticals</td><td class="up">+9.81%</td><td>0.79M</td></tr>
+                <tr><td><b>HTHT</b></td><td>H World Group<br><span class="catalyst">Q3 beat &amp; raise</span></td><td class="up">+8.91%</td><td>3.52M</td></tr>
+                <tr><td><b>TSN</b></td><td>Tyson Foods<br><span class="catalyst">FQ4 results, plant-closure plan</span></td><td class="up">+8.72%</td><td>8.51M</td></tr>
+            </tbody>
+        </table>
+        <p class="catalyst" style="margin-top:12px;">Next: CRTO +8.54% · HUBS +6.78% · BILL +5.78% (William Blair upgrade) · CNC +4.91% · GXO +4.63% (2030 targets at Investor Day)</p>
+    </div>
+</div>
+
+<div class="afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <p class="note">The after-hours earnings screener (Large cap+, AH +2% or more) returned <b>no results</b> at the 16:10 ET fetch. Below are today's before-market reporters that moved the regular session, followed by this week's remaining earnings calendar.</p>
+
+    <div class="earnings-grid">
+        <div class="earnings-card"><div class="afterhours-badge">BMO</div>
+            <div class="symbol">$HTHT</div><div class="chg">+8.91%</div>
+            <div class="desc">H World Group Q3: beat and raised again; asset-light shift lifted margins while same-hotel RevPAR fell 4.4%.</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">BMO</div>
+            <div class="symbol">$TSN</div><div class="chg">+8.72%</div>
+            <div class="desc">Tyson Foods FQ4: revenue beat; FY27 guide calls for lower sales on beef pressure. Investors cheered the plan to close plants and sell less beef.</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">BMO</div>
+            <div class="symbol">$BEKE</div><div class="chg">+4.37%</div>
+            <div class="desc">KE Holdings Q3: adjusted profit doubled and cleared the whisper, while revenue decline deepened.</div></div>
+        <div class="earnings-card"><div class="afterhours-badge">BMO</div>
+            <div class="symbol">$ARMK</div><div class="chg">+2.65%</div>
+            <div class="desc">Aramark FY26: beat and lifted profit outlook.</div></div>
+    </div>
+
+    <h2 style="font-size:1.25em;">🗓️ This Week's Remaining Earnings Calendar (Large/Mega Cap)</h2>
+    <div class="cal-grid">
+        <div class="cal-day"><h3>Tue 11/17</h3><ul>
+            <li>BMO: HD, DIS, JD, VIK, AS</li>
+            <li class="star">AMC: NVDA ⭐</li>
+            <li>AMC: ZTO</li></ul></div>
+        <div class="cal-day"><h3>Wed 11/18</h3><ul>
+            <li>BMO: TJX, TGT, LOW</li>
+            <li class="star">AMC: PANW</li>
+            <li>AMC: WWD, P</li></ul></div>
+        <div class="cal-day"><h3>Thu 11/19</h3><ul>
+            <li class="star">BMO: WMT, BABA</li>
+            <li>BMO: PDD, NTES, WSM, WMG</li>
+            <li>AMC: INTU, ROST, KEYS</li></ul></div>
+        <div class="cal-day"><h3>Fri 11/20</h3><ul>
+            <li>BMO: BJ, BSP</li></ul></div>
+    </div>
+    <p class="note" style="margin-top:12px;margin-bottom:0;">BMO/AMC labels are inferred from Finviz listed times (8:30 AM / 4:30 PM ET); Finviz flags timing as "unknown", so confirm with company IR.</p>
+</div>
+
+<div class="card full">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+        <div class="stat"><div class="val">26</div><div class="lbl">Volume-Surge Tickers</div></div>
+        <div class="stat"><div class="val">508</div><div class="lbl">Up-Trend Tickers</div></div>
+        <div class="stat"><div class="val">2.6x</div><div class="lbl">Avg. Relative Volume</div></div>
+        <div class="stat"><div class="val up">+5.0%</div><div class="lbl">Avg. Price Move (surge list)</div></div>
+        <div class="stat"><div class="val">244</div><div class="lbl">Earnings Releases This Week</div></div>
+    </div>
+</div>
+
+<div class="grid2">
+    <div class="card">
+        <h2>🏢 Sector Performance</h2>
+        <table>
+            <thead><tr><th>Sector</th><th>Change</th><th>Mkt Cap ($B)</th><th>Stocks</th></tr></thead>
+            <tbody>
+                <tr><td>Consumer Defensive</td><td class="up">+0.28%</td><td>4,849</td><td>239</td></tr>
+                <tr><td>Utilities</td><td class="down">-0.10%</td><td>1,815</td><td>103</td></tr>
+                <tr><td>Real Estate</td><td class="down">-0.20%</td><td>1,738</td><td>246</td></tr>
+                <tr><td>Healthcare</td><td class="down">-0.73%</td><td>9,989</td><td>1054</td></tr>
+                <tr><td>Financial</td><td class="down">-1.04%</td><td>15,031</td><td>1118</td></tr>
+                <tr><td>Industrials</td><td class="down">-1.83%</td><td>9,076</td><td>715</td></tr>
+                <tr><td>Consumer Cyclical</td><td class="down">-1.94%</td><td>9,101</td><td>520</td></tr>
+                <tr><td>Energy</td><td class="down">-2.21%</td><td>4,742</td><td>252</td></tr>
+                <tr><td>Communication Services</td><td class="down">-2.54%</td><td>11,026</td><td>252</td></tr>
+                <tr><td>Basic Materials</td><td class="down">-2.90%</td><td>2,640</td><td>297</td></tr>
+                <tr><td>Technology</td><td class="down">-3.35%</td><td>30,040</td><td>800</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>💡 Today's Key Points</h2>
+        <ul class="points">
+            <li><b>Broad market:</b> Risk-off across the board. QQQ fell 2.67%, more than SPY at 1.91%. Only one of 11 sectors finished green.</li>
+            <li><b>Hot sectors:</b> Consumer Defensive (+0.28%) held up, and Utilities and Real Estate lost less than 0.25%. Technology was the worst sector at -3.35%, ahead of NVIDIA's report after Tuesday's close.</li>
+            <li><b>Volume-surge characteristics:</b> Only 26 names qualified. Managed care led: MOH +11.27%, CNC +4.91% and ELV +3.86% after reports of a Medicaid work-requirement delay. Biotech had CGON +13.95% on Phase 3 data.</li>
+            <li><b>Earnings highlights:</b> BMO reporters HTHT, TSN, BEKE and ARMK all closed higher despite the weak tape.</li>
+            <li><b>After-hours focal points:</b> No large-cap AH earnings movers screened. Tomorrow's focus is HD and DIS before the open and NVDA after the close.</li>
+            <li><b>Bonds &amp; gold:</b> TLT was unchanged at $79.38. GLD fell 0.72%, so gold did not act as a haven today.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="footer">
+    Data sources: Finviz Elite (market overview, screeners, sector performance, news), Alpaca Markets (ETF and ticker snapshots)<br>
+    Last refreshed: 2026-11-16 16:10 ET (13:10 PT)<br>
+    Note: Final after-market data + after-hours info. Earnings figures may be preliminary. For information only, not financial advice.
+</div>
+
+</div>
+</body>
+</html>
