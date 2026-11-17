@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis — 2026-11-17</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; }
+  header h1 { font-size: 2.4em; margin-bottom: 8px; text-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+  header .date { font-size: 1.1em; opacity: 0.9; }
+  header .tagline { margin-top: 10px; font-size: 1.2em; color: #ffd27f; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  .full { grid-column: 1 / -1; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeIn 0.6s ease both;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  h2 { font-size: 1.35em; margin-bottom: 18px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+  .etf { background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; text-align: center; }
+  .etf .sym { font-weight: 700; font-size: 1.2em; }
+  .etf .price { opacity: 0.85; margin: 6px 0; }
+  .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); font-weight: 700; }
+  .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 9px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+  th { opacity: 0.75; font-weight: 600; }
+  td.num, th.num { text-align: right; }
+  .note { font-size: 0.85em; opacity: 0.8; margin-top: 10px; line-height: 1.5; }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+  }
+  .earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 10px; }
+  .earnings-card {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    position: relative; border-radius: 14px; padding: 18px;
+  }
+  .afterhours-badge {
+    position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold;
+  }
+  .earnings-card .symbol { font-size: 1.3em; font-weight: 700; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #00ff88; font-weight: 700; }
+  .surprise-negative { color: #8b0000; font-weight: 700; }
+  .ah-pos { color: #00ff88; } .ah-neg { color: #fff; background: rgba(139,0,0,0.55); padding: 1px 6px; border-radius: 6px; }
+  .cal-table td, .cal-table th { border-bottom: 1px solid rgba(255,255,255,0.3); }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; text-align: center; }
+  .stat { background: rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; }
+  .stat .v { font-size: 1.8em; font-weight: 700; }
+  .stat .l { font-size: 0.85em; opacity: 0.8; margin-top: 4px; }
+  ul.points { list-style: none; }
+  ul.points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); line-height: 1.55; }
+  ul.points li b { color: #ffd27f; }
+  footer { text-align: center; margin-top: 30px; font-size: 0.85em; opacity: 0.8; line-height: 1.6; }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .etf-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.7em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="date">📅 2026-11-17 (Tue) – Final After-Market Data</div>
+  <div class="tagline">Broad Sell-Off Into NVDA Earnings — All 11 Sectors Red</div>
+</header>
+
+<div class="grid">
+
+  <!-- Major ETFs -->
+  <section class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf"><div class="sym">SPY</div><div class="price">$732.44</div><div class="down">-1.01%</div></div>
+      <div class="etf"><div class="sym">QQQ</div><div class="price">$656.95</div><div class="down">-0.73%</div></div>
+      <div class="etf"><div class="sym">DIA</div><div class="price">$507.31</div><div class="down">-1.62%</div></div>
+      <div class="etf"><div class="sym">IWM</div><div class="price">$268.98</div><div class="down">-1.45%</div></div>
+      <div class="etf"><div class="sym">TLT</div><div class="price">$79.55</div><div class="up">+0.21%</div></div>
+      <div class="etf"><div class="sym">GLD</div><div class="price">$352.48</div><div class="down">-0.13%</div></div>
+    </div>
+    <p class="note">Regular-session close vs. prior close (11/16), Alpaca daily bars.</p>
+  </section>
+
+  <!-- Volume surge -->
+  <section class="card">
+    <h2>🔥 Top Volume-Surge Tickers</h2>
+    <table>
+      <tr><th>Symbol</th><th>Name</th><th class="num">Change</th><th class="num">Volume</th></tr>
+      <tr><td><b>SLS</b> 🚀</td><td>SELLAS Life Sciences</td><td class="num up">+156.36%</td><td class="num">116.8M</td></tr>
+      <tr><td><b>BILL</b></td><td>BILL Holdings</td><td class="num up">+12.58%</td><td class="num">10.1M</td></tr>
+      <tr><td><b>ENR</b></td><td>Energizer Holdings</td><td class="num up">+12.57%</td><td class="num">3.3M</td></tr>
+      <tr><td><b>LUXE</b></td><td>LuxExperience ADR</td><td class="num up">+11.16%</td><td class="num">878K</td></tr>
+      <tr><td><b>ACM</b></td><td>AECOM</td><td class="num up">+11.08%</td><td class="num">4.2M</td></tr>
+    </table>
+    <p class="note">
+      Catalysts from today's news: SLS, positive Phase 3 REGAL data for its GPS AML cancer vaccine.
+      BILL, reports that TPG is nearing a take-private deal. ENR, fiscal Q4 EPS beat.
+      LUXE, raised FY27 guidance. ACM, FY27 outlook above estimates.
+      Also in the screen: RYTM +8.49%, FENC +6.43%, GFF +4.79%, VIK +4.43%.
+    </p>
+  </section>
+
+  <!-- Sector performance -->
+  <section class="card">
+    <h2>📊 Sector Performance</h2>
+    <table>
+      <tr><th>Sector</th><th class="num">Change</th><th class="num">Mkt Cap ($B)</th><th class="num">Stocks</th></tr>
+      <tr><td>Industrials</td><td class="num down">-0.17%</td><td class="num">9,083</td><td class="num">715</td></tr>
+      <tr><td>Energy</td><td class="num down">-0.42%</td><td class="num">4,720</td><td class="num">252</td></tr>
+      <tr><td>Basic Materials</td><td class="num down">-0.65%</td><td class="num">2,627</td><td class="num">298</td></tr>
+      <tr><td>Consumer Cyclical</td><td class="num down">-0.78%</td><td class="num">9,028</td><td class="num">520</td></tr>
+      <tr><td>Technology</td><td class="num down">-1.09%</td><td class="num">29,710</td><td class="num">800</td></tr>
+      <tr><td>Consumer Defensive</td><td class="num down">-1.16%</td><td class="num">4,792</td><td class="num">239</td></tr>
+      <tr><td>Healthcare</td><td class="num down">-1.25%</td><td class="num">9,860</td><td class="num">1054</td></tr>
+      <tr><td>Communication Services</td><td class="num down">-1.25%</td><td class="num">10,883</td><td class="num">252</td></tr>
+      <tr><td>Real Estate</td><td class="num down">-1.42%</td><td class="num">1,713</td><td class="num">246</td></tr>
+      <tr><td>Utilities</td><td class="num down">-1.51%</td><td class="num">1,788</td><td class="num">103</td></tr>
+      <tr><td>Financial</td><td class="num down">-1.72%</td><td class="num">14,785</td><td class="num">1118</td></tr>
+    </table>
+  </section>
+
+  <!-- Earnings & after-hours (Tue fallback: AH screener empty) -->
+  <section class="card full afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <p>
+      The after-hours earnings screener returned no qualifying gainers as of 16:10 ET.
+      <b>$NVDA</b> is scheduled to report after today's close; results were not yet available when this report was built.
+      NVDA closed at $155.39, down 0.48%.
+    </p>
+
+    <h3 style="margin-top:18px;">Today's BMO Reporters — Session Impact</h3>
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <div class="symbol">$VIK</div>
+        <div class="up">+4.43%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-negative">-12.34%</span></span><span>Rev: <span class="surprise-negative">-0.99%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="symbol">$AS</div>
+        <div class="up">+3.92%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+20.24%</span></span><span>Rev: <span class="surprise-positive">+1.58%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="symbol">$HD</div>
+        <div class="down">-2.45%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+0.60%</span></span><span>Rev: <span class="surprise-positive">+1.39%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="symbol">$DIS</div>
+        <div class="down">-1.48%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-positive">+5.70%</span></span><span>Rev: <span class="surprise-positive">+3.13%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="symbol">$JD</div>
+        <div class="down">-7.66%</div>
+        <div class="earnings-surprise"><span>EPS: <span class="surprise-negative">-0.19%</span></span><span>Rev: <span class="surprise-positive">+0.18%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$SLS</div>
+        <div><span class="ah-neg">-12.32% AH</span></div>
+        <div class="earnings-surprise"><span>$16.79 vs. $19.15 close</span></div>
+        <div style="font-size:0.85em;">Non-earnings. Proposed $150M public offering announced at 16:01 ET.</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:22px;">This Week's Remaining Earnings Calendar (Large/Mega Cap)</h3>
+    <table class="cal-table">
+      <tr><th>Date</th><th>Before Open</th><th>After Close</th></tr>
+      <tr><td>Tue 11/17</td><td>—</td><td><b>NVDA</b>, ZTO</td></tr>
+      <tr><td>Wed 11/18</td><td>TJX, TGT, LOW</td><td>PANW, WWD, P</td></tr>
+      <tr><td>Thu 11/19</td><td>WMT, BABA, PDD, NTES, WSM, WMG</td><td>INTU, ROST, KEYS</td></tr>
+      <tr><td>Fri 11/20</td><td>BSP, BJ</td><td>—</td></tr>
+    </table>
+    <p class="note">Source: Finviz upcoming earnings screener. Timing is inferred from the listed 8:30 AM / 4:30 PM slots, and Finviz labels it "unknown". Figures may be preliminary.</p>
+  </section>
+
+  <!-- Market stats -->
+  <section class="card full">
+    <h2>📋 Market Statistics</h2>
+    <div class="stats">
+      <div class="stat"><div class="v">15</div><div class="l">Volume-surge tickers</div></div>
+      <div class="stat"><div class="v">387</div><div class="l">Uptrend tickers</div></div>
+      <div class="stat"><div class="v">3.7x</div><div class="l">Avg relative volume</div></div>
+      <div class="stat"><div class="v up">+16.1%</div><div class="l">Avg price move (surge group)</div></div>
+      <div class="stat"><div class="v">294</div><div class="l">Earnings releases this week</div></div>
+    </div>
+    <p class="note">The +16.1% average move is skewed by SLS (+156%). Counts from finviz get_market_overview.</p>
+  </section>
+
+  <!-- Key points -->
+  <section class="card full">
+    <h2>💡 Today's Key Points</h2>
+    <ul class="points">
+      <li><b>Broad market:</b> A risk-off session ahead of NVDA earnings. The Dow lagged at -1.62% (DIA), with small caps at -1.45% (IWM). The S&amp;P 500 lost 1.01% and the Nasdaq-100 held up best at -0.73%.</li>
+      <li><b>Sectors:</b> All 11 sectors finished lower. Industrials (-0.17%) and Energy (-0.42%) were the most defensive. Financials (-1.72%), Utilities (-1.51%) and Real Estate (-1.42%) led the decline.</li>
+      <li><b>Volume surges:</b> Only 15 names qualified, which is a thin list consistent with a weak tape. Leadership was event-driven: a biotech trial readout (SLS), M&amp;A chatter (BILL) and earnings/guidance beats (ENR, ACM, LUXE, GFF).</li>
+      <li><b>Earnings highlights:</b> Mega-cap BMO reporters HD and DIS both beat on EPS and revenue but fell with the market. AS (+3.92%) rallied on a 20% EPS beat. JD dropped 7.66%.</li>
+      <li><b>After-hours focus:</b> NVDA's results tonight are the key catalyst for AI/semis sentiment. SLS gave back 12% after hours on a $150M offering.</li>
+      <li><b>Bonds &amp; gold:</b> TLT edged up 0.21% on a mild bid for duration. GLD slipped 0.13%.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  Data sources: Finviz Elite (market overview, screeners, sector performance, news), Alpaca Markets (snapshots).<br>
+  Last refreshed: 2026-11-17 16:10 ET.<br>
+  Note: Final after-market data + after-hours info. Earnings figures may be preliminary. For information only — not financial advice.
+</footer>
+
+</div>
+</body>
+</html>
