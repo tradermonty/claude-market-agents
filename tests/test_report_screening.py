@@ -219,3 +219,154 @@ def test_prompt_entrypoints_follow_availability_contract():
         assert 'earnings_screener(earnings_date="today_after")' in text
         assert "Friday Rule" in text
         assert "This Week’s Remaining Earnings Calendar" in text
+
+
+@pytest.mark.parametrize("failed_kind", ["earnings_trade", "after_market"])
+@pytest.mark.parametrize(
+    "state",
+    [
+        "unavailable",
+        "malformed",
+        "wrong_date",
+        "wrong_source",
+        "invalid_utf8",
+        "ok",
+        "empty",
+        "legacy",
+    ],
+)
+def test_real_publisher_honors_other_jobs_screening(tmp_path, failed_kind, state):
+    """A successful job publishes the directory, not only its own HTML."""
+    failed_html = (
+        "earnings_trade_analysis_2026-11-16.html"
+        if failed_kind == "earnings_trade"
+        else "2026-11-16-after-market-report.html"
+    )
+    good_html = (
+        "2026-11-17-after-market-report.html"
+        if failed_kind == "earnings_trade"
+        else "earnings_trade_analysis_2026-11-17.html"
+    )
+    metadata = (
+        "earnings_trade_candidates_2026-11-16.json"
+        if failed_kind == "earnings_trade"
+        else "2026-11-16-after-market-screening.json"
+    )
+    source = (
+        "earnings_trading_screener"
+        if failed_kind == "earnings_trade"
+        else "earnings_afterhours_screener"
+    )
+    (tmp_path / failed_html).write_text("<title>Screening unavailable</title>")
+    data = payload(state if state in {"ok", "empty", "unavailable"} else "empty", source)
+    if state == "wrong_date":
+        data["report_date"] = "2026-11-15"
+    if state == "wrong_source":
+        data["screening"]["source"] = "other_screener"
+    if state != "legacy":
+        (tmp_path / metadata).write_text("{" if state == "malformed" else json.dumps(data))
+    if state == "invalid_utf8":
+        (tmp_path / metadata).write_bytes(b"\xff")
+    (tmp_path / good_html).write_text("<title>Verified report</title>")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/publish_reports.py"),
+            "--reports-dir",
+            str(tmp_path),
+            "--dry-run",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+    index = (tmp_path / "index.html").read_text()
+    allowed = state in {"ok", "empty", "legacy"}
+    assert (failed_html in index) == allowed
+    assert good_html in index
+    # The real publisher copies this exact scan list, not every HTML file.
+    from scripts.publish_reports import scan_reports
+
+    selected = {r["path"] for r in scan_reports(tmp_path)}
+    assert (failed_html in selected) == allowed
+    assert good_html in selected
+
+
+@pytest.mark.parametrize("method", ["parse_single_report", "parse_all_reports"])
+def test_real_html_backtest_reader_propagates_unavailable(tmp_path, method):
+    from backtest.html_parser import EarningsReportParser
+
+    path = tmp_path / "earnings_trade_analysis_2026-11-16.html"
+    path.write_text("<title>Screening unavailable; candidate count unknown.</title>")
+    (tmp_path / "earnings_trade_candidates_2026-11-16.json").write_text(
+        json.dumps(payload("unavailable"))
+    )
+    # Mixed-day batches must not silently omit the failed day either.
+    (tmp_path / "earnings_trade_analysis_2026-11-17.html").write_text("<p>No stocks available</p>")
+    target = path if method == "parse_single_report" else tmp_path
+    with pytest.raises(ScreeningUnavailableError, match="unavailable"):
+        getattr(EarningsReportParser(), method)(str(target))
+
+
+@pytest.mark.parametrize("method", ["parse_single_report", "parse_all_reports"])
+@pytest.mark.parametrize(
+    "state", ["legacy", "legacy_json", "ok", "empty", "malformed", "wrong_date"]
+)
+def test_html_backtest_compatibility(tmp_path, method, state):
+    from backtest.html_parser import EarningsReportParser
+
+    fixture = ROOT / "backtest/tests/fixtures/format_b_oct.html"
+    path = tmp_path / "earnings_trade_analysis_2026-11-16.html"
+    path.write_text(fixture.read_text())
+    if state != "legacy":
+        data = payload(state if state in {"ok", "empty"} else "ok")
+        if state != "empty":
+            data["screening"]["tickers"] = ["FBK"]
+            data["candidates"][0]["ticker"] = "FBK"
+        if state == "legacy_json":
+            data.pop("screening")
+        if state == "wrong_date":
+            data["report_date"] = "2026-11-15"
+        (tmp_path / "earnings_trade_candidates_2026-11-16.json").write_text(
+            "{" if state == "malformed" else json.dumps(data)
+        )
+    reader = getattr(EarningsReportParser(), method)
+    target = path if method == "parse_single_report" else tmp_path
+    if state in {"malformed", "wrong_date"}:
+        with pytest.raises(ScreeningUnavailableError):
+            reader(str(target))
+    else:
+        candidates = reader(str(target))
+        assert [c.ticker for c in candidates] == ([] if state == "empty" else ["FBK"])
+
+
+def test_local_publish_copy_excludes_unavailable_html(tmp_path, monkeypatch):
+    """Run real gh-pages copying in a disposable local repository; never push."""
+    from scripts.publish_reports import generate_index, push_to_ghpages, run_git, scan_reports
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    monkeypatch.chdir(repo)
+    run_git("init")
+    run_git("config", "user.name", "Fixture")
+    run_git("config", "user.email", "fixture@example.invalid")
+    run_git("config", "core.hooksPath", str(tmp_path / "no-hooks"))
+    (repo / "seed.txt").write_text("fixture")
+    run_git("add", "seed.txt")
+    run_git("commit", "-m", "fixture")
+    reports_dir = tmp_path / "reports"
+    reports_dir.mkdir()
+    failed = "earnings_trade_analysis_2026-11-16.html"
+    good = "2026-11-16-after-market-report.html"
+    (reports_dir / failed).write_text("<title>Screening unavailable</title>")
+    (reports_dir / good).write_text("<title>Verified market report</title>")
+    (reports_dir / "earnings_trade_candidates_2026-11-16.json").write_text(
+        json.dumps(payload("unavailable"))
+    )
+    reports = scan_reports(reports_dir)
+    push_to_ghpages(reports_dir, generate_index(reports), reports, no_push=True)
+    copied = run_git("ls-tree", "--name-only", "gh-pages").splitlines()
+    assert failed not in copied
+    assert good in copied
+    assert failed not in run_git("show", "gh-pages:index.html")

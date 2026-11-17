@@ -1,6 +1,8 @@
 """Screen availability contract shared by generation gates and candidate readers."""
 
+import json
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 
@@ -56,3 +58,40 @@ def validate_screening(data: dict[str, Any], source: str) -> None:
             raise ScreeningUnavailableError(
                 "Screening unavailable: candidates differ from screener universe"
             )
+
+
+def validate_html_report_screening(html_path: Path, report_date: str, source: str) -> str | None:
+    """Honor an HTML report's sibling availability artifact, preserving legacy HTML.
+
+    Historical HTML has no status artifact (or an earnings JSON without screening
+    metadata). If a status artifact is present, reject malformed, wrong-date or
+    unavailable metadata rather than treating its HTML as a successful empty day.
+    """
+    if source == "earnings_trading_screener":
+        artifact = html_path.with_name(f"earnings_trade_candidates_{report_date}.json")
+    elif source == "earnings_afterhours_screener":
+        artifact = html_path.with_name(f"{report_date}-after-market-screening.json")
+    else:
+        raise ScreeningUnavailableError(f"Screening unavailable: unknown source {source}")
+    try:
+        content = artifact.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None  # Historical reports predate screening artifacts.
+    except (OSError, UnicodeError) as exc:
+        raise ScreeningUnavailableError(f"Screening unavailable: cannot read {artifact}") from exc
+    try:
+        data = json.loads(content)
+    except ValueError as exc:
+        raise ScreeningUnavailableError(
+            f"Screening unavailable: invalid JSON in {artifact}"
+        ) from exc
+    if not isinstance(data, dict):
+        raise ScreeningUnavailableError(f"Screening unavailable: invalid object in {artifact}")
+    if source == "earnings_trading_screener" and "screening" not in data:
+        return None  # Legacy candidate JSON also has no screening state.
+    if data.get("report_date") != report_date:
+        raise ScreeningUnavailableError(
+            f"Screening unavailable: mismatched report_date in {artifact}"
+        )
+    validate_screening(data, source)
+    return str(data["screening"]["status"])

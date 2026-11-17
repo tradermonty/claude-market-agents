@@ -89,10 +89,18 @@ the existing bounded retries, and ultimately enters the existing alert path.
 Fresh files after a timeout pass the same validation; freshness alone is insufficient.
 Forced regeneration clears the previous success marker before attempting new data.
 Warning HTML/X artifacts remain local for diagnosis and are not auto-published.
+The batch publisher checks each HTML report's dated sibling artifact too, so a
+successful later job cannot publish another job's unavailable or malformed result.
+Excluded pages are omitted from the published index and HTML copy set.
 
 Candidate readers accept legacy files with no screening metadata. When metadata
 is present they reject unavailable/inconsistent states, so `candidates: null` or
 an explicit unavailable state cannot become a successful zero-candidate run.
+The HTML backtest reader also checks the sibling candidates JSON before parsing:
+an explicit unavailable/inconsistent state raises through both single-report and
+batch readers, invalidating the backtest instead of silently omitting a failed day.
+Confirmed empty remains a valid zero-candidate day. Historical HTML without a
+sibling artifact and old candidate JSON without screening metadata remain supported.
 
 ## Offline verification
 
@@ -100,5 +108,7 @@ Run `pytest tests/test_report_screening.py` for both shell entry points using
 fixture-producing Claude stubs and local publish/email substitutes. This checks
 gating and artifact consistency without sending mail, publishing, invoking the
 LLM, or calling Finviz. Prompt wording, Friday/fallback policy, and links are
-checked separately. Real provider/LLM behavior still requires a live acceptance
+checked separately. Additional fixtures exercise the real publisher scanner/index
+and local gh-pages copying (no push), plus the actual HTML backtest readers, with
+mixed report types/days and legacy compatibility. Real provider/LLM behavior still requires a live acceptance
 run after deployment; these fixtures do not prove provider availability.

@@ -22,6 +22,10 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from backtest.report_screening import ScreeningUnavailableError, validate_html_report_screening
+
 # ---------------------------------------------------------------------------
 # Category classification
 # ---------------------------------------------------------------------------
@@ -80,11 +84,23 @@ def scan_reports(reports_dir: Path) -> list[dict]:
         category = classify(html_file.name)
         if category is None:
             continue
+        report_date = extract_date(html_file.name)
+        if report_date is not None:
+            source = (
+                "earnings_trading_screener"
+                if category == "Earnings Trade Analysis"
+                else "earnings_afterhours_screener"
+            )
+            try:
+                validate_html_report_screening(html_file, report_date, source)
+            except ScreeningUnavailableError as exc:
+                print(f"Skipping {html_file.name}: {exc}", file=sys.stderr)
+                continue
         reports.append(
             {
                 "path": html_file.name,
                 "category": category,
-                "date": extract_date(html_file.name),
+                "date": report_date,
                 "title": extract_title(html_file),
                 "full_path": html_file,
             }
