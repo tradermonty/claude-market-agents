@@ -28,6 +28,7 @@ from backtest.html_parser import TradeCandidate  # dataclass shared; runtime par
 from backtest.json_parser import TICKER_RE as _TICKER_RE
 from backtest.json_parser import VALID_GRADES, parse_candidates_json
 from backtest.price_fetcher import PriceFetcherProtocol
+from backtest.report_screening import ScreeningUnavailableError, validate_screening
 from backtest.trade_simulator import SkippedTrade
 from backtest.vix_filter import (
     VIX_LOOKBACK_DAYS,
@@ -735,6 +736,12 @@ def _strict_parse_json(json_path: str) -> List[TradeCandidate]:
 
     if not isinstance(data, dict):
         raise PriceValidationError(f"JSON root is not a dict: {type(data).__name__}")
+
+    if "screening" in data:
+        try:
+            validate_screening(data, "earnings_trading_screener")
+        except ScreeningUnavailableError as exc:
+            raise PriceValidationError(str(exc)) from exc
 
     raw_candidates = data.get("candidates")
     if not isinstance(raw_candidates, list):

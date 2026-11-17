@@ -18,10 +18,15 @@ SUCCESS_MARKER="${LOG_DIR}/.after_market_${TODAY}.success"
 EXPECTED_HTML="${PROJECT_DIR}/reports/${TODAY}-after-market-report.html"
 EXPECTED_XPOST="${PROJECT_DIR}/reports/${TODAY}-after-market-x-post.md"
 
+EXPECTED_SCREENING="${PROJECT_DIR}/reports/${TODAY}-after-market-screening.json"
+
 # Idempotency: skip if already completed today.
 if [ "${1:-}" != "--force" ] && [ -f "$SUCCESS_MARKER" ]; then
     exit 0
 fi
+
+# A forced regeneration supersedes the previous success, including on failure.
+rm -f "$SUCCESS_MARKER"
 
 # Source helpers (_kill_descendants, _file_mtime, _log_has_false_success).
 source "${SCRIPT_DIR}/lib_retry.sh"
@@ -43,7 +48,7 @@ for ATTEMPT in 1 2 3; do
     ATTEMPT_START_TIME=$(date +%s)
     DEBUG_LOG="${LOG_DIR}/claude_debug_after_market_${TODAY}_attempt${ATTEMPT}.log"
 
-    ( claude -p "Generate today's after-market report using the after-market-reporter agent. Follow the instructions in prompts/after-market-report.md and generate the HTML report and X post message in the reports folder. The HTML must be saved to ${EXPECTED_HTML} and the X post must be saved to ${EXPECTED_XPOST} (these exact paths)." \
+    ( claude -p "Generate today's after-market report using the after-market-reporter agent. Follow the instructions in prompts/after-market-report.md and generate the HTML report and X post message in the reports folder. The HTML must be saved to ${EXPECTED_HTML} and the X post must be saved to ${EXPECTED_XPOST} (these exact paths). Also write the screening availability artifact to ${EXPECTED_SCREENING} as specified in docs/report-screening-contract.md. Write all three files even when screening is unavailable." \
         --allowedTools "Bash Read Write Edit Glob Grep Skill Agent WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*" \
         --debug \
         --debug-file "$DEBUG_LOG" \
@@ -75,7 +80,7 @@ for ATTEMPT in 1 2 3; do
     # so treat a timeout with fresh required files as success too.
     if [ "$EC" -eq 0 ] || [ "$EC" -eq 124 ]; then
         FILES_OK=1
-        for REQ in "$EXPECTED_HTML" "$EXPECTED_XPOST"; do
+        for REQ in "$EXPECTED_HTML" "$EXPECTED_XPOST" "$EXPECTED_SCREENING"; do
             if [ ! -f "$REQ" ]; then
                 FILES_OK=0
                 break
@@ -98,6 +103,12 @@ for ATTEMPT in 1 2 3; do
         fi
     fi
 
+    # File freshness alone cannot distinguish provider failure from zero matches.
+    if [ "$EC" -eq 0 ]; then
+        /opt/homebrew/bin/python3.11 "${SCRIPT_DIR}/validate_report_screening.py" \
+            "$EXPECTED_SCREENING" --source earnings_afterhours_screener --date "$TODAY" >> "$LOG_FILE" 2>&1 || EC=127
+    fi
+
     LAST_EXIT_CODE=$EC
 
     if [ "$EC" -eq 0 ]; then
@@ -108,6 +119,7 @@ for ATTEMPT in 1 2 3; do
     case "$EC" in
         124) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] TIMEOUT after ${TIMEOUT_SECS}s at $(date)" >> "$LOG_FILE" ;;
         125) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED (false-success) at $(date)" >> "$LOG_FILE" ;;
+        127) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED (screening unavailable or invalid) at $(date)" >> "$LOG_FILE" ;;
         126) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED (output-file assertion) at $(date)" >> "$LOG_FILE" ;;
         *)   echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED with exit code ${EC} at $(date)" >> "$LOG_FILE" ;;
     esac
