@@ -21,6 +21,15 @@ You will act as a **seasoned swing trader with over 20 years of experience**.
 Execute the following analysis with this stance:
 
 
+## Required screening availability contract
+
+Read and follow `docs/report-screening-contract.md` before fetching data.
+Distinguish verified `ok`, confirmed `empty`, and `unavailable` before analysis.
+An authentication/schema failure or unverifiable empty response is unavailable,
+not zero. Write the `screening` object in the candidates JSON and show the state
+in HTML and X. For unavailable write `candidates: null`, replace stale same-day
+outputs with warnings, and do not add tickers from other sources.
+
 ## Stage 1: Stock Screening
 
 Extract stocks that announced earnings after yesterday's close or before today's pre-market and are trading higher using Finviz.
@@ -47,7 +56,7 @@ finviz:earnings_trading_screener()
 
 This filter intentionally excludes small/mid caps, low-priced stocks (< $30), and unprofitable companies. **Do not augment screener results from other sources** — analyze only the tickers returned by `earnings_trading_screener()`.
 
-If no earnings stocks are found for either after-hours or pre-market periods, report "No stocks available for earnings trading." Returning fewer than 60 stocks (including zero) is normal and expected when the filter conditions are strict.
+Only for a confirmed `empty` screen, report "No stocks available for earnings trading." and write `candidates: []`. A bare empty response or "No stocks found" without verifiable successful authenticated parsing is `unavailable`; report "Screening unavailable; candidate count unknown." and write `candidates: null`. Returning fewer than 60 stocks is normal when verified.
 
 ## Stage 2: Data Acquisition via MCP Server
 
@@ -56,7 +65,7 @@ For each extracted stock, execute the following MCP functions **sequentially**:
 ### A. Moving Average Position Analysis (Finviz New Feature)
 
 ```
-finviz:get_moving_average_position(symbol="{TICKER}")
+finviz:get_moving_average_position(ticker="{TICKER}")
 ```
 
 **Data Retrieved:**
@@ -211,6 +220,12 @@ Return analysis results in the following JSON format:
 {
   "report_date": "YYYY-MM-DD",
   "generated_at": "YYYY-MM-DDTHH:MM:SS-05:00",
+  "screening": {
+    "source": "earnings_trading_screener",
+    "status": "ok",
+    "evidence": "<fetch timestamp, session, filters, authenticated schema-valid response and count>",
+    "tickers": ["AAPL"]
+  },
   "candidates": [
     {
       "ticker": "AAPL",
@@ -236,7 +251,9 @@ Return analysis results in the following JSON format:
 
 ## Stage 6: X (Twitter) Post Message
 
-Create using the following format:
+For `ok`, create using the following format. For confirmed `empty` or `unavailable`,
+use the contract's explicit message and real source links; omit picks, success-rate
+claims, and the ticker-list URL template. Never leave placeholder tickers in links.
 
 ```
 {Date} Summary of Yesterday's Post-Close and Pre-Market Earnings Releases & Gap-Up Stocks

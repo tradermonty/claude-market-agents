@@ -27,6 +27,9 @@ if [ "${1:-}" != "--force" ] && [ -f "$SUCCESS_MARKER" ]; then
     exit 0
 fi
 
+# A forced regeneration supersedes the previous success, including on failure.
+rm -f "$SUCCESS_MARKER"
+
 # Source helpers (_kill_descendants, _file_mtime, _log_has_false_success).
 source "${SCRIPT_DIR}/lib_retry.sh"
 
@@ -47,7 +50,7 @@ for ATTEMPT in 1 2 3; do
     ATTEMPT_START_TIME=$(date +%s)
     DEBUG_LOG="${LOG_DIR}/claude_debug_${TODAY}_attempt${ATTEMPT}.log"
 
-    ( claude -p "Run the earnings trade analysis using the earnings-trade-analyst agent. Follow the instructions in prompts/earnings-trade.md. IMPORTANT: Save all output files directly in the reports/ folder (NOT in date subfolders). Required output paths (write to these exact paths): ${EXPECTED_HTML}, ${EXPECTED_JSON}, ${EXPECTED_XPOST}." \
+    ( claude -p "Run the earnings trade analysis using the earnings-trade-analyst agent. Follow the instructions in prompts/earnings-trade.md. IMPORTANT: Save all output files directly in the reports/ folder (NOT in date subfolders). Required output paths (write to these exact paths): ${EXPECTED_HTML}, ${EXPECTED_JSON}, ${EXPECTED_XPOST}. Follow docs/report-screening-contract.md: record screening metadata in the candidates JSON, and write unavailable warning artifacts with candidates null on unverifiable screens." \
         --allowedTools "Bash Read Write Edit Glob Grep Skill Agent WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*" \
         --debug \
         --debug-file "$DEBUG_LOG" \
@@ -101,6 +104,12 @@ for ATTEMPT in 1 2 3; do
         fi
     fi
 
+    # File freshness alone cannot distinguish provider failure from zero matches.
+    if [ "$EC" -eq 0 ]; then
+        /opt/homebrew/bin/python3.11 "${SCRIPT_DIR}/validate_report_screening.py" \
+            "$EXPECTED_JSON" --source earnings_trading_screener --date "$TODAY" >> "$LOG_FILE" 2>&1 || EC=127
+    fi
+
     LAST_EXIT_CODE=$EC
 
     if [ "$EC" -eq 0 ]; then
@@ -111,6 +120,7 @@ for ATTEMPT in 1 2 3; do
     case "$EC" in
         124) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] TIMEOUT after ${TIMEOUT_SECS}s at $(date)" >> "$LOG_FILE" ;;
         125) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED (false-success) at $(date)" >> "$LOG_FILE" ;;
+        127) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED (screening unavailable or invalid) at $(date)" >> "$LOG_FILE" ;;
         126) echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED (output-file assertion) at $(date)" >> "$LOG_FILE" ;;
         *)   echo "[Attempt ${ATTEMPT}/${MAX_ATTEMPTS}] FAILED with exit code ${EC} at $(date)" >> "$LOG_FILE" ;;
     esac

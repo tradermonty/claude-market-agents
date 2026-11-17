@@ -15,6 +15,8 @@ from typing import List, Optional
 
 from bs4 import BeautifulSoup
 
+from backtest.report_screening import ScreeningUnavailableError, validate_html_report_screening
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,6 +58,9 @@ class EarningsReportParser:
             try:
                 candidates = self.parse_single_report(str(html_file))
                 all_candidates.extend(candidates)
+            except ScreeningUnavailableError:
+                # Availability failures invalidate the batch; never silently skip a day.
+                raise
             except Exception as e:
                 logger.error(f"Failed to parse {html_file.name}: {e}")
 
@@ -71,6 +76,12 @@ class EarningsReportParser:
             logger.warning(f"Cannot extract date from filename: {filename}")
             return []
         report_date = date_match.group(1)
+
+        status = validate_html_report_screening(
+            Path(filepath), report_date, "earnings_trading_screener"
+        )
+        if status == "empty":
+            return []
 
         with open(filepath, encoding="utf-8") as f:
             html = f.read()

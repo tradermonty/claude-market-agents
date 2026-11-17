@@ -4,6 +4,16 @@ This prompt automates the creation of a **visual infographic and an X post** aft
 
 ---
 
+## Required screening availability contract
+
+Read and follow `docs/report-screening-contract.md` first. Classify the after-hours
+screen as verified `ok`, confirmed `empty`, `unavailable`, or `skipped_friday`.
+Authentication/schema errors and unverifiable empty responses are `unavailable`,
+not zero. Write `reports/YYYY-MM-DD-after-market-screening.json` with `report_date`
+and the `screening` object (source `earnings_afterhours_screener`). Display a visible
+availability warning in HTML and X when unavailable; never take the empty fallback.
+Use real source links without placeholder tickers. On Friday preserve the skip rule.
+
 ## Execution Steps
 
 ### 1. Fetch Market Data
@@ -20,7 +30,7 @@ Retrieve data in the following order:
 
 [Earnings‑Related Data]
 6. `finviz:earnings_afterhours_screener` – tickers up after earnings in after‑hours
-7. `finviz:earnings_screener` with "today_after" – companies scheduled to report after today’s close
+7. `finviz:earnings_screener(earnings_date="today_after")` – companies scheduled to report after today’s close
 8. `finviz:get_stock_news` – news for earnings tickers
 9. `finviz:upcoming_earnings_screener` – today's earnings calendar with details
 ```
@@ -93,7 +103,7 @@ For each earnings ticker:
 
    * **Friday Rule**: On Fridays, **skip this entire section** (and earnings‑related Steps 6‑9 in data fetching). Very few companies report after Friday’s close, and the screener returns stale data from the previous day. Instead, include only a “Next Week’s Major Earnings Calendar” box using `finviz:upcoming_earnings_screener`.
    * **Mon–Thu with after‑hours results**: Show after‑hours performance of today’s reporters, EPS/Revenue surprises, tickers moving ±10 %, and highlight related news.
-   * **Mon–Thu with NO after‑hours results (fallback)**: When `earnings_afterhours_screener` returns empty, do NOT jump to next week’s earnings. Instead:
+   * **Mon–Thu with NO after‑hours results (fallback)**: Only when `earnings_afterhours_screener` is confirmed `empty` under the availability contract, do NOT jump to next week’s earnings. Instead:
      1. Note any BMO (before‑market‑open) earnings that reported TODAY and their market‑session impact
      2. Show **“This Week’s Remaining Earnings Calendar”** using `finviz:upcoming_earnings_screener` filtered to the current week (Mon–Fri)
      3. Only show “Next Week’s Major Earnings” as a secondary section if space permits and the current week is nearly over (Thu/Fri)
@@ -271,7 +281,7 @@ $SYMBOL2 +XX.XX%
 | Common Issue                     | Mitigation                                                                                               |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Mixing daily & weekly data       | Always reference prior close; re‑fetch if uncertain                                                      |
-| 🆕 After‑hours fetch failure     | Verify report time (post‑16:00 ET); exclude illiquid names; pre‑check earnings schedule                  |
+| 🆕 After‑hours fetch failure     | Record `unavailable`, show the warning in HTML/X, and fail the success gate; do not infer zero from a schedule                  |
 | 🆕 Earnings data mismatch        | Double‑check consensus figures; watch for early/late releases; distinguish preliminary vs. final numbers |
 | Market holiday                   | Use last trading day’s data; match date labels                                                           |
 | 🆕 Misreading after‑hours volume | Separate regular vs. after‑hours; flag abnormally low volume                                             |
@@ -373,7 +383,7 @@ finviz:earnings_afterhours_screener()
 finviz:upcoming_earnings_screener()
 
 # Fetch earnings news
-finviz:get_stock_news(tickers=["AAPL", "MSFT"], news_type="earnings")
+finviz:get_stock_news(tickers="AAPL,MSFT", news_type="earnings")
 
 # Latest snapshot including after‑hours
 alpaca:get_stock_snapshot(symbol_or_symbols=["AAPL"])

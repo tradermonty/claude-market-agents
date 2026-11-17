@@ -14,6 +14,7 @@ import re
 from typing import List
 
 from backtest.html_parser import TradeCandidate
+from backtest.report_screening import validate_screening
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,8 @@ TICKER_RE = re.compile(r"^[A-Z][A-Z0-9./-]{0,9}$")
 def parse_candidates_json(filepath: str) -> List[TradeCandidate]:
     """Parse a JSON candidates file into TradeCandidate list.
 
-    Returns empty list on any error (missing file, invalid JSON, etc.).
+    Returns empty list on legacy read/schema errors. Explicit unavailable or
+    inconsistent screening metadata raises ScreeningUnavailableError.
     Candidates missing required fields (ticker, grade, score, price) are skipped.
     """
     try:
@@ -39,6 +41,10 @@ def parse_candidates_json(filepath: str) -> List[TradeCandidate]:
     if not isinstance(data, dict):
         logger.warning("JSON root is not an object: %s", filepath)
         return []
+
+    # Legacy reports lack screening metadata; new explicit states must be honored.
+    if "screening" in data:
+        validate_screening(data, "earnings_trading_screener")
 
     # Extract report_date from JSON or fallback to filename
     report_date = data.get("report_date")
