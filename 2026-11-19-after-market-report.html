@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis - 2026-11-19</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+  header h1 { font-size: 2.4em; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  header .date { font-size: 1.1em; opacity: 0.9; margin-top: 8px; }
+  header .tagline { display: inline-block; margin-top: 12px; padding: 6px 18px; border-radius: 20px;
+    background: rgba(255,107,107,0.3); border: 1px solid rgba(255,107,107,0.6); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  .full { grid-column: 1 / -1; }
+  .card {
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeIn 0.8s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+  h2 { font-size: 1.4em; margin-bottom: 18px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .etf { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; text-align: center; transition: background 0.2s; }
+  .etf:hover { background: rgba(255,255,255,0.2); }
+  .etf .sym { font-weight: 700; font-size: 1.2em; }
+  .etf .price { font-size: 1.05em; opacity: 0.9; margin: 4px 0; }
+  .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); font-weight: 700; }
+  .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); font-weight: 700; }
+  .flat { color: #ddd; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 9px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+  th { opacity: 0.8; font-weight: 600; }
+  tr:hover td { background: rgba(255,255,255,0.08); }
+  .note { font-size: 0.85em; opacity: 0.8; margin-top: 10px; }
+  .afterhours-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    border-left: 5px solid #ffff00;
+  }
+  .afterhours-section .down { color: #7a0000; text-shadow: none; }
+  .afterhours-section .up { color: #004d2a; text-shadow: none; }
+  .earnings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 10px; }
+  .earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); position: relative; border-radius: 16px; padding: 18px; }
+  .afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff;
+    padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+  .earnings-card .symbol { font-size: 1.3em; font-weight: 800; }
+  .earnings-card .afterhours-change { font-size: 1.6em; margin: 4px 0; }
+  .earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+  .surprise-positive { color: #004d2a; font-weight: 700; }
+  .surprise-negative { color: #7a0000; font-weight: 700; }
+  .sub-box { background: rgba(255,255,255,0.18); border-radius: 14px; padding: 18px; margin-top: 20px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .stat { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; text-align: center; }
+  .stat .val { font-size: 1.8em; font-weight: 800; }
+  .stat .lbl { font-size: 0.85em; opacity: 0.85; }
+  ul.points { list-style: none; }
+  ul.points li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  ul.points li:last-child { border-bottom: none; }
+  footer { text-align: center; margin-top: 30px; font-size: 0.85em; opacity: 0.8; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .etf-grid, .earnings-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 1.7em; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="date">📅 2026-11-19 (Thu) – Final After-Market Data</div>
+  <div class="tagline">Intraday Reversal, Broad Selloff</div>
+</header>
+
+<div class="grid">
+
+  <!-- Major ETFs -->
+  <section class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf"><div class="sym">SPY</div><div class="price">$715.83</div><div class="down">-1.97%</div></div>
+      <div class="etf"><div class="sym">QQQ</div><div class="price">$645.04</div><div class="down">-2.19%</div></div>
+      <div class="etf"><div class="sym">DIA</div><div class="price">$490.76</div><div class="down">-2.19%</div></div>
+      <div class="etf"><div class="sym">IWM</div><div class="price">$264.20</div><div class="down">-2.19%</div></div>
+      <div class="etf"><div class="sym">TLT</div><div class="price">$80.35</div><div class="up">+0.16%</div></div>
+      <div class="etf"><div class="sym">GLD</div><div class="price">$335.16</div><div class="down">-1.77%</div></div>
+    </div>
+    <p class="note">SPY opened at $737.46 and hit a $739.90 high before closing at $715.87, about 3.2% below the intraday high (Alpaca daily bar). Prior close: $730.20.</p>
+  </section>
+
+  <!-- Volume surge -->
+  <section class="card">
+    <h2>🔥 Top Volume-Surge Tickers</h2>
+    <table>
+      <tr><th>Symbol</th><th>Name</th><th>Change</th><th>Volume</th><th>RVol</th></tr>
+      <tr><td><b>INSM</b></td><td>Insmed Inc</td><td class="up">+20.58%</td><td>14.4M</td><td>5.16x</td></tr>
+      <tr><td><b>BRBR</b></td><td>BellRing Brands</td><td class="up">+10.47%</td><td>11.8M</td><td>3.11x</td></tr>
+      <tr><td><b>VVV</b></td><td>Valvoline Inc</td><td class="up">+10.43%</td><td>8.9M</td><td>3.37x</td></tr>
+      <tr><td><b>KRSA</b></td><td>Korsana Biosciences</td><td class="up">+6.55%</td><td>311K</td><td>2.85x</td></tr>
+      <tr><td><b>PANW</b></td><td>Palo Alto Networks</td><td class="up">+6.42%</td><td>18.9M</td><td>2.99x</td></tr>
+    </table>
+    <p class="note">Catalysts from headlines: INSM jumped on a Bloomberg report that Sanofi is weighing a takeover. PANW beat and raised FY2027 guidance, and announced a $4.5B Applied Compute acquisition. VVV reported FQ4 results this morning. Also in the list: CPA +5.41%, MAGN +4.58%, P (Everpure) +4.49% after a beat-and-raise, VRDN +4.38%, CGON +2.38%, EXPD +2.23%, FRHC +2.12%.</p>
+  </section>
+
+  <!-- Sectors -->
+  <section class="card">
+    <h2>🏢 Sector Performance</h2>
+    <table>
+      <tr><th>Sector</th><th>Change</th><th>Mkt Cap ($B)</th><th>Stocks</th></tr>
+      <tr><td>Energy</td><td class="down">-0.91%</td><td>4,534</td><td>252</td></tr>
+      <tr><td>Utilities</td><td class="down">-1.31%</td><td>1,773</td><td>103</td></tr>
+      <tr><td>Financial</td><td class="down">-1.48%</td><td>14,365</td><td>1119</td></tr>
+      <tr><td>Consumer Defensive</td><td class="down">-1.51%</td><td>4,699</td><td>239</td></tr>
+      <tr><td>Real Estate</td><td class="down">-1.75%</td><td>1,736</td><td>246</td></tr>
+      <tr><td>Healthcare</td><td class="down">-1.91%</td><td>9,493</td><td>1054</td></tr>
+      <tr><td>Technology</td><td class="down">-2.14%</td><td>30,873</td><td>801</td></tr>
+      <tr><td>Industrials</td><td class="down">-2.18%</td><td>8,874</td><td>716</td></tr>
+      <tr><td>Basic Materials</td><td class="down">-2.27%</td><td>2,491</td><td>298</td></tr>
+      <tr><td>Consumer Cyclical</td><td class="down">-2.69%</td><td>8,940</td><td>520</td></tr>
+      <tr><td>Communication Services</td><td class="down">-2.92%</td><td>10,582</td><td>252</td></tr>
+    </table>
+    <p class="note">All 11 sectors closed lower. Defensives held up best.</p>
+  </section>
+
+  <!-- After-hours -->
+  <section class="card full afterhours-section">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <p>The large-cap after-hours gainer screener (+2% AH, $10B+) returned <b>no results</b> as of 16:10 ET. The main post-close reporters are trading lower or flat in early after-hours. Prices below are Alpaca latest trades around 16:10 ET versus the regular-session close; volume is thin and moves may change.</p>
+    <div class="earnings-grid" style="margin-top:24px;">
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$INTU</div>
+        <div class="afterhours-change down">-14.01%</div>
+        <div>Close $310.02 → AH $266.60</div>
+        <div class="earnings-surprise"><span>FQ1 results + agreement to sell Mailchimp to Bending Spoons</span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$ROST</div>
+        <div class="afterhours-change down">-8.59%</div>
+        <div>Close $219.88 → AH $201.00</div>
+        <div class="earnings-surprise"><span>EPS <span class="surprise-positive">+5.86%</span></span><span>Rev <span class="surprise-positive">+1.69%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$ESTC</div>
+        <div class="afterhours-change down">-8.29%</div>
+        <div>Close $76.33 → AH $70.00</div>
+        <div class="earnings-surprise"><span>EPS <span class="surprise-positive">+19.84%</span></span><span>Rev <span class="surprise-positive">+1.78%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$KEYS</div>
+        <div class="afterhours-change up">+0.33%</div>
+        <div>Close $281.42 → AH $282.34</div>
+        <div class="earnings-surprise"><span>EPS <span class="surprise-positive">+24.01%</span></span><span>Rev <span class="surprise-positive">+5.74%</span></span></div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$GAP</div>
+        <div class="afterhours-change flat">-0.11%</div>
+        <div>Close $18.79 → AH $18.77</div>
+        <div class="earnings-surprise"><span>EPS <span class="surprise-positive">+8.20%</span></span><span>Rev <span class="surprise-negative">-1.04%</span></span></div>
+      </div>
+    </div>
+    <p class="note" style="opacity:0.95;">Surprise figures are from the Finviz earnings screener and may be preliminary. INTU's EPS surprise is not shown because the screener's -39.41% value may reflect GAAP vs. adjusted EPS differences and could not be confirmed.</p>
+
+    <div class="sub-box">
+      <b>Today's pre-market reporters, regular-session reaction:</b>
+      Valvoline $VVV <span class="up">+10.43%</span> on FQ4 results. Walmart $WMT <span class="down">-1.04%</span>, recovering from an intraday low of $123.27 to close at $126.04.
+    </div>
+    <div class="sub-box">
+      <b>Remaining earnings this week (Fri 11/20):</b>
+      The Finviz upcoming-earnings screener returned no mid-cap-and-above names for Friday, so no tickers are listed here.
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="card full">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat"><div class="val">12</div><div class="lbl">Volume-surge tickers</div></div>
+      <div class="stat"><div class="val">266</div><div class="lbl">Uptrend tickers</div></div>
+      <div class="stat"><div class="val">2.8x</div><div class="lbl">Avg relative volume</div></div>
+      <div class="stat"><div class="val up">+6.7%</div><div class="lbl">Avg price move (surge list)</div></div>
+      <div class="stat"><div class="val">312</div><div class="lbl">Earnings releases this week</div></div>
+    </div>
+    <p class="note">Uptrend leaders by sector: Healthcare 68, Technology 43, Financial 42.</p>
+  </section>
+
+  <!-- Key points -->
+  <section class="card full">
+    <h2>💡 Today's Key Points</h2>
+    <ul class="points">
+      <li><b>Broad market trend:</b> A gap-up open faded into a broad selloff. SPY -1.97%, while QQQ, DIA and IWM each fell 2.19%. NVDA closed -3.30% at $145.98.</li>
+      <li><b>Hot sectors:</b> None finished green. Energy (-0.91%), Utilities (-1.31%) and Financial (-1.48%) fell least. Communication Services (-2.92%) and Consumer Cyclical (-2.69%) led losses.</li>
+      <li><b>Volume-surge characteristics:</b> Only 12 names qualified, a thin list typical of a risk-off day. Gains were driven by stock-specific news: M&amp;A (INSM), earnings follow-through (PANW, P, VVV, BRBR) and biotech (KRSA, VRDN, CGON).</li>
+      <li><b>Earnings highlights:</b> PANW extended its post-earnings rally to +6.42% despite the tape, keeping cybersecurity in focus.</li>
+      <li><b>After-hours focal points:</b> INTU -14.01% AH after FQ1 results and a Mailchimp divestiture. ROST -8.59% and ESTC -8.29% AH even though both beat EPS estimates.</li>
+      <li><b>Bonds &amp; gold:</b> TLT edged up +0.16%. GLD fell -1.77%, so gold did not act as a haven today.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, screeners, sectors, news), Alpaca Markets (snapshots, after-hours trades)</p>
+  <p>Last refreshed: 2026-11-19 16:10 ET (13:10 PT)</p>
+  <p>Final after-market data + after-hours info. Information only, not financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
