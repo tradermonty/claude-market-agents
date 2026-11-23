@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. Stock Market Analysis – 2026-11-23</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
+}
+.container { max-width: 1280px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+header h1 { font-size: 2.6em; font-weight: 800; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+header .date { font-size: 1.15em; opacity: 0.9; margin-top: 8px; }
+header .tagline { display: inline-block; margin-top: 14px; padding: 8px 20px; border-radius: 30px;
+  background: rgba(0,255,136,0.18); border: 1px solid rgba(0,255,136,0.5); font-weight: 700; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.full { grid-column: 1 / -1; }
+.card {
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: fadeIn 0.8s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+.card h2 { font-size: 1.4em; margin-bottom: 20px; }
+.etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.etf { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; text-align: center; transition: background 0.2s; }
+.etf:hover { background: rgba(255,255,255,0.2); }
+.etf .sym { font-size: 1.3em; font-weight: 800; }
+.etf .name { font-size: 0.78em; opacity: 0.75; }
+.etf .price { font-size: 1.15em; margin-top: 6px; }
+.etf .chg { font-size: 1.35em; font-weight: 800; margin-top: 4px; }
+.up { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.45); }
+.down { color: #ff6b6b; text-shadow: 0 0 10px rgba(255,107,107,0.45); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 0.95em; }
+th { opacity: 0.75; font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+tr:hover td { background: rgba(255,255,255,0.06); }
+.num { text-align: right; }
+.catalyst { font-size: 0.8em; opacity: 0.8; display: block; }
+.afterhours-section {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+  border-left: 5px solid #ffff00; border-radius: 20px; padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.afterhours-section h2 { margin-bottom: 20px; font-size: 1.5em; }
+.earnings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.earnings-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); position: relative; border-radius: 16px; padding: 22px; transition: transform 0.2s; }
+.earnings-card:hover { transform: scale(1.02); }
+.afterhours-badge { position: absolute; top: -10px; right: -10px; background: #ff4444; color: #fff; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+.earnings-card .symbol { font-size: 1.6em; font-weight: 800; }
+.earnings-card .co { font-size: 0.85em; opacity: 0.9; }
+.afterhours-change { font-size: 2em; font-weight: 800; margin: 8px 0; }
+.afterhours-section .up { color: #eaffef; text-shadow: 0 0 8px rgba(0,120,60,0.9); }
+.afterhours-section .down { color: #fff0f0; text-shadow: 0 0 8px rgba(140,0,0,0.9); }
+.earnings-surprise { display: flex; justify-content: space-between; margin: 10px 0; font-weight: 600; }
+.surprise-positive { color: #00ff88; text-shadow: 0 0 6px rgba(0,60,30,0.9); }
+.surprise-negative { color: #ff6b6b; }
+.small { font-size: 0.82em; opacity: 0.92; }
+.cal { margin-top: 22px; background: rgba(0,0,0,0.15); border-radius: 14px; padding: 18px; }
+.cal h3 { margin-bottom: 10px; }
+.cal ul { list-style: none; }
+.cal li { padding: 4px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.stat { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px; text-align: center; }
+.stat .v { font-size: 1.9em; font-weight: 800; }
+.stat .l { font-size: 0.82em; opacity: 0.8; }
+.bar-wrap { background: rgba(255,255,255,0.1); border-radius: 6px; height: 10px; width: 100%; overflow: hidden; }
+.bar { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #00c3ff, #00ff88); }
+.bar.neg { background: linear-gradient(90deg, #ff6b6b, #ff3b3b); }
+.points li { margin: 0 0 12px 22px; }
+footer { text-align: center; margin-top: 36px; opacity: 0.8; font-size: 0.88em; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; }
+  .etf-grid { grid-template-columns: repeat(2, 1fr); }
+  header h1 { font-size: 1.9em; }
+  .card, .afterhours-section { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🇺🇸 U.S. Stock Market Analysis</h1>
+  <div class="date">📅 2026-11-23 (Mon) – Final After-Market Data</div>
+  <div class="tagline">🚀 Nvidia +31.48% on Jensen Huang's reinstatement — S&amp;P 500, Nasdaq, Dow post best day since April 2025</div>
+</header>
+
+<div class="grid">
+
+  <section class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$722.51</div><div class="chg up">+4.74%</div></div>
+      <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$651.03</div><div class="chg up">+7.00%</div></div>
+      <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$495.65</div><div class="chg up">+3.03%</div></div>
+      <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$265.74</div><div class="chg up">+3.56%</div></div>
+      <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$81.69</div><div class="chg up">+0.29%</div></div>
+      <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$333.04</div><div class="chg up">+3.15%</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔥 Top Volume-Surge Tickers</h2>
+    <table>
+      <tr><th>Symbol</th><th class="num">Close</th><th class="num">Change</th><th class="num">Volume</th></tr>
+      <tr><td><b>OTLY</b> 🚀<span class="catalyst">Oatly · Verlinvest tender offer (board recommends not tendering)</span></td><td class="num">$14.50</td><td class="num up">+109.24%</td><td class="num">12.49M</td></tr>
+      <tr><td><b>KYMR</b><span class="catalyst">Kymera · KT-621 Phase 2b eczema trial met all endpoints</span></td><td class="num">$150.37</td><td class="num up">+30.40%</td><td class="num">7.76M</td></tr>
+      <tr><td><b>ZS</b><span class="catalyst">Zscaler · CrowdStrike $43.9B all-stock acquisition</span></td><td class="num">$229.24</td><td class="num up">+17.67%</td><td class="num">19.07M</td></tr>
+      <tr><td><b>HPE</b><span class="catalyst">Hewlett Packard Enterprise</span></td><td class="num">$48.02</td><td class="num up">+17.38%</td><td class="num">39.97M</td></tr>
+      <tr><td><b>MPWR</b><span class="catalyst">Monolithic Power · semis rally</span></td><td class="num">$1,333.88</td><td class="num up">+16.80%</td><td class="num">1.40M</td></tr>
+      <tr><td><b>BSP</b></td><td class="num">$47.27</td><td class="num up">+15.15%</td><td class="num">7.11M</td></tr>
+      <tr><td><b>ENTG</b><span class="catalyst">Entegris</span></td><td class="num">$142.06</td><td class="num up">+14.08%</td><td class="num">4.25M</td></tr>
+      <tr><td><b>APH</b><span class="catalyst">Amphenol</span></td><td class="num">$77.41</td><td class="num up">+11.03%</td><td class="num">23.86M</td></tr>
+      <tr><td><b>TXN</b><span class="catalyst">Texas Instruments</span></td><td class="num">$291.19</td><td class="num up">+10.40%</td><td class="num">11.98M</td></tr>
+    </table>
+    <p class="small" style="margin-top:12px">Changes vs. 11/20 close (Alpaca daily bars). NVDA (+31.48%) does not pass the screener's 200-day SMA filter and is not listed.</p>
+  </section>
+
+  <section class="card">
+    <h2>🏢 Sector Performance</h2>
+    <table>
+      <tr><th>Sector</th><th class="num">Change</th><th style="width:30%"></th><th class="num">Stocks</th></tr>
+      <tr><td>Technology</td><td class="num up">+9.11%</td><td><div class="bar-wrap"><div class="bar" style="width:100%"></div></div></td><td class="num">800</td></tr>
+      <tr><td>Communication Services</td><td class="num up">+4.69%</td><td><div class="bar-wrap"><div class="bar" style="width:51%"></div></div></td><td class="num">252</td></tr>
+      <tr><td>Basic Materials</td><td class="num up">+4.49%</td><td><div class="bar-wrap"><div class="bar" style="width:49%"></div></div></td><td class="num">298</td></tr>
+      <tr><td>Consumer Cyclical</td><td class="num up">+4.28%</td><td><div class="bar-wrap"><div class="bar" style="width:47%"></div></div></td><td class="num">520</td></tr>
+      <tr><td>Industrials</td><td class="num up">+4.11%</td><td><div class="bar-wrap"><div class="bar" style="width:45%"></div></div></td><td class="num">714</td></tr>
+      <tr><td>Financial</td><td class="num up">+2.19%</td><td><div class="bar-wrap"><div class="bar" style="width:24%"></div></div></td><td class="num">1098</td></tr>
+      <tr><td>Healthcare</td><td class="num up">+1.76%</td><td><div class="bar-wrap"><div class="bar" style="width:19%"></div></div></td><td class="num">1054</td></tr>
+      <tr><td>Utilities</td><td class="num up">+1.48%</td><td><div class="bar-wrap"><div class="bar" style="width:16%"></div></div></td><td class="num">104</td></tr>
+      <tr><td>Real Estate</td><td class="num up">+1.23%</td><td><div class="bar-wrap"><div class="bar" style="width:14%"></div></div></td><td class="num">244</td></tr>
+      <tr><td>Consumer Defensive</td><td class="num up">+0.12%</td><td><div class="bar-wrap"><div class="bar" style="width:2%"></div></div></td><td class="num">240</td></tr>
+      <tr><td>Energy</td><td class="num down">-0.90%</td><td><div class="bar-wrap"><div class="bar neg" style="width:10%"></div></div></td><td class="num">252</td></tr>
+    </table>
+    <p class="small" style="margin-top:12px">Market cap leaders: Technology $30.7T, Financial $14.4T, Communication Services $10.8T (Finviz).</p>
+  </section>
+
+  <section class="afterhours-section full">
+    <h2>⏰ Post-Close Earnings &amp; After-Hours</h2>
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$A</div>
+        <div class="co">Agilent Technologies · Healthcare · FQ4 FY2026 (Business Wire, 16:05 ET)</div>
+        <div class="afterhours-change up">+7.94%</div>
+        <div class="earnings-surprise">
+          <span>EPS: <span class="surprise-positive">+8.85%</span></span>
+          <span>Revenue: <span class="surprise-positive">+1.98%</span></span>
+        </div>
+        <div class="small">Regular close $176.04 (+3.32%) → AH $190.01 (Alpaca, 16:10 ET). Finviz AH screener: +7.78%.</div>
+      </div>
+      <div class="earnings-card">
+        <div class="afterhours-badge">After-Hours</div>
+        <div class="symbol">$HPE</div>
+        <div class="co">Hewlett Packard Enterprise · FQ4 FY2026 release (Business Wire, 16:05 ET)</div>
+        <div class="afterhours-change down">-3.75%</div>
+        <div class="earnings-surprise">
+          <span>EPS: <span class="surprise-positive">+19.15%</span></span>
+          <span>Revenue: <span class="surprise-positive">+2.04%</span></span>
+        </div>
+        <div class="small">Regular close $48.02 (+17.38%) → AH $46.22 (Alpaca, 16:10 ET). Surprise figures from Finviz earnings screener; treat as preliminary.</div>
+      </div>
+    </div>
+    <div class="cal">
+      <h3>🗓️ This Week's Remaining Earnings (Large Cap, holiday-shortened week)</h3>
+      <ul>
+        <li><b>Tue 11/24 BMO:</b> $ADI, $MDT, $DLTR, $BBY, $DKS, $BURL, $SJM</li>
+        <li><b>Tue 11/24 AMC:</b> $WDAY, $ADSK, $HPQ, $NTNX</li>
+        <li><b>Wed 11/25 BMO:</b> $DE</li>
+        <li><b>Thu 11/26:</b> Market closed (Thanksgiving)</li>
+      </ul>
+      <p class="small" style="margin-top:8px">Source: Finviz upcoming earnings screener, 11/24–11/27, Large cap. Earnings figures may be preliminary.</p>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2>📊 Market Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat"><div class="v">47</div><div class="l">Volume-surge stocks</div></div>
+      <div class="stat"><div class="v">304</div><div class="l">Uptrend stocks</div></div>
+      <div class="stat"><div class="v">4.7x</div><div class="l">Avg relative volume</div></div>
+      <div class="stat"><div class="v up">+9.4%</div><div class="l">Avg price move (surge group)</div></div>
+      <div class="stat"><div class="v">81</div><div class="l">Earnings releases this week</div></div>
+    </div>
+    <p class="small" style="margin-top:12px">Uptrend leaders by sector: Healthcare 90, Technology 54, Consumer Cyclical 40 (Finviz market overview).</p>
+  </section>
+
+  <section class="card full">
+    <h2>💡 Today's Key Points</h2>
+    <ul class="points">
+      <li><b>Broad market trend:</b> A sharp rebound after last week's AI-led selloff. QQQ +7.00% led SPY +4.74%, IWM +3.56% and DIA +3.03%. Yahoo Finance reports the Dow, S&amp;P 500 and Nasdaq posted their best day since April 2025.</li>
+      <li><b>Hot sectors:</b> Technology +9.11% dominated. NVDA closed +31.48% at $165.05 after its board reinstated Jensen Huang as CEO, which MarketWatch calls the stock's best day in 23 years. Semis and hardware followed: MPWR +16.80%, ENTG +14.08%, APH +11.03%, TXN +10.40%, ADI +9.49%.</li>
+      <li><b>Volume-surge characteristics:</b> 47 names passed the screen with 4.7x average relative volume and a +9.4% average move. Leaders were driven by specific events: the Verlinvest tender for OTLY, Phase 2b data for KYMR and the CrowdStrike deal for ZS.</li>
+      <li><b>M&amp;A:</b> CrowdStrike agreed to buy Zscaler for $43.9B in stock. ZS rose +17.67% while CRWD fell -8.92% despite its quarterly beat and raised FY2027 guidance.</li>
+      <li><b>Earnings highlights:</b> Agilent beat on EPS by +8.85% and revenue by +1.98% and is up +7.94% after hours. HPE released results after the close and trades -3.75% AH after a +17.38% regular session.</li>
+      <li><b>After-hours focal points:</b> Only Agilent passed the large-cap AH gainer screen. Tomorrow brings ADI before the open and WDAY, ADSK, HPQ and NTNX after the close.</li>
+      <li><b>Bonds &amp; gold:</b> TLT edged up +0.29%. GLD rose +3.15% alongside equities. Energy -0.90% was the only losing sector.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <p>Data sources: Finviz Elite (market overview, volume-surge screener, sector performance, earnings screeners, news), Alpaca Markets (snapshots), Yahoo Finance / MarketWatch headlines via Finviz news.</p>
+  <p>Last refreshed: 2026-11-23 16:11 ET</p>
+  <p>Final after-market data + after-hours info. Information only, not financial advice.</p>
+</footer>
+
+</div>
+</body>
+</html>
