@@ -1,199 +1,216 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2026-11-24 今日の米国株、ざっくり解説</title>
+<title>2026-11-24 US Market Close - Key Points</title>
 <style>
   :root {
-    --bg: #f6f7fb; --card: #ffffff; --ink: #1d2433; --sub: #5b6478;
-    --line: #d9dde7; --up: #12924f; --down: #d23c3c; --accent: #3b5bdb;
-    --chip: #eef1f8;
+    --bg: #f6f7f9; --card: #ffffff; --fg: #1b1f24; --muted: #5b6470;
+    --line: #d5dae0; --up: #1a8a4a; --dn: #c8323b; --accent: #2a5298;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #10131a; --card: #1a1f2b; --ink: #eef1f7; --sub: #a3abbd;
-      --line: #343b4d; --up: #3ddc84; --down: #ff6b6b; --accent: #8ea6ff;
-      --chip: #242b3b;
+      --bg: #101418; --card: #1a2027; --fg: #e9edf1; --muted: #a3adb8;
+      --line: #3a434d; --up: #3ccf7c; --dn: #ff6b6b; --accent: #8fb3ff;
     }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--bg); color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Segoe UI", sans-serif;
-    font-size: 17px; line-height: 1.65;
+    background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px; line-height: 1.5;
   }
-  main { max-width: 480px; margin: 0 auto; padding: 20px 18px 40px; }
-  .date { color: var(--sub); font-size: 16px; font-weight: 600; }
-  .hero { font-size: 27px; font-weight: 800; line-height: 1.4; margin: 6px 0 22px; }
-  .card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
-    padding: 18px 16px; margin-bottom: 18px;
+  main { max-width: 480px; margin: 0 auto; padding: 20px 16px 32px; }
+  .date { color: var(--muted); font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  h1 { font-size: 27px; line-height: 1.25; margin: 6px 0 22px; }
+  section {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px; margin-bottom: 16px;
   }
-  .card h2 { font-size: 20px; margin-bottom: 4px; }
-  .card p { margin-top: 8px; }
-  .hint { color: var(--sub); font-size: 16px; }
-  svg { display: block; width: 100%; height: auto; margin-top: 10px; }
-  svg text { font-family: inherit; fill: var(--ink); font-size: 15px; }
-  svg .sub { fill: var(--sub); font-size: 14px; }
-  svg .up { fill: var(--up); }
-  svg .down { fill: var(--down); }
-  svg .axis { stroke: var(--line); stroke-width: 2; }
-  svg .tup { fill: var(--up); font-weight: 700; }
-  svg .tdown { fill: var(--down); font-weight: 700; }
-  .movers { margin-top: 10px; }
-  .mover {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--chip); border-radius: 14px; padding: 10px 12px; margin-top: 10px;
-    min-height: 56px;
+  h2 { font-size: 19px; margin-bottom: 4px; }
+  .def { color: var(--muted); font-size: 15px; margin-bottom: 10px; }
+  p { margin-top: 8px; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { fill: var(--fg); font-family: inherit; }
+  svg .lbl { font-size: 15px; font-weight: 600; }
+  svg .val { font-size: 15px; font-weight: 700; }
+  svg .val.up { fill: var(--up); }
+  svg .val.dn { fill: var(--dn); }
+  svg rect.up { fill: var(--up); }
+  svg rect.dn { fill: var(--dn); }
+  svg line.zero { stroke: var(--muted); stroke-width: 1.5; }
+  ul.keys { list-style: none; margin-top: 10px; font-size: 15px; color: var(--muted); }
+  ul.keys li { padding: 3px 0; }
+  ul.keys b { color: var(--fg); }
+  .takeaway { border-left: 5px solid var(--accent); }
+  .takeaway p { margin-top: 4px; font-weight: 600; }
+  .disclaimer { color: var(--muted); font-size: 15px; margin: 18px 0 12px; }
+  a.full {
+    display: block; min-height: 48px; line-height: 48px; text-align: center;
+    border-radius: 12px; background: var(--accent); color: #fff;
+    text-decoration: none; font-weight: 700;
   }
-  .mover .pct { font-size: 20px; font-weight: 800; min-width: 96px; }
-  .mover .pct.up { color: var(--up); }
-  .mover .pct.down { color: var(--down); }
-  .mover .who { font-weight: 700; }
-  .mover .why { color: var(--sub); font-size: 16px; display: block; line-height: 1.45; }
-  .sowhat { border-left: 5px solid var(--accent); }
-  .disclaimer { color: var(--sub); font-size: 15px; margin-top: 8px; }
-  .more {
-    display: flex; align-items: center; justify-content: center;
-    min-height: 48px; margin-top: 16px; border-radius: 12px;
-    background: var(--accent); color: #fff; font-weight: 700; text-decoration: none;
-  }
-  @media (prefers-color-scheme: dark) { .more { color: #10131a; } }
+  @media (prefers-color-scheme: dark) { a.full { color: #101418; } }
 </style>
 </head>
 <body>
 <main>
 
-  <p class="date">2026年11月24日（火）米国株の終わり値</p>
-  <h1 class="hero">AIの株がひと休みして、お店と薬の会社が元気だった日</h1>
+  <div class="date">Tuesday, November 24, 2026 · US market close</div>
+  <h1>Tech stocks fell while healthcare, retailers and the Dow rose.</h1>
 
-  <!-- Panel 1: index weather meter -->
-  <section class="card">
-    <h2>🌤️ 4つの天気メーター</h2>
-    <p class="hint">市場全体の「天気」を見る代表的な4つの箱です。</p>
-    <svg viewBox="0 0 360 250" role="img" aria-label="SPY -0.51%、QQQ -1.99%、DIA +0.77%、IWM +0.53%">
-      <line class="axis" x1="180" y1="8" x2="180" y2="244"/>
-      <!-- SPY -->
-      <text x="174" y="24" text-anchor="end" class="tdown">▼ $SPY -0.51%</text>
-      <text x="186" y="24" class="sub">大きい会社500社</text>
-      <rect class="down" x="144.3" y="32" width="35.7" height="18" rx="4"/>
-      <!-- QQQ -->
-      <text x="174" y="84" text-anchor="end" class="tdown">▼ $QQQ -1.99%</text>
-      <text x="186" y="84" class="sub">ハイテク中心</text>
-      <rect class="down" x="40.7" y="92" width="139.3" height="18" rx="4"/>
-      <!-- DIA -->
-      <text x="186" y="144" class="tup">▲ $DIA +0.77%</text>
-      <text x="174" y="144" text-anchor="end" class="sub">老舗の30社</text>
-      <rect class="up" x="180" y="152" width="53.9" height="18" rx="4"/>
-      <!-- IWM -->
-      <text x="186" y="204" class="tup">▲ $IWM +0.53%</text>
-      <text x="174" y="204" text-anchor="end" class="sub">小さい会社</text>
-      <rect class="up" x="180" y="212" width="37.1" height="18" rx="4"/>
+  <!-- Panel 1: Major indexes -->
+  <section>
+    <h2>📈 The big indexes split</h2>
+    <div class="def">Index = a basket of stocks used to measure the market. Each ticker below is a fund (ETF) that tracks one index.</div>
+    <svg viewBox="0 0 360 216" width="100%" role="img" aria-label="SPY down 0.51 percent, QQQ down 1.99 percent, DIA up 0.77 percent, IWM up 0.53 percent">
+      <line class="zero" x1="180" y1="22" x2="180" y2="212"/>
+      <text class="lbl" x="4" y="16">$SPY · S&amp;P 500</text>
+      <text class="val dn" x="356" y="16" text-anchor="end">▼ -0.51%</text>
+      <rect class="dn" x="139.2" y="24" width="40.8" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="70">$QQQ · Nasdaq 100</text>
+      <text class="val dn" x="356" y="70" text-anchor="end">▼ -1.99%</text>
+      <rect class="dn" x="21" y="78" width="159" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="124">$DIA · Dow Jones</text>
+      <text class="val up" x="356" y="124" text-anchor="end">▲ +0.77%</text>
+      <rect class="up" x="180" y="132" width="61.6" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="178">$IWM · Russell 2000</text>
+      <text class="val up" x="356" y="178" text-anchor="end">▲ +0.53%</text>
+      <rect class="up" x="180" y="186" width="42.4" height="16" rx="3"/>
     </svg>
-    <p>ハイテクが下がり、老舗と小さい会社は上がりました。</p>
-    <p class="hint">みんなが逃げた日ではなく、お金の置き場所を入れ替えた日です。</p>
+    <ul class="keys">
+      <li><b>S&amp;P 500</b>: 500 large US companies, the broad market.</li>
+      <li><b>Nasdaq 100</b>: large Nasdaq-listed companies, heavy in tech.</li>
+      <li><b>Dow Jones</b>: 30 large, long-established US companies.</li>
+      <li><b>Russell 2000</b>: smaller US companies ("small caps").</li>
+    </ul>
+    <p>The tech-heavy Nasdaq 100 fell most. The Dow and small caps still rose.</p>
   </section>
 
-  <!-- Panel 2: safe havens -->
-  <section class="card">
-    <h2>☂️ 安全資産</h2>
-    <p class="hint">不安なときに人が持ちたがる「傘」のようなもの。</p>
-    <svg viewBox="0 0 360 150" role="img" aria-label="TLT -0.24%、GLD -2.26%">
-      <line class="axis" x1="180" y1="8" x2="180" y2="144"/>
-      <text x="174" y="24" text-anchor="end" class="tdown">▼ $TLT -0.24%</text>
-      <text x="186" y="24" class="sub">長期の国債</text>
-      <rect class="down" x="163.2" y="32" width="16.8" height="18" rx="4"/>
-      <text x="174" y="94" text-anchor="end" class="tdown">▼ $GLD -2.26%</text>
-      <text x="186" y="94" class="sub">金（ゴールド）</text>
-      <rect class="down" x="21.8" y="102" width="158.2" height="18" rx="4"/>
+  <!-- Panel 2: Sectors -->
+  <section>
+    <h2>🏢 Healthcare up, technology down</h2>
+    <div class="def">Sector = a group of companies in the same line of business.</div>
+    <svg viewBox="0 0 360 324" width="100%" role="img" aria-label="Healthcare up 3.18 percent, Consumer Defensive up 1.70 percent, Real Estate up 1.24 percent, Basic Materials down 0.96 percent, Industrials down 1.41 percent, Technology down 3.09 percent">
+      <line class="zero" x1="180" y1="22" x2="180" y2="320"/>
+      <text class="lbl" x="4" y="16">Healthcare</text>
+      <text class="val up" x="356" y="16" text-anchor="end">▲ +3.18%</text>
+      <rect class="up" x="180" y="24" width="159" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="70">Consumer Defensive</text>
+      <text class="val up" x="356" y="70" text-anchor="end">▲ +1.70%</text>
+      <rect class="up" x="180" y="78" width="85" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="124">Real Estate</text>
+      <text class="val up" x="356" y="124" text-anchor="end">▲ +1.24%</text>
+      <rect class="up" x="180" y="132" width="62" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="178">Basic Materials</text>
+      <text class="val dn" x="356" y="178" text-anchor="end">▼ -0.96%</text>
+      <rect class="dn" x="132" y="186" width="48" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="232">Industrials</text>
+      <text class="val dn" x="356" y="232" text-anchor="end">▼ -1.41%</text>
+      <rect class="dn" x="109.5" y="240" width="70.5" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="286">Technology</text>
+      <text class="val dn" x="356" y="286" text-anchor="end">▼ -3.09%</text>
+      <rect class="dn" x="25.5" y="294" width="154.5" height="16" rx="3"/>
     </svg>
-    <p>傘は少ししまわれました。</p>
-    <p class="hint">金は前日に +3.15% 上がった分を一部返しました。</p>
+    <p>Top three and bottom three sectors of the day. Healthcare was the best, technology the worst.</p>
   </section>
 
-  <!-- Panel 3: standout movers -->
-  <section class="card">
-    <h2>⭐ 今日の主役たち</h2>
-    <div class="movers">
-      <div class="mover">
-        <span class="pct up">▲ +14.13%</span>
-        <span><span class="who">$INSM</span><span class="why">薬の大手サノフィが $41B の現金で買うと決まった</span></span>
-      </div>
-      <div class="mover">
-        <span class="pct up">▲ +19.80%</span>
-        <span><span class="who">$ANF</span><span class="why">決算が予想より良く、見通しも引き上げ</span></span>
-      </div>
-      <div class="mover">
-        <span class="pct up">▲ +19.53%</span>
-        <span><span class="who">$KSS</span><span class="why">既存店の売上が再び伸び、見通しも引き上げ</span></span>
-      </div>
-      <div class="mover">
-        <span class="pct down">▼ -17.37%</span>
-        <span><span class="who">$ADI</span><span class="why">次の四半期の見通しが期待を下回った</span></span>
-      </div>
-    </div>
-    <p class="hint">決算 = 会社が3か月ごとに出す「成績表」。お店の会社は年末セール前に良い成績を出しました。</p>
-  </section>
+  <!-- Panel 3: Notable movers -->
+  <section>
+    <h2>🔥 Stocks that moved on news</h2>
+    <div class="def">Earnings = a company's quarterly results. "Outlook" or "guidance" = its own forecast for coming quarters.</div>
+    <svg viewBox="0 0 360 216" width="100%" role="img" aria-label="ANF up 19.80 percent, KSS up 19.53 percent, INSM up 14.13 percent, ADI down 17.37 percent">
+      <line class="zero" x1="180" y1="22" x2="180" y2="212"/>
+      <text class="lbl" x="4" y="16">$ANF · Abercrombie &amp; Fitch</text>
+      <text class="val up" x="356" y="16" text-anchor="end">▲ +19.80%</text>
+      <rect class="up" x="180" y="24" width="158.4" height="16" rx="3"/>
 
-  <!-- Panel 4: after-hours earnings -->
-  <section class="card">
-    <h2>🌙 引け後の決算</h2>
-    <p class="hint">市場が閉まった後に成績表を出した会社の、最初の値動きです。</p>
-    <svg viewBox="0 0 360 290" role="img" aria-label="URBN -8.97%、NTNX -7.68%、ADSK -5.35%、WDAY -4.31%、DELL +1.89%">
-      <line class="axis" x1="180" y1="8" x2="180" y2="284"/>
-      <text x="174" y="24" text-anchor="end" class="tdown">▼ $URBN -8.97%</text>
-      <rect class="down" x="45.45" y="32" width="134.55" height="16" rx="4"/>
-      <text x="174" y="80" text-anchor="end" class="tdown">▼ $NTNX -7.68%</text>
-      <rect class="down" x="64.8" y="88" width="115.2" height="16" rx="4"/>
-      <text x="174" y="136" text-anchor="end" class="tdown">▼ $ADSK -5.35%</text>
-      <rect class="down" x="99.75" y="144" width="80.25" height="16" rx="4"/>
-      <text x="174" y="192" text-anchor="end" class="tdown">▼ $WDAY -4.31%</text>
-      <rect class="down" x="115.35" y="200" width="64.65" height="16" rx="4"/>
-      <text x="186" y="248" class="tup">▲ $DELL +1.89%</text>
-      <rect class="up" x="180" y="256" width="28.35" height="16" rx="4"/>
+      <text class="lbl" x="4" y="70">$KSS · Kohl's</text>
+      <text class="val up" x="356" y="70" text-anchor="end">▲ +19.53%</text>
+      <rect class="up" x="180" y="78" width="156.2" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="124">$INSM · Insmed</text>
+      <text class="val up" x="356" y="124" text-anchor="end">▲ +14.13%</text>
+      <rect class="up" x="180" y="132" width="113" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="178">$ADI</text>
+      <text class="val dn" x="356" y="178" text-anchor="end">▼ -17.37%</text>
+      <rect class="dn" x="41" y="186" width="139" height="16" rx="3"/>
     </svg>
-    <p>ソフトウェアとお店の会社は、最初は下がっています。</p>
-    <p class="hint">取引が少ない時間の速報値なので、まだ動く可能性があります。</p>
+    <ul class="keys">
+      <li><b>$ANF</b>: quarterly results beat expectations; outlook raised.</li>
+      <li><b>$KSS</b>: same-store sales back to growth; full-year outlook raised.</li>
+      <li><b>$INSM</b>: Sanofi agreed to buy it for $41B in cash.</li>
+      <li><b>$ADI</b>: next-quarter guidance came in below expectations.</li>
+    </ul>
   </section>
 
-  <!-- Panel 5: sectors -->
-  <section class="card">
-    <h2>🏢 強かった業種・弱かった業種</h2>
-    <p class="hint">業種 = 似た仕事をする会社のグループ。</p>
-    <svg viewBox="0 0 360 340" role="img" aria-label="ヘルスケア +3.18%、生活必需品 +1.70%、不動産 +1.24%、テクノロジー -3.09%、資本財 -1.41%、素材 -0.96%">
-      <line class="axis" x1="180" y1="8" x2="180" y2="334"/>
-      <text x="186" y="24" class="tup">▲ +3.18%</text>
-      <text x="174" y="24" text-anchor="end" class="sub">ヘルスケア</text>
-      <rect class="up" x="180" y="32" width="143.1" height="16" rx="4"/>
-      <text x="186" y="80" class="tup">▲ +1.70%</text>
-      <text x="174" y="80" text-anchor="end" class="sub">生活必需品</text>
-      <rect class="up" x="180" y="88" width="76.5" height="16" rx="4"/>
-      <text x="186" y="136" class="tup">▲ +1.24%</text>
-      <text x="174" y="136" text-anchor="end" class="sub">不動産</text>
-      <rect class="up" x="180" y="144" width="55.8" height="16" rx="4"/>
-      <text x="174" y="204" text-anchor="end" class="tdown">▼ -0.96%</text>
-      <text x="186" y="204" class="sub">素材</text>
-      <rect class="down" x="136.8" y="212" width="43.2" height="16" rx="4"/>
-      <text x="174" y="260" text-anchor="end" class="tdown">▼ -1.41%</text>
-      <text x="186" y="260" class="sub">資本財</text>
-      <rect class="down" x="116.55" y="268" width="63.45" height="16" rx="4"/>
-      <text x="174" y="316" text-anchor="end" class="tdown">▼ -3.09%</text>
-      <text x="186" y="316" class="sub">テクノロジー</text>
-      <rect class="down" x="40.95" y="324" width="139.05" height="16" rx="4"/>
+  <!-- Panel 4: After-hours earnings -->
+  <section>
+    <h2>🌙 After the closing bell</h2>
+    <div class="def">After-hours trading = trading after the 4 p.m. ET close, often when companies report earnings. Volume is thin, so early prices can swing.</div>
+    <svg viewBox="0 0 360 270" width="100%" role="img" aria-label="After-hours: URBN down 8.97 percent, NTNX down 7.68 percent, ADSK down 5.35 percent, WDAY down 4.31 percent, DELL up 1.89 percent">
+      <line class="zero" x1="180" y1="22" x2="180" y2="266"/>
+      <text class="lbl" x="4" y="16">$URBN · Urban Outfitters</text>
+      <text class="val dn" x="356" y="16" text-anchor="end">▼ -8.97%</text>
+      <rect class="dn" x="27.5" y="24" width="152.5" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="70">$NTNX · Nutanix</text>
+      <text class="val dn" x="356" y="70" text-anchor="end">▼ -7.68%</text>
+      <rect class="dn" x="49.4" y="78" width="130.6" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="124">$ADSK · Autodesk</text>
+      <text class="val dn" x="356" y="124" text-anchor="end">▼ -5.35%</text>
+      <rect class="dn" x="89" y="132" width="91" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="178">$WDAY · Workday</text>
+      <text class="val dn" x="356" y="178" text-anchor="end">▼ -4.31%</text>
+      <rect class="dn" x="106.7" y="186" width="73.3" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="232">$DELL · Dell</text>
+      <text class="val up" x="356" y="232" text-anchor="end">▲ +1.89%</text>
+      <rect class="up" x="180" y="240" width="32.1" height="16" rx="3"/>
     </svg>
-    <p>急に大きく動いた41銘柄のうち、27銘柄がヘルスケアでした。</p>
+    <p>Software and retail companies that reported after the close traded lower in early prints. These prices are preliminary.</p>
   </section>
 
-  <!-- So what -->
-  <section class="card sowhat">
-    <h2>🧭 だから何？</h2>
-    <p>AIの株が少し冷えても、お金は市場から逃げずに別の業種へ移りました。</p>
-    <p class="hint">11/26（木）は感謝祭で米国市場はお休みです。</p>
+  <!-- Panel 5: Bonds & gold -->
+  <section>
+    <h2>🏦 Bonds and gold slipped</h2>
+    <svg viewBox="0 0 360 108" width="100%" role="img" aria-label="TLT down 0.24 percent, GLD down 2.26 percent">
+      <line class="zero" x1="180" y1="22" x2="180" y2="104"/>
+      <text class="lbl" x="4" y="16">$TLT · long-term Treasuries</text>
+      <text class="val dn" x="356" y="16" text-anchor="end">▼ -0.24%</text>
+      <rect class="dn" x="163.2" y="24" width="16.8" height="16" rx="3"/>
+
+      <text class="lbl" x="4" y="70">$GLD · gold</text>
+      <text class="val dn" x="356" y="70" text-anchor="end">▼ -2.26%</text>
+      <rect class="dn" x="21.8" y="78" width="158.2" height="16" rx="3"/>
+    </svg>
+    <ul class="keys">
+      <li><b>$TLT</b>: a fund holding US government bonds (Treasuries) maturing in 20+ years.</li>
+      <li><b>$GLD</b>: a fund that tracks the price of gold.</li>
+    </ul>
+    <p>Gold gave back part of Monday's +3.15% rally.</p>
   </section>
 
-  <p class="disclaimer">これは市場の動きの解説で、投資の勧めではありません。</p>
-  <a class="more" href="2026-11-24-after-market-report.html">詳しいレポートを見る</a>
+  <!-- Takeaway -->
+  <section class="takeaway">
+    <h2>💡 The takeaway</h2>
+    <p>Money rotated between groups rather than leaving stocks: tech fell, but healthcare, retailers, the Dow and small caps rose.</p>
+  </section>
+
+  <p class="disclaimer">This is an explanation of market moves, not investment advice.</p>
+  <a class="full" href="2026-11-24-after-market-report.html">Read the full report</a>
 
 </main>
 </body>
