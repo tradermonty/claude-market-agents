@@ -31,12 +31,15 @@ from backtest.report_screening import ScreeningUnavailableError, validate_html_r
 # ---------------------------------------------------------------------------
 
 CATEGORIES: list[tuple[str, re.Pattern[str]]] = [
+    # Must precede "After-Market Reports": first match wins, and the ELI5
+    # filename also contains "after-market".
+    ("After-Market ELI5", re.compile(r"after[-_]market[-_]eli5", re.I)),
     ("After-Market Reports", re.compile(r"after[-_]market", re.I)),
     ("Earnings Trade Analysis", re.compile(r"^earnings_trade_analysis_", re.I)),
 ]
 
 # Only these categories are published to GitHub Pages
-PUBLISHED_CATEGORIES = {"After-Market Reports", "Earnings Trade Analysis"}
+PUBLISHED_CATEGORIES = {"After-Market Reports", "After-Market ELI5", "Earnings Trade Analysis"}
 
 DATE_PATTERNS = [
     re.compile(r"(\d{4})-(\d{2})-(\d{2})"),
@@ -128,6 +131,7 @@ def generate_index(reports: list[dict]) -> str:
     # Desired category order
     cat_order = [
         "After-Market Reports",
+        "After-Market ELI5",
         "Earnings Trade Analysis",
     ]
     ordered_cats = [c for c in cat_order if c in grouped]
