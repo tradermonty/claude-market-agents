@@ -132,6 +132,11 @@ done
 EXIT_STATUS=$LAST_EXIT_CODE
 
 if [ "$EXIT_STATUS" -eq 0 ]; then
+    # Mobile ELI5 explainer, generated before publishing so it ships in the
+    # same push. Best-effort: its exit status is logged but never fails the job.
+    "${SCRIPT_DIR}/run_after_market_eli5.sh" "$TODAY"
+    echo "ELI5 step exit=$? (see ${LOG_DIR}/after_market_eli5_${TODAY}.log)" >> "$LOG_FILE"
+
     "${SCRIPT_DIR}/run_publish_reports.sh" >> "$LOG_FILE" 2>&1
     PUBLISH_STATUS=$?
     if [ "$PUBLISH_STATUS" -eq 0 ]; then
