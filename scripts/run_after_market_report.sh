@@ -33,6 +33,56 @@ source "${SCRIPT_DIR}/lib_retry.sh"
 
 cd "$PROJECT_DIR" || exit 1
 
+# 2026-11-27: earnings-calendar skill (claude-trading-skills) pre-fetch.
+# The skill's FMP script makes one profile call per company and needs ~6.5 min,
+# longer than a Bash tool call inside claude, so it runs here once, before the
+# attempts. Window: Mon-Thu = tomorrow..Friday, Fri-Sun = next Mon..Fri.
+# The prompt falls back to the Finviz screener when the JSON is missing/empty.
+# FMP_API_KEY comes from the environment or the project .env (launchd passes
+# only HOME/PATH); it is set for this one command, not exported.
+EARNINGS_JSON="${LOG_DIR}/earnings_calendar_${TODAY}.json"
+EARNINGS_SKILL_SCRIPT="${HOME}/.claude/skills/earnings-calendar/scripts/fetch_earnings_fmp.py"
+if [ ! -s "$EARNINGS_JSON" ] && [ -f "$EARNINGS_SKILL_SCRIPT" ]; then
+    FMP_KEY="${FMP_API_KEY:-$(sed -n 's/^\(export \)\{0,1\}FMP_API_KEY=//p' "${PROJECT_DIR}/.env" 2>/dev/null | head -1 | tr -d "\"'\r")}"
+    DOW=$(date +%u)
+    if [ "$DOW" -ge 5 ]; then EC_S=$((8 - DOW)); EC_E=$((EC_S + 4)); else EC_S=1; EC_E=$((5 - DOW)); fi
+    EC_START=$(date -v+${EC_S}d +%Y-%m-%d)
+    EC_END=$(date -v+${EC_E}d +%Y-%m-%d)
+    if [ -n "$FMP_KEY" ]; then
+        echo "[earnings-calendar] Fetching ${EC_START}..${EC_END} at $(date)" >> "$LOG_FILE"
+        ( FMP_API_KEY="$FMP_KEY" /opt/homebrew/bin/python3.11 "$EARNINGS_SKILL_SCRIPT" "$EC_START" "$EC_END" \
+            > "${EARNINGS_JSON}.tmp" 2> "${EARNINGS_JSON}.err" ) &
+        EC_PID=$!
+        ( sleep 600 2>/dev/null; _kill_descendants "$EC_PID" TERM ) &
+        EC_WATCHDOG=$!
+        wait "$EC_PID" 2>/dev/null
+        EC_EXIT=$?
+        kill "$EC_WATCHDOG" 2>/dev/null
+        wait "$EC_WATCHDOG" 2>/dev/null
+        # requests' HTTPError text includes the URL with ?apikey=..., so mask
+        # it before the stderr reaches the log (the log is tailed into alert mail).
+        sed 's/apikey=[^ &"]*/apikey=***/g' "${EARNINGS_JSON}.err" >> "$LOG_FILE" 2>/dev/null
+        # Keep only a complete, non-empty result: the script exits 0 even when
+        # some profile calls failed (a truncated calendar) or nothing was found.
+        if [ "$EC_EXIT" -eq 0 ] && [ -s "${EARNINGS_JSON}.tmp" ] \
+                && ! grep -q "Failed to fetch profile" "${EARNINGS_JSON}.err" \
+                && [ "$(tr -d ' \n\r' < "${EARNINGS_JSON}.tmp")" != "[]" ]; then
+            mv "${EARNINGS_JSON}.tmp" "$EARNINGS_JSON"
+        else
+            rm -f "${EARNINGS_JSON}.tmp"
+        fi
+        rm -f "${EARNINGS_JSON}.err"
+        echo "[earnings-calendar] exit=${EC_EXIT} cached=$([ -s "$EARNINGS_JSON" ] && echo yes || echo no) at $(date)" >> "$LOG_FILE"
+    else
+        echo "[earnings-calendar] FMP_API_KEY not set - skipping (Finviz fallback)" >> "$LOG_FILE"
+    fi
+fi
+if [ -s "$EARNINGS_JSON" ]; then
+    EARNINGS_NOTE="The earnings-calendar skill output is at ${EARNINGS_JSON}."
+else
+    EARNINGS_NOTE="The earnings-calendar skill output is NOT available today; use the Finviz fallback."
+fi
+
 TIMEOUT_SECS=600
 MAX_ATTEMPTS=3
 BACKOFF_SECS=30
@@ -48,7 +98,7 @@ for ATTEMPT in 1 2 3; do
     ATTEMPT_START_TIME=$(date +%s)
     DEBUG_LOG="${LOG_DIR}/claude_debug_after_market_${TODAY}_attempt${ATTEMPT}.log"
 
-    ( claude -p "Generate today's after-market report using the after-market-reporter agent. Follow the instructions in prompts/after-market-report.md and generate the HTML report and X post message in the reports folder. The HTML must be saved to ${EXPECTED_HTML} and the X post must be saved to ${EXPECTED_XPOST} (these exact paths). Also write the screening availability artifact to ${EXPECTED_SCREENING} as specified in docs/report-screening-contract.md. Write all three files even when screening is unavailable." \
+    ( claude -p "Generate today's after-market report using the after-market-reporter agent. Follow the instructions in prompts/after-market-report.md and generate the HTML report and X post message in the reports folder. The HTML must be saved to ${EXPECTED_HTML} and the X post must be saved to ${EXPECTED_XPOST} (these exact paths). Also write the screening availability artifact to ${EXPECTED_SCREENING} as specified in docs/report-screening-contract.md. ${EARNINGS_NOTE} Write all three files even when screening is unavailable." \
         --allowedTools "Bash Read Write Edit Glob Grep Skill Agent WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*" \
         --debug \
         --debug-file "$DEBUG_LOG" \
