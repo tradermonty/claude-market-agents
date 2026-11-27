@@ -426,6 +426,8 @@ finviz:earnings_afterhours_screener()
 finviz:upcoming_earnings_screener()
 
 # Fetch earnings news
+# NOTE: `tickers` must be a COMMA-SEPARATED STRING. Passing a list/array fails
+# with "Invalid tickers: ['AAPL', 'MSFT']" and wastes a retry cycle.
 finviz:get_stock_news(tickers="AAPL,MSFT", news_type="earnings")
 
 # Latest snapshot including after‑hours
