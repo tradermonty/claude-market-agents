@@ -41,7 +41,7 @@ cd "$PROJECT_DIR" || exit 1
 # FMP_API_KEY comes from the environment or the project .env (launchd passes
 # only HOME/PATH); it is set for this one command, not exported.
 EARNINGS_JSON="${LOG_DIR}/earnings_calendar_${TODAY}.json"
-EARNINGS_SKILL_SCRIPT="${HOME}/.claude/skills/earnings-calendar/scripts/fetch_earnings_fmp.py"
+EARNINGS_SKILL_SCRIPT="${EARNINGS_SKILL_SCRIPT:-${HOME}/.claude/skills/earnings-calendar/scripts/fetch_earnings_fmp.py}"
 if [ ! -s "$EARNINGS_JSON" ] && [ -f "$EARNINGS_SKILL_SCRIPT" ]; then
     FMP_KEY="${FMP_API_KEY:-$(sed -n 's/^\(export \)\{0,1\}FMP_API_KEY=//p' "${PROJECT_DIR}/.env" 2>/dev/null | head -1 | tr -d "\"'\r")}"
     DOW=$(date +%u)
