@@ -5,255 +5,253 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>U.S. Stock Market Analysis — 2026-11-27</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: #fff; min-height: 100vh; padding: 30px 20px; line-height: 1.5;
   }
-  .container { max-width: 1280px; margin: 0 auto; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 30px; animation: fadeIn 0.8s ease; }
+  header h1 { font-size: 2.4em; text-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  header .date { margin-top: 8px; font-size: 1.1em; opacity: 0.9; }
+  header .tagline { margin-top: 12px; display: inline-block; padding: 6px 16px; border-radius: 20px;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); font-weight: 600; }
   .card {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px; padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: transform .25s ease, box-shadow .25s ease;
-    animation: fadeUp .6s ease both;
+    background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeIn 0.8s ease;
   }
-  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-  header { text-align: center; margin-bottom: 30px; }
-  header h1 { font-size: 2.4em; font-weight: 800; letter-spacing: .5px; }
-  header .date { font-size: 1.15em; opacity: .9; margin-top: 8px; }
-  header .note {
-    display: inline-block; margin-top: 14px; padding: 6px 16px; border-radius: 999px;
-    background: rgba(255,215,0,0.2); border: 1px solid rgba(255,215,0,0.5); font-size: .9em;
-  }
-  h2 { font-size: 1.35em; margin-bottom: 20px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.4); }
+  h2 { font-size: 1.4em; margin-bottom: 18px; }
+  h3 { font-size: 1.05em; margin: 14px 0 8px; }
   .full { margin-bottom: 30px; }
-  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .etf {
-    background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; text-align: center;
-    transition: background .2s;
-  }
-  .etf:hover { background: rgba(255,255,255,0.2); }
-  .etf .sym { font-weight: 800; font-size: 1.2em; }
-  .etf .name { font-size: .75em; opacity: .75; }
-  .etf .price { font-size: 1.1em; margin-top: 6px; }
-  .etf .chg { font-size: 1.35em; font-weight: 800; margin-top: 4px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+  .etf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .etf { background: rgba(255,255,255,0.12); border-radius: 16px; padding: 18px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.2); transition: transform 0.2s; }
+  .etf:hover { transform: scale(1.04); }
+  .etf .sym { font-size: 1.3em; font-weight: 700; }
+  .etf .name { font-size: 0.8em; opacity: 0.8; }
+  .etf .price { font-size: 1.2em; margin-top: 6px; }
+  .etf .chg { font-size: 1.4em; font-weight: 700; margin-top: 4px; }
+  .etf .range { font-size: 0.78em; opacity: 0.8; margin-top: 6px; }
   .up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.4); }
   .down { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,107,107,0.4); }
-  table { width: 100%; border-collapse: collapse; font-size: .95em; }
-  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
-  th { font-size: .8em; text-transform: uppercase; opacity: .75; letter-spacing: .5px; }
-  tr:hover td { background: rgba(255,255,255,0.08); }
-  td.num, th.num { text-align: right; }
-  .sym-cell { font-weight: 800; }
-  .muted { opacity: .7; font-size: .85em; }
-  .tag {
-    display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: .72em;
-    background: rgba(255,255,255,0.2); margin-left: 6px; vertical-align: middle;
-  }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.95em; }
+  th { opacity: 0.8; font-weight: 600; font-size: 0.85em; text-transform: uppercase; }
+  tr:hover td { background: rgba(255,255,255,0.06); }
+  .tag { display: inline-block; font-size: 0.75em; padding: 2px 8px; border-radius: 10px;
+    background: rgba(255,255,255,0.18); margin-left: 6px; }
   .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
   .stat { text-align: center; background: rgba(255,255,255,0.1); border-radius: 14px; padding: 18px 10px; }
-  .stat .v { font-size: 1.8em; font-weight: 800; }
-  .stat .l { font-size: .8em; opacity: .8; margin-top: 4px; }
-  .bar-wrap { background: rgba(255,255,255,0.1); border-radius: 6px; height: 8px; width: 100%; margin-top: 4px; }
-  .bar { height: 8px; border-radius: 6px; background: linear-gradient(90deg, #00c97a, #00ff88); }
-  .earnings-box {
-    background: linear-gradient(135deg, rgba(255,107,107,0.35) 0%, rgba(255,165,0,0.35) 100%);
-    border-left: 5px solid #ffff00;
-  }
-  .day-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .day { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 16px; }
-  .day h3 { font-size: 1em; margin-bottom: 10px; }
-  .day li { list-style: none; padding: 5px 0; border-bottom: 1px dashed rgba(255,255,255,0.2); font-size: .9em; }
-  .day li:last-child { border-bottom: none; }
-  .day .t { font-weight: 800; }
-  .points li { list-style: none; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
-  .points li:last-child { border-bottom: none; }
-  .points b { color: #ffd76a; }
-  footer { text-align: center; font-size: .85em; opacity: .8; margin-top: 10px; }
+  .stat .v { font-size: 1.8em; font-weight: 700; }
+  .stat .l { font-size: 0.82em; opacity: 0.85; }
+  .note { background: rgba(0,0,0,0.18); border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; font-size: 0.92em; }
+  .src { font-size: 0.8em; opacity: 0.8; margin-top: 14px; }
+  .warn { color: #ffd86b; }
+  .cal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .cal-day { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; }
+  .cal-day h3 { margin-top: 0; }
+  .cal-day ul { list-style: none; }
+  .cal-day li { font-size: 0.88em; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .cal-day li b { color: #ffd86b; }
+  .t { font-size: 0.72em; padding: 1px 6px; border-radius: 8px; background: rgba(255,255,255,0.2); margin-left: 4px; }
+  .rot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .rot-box { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; }
+  .rot-box .big { font-size: 1.5em; font-weight: 700; }
+  .points li { margin: 0 0 12px 20px; }
+  .points b { color: #ffd86b; }
+  footer { text-align: center; font-size: 0.85em; opacity: 0.85; margin-top: 10px; }
   footer p { margin: 4px 0; }
-  .skills-line { margin-top: 10px !important; font-weight: 600; }
-  .skill-src { margin-top: 8px; font-size: .85em; }
-  footer a, .skill-src a { color: inherit; text-decoration: underline; }
-  @media (max-width: 900px) {
-    .grid-2 { grid-template-columns: 1fr; }
+  footer a { color: #9fd3ff; }
+  .skills-line { margin-top: 10px; font-weight: 600; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 860px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .etf-grid, .cal-grid, .rot-grid { grid-template-columns: repeat(2, 1fr); }
     .stats { grid-template-columns: repeat(2, 1fr); }
-    .day-grid { grid-template-columns: 1fr 1fr; }
+    header h1 { font-size: 1.8em; }
   }
-  @media (max-width: 560px) {
-    header h1 { font-size: 1.7em; }
-    .etf-grid { grid-template-columns: repeat(2, 1fr); }
-    .day-grid { grid-template-columns: 1fr; }
+  @media (max-width: 520px) {
+    .etf-grid, .cal-grid, .rot-grid { grid-template-columns: 1fr; }
     .card { padding: 20px; }
-    .hide-sm { display: none; }
+    th, td { font-size: 0.85em; padding: 8px 4px; }
   }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <header class="card">
+  <header>
     <h1>🇺🇸 U.S. Stock Market Analysis</h1>
     <div class="date">📅 2026-11-27 (Fri) – Final After-Market Data</div>
-    <div class="note">🦃 Black Friday half-day session (early close 1:00 PM ET) · Prior session: Wed 11/25 (Thanksgiving closed 11/26)</div>
+    <div class="tagline">🛍️ Black Friday Broad Rally — Tech &amp; Materials Lead, Gold Up, Bonds Down</div>
   </header>
 
-  <div class="grid-2">
-    <section class="card">
-      <h2>📈 Major ETF Performance</h2>
-      <div class="etf-grid">
-        <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$728.32</div><div class="chg up">+1.62%</div></div>
-        <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$650.99</div><div class="chg up">+2.69%</div></div>
-        <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$507.60</div><div class="chg up">+1.26%</div></div>
-        <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$273.79</div><div class="chg up">+1.83%</div></div>
-        <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasury</div><div class="price">$81.27</div><div class="chg down">-1.18%</div></div>
-        <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$334.40</div><div class="chg up">+2.12%</div></div>
-      </div>
-      <p class="muted" style="margin-top:14px">% change vs. Wed 11/25 regular-session close (Alpaca daily bars, cross-checked with Finviz).</p>
-    </section>
+  <section class="card full">
+    <h2>ℹ️ Session Notes</h2>
+    <p>Friday after Thanksgiving: a shortened session with an early 1:00 PM ET close, per the Alpaca market clock read on 11/26. Market was closed Thu 11/26, so all % changes below are versus the <b>Wed 11/25</b> close. Volume was light: SPY traded 40.5M shares versus 73.3M on Wednesday, about 55% of the prior session.</p>
+    <p style="margin-top:8px">Per the Friday rule, the after-hours earnings screen was intentionally skipped today. This is not a zero count. The earnings section below shows next week's calendar instead.</p>
+  </section>
 
+  <section class="card full">
+    <h2>📈 Major ETF Performance</h2>
+    <div class="etf-grid">
+      <div class="etf"><div class="sym">SPY</div><div class="name">S&amp;P 500</div><div class="price">$728.32</div><div class="chg up">+1.62%</div><div class="range">Range $719.61 – $729.15</div></div>
+      <div class="etf"><div class="sym">QQQ</div><div class="name">Nasdaq 100</div><div class="price">$650.99</div><div class="chg up">+2.69%</div><div class="range">Range $636.72 – $651.34</div></div>
+      <div class="etf"><div class="sym">DIA</div><div class="name">Dow Jones</div><div class="price">$507.60</div><div class="chg up">+1.26%</div><div class="range">Range $503.44 – $507.81</div></div>
+      <div class="etf"><div class="sym">IWM</div><div class="name">Russell 2000</div><div class="price">$273.79</div><div class="chg up">+1.83%</div><div class="range">Range $270.68 – $273.94</div></div>
+      <div class="etf"><div class="sym">TLT</div><div class="name">20+Y Treasuries</div><div class="price">$81.27</div><div class="chg down">-1.18%</div><div class="range">Range $81.23 – $81.94</div></div>
+      <div class="etf"><div class="sym">GLD</div><div class="name">Gold</div><div class="price">$334.40</div><div class="chg up">+2.12%</div><div class="range">Range $331.25 – $334.44</div></div>
+    </div>
+    <p class="src">Source: Finviz market overview, Alpaca snapshots. Change vs 11/25 close.</p>
+  </section>
+
+  <div class="grid2">
     <section class="card">
       <h2>🔥 Top Volume-Surge Tickers</h2>
       <table>
-        <thead><tr><th>Symbol</th><th class="hide-sm">Name</th><th class="num">Change</th><th class="num">Volume</th><th class="num">Rel Vol</th></tr></thead>
-        <tbody>
-          <tr><td class="sym-cell">AYA</td><td class="hide-sm">Aya Gold &amp; Silver</td><td class="num up">+15.01%</td><td class="num">1.29M</td><td class="num">1.53x</td></tr>
-          <tr><td class="sym-cell">LFTO</td><td class="hide-sm">Liftoff Mobile</td><td class="num up">+9.88%</td><td class="num">1.51M</td><td class="num">1.81x</td></tr>
-          <tr><td class="sym-cell">KNTK</td><td class="hide-sm">Kinetik Holdings</td><td class="num up">+9.25%</td><td class="num">2.29M</td><td class="num">2.35x</td></tr>
-          <tr><td class="sym-cell">HLF</td><td class="hide-sm">Herbalife</td><td class="num up">+6.09%</td><td class="num">1.94M</td><td class="num">1.51x</td></tr>
-          <tr><td class="sym-cell">TME</td><td class="hide-sm">Tencent Music ADR</td><td class="num up">+5.87%</td><td class="num">9.62M</td><td class="num">1.67x</td></tr>
-        </tbody>
+        <tr><th>Symbol</th><th>Company</th><th>Change</th><th>Volume</th><th>RelVol</th></tr>
+        <tr><td><b>KNTK</b> 🚀</td><td>Kinetik Holdings<span class="tag">Energy</span></td><td class="up">+9.25%</td><td>2.29M</td><td>1.90x</td></tr>
+        <tr><td><b>TGLS</b></td><td>Tecnoglass<span class="tag">Materials</span></td><td class="up">+3.60%</td><td>787K</td><td>2.07x</td></tr>
+        <tr><td><b>BIP</b></td><td>Brookfield Infrastructure<span class="tag">Utilities</span></td><td class="up">+2.82%</td><td>2.31M</td><td>1.67x</td></tr>
+        <tr><td><b>ATAT</b></td><td>Atour Lifestyle ADR<span class="tag">Cons. Cyclical</span></td><td class="up">+2.69%</td><td>2.25M</td><td>2.43x</td></tr>
+        <tr><td><b>EGG</b></td><td>Enigmatig Ltd<span class="tag">Industrials</span></td><td class="up">+2.12%</td><td>512K</td><td>3.47x</td></tr>
       </table>
-      <p class="muted" style="margin-top:12px"><b>Also in screen (7):</b> TGLS +3.60% · CPA +3.23% · BIP +2.82% · ATAT +2.69% · EGG +2.07% · FLYW +2.06% · DE +2.06% <span class="tag">post-earnings</span></p>
-      <p class="muted" style="margin-top:6px">DE reported FQ4 on Wed 11/25 (EPS miss, revenue beat; CEO sees ag recovery in 2027) — today is follow-through.</p>
+      <p class="src">Only 5 stocks passed the volume-surge screen on this light holiday session. Finviz returned no news for these tickers in the last 3 days, so no catalyst is assigned.</p>
+    </section>
+
+    <section class="card">
+      <h2>📊 Market Statistics</h2>
+      <div class="stats">
+        <div class="stat"><div class="v">5</div><div class="l">Volume-surge stocks</div></div>
+        <div class="stat"><div class="v">455</div><div class="l">Uptrend stocks</div></div>
+        <div class="stat"><div class="v">2.3x</div><div class="l">Avg relative volume</div></div>
+        <div class="stat"><div class="v up">+4.1%</div><div class="l">Avg price move</div></div>
+        <div class="stat"><div class="v">52</div><div class="l">Earnings 11/30–12/3</div></div>
+      </div>
+      <p class="src">Counts from Finviz market overview. Earnings count from the earnings-calendar skill output for next week. Uptrend leaders by sector: Healthcare 120, Technology 79, Financial 62.</p>
     </section>
   </div>
-
-  <section class="card full earnings-box">
-    <h2>🗓️ Next Week's Major Earnings Calendar (Nov 30 – Dec 3)</h2>
-    <p class="muted" style="margin-bottom:16px">Friday Rule: post-close earnings / after-hours section skipped (few Friday reporters; screener returns stale data). Companies over $2B market cap from the Earnings Calendar skill (FMP data), largest 7 per day. 52 companies in total; none scheduled for Fri 12/4.</p>
-    <div class="day-grid">
-      <div class="day"><h3>Mon 11/30</h3><ul>
-        <li><span class="t">RBRK</span> Rubrik · AMC · $23.2B · EPS est $0.08</li>
-        <li><span class="t">CHA</span> Chagee · time TBA · $2.1B · EPS est $0.39</li>
-      </ul></div>
-      <div class="day"><h3>Tue 12/1</h3><ul>
-        <li><span class="t">MRVL</span> Marvell Technology · AMC · $123.1B · EPS est $1.10</li>
-        <li><span class="t">OKTA</span> Okta · AMC · $34.7B · EPS est $0.93</li>
-        <li><span class="t">NTAP</span> NetApp · AMC · $33.9B · EPS est $2.61</li>
-        <li><span class="t">CPRT</span> Copart · BMO · $30.8B · EPS est $0.39</li>
-        <li><span class="t">TCOM</span> Trip.com · AMC · $26.4B · EPS est $1.23</li>
-        <li><span class="t">MDB</span> MongoDB · AMC · $25.7B · EPS est $1.61</li>
-        <li><span class="t">CRDO</span> Credo Technology Group · AMC · $21.7B · EPS est $1.29</li>
-      </ul></div>
-      <div class="day"><h3>Wed 12/2</h3><ul>
-        <li><span class="t">CRM</span> Salesforce · AMC · $163.1B · EPS est $3.45</li>
-        <li><span class="t">BMO</span> Bank of Montreal · BMO · $110.6B · EPS est $2.69</li>
-        <li><span class="t">BNS</span> Bank of Nova Scotia · BMO · $103.5B · EPS est $1.54</li>
-        <li><span class="t">SNOW</span> Snowflake · AMC · $97.5B · EPS est $0.60</li>
-        <li><span class="t">FIVE</span> Five Below · AMC · $11.9B · EPS est $1.19</li>
-        <li><span class="t">NTSK</span> Netskope · AMC · $11.6B · EPS est -$0.03</li>
-        <li><span class="t">DCI</span> Donaldson Company · time TBA · $9.8B · EPS est $0.97</li>
-      </ul></div>
-      <div class="day"><h3>Thu 12/3</h3><ul>
-        <li><span class="t">RY</span> Royal Bank of Canada · time TBA · $262.5B · EPS est $2.94</li>
-        <li><span class="t">TD</span> Toronto-Dominion Bank · BMO · $197.5B · EPS est $1.76</li>
-        <li><span class="t">CM</span> Canadian Imperial Bank of Commerce · BMO · $94.5B · EPS est $1.72</li>
-        <li><span class="t">VEEV</span> Veeva Systems · AMC · $44.0B · EPS est $2.34</li>
-        <li><span class="t">KR</span> Kroger · BMO · $41.0B · EPS est $1.16</li>
-        <li><span class="t">DG</span> Dollar General · BMO · $30.6B · EPS est $1.41</li>
-        <li><span class="t">ULTA</span> Ulta Beauty · AMC · $27.5B · EPS est $5.67</li>
-      </ul></div>
-    </div>
-    <p class="muted" style="margin-top:12px">BMO/AMC times per Finviz (FMP lists them as not announced); "time TBA" = no confirmed time. EPS estimates are consensus per FMP. Confirm against company IR before trading.</p>
-    <p class="muted skill-src">Source: <a href="https://tradermonty.github.io/claude-trading-skills/en/skills/earnings-calendar/" target="_blank" rel="noopener">Earnings Calendar skill</a> · FMP data fetched 2026-11-27</p>
-  </section>
 
   <section class="card full">
-    <h2>📊 Market Statistics</h2>
-    <div class="stats">
-      <div class="stat"><div class="v">12</div><div class="l">Volume-surge tickers</div></div>
-      <div class="stat"><div class="v">455</div><div class="l">Uptrend tickers</div></div>
-      <div class="stat"><div class="v">2.1x</div><div class="l">Avg relative volume</div></div>
-      <div class="stat"><div class="v up">+5.4%</div><div class="l">Avg price move</div></div>
-      <div class="stat"><div class="v">99</div><div class="l">Earnings releases this week (Finviz)</div></div>
-    </div>
+    <h2>🏢 Sector Performance</h2>
+    <table>
+      <tr><th>#</th><th>Sector</th><th>Change</th><th>Market Cap</th><th>Stocks</th></tr>
+      <tr><td>1</td><td>Basic Materials</td><td class="up">+3.40%</td><td>$2.68T</td><td>298</td></tr>
+      <tr><td>2</td><td>Technology</td><td class="up">+2.74%</td><td>$30.44T</td><td>800</td></tr>
+      <tr><td>3</td><td>Consumer Cyclical</td><td class="up">+2.59%</td><td>$9.22T</td><td>520</td></tr>
+      <tr><td>4</td><td>Industrials</td><td class="up">+2.11%</td><td>$8.99T</td><td>715</td></tr>
+      <tr><td>5</td><td>Communication Services</td><td class="up">+1.49%</td><td>$10.81T</td><td>252</td></tr>
+      <tr><td>6</td><td>Energy</td><td class="up">+1.31%</td><td>$4.70T</td><td>252</td></tr>
+      <tr><td>7</td><td>Financial</td><td class="up">+1.26%</td><td>$14.80T</td><td>1098</td></tr>
+      <tr><td>8</td><td>Real Estate</td><td class="up">+0.57%</td><td>$1.79T</td><td>244</td></tr>
+      <tr><td>9</td><td>Utilities</td><td class="up">+0.50%</td><td>$1.82T</td><td>105</td></tr>
+      <tr><td>10</td><td>Consumer Defensive</td><td class="up">+0.46%</td><td>$4.88T</td><td>240</td></tr>
+      <tr><td>11</td><td>Healthcare</td><td class="up">+0.29%</td><td>$9.97T</td><td>1054</td></tr>
+    </table>
+    <p class="src">Source: Finviz sector performance. All 11 sectors closed higher.</p>
   </section>
-
-  <div class="grid-2">
-    <section class="card">
-      <h2>🏢 Sector Performance</h2>
-      <table>
-        <thead><tr><th>Sector</th><th class="num">Change</th><th class="num hide-sm">Mkt Cap</th><th class="num hide-sm">Stocks</th></tr></thead>
-        <tbody>
-          <tr><td>Basic Materials<div class="bar-wrap"><div class="bar" style="width:100%"></div></div></td><td class="num up">+3.40%</td><td class="num hide-sm">$2.68T</td><td class="num hide-sm">298</td></tr>
-          <tr><td>Technology<div class="bar-wrap"><div class="bar" style="width:80%"></div></div></td><td class="num up">+2.72%</td><td class="num hide-sm">$30.44T</td><td class="num hide-sm">800</td></tr>
-          <tr><td>Consumer Cyclical<div class="bar-wrap"><div class="bar" style="width:76%"></div></div></td><td class="num up">+2.59%</td><td class="num hide-sm">$9.22T</td><td class="num hide-sm">520</td></tr>
-          <tr><td>Industrials<div class="bar-wrap"><div class="bar" style="width:62%"></div></div></td><td class="num up">+2.11%</td><td class="num hide-sm">$8.99T</td><td class="num hide-sm">715</td></tr>
-          <tr><td>Communication Services<div class="bar-wrap"><div class="bar" style="width:44%"></div></div></td><td class="num up">+1.49%</td><td class="num hide-sm">$10.81T</td><td class="num hide-sm">252</td></tr>
-          <tr><td>Energy<div class="bar-wrap"><div class="bar" style="width:39%"></div></div></td><td class="num up">+1.31%</td><td class="num hide-sm">$4.68T</td><td class="num hide-sm">252</td></tr>
-          <tr><td>Financial<div class="bar-wrap"><div class="bar" style="width:37%"></div></div></td><td class="num up">+1.26%</td><td class="num hide-sm">$14.79T</td><td class="num hide-sm">1098</td></tr>
-          <tr><td>Real Estate<div class="bar-wrap"><div class="bar" style="width:17%"></div></div></td><td class="num up">+0.57%</td><td class="num hide-sm">$1.79T</td><td class="num hide-sm">244</td></tr>
-          <tr><td>Utilities<div class="bar-wrap"><div class="bar" style="width:15%"></div></div></td><td class="num up">+0.50%</td><td class="num hide-sm">$1.82T</td><td class="num hide-sm">105</td></tr>
-          <tr><td>Consumer Defensive<div class="bar-wrap"><div class="bar" style="width:14%"></div></div></td><td class="num up">+0.46%</td><td class="num hide-sm">$4.88T</td><td class="num hide-sm">240</td></tr>
-          <tr><td>Healthcare<div class="bar-wrap"><div class="bar" style="width:9%"></div></div></td><td class="num up">+0.29%</td><td class="num hide-sm">$9.97T</td><td class="num hide-sm">1054</td></tr>
-        </tbody>
-      </table>
-      <p class="muted" style="margin-top:10px">All 11 sectors finished higher.</p>
-    </section>
-
-    <section class="card">
-      <h2>💡 Today's Key Points</h2>
-      <ul class="points">
-        <li><b>Broad market:</b> Shortened Black Friday session closed with a broad risk-on rally — QQQ +2.69% led SPY +1.62%, IWM +1.83%, DIA +1.26%. Headlines framed it as a rebound in battered AI stocks (Reuters, Yahoo Finance), with Nvidia CEO Jensen Huang's return cited as a relief catalyst.</li>
-        <li><b>Hot sectors:</b> Basic Materials +3.40% (gold strength), Technology +2.72%, Consumer Cyclical +2.59%. Defensives lagged: Healthcare +0.29%, Consumer Defensive +0.46%, Utilities +0.50%.</li>
-        <li><b>Volume-surge profile:</b> Only 12 names qualified — thin holiday volume kept relative-volume readings low (avg 2.1x). Leadership was mixed: precious metals (AYA +15.01%), ad-tech (LFTO), midstream (KNTK), China ADRs (TME, ATAT).</li>
-        <li><b>Earnings highlights:</b> No meaningful Friday reporters. DE extended its post-earnings recovery (+2.06%) after Wednesday's FQ4 EPS miss / revenue beat.</li>
-        <li><b>Next week's focus:</b> AI/semis and software — MRVL and CRDO (Tue), CRM and SNOW (Wed), plus Canadian banks and retail (ULTA, DG, KR, FIVE).</li>
-        <li><b>Bonds &amp; gold:</b> TLT -1.18% as long yields rose; GLD +2.12% — gold and equities rallied together.</li>
-      </ul>
-    </section>
-  </div>
-
 
   <section class="card full">
     <h2>🧭 Sector Rotation — Uptrend Ratio</h2>
-    <p class="muted" style="margin-bottom:12px">Share of each sector's stocks that are in an uptrend. This is the slower trend picture behind today's one-day % moves.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">Balanced</div><div class="l">Risk regime (score 48/100)</div></div>
-      <div class="stat"><div class="v">17.4%</div><div class="l">Cyclical avg uptrend</div></div>
-      <div class="stat"><div class="v">18.9%</div><div class="l">Defensive avg uptrend</div></div>
-      <div class="stat"><div class="v">Recession</div><div class="l">Cycle-phase read (high confidence)</div></div>
+    <div class="rot-grid">
+      <div class="rot-box">
+        <h3>Risk Regime</h3>
+        <div class="big">Balanced · 48/100</div>
+        <p>Cyclical avg 17.4% vs defensive avg 18.9%. Commodity avg 4.7%. A divergence flag applied a -5 penalty.</p>
+      </div>
+      <div class="rot-box">
+        <h3>Cycle Phase</h3>
+        <div class="big warn">Recession-like · High</div>
+        <p>Phase scores: recession 70.6, late 48.3, mid 40.0, early 38.6. Defensive leaders, cyclical laggards.</p>
+      </div>
+      <div class="rot-box">
+        <h3>Trend Breadth</h3>
+        <div class="big">1 up / 10 down</div>
+        <p>Only Consumer Defensive has a rising uptrend ratio. Oversold: Basic Materials 8.0%, Utilities 2.6%, Energy 1.3%.</p>
+      </div>
     </div>
-    <table style="margin-top:14px">
-      <thead><tr><th>Sector</th><th class="num">Uptrend ratio</th><th class="num">Trend</th><th class="num hide-sm">Status</th></tr></thead>
-      <tbody>
-          <tr><td>Healthcare<div class="bar-wrap"><div class="bar" style="width:100%"></div></div></td><td class="num">30.2%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Consumer Defensive<div class="bar-wrap"><div class="bar" style="width:80%"></div></div></td><td class="num">24.2%</td><td class="num up">▲ Up</td><td class="num hide-sm"></td></tr>
-          <tr><td>Communication Services<div class="bar-wrap"><div class="bar" style="width:79%"></div></div></td><td class="num">24.0%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Technology<div class="bar-wrap"><div class="bar" style="width:69%"></div></div></td><td class="num">20.8%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Real Estate<div class="bar-wrap"><div class="bar" style="width:62%"></div></div></td><td class="num">18.6%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Consumer Cyclical<div class="bar-wrap"><div class="bar" style="width:60%"></div></div></td><td class="num">18.0%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Industrials<div class="bar-wrap"><div class="bar" style="width:46%"></div></div></td><td class="num">13.8%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Financial<div class="bar-wrap"><div class="bar" style="width:34%"></div></div></td><td class="num">10.4%</td><td class="num down">▼ Down</td><td class="num hide-sm"></td></tr>
-          <tr><td>Basic Materials<div class="bar-wrap"><div class="bar" style="width:26%"></div></div></td><td class="num">8.0%</td><td class="num down">▼ Down</td><td class="num hide-sm">Oversold</td></tr>
-          <tr><td>Utilities<div class="bar-wrap"><div class="bar" style="width:9%"></div></div></td><td class="num">2.6%</td><td class="num down">▼ Down</td><td class="num hide-sm">Oversold</td></tr>
-          <tr><td>Energy<div class="bar-wrap"><div class="bar" style="width:4%"></div></div></td><td class="num">1.3%</td><td class="num down">▼ Down</td><td class="num hide-sm">Oversold</td></tr>
-      </tbody>
-    </table>
-    <p class="muted" style="margin-top:10px">Only 1 of 11 sectors has a rising uptrend ratio (Consumer Defensive). Oversold: Basic Materials, Utilities, Energy. Defensives lead cyclicals, so the skill reads the cycle as "recession" even though all 11 sectors rose today — one up day has not yet turned the trend.</p>
-    <p class="muted skill-src">Source: <a href="https://tradermonty.github.io/claude-trading-skills/en/skills/sector-analyst/" target="_blank" rel="noopener">Sector Analyst skill</a> · uptrend data as of 2026-11-27</p>
+    <h3>Top 3 by uptrend ratio</h3>
+    <p>Healthcare 30.2% ↓ · Consumer Defensive 24.2% ↑ · Communication Services 24.0% ↓</p>
+    <h3>Bottom 3 by uptrend ratio</h3>
+    <p>Energy 1.3% ↓ · Utilities 2.6% ↓ · Basic Materials 8.0% ↓</p>
+    <p class="note" style="margin-top:14px">Uptrend ratio is the share of stocks in each sector that are in an uptrend. It complements today's one-day % table. Today's rally was broad on price, but uptrend breadth is still weak and defensively tilted, so one strong session has not yet repaired the trend picture.</p>
+    <p class="src">Source: Sector Analyst skill · uptrend data as of 2026-11-27 (fresh). The CSV can lag 1–2 trading days.</p>
   </section>
 
-  <footer class="card">
-    <p><b>Data sources:</b> Finviz Elite (market overview, volume-surge screener, sector performance, upcoming earnings times, news) · FMP via Earnings Calendar skill · TraderMonty uptrend-ratio CSV via Sector Analyst skill · Alpaca Markets (ETF &amp; ticker snapshots)</p>
-    <p><b>Last refreshed:</b> 2026-11-27 11:41 PT / 14:41 ET (after 1:00 PM ET early close) · Sector rotation and earnings calendar updated 14:14 PT via Claude trading skills</p>
-    <p>Final after-market data · After-hours section omitted per Friday Rule · Earnings dates may change · For information only, not financial advice.</p>
+  <section class="card full">
+    <h2>🗓️ Next Week's Major Earnings Calendar</h2>
+    <p class="note">Friday rule: the after-hours earnings section is omitted today. BMO/AMC times come from the Finviz upcoming earnings screener where available. Others remain TAS, meaning time not announced. The skill output has no entries for Fri 12/4.</p>
+    <div class="cal-grid">
+      <div class="cal-day">
+        <h3>Mon 11/30</h3>
+        <ul>
+          <li><b>RBRK</b> Rubrik <span class="t">AMC</span><br>$23.2B · EPS est $0.08</li>
+          <li><b>CHA</b> Chagee Holdings <span class="t">TAS</span><br>$2.1B · EPS est $0.39</li>
+        </ul>
+      </div>
+      <div class="cal-day">
+        <h3>Tue 12/1</h3>
+        <ul>
+          <li><b>MRVL</b> Marvell <span class="t">AMC</span><br>$123.1B · EPS est $1.10</li>
+          <li><b>OKTA</b> Okta <span class="t">AMC</span><br>$34.7B · EPS est $0.93</li>
+          <li><b>NTAP</b> NetApp <span class="t">AMC</span><br>$33.9B · EPS est $2.61</li>
+          <li><b>CPRT</b> Copart <span class="t">BMO</span><br>$30.8B · EPS est $0.39</li>
+          <li><b>TCOM</b> Trip.com <span class="t">AMC</span><br>$26.4B · EPS est $1.23</li>
+          <li><b>MDB</b> MongoDB <span class="t">AMC</span><br>$25.7B · EPS est $1.61</li>
+          <li><b>CRDO</b> Credo <span class="t">AMC</span><br>$21.7B · EPS est $1.29</li>
+        </ul>
+      </div>
+      <div class="cal-day">
+        <h3>Wed 12/2</h3>
+        <ul>
+          <li><b>CRM</b> Salesforce <span class="t">AMC</span><br>$163.1B · EPS est $3.45</li>
+          <li><b>BMO</b> Bank of Montreal <span class="t">BMO</span><br>$110.6B · EPS est $2.69</li>
+          <li><b>BNS</b> Bank of Nova Scotia <span class="t">BMO</span><br>$103.5B · EPS est $1.54</li>
+          <li><b>SNOW</b> Snowflake <span class="t">AMC</span><br>$97.5B · EPS est $0.60</li>
+          <li><b>FIVE</b> Five Below <span class="t">AMC</span><br>$11.9B · EPS est $1.19</li>
+          <li><b>NTSK</b> Netskope <span class="t">AMC</span><br>$11.6B · EPS est -$0.03</li>
+          <li><b>M</b> Macy's <span class="t">TAS</span><br>$6.4B · EPS est -$0.18</li>
+        </ul>
+      </div>
+      <div class="cal-day">
+        <h3>Thu 12/3</h3>
+        <ul>
+          <li><b>RY</b> Royal Bank of Canada <span class="t">TAS</span><br>$262.5B · EPS est $2.94</li>
+          <li><b>TD</b> Toronto-Dominion <span class="t">BMO</span><br>$197.5B · EPS est $1.76</li>
+          <li><b>CM</b> CIBC <span class="t">BMO</span><br>$94.5B · EPS est $1.72</li>
+          <li><b>VEEV</b> Veeva <span class="t">AMC</span><br>$44.0B · EPS est $2.34</li>
+          <li><b>KR</b> Kroger <span class="t">BMO</span><br>$41.0B · EPS est $1.16</li>
+          <li><b>DG</b> Dollar General <span class="t">BMO</span><br>$30.6B · EPS est $1.41</li>
+          <li><b>ULTA</b> Ulta Beauty <span class="t">AMC</span><br>$27.5B · EPS est $5.67</li>
+          <li><b>IOT</b> Samsara <span class="t">AMC</span><br>$23.5B · EPS est $0.19</li>
+        </ul>
+      </div>
+    </div>
+    <p class="src">Source: Earnings Calendar skill (FMP), 52 companies 11/30–12/3, largest names shown by market cap. Times from Finviz upcoming earnings screener.</p>
+  </section>
+
+  <section class="card full">
+    <h2>💡 Today's Key Points</h2>
+    <ul class="points">
+      <li><b>Broad holiday rally:</b> Every major equity ETF rose. QQQ led at +2.69%, followed by IWM +1.83%, SPY +1.62% and DIA +1.26%. All 11 Finviz sectors finished green.</li>
+      <li><b>Hot sectors:</b> Basic Materials +3.40%, Technology +2.74% and Consumer Cyclical +2.59% led. Healthcare +0.29% and Consumer Defensive +0.46% lagged, a risk-on tilt for the day.</li>
+      <li><b>Volume-surge characteristics:</b> Only 5 names qualified, consistent with the light shortened session. KNTK +9.25% was the standout. No stock-specific news was found for the five movers.</li>
+      <li><b>Earnings highlights:</b> The after-hours screen was skipped under the Friday rule. Next week's focus is AI and software: MRVL, CRDO, MDB and OKTA on Tue, then CRM and SNOW on Wed.</li>
+      <li><b>Breadth caveat:</b> The uptrend-ratio data still reads recession-like, led by defensives, with 10 of 11 sectors in a falling trend. Today's price strength needs follow-through to change that picture.</li>
+      <li><b>Bonds &amp; gold:</b> TLT fell 1.18% while GLD rose 2.12%, so long-dated Treasuries sold off as gold rallied alongside stocks.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Data sources: Finviz (market overview, volume-surge screener, sector performance, upcoming earnings), Alpaca (ETF and stock snapshots), FMP via the Earnings Calendar skill, TraderMonty uptrend-ratio CSV via the Sector Analyst skill.</p>
+    <p>Last refreshed: 2026-11-27 15:52 PT (18:52 ET) · Final after-market data + after-hours info. After-hours screen skipped (Friday rule).</p>
+    <p>Reference: <a href="https://finviz.com/" target="_blank" rel="noopener">Finviz home</a></p>
+    <p>For information only. Not financial advice.</p>
     <p class="skills-line">Built with Claude trading skills: <a href="https://tradermonty.github.io/claude-trading-skills/en/skills/sector-analyst/" target="_blank" rel="noopener">Sector Analyst</a> · <a href="https://tradermonty.github.io/claude-trading-skills/en/skills/earnings-calendar/" target="_blank" rel="noopener">Earnings Calendar</a> — try them in Claude →</p>
   </footer>
 
