@@ -35,7 +35,10 @@ source "${SCRIPT_DIR}/lib_retry.sh"
 
 cd "$PROJECT_DIR" || exit 1
 
-TIMEOUT_SECS=900
+# 2026-08-06: raised 900 -> 1200, matching run_after_market_report.sh. Primary
+# runs 06:00 PT and the retry job 07:10 PT, so 3 x 1200s + backoff (~61 min)
+# still finishes before the retry starts.
+TIMEOUT_SECS=1200
 MAX_ATTEMPTS=3
 BACKOFF_SECS=30
 LAST_EXIT_CODE=1
@@ -50,8 +53,13 @@ for ATTEMPT in 1 2 3; do
     ATTEMPT_START_TIME=$(date +%s)
     DEBUG_LOG="${LOG_DIR}/claude_debug_${TODAY}_attempt${ATTEMPT}.log"
 
-    ( claude -p "Run the earnings trade analysis using the earnings-trade-analyst agent. Follow the instructions in prompts/earnings-trade.md. IMPORTANT: Save all output files directly in the reports/ folder (NOT in date subfolders). Required output paths (write to these exact paths): ${EXPECTED_HTML}, ${EXPECTED_JSON}, ${EXPECTED_XPOST}. Follow docs/report-screening-contract.md: record screening metadata in the candidates JSON, and write unavailable warning artifacts with candidates null on unverifiable screens." \
-        --allowedTools "Bash Read Write Edit Glob Grep Skill Agent WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*" \
+    # Run the analysis inline. Delegating to the earnings-trade-analyst agent
+    # stalls (2026-08-06: six consecutive attempts timed out, the sub-agent
+    # still running at 780s/30 turns with no files written), the same failure
+    # mode already fixed on the after-market job, so Agent is deliberately
+    # absent from --allowedTools and the prompt forbids background waiting.
+    ( claude -p "Run today's earnings trade analysis. Follow the instructions in prompts/earnings-trade.md. Do the work directly in this session: call the finviz/fmp/alpaca MCP tools yourself and write all output files yourself. Do NOT delegate to the earnings-trade-analyst agent or any sub-agent, do NOT spawn background tasks or monitors, and do NOT sleep or wait for notifications - previous runs stalled that way and produced nothing. Save all output files directly in the reports/ folder (NOT in date subfolders). Required output paths (write to these exact paths): ${EXPECTED_HTML}, ${EXPECTED_JSON}, ${EXPECTED_XPOST}. Follow docs/report-screening-contract.md: record screening metadata in the candidates JSON, and write unavailable warning artifacts with candidates null on unverifiable screens. Write all three files before you finish." \
+        --allowedTools "Bash Read Write Edit Glob Grep Skill WebSearch WebFetch TodoWrite mcp__finviz__* mcp__fmp-server__* mcp__alpaca__*" \
         --debug \
         --debug-file "$DEBUG_LOG" \
         >> "$LOG_FILE" 2>&1 ) &
@@ -135,13 +143,30 @@ EXIT_STATUS=$LAST_EXIT_CODE
 if [ "$EXIT_STATUS" -eq 0 ]; then
     "${SCRIPT_DIR}/run_publish_reports.sh" >> "$LOG_FILE" 2>&1
     PUBLISH_STATUS=$?
-    if [ "$PUBLISH_STATUS" -eq 0 ]; then
+    # Exit 3 = pushed to gh-pages, but GitHub Pages had not served the report yet
+    # (typically a GitHub Pages/Actions incident). The report itself is fine, so
+    # keep the success marker to avoid a costly regeneration and alert separately.
+    if [ "$PUBLISH_STATUS" -eq 0 ] || [ "$PUBLISH_STATUS" -eq 3 ]; then
         touch "$SUCCESS_MARKER"
         # Email the HTML report on success.
         /opt/homebrew/bin/python3.11 "${SCRIPT_DIR}/send_report.py" \
             --report-html "$EXPECTED_HTML" \
             --subject "Market Agents - Earnings Trade Report - ${TODAY}" \
             >> "$LOG_FILE" 2>&1 || true
+        if [ "$PUBLISH_STATUS" -eq 3 ]; then
+            PAGES_LOG=$(tail -12 "$LOG_FILE" 2>/dev/null || echo "(log unavailable)")
+            /opt/homebrew/bin/python3.11 "${SCRIPT_DIR}/send_report.py" \
+                --alert-text "Earnings Trade report for ${TODAY} was pushed to gh-pages but is NOT live on GitHub Pages yet.
+The report itself generated fine and is attached to the separate report email.
+Check https://www.githubstatus.com/ and the repository Pages build log; the deploy
+usually completes on its own once GitHub recovers.
+
+${PAGES_LOG}
+
+Full log: ${LOG_FILE}" \
+                --subject "Market Agents - GitHub Pages ALERT - ${TODAY}" \
+                >> "$LOG_FILE" 2>&1 || true
+        fi
     else
         EXIT_STATUS=$PUBLISH_STATUS
     fi

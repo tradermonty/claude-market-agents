@@ -5,6 +5,12 @@ Scans reports/ for .html files, generates a categorised index page,
 and pushes everything to the gh-pages branch using git-worktree so
 the main branch working tree is never touched.
 
+A successful push is not the same as a published site: the GitHub Pages
+build runs asynchronously and can stall for hours during a GitHub
+incident. After pushing, the newly added reports are polled on the live
+site and the script exits with EXIT_NOT_LIVE when they never appear, so
+the caller can alert instead of silently reporting success.
+
 Zero external dependencies – stdlib only.
 """
 
@@ -19,12 +25,24 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from backtest.report_screening import ScreeningUnavailableError, validate_html_report_screening
+
+# Exit code for "pushed to gh-pages, but the reports never went live".
+# Distinct from 1 so callers can keep treating report generation as successful.
+EXIT_NOT_LIVE = 3
+
+DEFAULT_VERIFY_TIMEOUT = 300
+DEFAULT_VERIFY_INTERVAL = 15
+_HTTP_TIMEOUT = 20
 
 # ---------------------------------------------------------------------------
 # Category classification
@@ -317,6 +335,125 @@ body{{
 
 
 # ---------------------------------------------------------------------------
+# Live verification: confirm GitHub Pages actually served the new reports
+# ---------------------------------------------------------------------------
+
+# Accepts scp-style, ssh:// and https:// remotes, including the
+# `github.com-<alias>` host form produced by multi-account ~/.ssh/config setups.
+GITHUB_REMOTE_RE = re.compile(
+    r"^(?:git@|ssh://git@|https?://(?:[^@/]+@)?)"
+    r"github\.com(?:-[A-Za-z0-9._-]+)?[:/]"
+    r"(?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?/?$"
+)
+
+
+def derive_site_url(remote_url: str) -> str | None:
+    """Map a GitHub remote URL to its GitHub Pages site URL, or None if not GitHub."""
+    m = GITHUB_REMOTE_RE.match(remote_url.strip())
+    if not m:
+        return None
+    owner = m.group("owner")
+    repo = m.group("repo")
+    root = f"https://{owner.lower()}.github.io/"
+    # <owner>.github.io is the user/organisation site: the repo IS the site root.
+    if repo.lower() == f"{owner.lower()}.github.io":
+        return root
+    return f"{root}{repo}/"
+
+
+def parse_changed_reports(porcelain: str) -> list[str]:
+    """Extract added/modified .html report names from `git status --porcelain` output.
+
+    index.html is excluded: it changes on every run and says nothing about
+    whether the new reports themselves went live.
+    """
+    changed = []
+    for line in porcelain.splitlines():
+        if len(line) < 4:
+            continue
+        status, path = line[:2], line[3:].strip()
+        if "D" in status:
+            continue
+        if " -> " in path:  # rename: only the destination exists now
+            path = path.split(" -> ", 1)[1].strip()
+        if path.endswith(".html") and path != "index.html":
+            changed.append(path)
+    return changed
+
+
+def resolve_site_url() -> str | None:
+    """Derive the Pages URL from the origin remote, or None when unavailable."""
+    try:
+        return derive_site_url(run_git("remote", "get-url", "origin"))
+    except RuntimeError:
+        return None
+
+
+def url_is_live(url: str) -> bool:
+    """True when the URL responds 200 to a HEAD request."""
+    req = urllib.request.Request(url, method="HEAD")
+    try:
+        with urllib.request.urlopen(req, timeout=_HTTP_TIMEOUT) as resp:
+            return resp.status == 200
+    except (urllib.error.URLError, OSError, ValueError):
+        return False
+
+
+def wait_until_live(
+    url: str,
+    *,
+    timeout: float,
+    interval: float,
+    checker: Callable[[str], bool] = url_is_live,
+    sleeper: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+) -> bool:
+    """Poll `url` until it is live or the timeout leaves no room for another wait."""
+    deadline = clock() + timeout
+    while True:
+        if checker(url):
+            return True
+        if clock() + interval > deadline:
+            return False
+        sleeper(interval)
+
+
+def verify_reports_live(
+    site_url: str,
+    filenames: list[str],
+    *,
+    timeout: float = DEFAULT_VERIFY_TIMEOUT,
+    interval: float = DEFAULT_VERIFY_INTERVAL,
+    checker: Callable[[str], bool] = url_is_live,
+    sleeper: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+) -> list[str]:
+    """Return the subset of `filenames` still not served by `site_url` within the budget.
+
+    The timeout is a shared budget across all files, so verifying several
+    reports cannot multiply the caller's wall-clock time.
+    """
+    deadline = clock() + timeout
+    # Query string defeats a CDN-cached 404 from before the deploy landed.
+    cache_buster = int(time.time())
+    missing = []
+    for name in filenames:
+        url = f"{site_url}{name}?cb={cache_buster}"
+        remaining = max(0.0, deadline - clock())
+        live = wait_until_live(
+            url,
+            timeout=remaining,
+            interval=interval,
+            checker=checker,
+            sleeper=sleeper,
+            clock=clock,
+        )
+        if not live:
+            missing.append(name)
+    return missing
+
+
+# ---------------------------------------------------------------------------
 # Git operations: push to gh-pages via worktree
 # ---------------------------------------------------------------------------
 
@@ -339,7 +476,11 @@ def run_git(*args: str, cwd: str | Path | None = None, env: dict | None = None) 
 
 def push_to_ghpages(
     reports_dir: Path, index_html: str, reports: list[dict], *, no_push: bool = False
-) -> None:
+) -> list[str]:
+    """Push reports to gh-pages and return the report files this run added or changed.
+
+    An empty list means there is nothing new to verify on the live site.
+    """
     repo_root = Path(run_git("rev-parse", "--show-toplevel"))
     tmpdir = None
     worktree_path: Path | None = None
@@ -387,7 +528,8 @@ def push_to_ghpages(
         status = run_git("status", "--porcelain", cwd=worktree_path)
         if not status:
             print("No changes to commit – gh-pages is up to date.")
-            return
+            return []
+        changed_reports = parse_changed_reports(status)
 
         now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         run_git(
@@ -400,9 +542,11 @@ def push_to_ghpages(
 
         if no_push:
             print("Committed to local gh-pages (--no-push). Skipping push.")
-        else:
-            run_git("push", "origin", "gh-pages", cwd=worktree_path)
-            print("Pushed to origin/gh-pages.")
+            return []
+
+        run_git("push", "origin", "gh-pages", cwd=worktree_path)
+        print("Pushed to origin/gh-pages.")
+        return changed_reports
 
     finally:
         # Clean up worktree
@@ -437,6 +581,27 @@ def main() -> None:
     parser.add_argument(
         "--no-push", action="store_true", help="Commit to local gh-pages but skip push"
     )
+    parser.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="Skip the post-push check that the new reports are live on GitHub Pages",
+    )
+    parser.add_argument(
+        "--site-url",
+        help="GitHub Pages base URL (default: derived from the origin remote)",
+    )
+    parser.add_argument(
+        "--verify-timeout",
+        type=float,
+        default=DEFAULT_VERIFY_TIMEOUT,
+        help=f"Seconds to wait for the Pages deploy (default: {DEFAULT_VERIFY_TIMEOUT})",
+    )
+    parser.add_argument(
+        "--verify-interval",
+        type=float,
+        default=DEFAULT_VERIFY_INTERVAL,
+        help=f"Seconds between live checks (default: {DEFAULT_VERIFY_INTERVAL})",
+    )
     args = parser.parse_args()
 
     reports_dir = args.reports_dir.resolve()
@@ -463,8 +628,36 @@ def main() -> None:
         print(f"\nDry-run: index.html written to {out}")
         return
 
-    push_to_ghpages(reports_dir, index_html, reports, no_push=args.no_push)
+    changed = push_to_ghpages(reports_dir, index_html, reports, no_push=args.no_push)
     print("Done.")
+
+    if args.no_verify or not changed:
+        return
+
+    site_url = args.site_url or resolve_site_url()
+    if not site_url:
+        print("Warning: could not derive the GitHub Pages URL – skipping live verification.")
+        return
+    if not site_url.endswith("/"):
+        site_url += "/"
+
+    print(f"Verifying {len(changed)} report(s) at {site_url} ...")
+    missing = verify_reports_live(
+        site_url,
+        changed,
+        timeout=args.verify_timeout,
+        interval=args.verify_interval,
+    )
+    if missing:
+        print(
+            f"Error: pushed to gh-pages, but {len(missing)} report(s) were still not served "
+            f"after {args.verify_timeout:.0f}s: {', '.join(missing)}\n"
+            "The GitHub Pages build is stalled or failed – check "
+            "https://www.githubstatus.com/ and the repository's Pages build log.",
+            file=sys.stderr,
+        )
+        sys.exit(EXIT_NOT_LIVE)
+    print("All new reports are live on GitHub Pages.")
 
 
 if __name__ == "__main__":
