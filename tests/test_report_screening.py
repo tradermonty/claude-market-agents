@@ -134,7 +134,12 @@ if {state != "missing"!r}:
         (tmp_path / "logs" / f".{report}_{report_date}.success").touch()
     result = subprocess.run(
         ["bash", str(scripts / "runner.sh"), "--force"],
-        env={**os.environ, "PATH": f"{scripts}:{os.environ['PATH']}"},
+        # Never reach the real FMP-backed skill script (minutes of network calls).
+        env={
+            **os.environ,
+            "PATH": f"{scripts}:{os.environ['PATH']}",
+            "EARNINGS_SKILL_SCRIPT": str(tmp_path / "no-skill.py"),
+        },
         stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT,
         timeout=20,

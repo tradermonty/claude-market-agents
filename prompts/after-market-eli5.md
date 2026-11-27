@@ -64,12 +64,16 @@ Ignore the skill's "5 year old" framing for wording; the tone rule above wins.
    - Notable movers: 2-4 standout movers from the report with their % move
      and the report's stated reason, if any.
    - After-hours earnings: only if the report has that section.
-   - Sectors: top and bottom sectors as a simple bar chart.
+   - Sectors: top and bottom sectors by today's % change (not the uptrend
+     ratio table) as a simple bar chart.
 3. **The takeaway**: one line on what the day means for an investor, built
    only from facts already stated in the report (no forecasts, no new causes).
    Descriptions may explain what an ETF or term *is*, never why it moved.
 4. Disclaimer line (rule 4) and a small link back to the full report:
    `<a href="{DATE}-after-market-report.html">Read the full report</a>`.
+5. Skills line, copied from the source report's footer `skills-line`
+   paragraph (same skills, same links; omit if the report has none). Keep
+   its links as-is: they are the only allowed links besides the one above.
 
 Keep total visible text short. If you start writing a paragraph, turn it
 into a chart instead.

@@ -33,6 +33,14 @@ Retrieve data in the following order:
 7. `finviz:earnings_screener(earnings_date="today_after")` – companies scheduled to report after today’s close
 8. `finviz:get_stock_news` – news for earnings tickers
 9. `finviz:upcoming_earnings_screener` – today's earnings calendar with details
+
+[Claude Trading Skills – MANDATORY, see §4a]
+10. `sector-analyst` skill – load it with the Skill tool, then run its script:
+    python3 ~/.claude/skills/sector-analyst/scripts/analyze_sector_rotation.py --json
+    (public uptrend-ratio CSV, no API key, a few seconds)
+11. `earnings-calendar` skill – its FMP script is pre-fetched by the wrapper
+    (it takes ~6 min, too long for one Bash call). Read the JSON path given in
+    the task prompt. Do NOT re-run the script yourself.
 ```
 
 ### 2. Analyze After‑Hours Trading
@@ -101,12 +109,24 @@ For each earnings ticker:
 
 4. **🆕 Post‑Close Earnings & After‑Hours**
 
-   * **Friday Rule**: On Fridays, **skip this entire section** (and earnings‑related Steps 6‑9 in data fetching). Very few companies report after Friday’s close, and the screener returns stale data from the previous day. Instead, include only a “Next Week’s Major Earnings Calendar” box using `finviz:upcoming_earnings_screener`.
+   * **Friday Rule**: On Fridays, **skip this entire section** (and earnings‑related Steps 6‑8 in data fetching; still run Step 9, whose BMO/AMC times feed the calendar box). Very few companies report after Friday’s close, and the screener returns stale data from the previous day. Instead, include only a “Next Week’s Major Earnings Calendar” box built from the earnings-calendar skill JSON (Finviz `upcoming_earnings_screener` fallback; see 4a).
    * **Mon–Thu with after‑hours results**: Show after‑hours performance of today’s reporters, EPS/Revenue surprises, tickers moving ±10 %, and highlight related news.
    * **Mon–Thu with NO after‑hours results (fallback)**: Only when `earnings_afterhours_screener` is confirmed `empty` under the availability contract, do NOT jump to next week’s earnings. Instead:
      1. Note any BMO (before‑market‑open) earnings that reported TODAY and their market‑session impact
-     2. Show **“This Week’s Remaining Earnings Calendar”** using `finviz:upcoming_earnings_screener` filtered to the current week (Mon–Fri)
+     2. Show **“This Week’s Remaining Earnings Calendar”** from the earnings-calendar skill JSON, which already covers tomorrow through Friday (Finviz `upcoming_earnings_screener` fallback; see 4a)
      3. Only show “Next Week’s Major Earnings” as a secondary section if space permits and the current week is nearly over (Thu/Fri)
+
+4a. **🧭 Sector Rotation (sector-analyst skill)** – full-width card placed right after the Sector Performance card
+
+   * From the script's JSON: risk regime and score (cyclical vs defensive), cycle phase and confidence, top 3 and bottom 3 sectors by uptrend ratio, any overbought/oversold flags
+   * Show the data date from `meta.freshness.date` (the CSV usually lags 1–2 trading days; say so). If `is_fresh` is false, show the warning
+   * This complements, not replaces, today's Finviz sector % table: uptrend ratio = share of stocks in each sector in an uptrend
+   * If the script fails, omit the card and drop its footer link (do not fabricate)
+
+   **Earnings calendar box (earnings-calendar skill)** – used for the Friday "Next Week" box and the Mon–Thu "This Week's Remaining" box in section 4
+   * Primary source: the skill's JSON (symbol, companyName, date, timing BMO/AMC/TAS, marketCapFormatted, epsEstimated, revenueEstimated). Show the largest names per day (≈6–8), with EPS estimate where space allows
+   * FMP often returns `TAS` (time not announced). Where Finviz `upcoming_earnings_screener` shows a BMO/AMC time for the same ticker, use the Finviz time
+   * Fallback: if the task prompt says the skill output is not available, or the JSON is empty/unreadable, build the box from `finviz:upcoming_earnings_screener` as before and drop the earnings-calendar footer link
 
 5. **Market Statistics**
 
@@ -135,6 +155,13 @@ For each earnings ticker:
    * Data sources
    * Last refreshed time
    * Note: “Final after‑market data + after‑hours info”
+   * **Skills line (MANDATORY whenever at least one skill's output was used; last line of the footer)** – one centered line, list only the skills whose output was actually used today (drop a skill that failed or fell back; omit the line if both did):
+
+     ```html
+     <p class="skills-line">Built with Claude trading skills: <a href="https://tradermonty.github.io/claude-trading-skills/en/skills/sector-analyst/" target="_blank" rel="noopener">Sector Analyst</a> · <a href="https://tradermonty.github.io/claude-trading-skills/en/skills/earnings-calendar/" target="_blank" rel="noopener">Earnings Calendar</a> — try them in Claude →</p>
+     ```
+
+     Also add the skill name as a small source note under each card that used it (e.g. “Source: Sector Analyst skill · uptrend data as of YYYY‑MM‑DD”)
 
 #### 🆕 After‑Hours Section Styles
 
